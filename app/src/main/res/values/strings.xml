@@ -4,5 +4,6 @@
     <string name="send_button_label">Send</string>
     <string name="edit_text_hint">Type a message to send…</string>
     <string name="sign_out">Sign Out</string>
+    <string name="message_image_des">Image to be sent to users</string>
 
 </resources>
