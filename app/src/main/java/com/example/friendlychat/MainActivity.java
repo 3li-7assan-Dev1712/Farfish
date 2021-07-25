@@ -2,6 +2,7 @@ package com.example.friendlychat;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
@@ -16,6 +17,9 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
@@ -45,6 +49,11 @@ public class MainActivity extends AppCompatActivity {
 
         mProgressBar.setVisibility(ProgressBar.INVISIBLE);
 
+        /*implementing Messages Adapter for the RecyclerView*/
+        List<Message> messages = new ArrayList<>();
+        MessagesAdapter messagesAdapter = new MessagesAdapter(this, messages);
+        mMessageRecyclerView.setAdapter(messagesAdapter);
+        mMessageRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         // ImagePickerButton shows an image picker to upload a image for a message
         mPhotoPickerButton.setOnClickListener(new View.OnClickListener() {
             @Override

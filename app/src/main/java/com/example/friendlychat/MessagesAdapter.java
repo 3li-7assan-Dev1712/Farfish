@@ -8,9 +8,17 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.List;
+
 public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.MessageViewHolder> {
 
     private Context mContext;
+    private List<Message> messages;
+
+    public MessagesAdapter(Context mContext, List<Message> messages) {
+        this.mContext = mContext;
+        this.messages = messages;
+    }
 
     @NonNull
     @Override
