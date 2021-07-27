@@ -18,6 +18,17 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+  /*  flavorDimentions "tier"
+    productFlavors{
+        free{
+            dimention "tier"
+            applicationId "com.example.friendlychat.flavors.free"
+        }
+        paid{
+            dimention "tier"
+            applicationId "com.example.friendlychat.flavors.paid"
+        }
+    }*/
     buildTypes {
         release {
             minifyEnabled false

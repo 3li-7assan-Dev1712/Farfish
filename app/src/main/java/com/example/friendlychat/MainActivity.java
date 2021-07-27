@@ -1,6 +1,7 @@
 package com.example.friendlychat;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,6 +20,7 @@ import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -27,6 +29,8 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import okhttp3.internal.cache.DiskLruCache;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
@@ -41,33 +45,63 @@ public class MainActivity extends AppCompatActivity {
     private EditText mMessageEditText;
     private Button mSendButton;
 
+    private DatabaseReference mDatabaseReference;
+    private FirebaseDatabase mFirebaseDatabase;
     private String mUsername;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
     // Write a message to the database
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("message");
+        mFirebaseDatabase = FirebaseDatabase.getInstance();
+        mDatabaseReference= mFirebaseDatabase.getReference().child("messages");
 
-        myRef.setValue("Hello, World!");
-        // Read from the database
-        myRef.addValueEventListener(new ValueEventListener() {
+        mDatabaseReference.addChildEventListener(new ChildEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                // This method is called once with the initial value and again
-                // whenever data at this location is updated.
-                String value = dataSnapshot.getValue(String.class);
-                Log.d(TAG, "Value is: " + value);
-                Toast.makeText(MainActivity.this, value, Toast.LENGTH_SHORT).show();
+            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                Toast.makeText(MainActivity.this, "added" + snapshot.getValue(Message.class).getText(), Toast.LENGTH_SHORT).show();
             }
 
             @Override
-            public void onCancelled(DatabaseError error) {
-                // Failed to read value
-                Log.w(TAG, "Failed to read value.", error.toException());
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
             }
         });
+
+        mDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot child: snapshot.getChildren()) {
+                    Message message = child.getValue(Message.class);
+                    if (message != null) {
+                        Log.d(TAG, message.getText());
+                    }else{
+                        Log.d(TAG, "message is null");
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
         mUsername = ANONYMOUS;
         mMessageRecyclerView = findViewById(R.id.messageRecyclerView);
         mProgressBar = findViewById(R.id.progressBar);
@@ -83,11 +117,8 @@ public class MainActivity extends AppCompatActivity {
         mMessageRecyclerView.setAdapter(messagesAdapter);
         mMessageRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         // ImagePickerButton shows an image picker to upload a image for a message
-        mPhotoPickerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // will be implemented in the following commit to fire an intent to choose image
-            }
+        mPhotoPickerButton.setOnClickListener(v -> {
+           // will be implemented in the next commits  if Allah wills :)
         });
 
         // Enable Send button when there's text to send
@@ -112,14 +143,13 @@ public class MainActivity extends AppCompatActivity {
         mMessageEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(DEFAULT_MSG_LENGTH_LIMIT)});
 
         // Send button sends a message and clears the EditText
-        mSendButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // will be done soon
+        mSendButton.setOnClickListener( view -> {
 
-                // Clear input box
-                mMessageEditText.setText("");
-            }
+            String messageToBeSentFromUser = mMessageEditText.getText().toString();
+            mDatabaseReference.push().setValue(new Message(messageToBeSentFromUser, ANONYMOUS, ""));
+
+            // Clear input box
+            mMessageEditText.setText("");
         });
 
     }
