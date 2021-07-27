@@ -19,6 +19,13 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
     private Context mContext;
     private List<Message> messages;
 
+    public void setMessages(List<Message> messages) {
+        if (messages != null) {
+            this.messages = messages;
+            notifyDataSetChanged();
+        }
+    }
+
     public MessagesAdapter(Context mContext, List<Message> messages) {
         this.mContext = mContext;
         this.messages = messages;
@@ -41,7 +48,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
             String messageText = message.getText();
             String photoUrl = message.getPhotoUrl();
 
-            if (photoUrl != null){
+            if (photoUrl != null && !photoUrl.equals("")){
                 holder.messageTextView.setVisibility(View.GONE);
                 Picasso.get().load(photoUrl).into(holder.imageView);
             }else {

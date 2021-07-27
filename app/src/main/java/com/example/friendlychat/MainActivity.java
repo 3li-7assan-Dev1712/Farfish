@@ -48,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
     private DatabaseReference mDatabaseReference;
     private FirebaseDatabase mFirebaseDatabase;
     private String mUsername;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,52 +56,6 @@ public class MainActivity extends AppCompatActivity {
     // Write a message to the database
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         mDatabaseReference= mFirebaseDatabase.getReference().child("messages");
-
-        mDatabaseReference.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                Toast.makeText(MainActivity.this, "added" + snapshot.getValue(Message.class).getText(), Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
-            }
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-
-        mDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot child: snapshot.getChildren()) {
-                    Message message = child.getValue(Message.class);
-                    if (message != null) {
-                        Log.d(TAG, message.getText());
-                    }else{
-                        Log.d(TAG, "message is null");
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
 
         mUsername = ANONYMOUS;
         mMessageRecyclerView = findViewById(R.id.messageRecyclerView);
@@ -110,9 +65,8 @@ public class MainActivity extends AppCompatActivity {
         mSendButton = findViewById(R.id.sendButton);
 
         mProgressBar.setVisibility(ProgressBar.INVISIBLE);
-
-        /*implementing Messages Adapter for the RecyclerView*/
         List<Message> messages = new ArrayList<>();
+        /*implementing Messages Adapter for the RecyclerView*/
         MessagesAdapter messagesAdapter = new MessagesAdapter(this, messages);
         mMessageRecyclerView.setAdapter(messagesAdapter);
         mMessageRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -152,6 +106,61 @@ public class MainActivity extends AppCompatActivity {
             mMessageEditText.setText("");
         });
 
+
+        mDatabaseReference.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                Toast.makeText(MainActivity.this, "added" + snapshot.getValue(Message.class).getText(), Toast.LENGTH_SHORT).show();
+                Message newMessage = snapshot.getValue(Message.class);
+                if (newMessage != null) {
+                    messages.add(newMessage);
+                    messagesAdapter.notifyDataSetChanged();
+                }
+                else {
+                    Log.w(TAG, "the newMessage is null!");
+                }
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+        mDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot child: snapshot.getChildren()) {
+                    Message message = child.getValue(Message.class);
+                    if (message != null) {
+                        messages.add(message);
+                    }else{
+                        Log.d(TAG, "message is null");
+                    }
+                }
+                messagesAdapter.setMessages(messages);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
     @Override
