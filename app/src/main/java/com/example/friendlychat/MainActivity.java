@@ -245,6 +245,7 @@ public class MainActivity extends AppCompatActivity {
             // response.getError().getErrorCode() and handle the error.
             // ...
             Toast.makeText(this, "Couldn't sign in", Toast.LENGTH_SHORT).show();
+            finish();
         }
     }
 }
