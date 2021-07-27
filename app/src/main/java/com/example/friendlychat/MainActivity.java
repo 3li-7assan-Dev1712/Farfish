@@ -55,6 +55,8 @@ public class MainActivity extends AppCompatActivity {
     private EditText mMessageEditText;
     private Button mSendButton;
 
+    private List<Message> messages;
+    private MessagesAdapter messagesAdapter;
     private DatabaseReference mDatabaseReference;
     private FirebaseDatabase mFirebaseDatabase;
     private String mUsername;
@@ -88,9 +90,9 @@ public class MainActivity extends AppCompatActivity {
         mSendButton = findViewById(R.id.sendButton);
 
         mProgressBar.setVisibility(ProgressBar.INVISIBLE);
-        List<Message> messages = new ArrayList<>();
+        messages = new ArrayList<>();
         /*implementing Messages Adapter for the RecyclerView*/
-        MessagesAdapter messagesAdapter = new MessagesAdapter(this, messages);
+        messagesAdapter = new MessagesAdapter(this, messages);
         mMessageRecyclerView.setAdapter(messagesAdapter);
         mMessageRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         // ImagePickerButton shows an image picker to upload a image for a message
@@ -123,21 +125,64 @@ public class MainActivity extends AppCompatActivity {
         mSendButton.setOnClickListener( view -> {
 
             String messageToBeSentFromUser = mMessageEditText.getText().toString();
-            mDatabaseReference.push().setValue(new Message(messageToBeSentFromUser, ANONYMOUS, ""));
+            mDatabaseReference.push().setValue(new Message(messageToBeSentFromUser, mUsername, ""));
 
             // Clear input box
             mMessageEditText.setText("");
         });
 
 
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int itemId = item.getItemId();
+        if (itemId == R.id.sign_out){
+            Toast.makeText(this, "Signing out, Please wait", Toast.LENGTH_SHORT).show();
+        }
+        return true;
+    }
+    @Override
+    public void onStart() {
+        super.onStart();
+        // Check if user is signed in (non-null) and update UI accordingly.
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if(currentUser != null){
+            // there's a user go and sign in
+            String userName = currentUser.getDisplayName();
+            initializeUserAndData(userName);
+
+        }else{
+            // three's no user, ge and sign up
+            Intent signInIntent = AuthUI.getInstance()
+                    .createSignInIntentBuilder()
+                    .setAvailableProviders(providers)
+                    .build();
+            signInLauncher.launch(signInIntent);
+        }
+    }
+
+    private void initializeUserAndData(String userName) {
+
+        Toast.makeText(this, "Welcome " + userName + "!", Toast.LENGTH_SHORT).show();
+        mUsername = userName;
+        /* after make sure the user singed in successfully we get the data from the database*/
         mDatabaseReference.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                Toast.makeText(MainActivity.this, "added" + snapshot.getValue(Message.class).getText(), Toast.LENGTH_SHORT).show();
+
                 Message newMessage = snapshot.getValue(Message.class);
                 if (newMessage != null) {
                     messages.add(newMessage);
                     messagesAdapter.notifyDataSetChanged();
+                    mMessageRecyclerView.smoothScrollToPosition(messages.size()-1);
                 }
                 else {
                     Log.w(TAG, "the newMessage is null!");
@@ -164,7 +209,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
+        /*This listener will read all data from the database only once */
         mDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -172,6 +217,7 @@ public class MainActivity extends AppCompatActivity {
                     Message message = child.getValue(Message.class);
                     if (message != null) {
                         messages.add(message);
+                        Log.d(TAG, "added a message from onDataChanged");
                     }else{
                         Log.d(TAG, "message is null");
                     }
@@ -186,44 +232,12 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        int itemId = item.getItemId();
-        if (itemId == R.id.sign_out){
-            Toast.makeText(this, "Signing out, Please wait", Toast.LENGTH_SHORT).show();
-        }
-        return true;
-    }
-    @Override
-    public void onStart() {
-        super.onStart();
-        // Check if user is signed in (non-null) and update UI accordingly.
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if(currentUser != null){
-            // there's a user go and sign in
-            String userName = currentUser.getDisplayName();
-            Toast.makeText(this, "Welcome " + userName + "!", Toast.LENGTH_SHORT).show();
-        }else{
-            // three's no user, ge and sign up
-            Intent signInIntent = AuthUI.getInstance()
-                    .createSignInIntentBuilder()
-                    .setAvailableProviders(providers)
-                    .build();
-            signInLauncher.launch(signInIntent);
-        }
-    }
     private void onSignInResult(FirebaseAuthUIAuthenticationResult result) {
         IdpResponse response = result.getIdpResponse();
         if (result.getResultCode() == RESULT_OK) {
             // Successfully signed in
             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-            Toast.makeText(this, "Added in user", Toast.LENGTH_SHORT).show();
+            initializeUserAndData(user.getDisplayName());
             // ...
         } else {
             // Sign in failed. If response is null the user canceled the
