@@ -20,10 +20,10 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
     private List<Message> messages;
 
     public void setMessages(List<Message> messages) {
-        if (messages != null) {
-            this.messages = messages;
-            notifyDataSetChanged();
-        }
+
+        this.messages = messages;
+        notifyDataSetChanged();
+
     }
 
     public MessagesAdapter(Context mContext, List<Message> messages) {

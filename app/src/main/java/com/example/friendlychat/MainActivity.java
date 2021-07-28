@@ -27,6 +27,8 @@ import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
 import com.firebase.ui.auth.IdpResponse;
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -48,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String ANONYMOUS = "anonymous";
     public static final int DEFAULT_MSG_LENGTH_LIMIT = 1000;
 
+    private FirebaseAuth.AuthStateListener mAuthStateListener;
     private RecyclerView mMessageRecyclerView;
 //    private MessageAdapter mMessageAdapter; will be added in the next commit
     private ProgressBar mProgressBar;
@@ -64,15 +67,11 @@ public class MainActivity extends AppCompatActivity {
     private List<AuthUI.IdpConfig> providers = Arrays.asList(
             new AuthUI.IdpConfig.EmailBuilder().build(),
             new AuthUI.IdpConfig.GoogleBuilder().build());
-    private final ActivityResultLauncher<Intent> signInLauncher = registerForActivityResult(
+    private ActivityResultLauncher<Intent> signInLauncher = registerForActivityResult(
             new FirebaseAuthUIActivityResultContract(),
-            new ActivityResultCallback<FirebaseAuthUIAuthenticationResult>() {
-                @Override
-                public void onActivityResult(FirebaseAuthUIAuthenticationResult result) {
-                    onSignInResult(result);
-                }
-            }
+            this::onSignInResult
     );
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -132,7 +131,25 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+        mAuthStateListener = firebaseAuth -> {
+            FirebaseUser user = firebaseAuth.getCurrentUser();
+            if (user == null){
+                // the user has signed out
+                launchFirebaseUI();
+                messagesAdapter.setMessages(null);
+                Log.d(TAG, "signed out");
+            }
+        };
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if(currentUser != null){
+            // there's a user go and sign in
+            String userName = currentUser.getDisplayName();
+            initializeUserAndData(userName);
 
+        }else{
+            // three's no user, ge and sign up
+            launchFirebaseUI();
+        }
     }
 
     @Override
@@ -142,32 +159,61 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        mAuth.removeAuthStateListener(mAuthStateListener);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mAuth.addAuthStateListener(mAuthStateListener);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int itemId = item.getItemId();
         if (itemId == R.id.sign_out){
-            Toast.makeText(this, "Signing out, Please wait", Toast.LENGTH_SHORT).show();
+            /*Toast.makeText(this, "Signing out, Please wait", Toast.LENGTH_SHORT).show();
+            mAuth.signOut();*/
+            AuthUI.getInstance()
+                    .signOut(this)
+                    .addOnCompleteListener(task -> {
+                        // ...
+                        Toast.makeText(this, "Signed out successfully", Toast.LENGTH_SHORT).show();
+                        launchFirebaseUI();
+                    });
         }
         return true;
     }
     @Override
     public void onStart() {
         super.onStart();
-        // Check if user is signed in (non-null) and update UI accordingly.
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if(currentUser != null){
-            // there's a user go and sign in
-            String userName = currentUser.getDisplayName();
-            initializeUserAndData(userName);
 
-        }else{
-            // three's no user, ge and sign up
-            Intent signInIntent = AuthUI.getInstance()
-                    .createSignInIntentBuilder()
-                    .setAvailableProviders(providers)
-                    .build();
-            signInLauncher.launch(signInIntent);
-        }
+        Log.d(TAG, "onStart");
+        // Check if user is signed in (non-null) and update UI accordingly.
+
     }
+
+    private void launchFirebaseUI(){
+        Intent signInIntent = AuthUI.getInstance()
+                .createSignInIntentBuilder()
+                .setAvailableProviders(providers)
+                .setIsSmartLockEnabled(false)
+                .build();
+        signInLauncher.launch(signInIntent);
+
+    }
+
+
+/*    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.d(TAG, "onActivityResult");
+        if (resultCode == RESULT_CANCELED){
+            finish();
+        }
+    }*/
 
     private void initializeUserAndData(String userName) {
 
@@ -215,7 +261,7 @@ public class MainActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for (DataSnapshot child: snapshot.getChildren()) {
                     Message message = child.getValue(Message.class);
-                    if (message != null) {
+                    if (message != null && messages.size() == 0) {
                         messages.add(message);
                         Log.d(TAG, "added a message from onDataChanged");
                     }else{
@@ -234,17 +280,20 @@ public class MainActivity extends AppCompatActivity {
 
     private void onSignInResult(FirebaseAuthUIAuthenticationResult result) {
         IdpResponse response = result.getIdpResponse();
+
+        Log.d(TAG, "result: " + result.getResultCode());
+        Log.d(TAG, "onSignInResult");
         if (result.getResultCode() == RESULT_OK) {
             // Successfully signed in
             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
             initializeUserAndData(user.getDisplayName());
             // ...
-        } else {
+        } else{
             // Sign in failed. If response is null the user canceled the
             // sign-in flow using the back button. Otherwise check
             // response.getError().getErrorCode() and handle the error.
             // ...
-            Toast.makeText(this, "Couldn't sign in", Toast.LENGTH_SHORT).show();
+            Log.d(TAG, "onSignInResult"+ " should finish the Activity");
             finish();
         }
     }
