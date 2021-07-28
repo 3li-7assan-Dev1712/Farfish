@@ -41,12 +41,7 @@ public class FirebaseUI extends AppCompatActivity {
         // See: https://developer.android.com/training/basics/intents/result
         final ActivityResultLauncher<Intent> signInLauncher = registerForActivityResult(
                 new FirebaseAuthUIActivityResultContract(),
-                new ActivityResultCallback<FirebaseAuthUIAuthenticationResult>() {
-                    @Override
-                    public void onActivityResult(FirebaseAuthUIAuthenticationResult result) {
-                        onSignInResult(result);
-                    }
-                }
+                this::onSignInResult
         );
         signInLauncher.launch(signInIntent);
     }
