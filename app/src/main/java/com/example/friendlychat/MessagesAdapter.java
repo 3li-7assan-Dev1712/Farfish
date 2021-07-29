@@ -1,6 +1,7 @@
 package com.example.friendlychat;
 
 import android.content.Context;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +20,8 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
     private Context mContext;
     private List<Message> messages;
 
+    private static final int USE_NORMAL_BACKGROUND = 0;
+    private static final int USE_CURRENT_MESSAGE_BACKGROUND = 1;
     public void setMessages(List<Message> messages) {
 
         this.messages = messages;
@@ -39,15 +42,21 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
         return new MessageViewHolder(v);
     }
 
+
+    public boolean useCurrentMessageBackground(String senderName) {
+        String userName = MessagesPreference.getUserName(mContext);
+        return userName.equals(senderName);
+    }
+
     @Override
     public void onBindViewHolder(@NonNull MessageViewHolder holder, int position) {
 
         if (messages != null && messages.size() != 0){
+
             Message message = messages.get(position);
             String name =message.getName();
             String messageText = message.getText();
             String photoUrl = message.getPhotoUrl();
-
             if (photoUrl != null && !photoUrl.equals("")){
                 holder.messageTextView.setVisibility(View.GONE);
                 Picasso.get().load(photoUrl).into(holder.imageView);
@@ -57,6 +66,9 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
                 holder.messageTextView.setText(messageText);
             }
             holder.authorName.setText(name);
+            if (useCurrentMessageBackground(name)){
+                holder.itemView.setBackground(mContext.getResources().getDrawable(R.drawable.current_message_background));
+            }
         }
         /*will be done in the next commit*/
     }

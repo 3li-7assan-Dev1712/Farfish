@@ -128,7 +128,9 @@ public class MainActivity extends AppCompatActivity {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if(currentUser != null){
             // there's a user go and sign in
-            initializeUserAndData(currentUser.getDisplayName());
+            String userName = currentUser.getDisplayName();
+            MessagesPreference.saveUserName(this, userName);
+            initializeUserAndData(userName);
         }else{
             // three's no user, ge and sign up
             launchFirebaseUI();
@@ -210,7 +212,10 @@ public class MainActivity extends AppCompatActivity {
             // Successfully signed in
             Toast.makeText(this, "You've signed in successfully", Toast.LENGTH_SHORT).show();
             FirebaseUser currentUser = mAuth.getCurrentUser();
-            initializeUserAndData(currentUser.getDisplayName());
+            if (currentUser != null) {
+                MessagesPreference.saveUserName(this, currentUser.getDisplayName());
+                initializeUserAndData(currentUser.getDisplayName());
+            }
             // ...
         } else{
             // Sign in failed. If response is null the user canceled the
