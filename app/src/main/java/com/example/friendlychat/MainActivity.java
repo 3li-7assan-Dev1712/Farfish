@@ -170,6 +170,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void initializeUserAndData(String userName) {
 
+
         /*read all messages form the database and add any new messages with notifying the Adapter after that*/
         Toast.makeText(this, "Welcome " + userName + "!", Toast.LENGTH_SHORT).show();
         mUsername = userName;

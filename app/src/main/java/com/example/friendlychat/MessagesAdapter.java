@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -53,6 +54,8 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
 
         if (messages != null && messages.size() != 0){
 
+            LinearLayout.LayoutParams paramsMsg = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
             Message message = messages.get(position);
             String name =message.getName();
             String messageText = message.getText();
@@ -67,7 +70,9 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
             }
             holder.authorName.setText(name);
             if (useCurrentMessageBackground(name)){
-                holder.itemView.setBackground(mContext.getResources().getDrawable(R.drawable.current_message_background));
+                holder.messageLayout.setBackground(mContext.getResources().getDrawable(R.drawable.current_message_background));
+                /*paramsMsg.gravity = Gravity.END;*/
+                holder.layout.setGravity(Gravity.END);
             }
         }
         /*will be done in the next commit*/
@@ -85,11 +90,15 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
         private TextView messageTextView;
         private TextView authorName;
         private ImageView imageView;
+        private LinearLayout layout;
+        private LinearLayout messageLayout;
         public MessageViewHolder(@NonNull View itemView) {
             super(itemView);
             messageTextView = itemView.findViewById(R.id.messageTextView);
             imageView = itemView.findViewById(R.id.photoImageView);
             authorName = itemView.findViewById(R.id.nameTextView);
+            layout = itemView.findViewById(R.id.bodyView);
+            messageLayout = itemView.findViewById(R.id.messageLayout);
         }
 
     }
