@@ -1,6 +1,8 @@
 package com.example.friendlychat;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
@@ -15,15 +17,16 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
-import com.firebase.ui.auth.IdpResponse;
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -32,12 +35,28 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+    // Register the permissions callback, which handles the user's response to the
+// system permissions dialog. Save the return value, an instance of
+// ActivityResultLauncher, as an instance variable.
+    private ActivityResultLauncher<String> requestPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    // Permission is granted. Continue the action or workflow in your
+                    // app.
+                    pickImageFromGallery();
+                } else {
+                    Toast.makeText(this, "Ok, if you need to send images please grant the requested permission", Toast.LENGTH_SHORT).show();
+                }
+            });
+
     private static final String TAG = "MainActivity";
 
     public static final String ANONYMOUS = "anonymous";
@@ -64,6 +83,10 @@ public class MainActivity extends AppCompatActivity {
             this::onSignInResult
     );
 
+    private FirebaseStorage mStorage;
+    // Create a storage reference from our app
+    private StorageReference mStorageRef;
+    private StorageReference mRootRef;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,9 +94,13 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "onCreate");
         /*firebase database & auth*/
         mAuth = FirebaseAuth.getInstance();
+        /*firebase real-time database and its references*/
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         mDatabaseReference= mFirebaseDatabase.getReference().child("messages");
-
+        /*firebase storage and its references*/
+        mStorage = FirebaseStorage.getInstance();
+        mStorageRef = mStorage.getReference();
+        mRootRef = mStorage.getReference("images");
         /*app UI functionality*/
         mUsername = ANONYMOUS;
         mMessageRecyclerView = findViewById(R.id.messageRecyclerView);
@@ -89,7 +116,18 @@ public class MainActivity extends AppCompatActivity {
         mMessageRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         // ImagePickerButton shows an image picker to upload a image for a message
         mPhotoPickerButton.setOnClickListener(v -> {
-           // will be implemented in the next commits  if Allah wills :)
+            if (ContextCompat.checkSelfPermission(
+                    this, Manifest.permission.READ_EXTERNAL_STORAGE) ==
+                    PackageManager.PERMISSION_GRANTED) {
+                // You can use the API that requires the permission.
+                pickImageFromGallery();
+            } else {
+                // You can directly ask for the permission.
+                // The registered ActivityResultCallback gets the result of this request.
+                requestPermissionLauncher.launch(
+                        Manifest.permission.READ_EXTERNAL_STORAGE);
+            }
+
         });
 
         // Enable Send button when there's text to send
@@ -137,6 +175,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void pickImageFromGallery() {
+
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
@@ -178,7 +220,7 @@ public class MainActivity extends AppCompatActivity {
         mDatabaseReference.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
+                Log.d(TAG, "onChildAdded");
                 Message newMessage = snapshot.getValue(Message.class);
                 if (newMessage != null) {
                     messages.add(newMessage);
