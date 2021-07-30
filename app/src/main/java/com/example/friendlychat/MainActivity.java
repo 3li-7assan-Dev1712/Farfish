@@ -1,8 +1,10 @@
 package com.example.friendlychat;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
@@ -13,6 +15,7 @@ import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -56,7 +59,6 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(this, "Ok, if you need to send images please grant the requested permission", Toast.LENGTH_SHORT).show();
                 }
             });
-
     private static final String TAG = "MainActivity";
 
     public static final String ANONYMOUS = "anonymous";
@@ -74,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
     private DatabaseReference mDatabaseReference;
     private FirebaseDatabase mFirebaseDatabase;
     private String mUsername;
+    private ImageView testerImage;
     private FirebaseAuth mAuth;
     private List<AuthUI.IdpConfig> providers = Arrays.asList(
             new AuthUI.IdpConfig.EmailBuilder().build(),
@@ -82,6 +85,23 @@ public class MainActivity extends AppCompatActivity {
             new FirebaseAuthUIActivityResultContract(),
             this::onSignInResult
     );
+
+
+    private ActivityResultLauncher<String> pickPic = registerForActivityResult(
+            new ActivityResultContracts.GetContent(){
+                @NonNull
+                @Override
+                public Intent createIntent(@NonNull Context context, @NonNull String input) {
+                    return super.createIntent(context, "image/*");
+                }
+            },
+            uri -> {
+                putIntoImage(uri);
+            });
+
+    private void putIntoImage(Uri uri) {
+        testerImage.setImageURI(uri);
+    }
 
     private FirebaseStorage mStorage;
     // Create a storage reference from our app
@@ -103,6 +123,7 @@ public class MainActivity extends AppCompatActivity {
         mRootRef = mStorage.getReference("images");
         /*app UI functionality*/
         mUsername = ANONYMOUS;
+        testerImage = findViewById(R.id.testImage);
         mMessageRecyclerView = findViewById(R.id.messageRecyclerView);
         mProgressBar = findViewById(R.id.progressBar);
         mPhotoPickerButton = findViewById(R.id.photoPickerButton);
@@ -176,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void pickImageFromGallery() {
-
+        pickPic.launch("image/*");
     }
 
     @Override
@@ -205,6 +226,7 @@ public class MainActivity extends AppCompatActivity {
                 .createSignInIntentBuilder()
                 .setAvailableProviders(providers)
                 .setIsSmartLockEnabled(false)
+                .setLogo(R.drawable.ui_logo)
                 .build();
         signInLauncher.launch(signInIntent);
 
