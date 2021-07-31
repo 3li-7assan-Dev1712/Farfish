@@ -42,13 +42,18 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
@@ -69,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static final String ANONYMOUS = "anonymous";
     public static final int DEFAULT_MSG_LENGTH_LIMIT = 1000;
-
+    private FirebaseFirestore mFirebasestore;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
     private RecyclerView mMessageRecyclerView;
     private ProgressBar mProgressBar;
@@ -100,9 +105,7 @@ public class MainActivity extends AppCompatActivity {
                     return super.createIntent(context, "image/*");
                 }
             },
-            uri -> {
-                putIntoImage(uri);
-            });
+            this::putIntoImage);
 
     private void putIntoImage(Uri uri) {
 
@@ -170,6 +173,11 @@ public class MainActivity extends AppCompatActivity {
         mStorage = FirebaseStorage.getInstance();
         mStorageRef = mStorage.getReference();
         mRootRef = mStorage.getReference("images");
+
+        /*Firestore functionality*/
+        mFirebasestore = FirebaseFirestore.getInstance();
+
+
         /*app UI functionality*/
         mUsername = ANONYMOUS;
         mMessageRecyclerView = findViewById(R.id.messageRecyclerView);
@@ -220,15 +228,30 @@ public class MainActivity extends AppCompatActivity {
         });
         mMessageEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(DEFAULT_MSG_LENGTH_LIMIT)});
 
+        CollectionReference rooms = mFirebasestore.collection("rooms");
+        DocumentReference people =  rooms.document("people use the app");
+        CollectionReference messages =people.collection("messages");
+        DocumentReference friend_room = rooms.document(Objects.requireNonNull(mAuth.getUid()));
         // Send button sends a message and clears the EditText
         mSendButton.setOnClickListener( view -> {
 
             String messageToBeSentFromUser = mMessageEditText.getText().toString();
             mDatabaseReference.push().setValue(new Message(messageToBeSentFromUser, mUsername, ""));
+            Map<String, Object> newMessage = new HashMap<>();
+            newMessage.put("message", messageToBeSentFromUser);
+            newMessage.put("user_name", mUsername);
+            newMessage.put("photo_url", "");
 
+            messages
+                    .add(newMessage)
+                    .addOnSuccessListener(
+                            documentReference -> Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId())
+                    )
+                    .addOnFailureListener(e -> Log.w(TAG, "Error adding document", e));
             // Clear input box
             mMessageEditText.setText("");
         });
+
 
 
         /*firstly check if the user is signed in or not and interact accourdingly*/
