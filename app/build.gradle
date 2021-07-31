@@ -4,6 +4,7 @@ android {
     compileSdkVersion 29
     buildToolsVersion "30.0.1"
 
+
     compileOptions{
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -14,7 +15,7 @@ android {
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
-
+        multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -44,6 +45,8 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
     implementation 'com.squareup.picasso:picasso:2.8'
     implementation 'id.zelory:compressor:3.0.1'
+    implementation "androidx.multidex:multidex:2.0.1"
+
     /*firebase*/
     implementation platform('com.google.firebase:firebase-bom:28.3.0')
     implementation 'com.google.firebase:firebase-analytics'
