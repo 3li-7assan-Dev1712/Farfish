@@ -1,4 +1,4 @@
-package com.example.friendlychat;
+package com.example.friendlychat.DB;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
