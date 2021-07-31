@@ -61,6 +61,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
             String messageText = message.getText();
             String photoUrl = message.getPhotoUrl();
             if (photoUrl != null && !photoUrl.equals("")){
+                holder.itemView.setPadding(0,0,0,0);/*to make full bleed image*/
                 holder.messageTextView.setVisibility(View.GONE);
                 Picasso.get().load(photoUrl).into(holder.imageView);
             }else {

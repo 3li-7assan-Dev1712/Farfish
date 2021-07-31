@@ -15,7 +15,6 @@ import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -31,6 +30,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -40,10 +44,12 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
     // Register the permissions callback, which handles the user's response to the
@@ -76,7 +82,6 @@ public class MainActivity extends AppCompatActivity {
     private DatabaseReference mDatabaseReference;
     private FirebaseDatabase mFirebaseDatabase;
     private String mUsername;
-    private ImageView testerImage;
     private FirebaseAuth mAuth;
     private List<AuthUI.IdpConfig> providers = Arrays.asList(
             new AuthUI.IdpConfig.EmailBuilder().build(),
@@ -100,7 +105,51 @@ public class MainActivity extends AppCompatActivity {
             });
 
     private void putIntoImage(Uri uri) {
-        testerImage.setImageURI(uri);
+
+        StorageReference imageRef = mRootRef.child(Objects.requireNonNull(uri.getLastPathSegment()));
+        UploadTask uploadTask = imageRef.putFile(uri);
+
+// Register observers to listen for when the download is done or if it fails
+        uploadTask.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                // Handle unsuccessful uploads
+                Toast.makeText(MainActivity.this, "failed to set the image please try again later", Toast.LENGTH_SHORT).show();
+            }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
+                // ...
+
+            }
+        });
+
+        Task<Uri> urlTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+            @Override
+            public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                if (!task.isSuccessful()) {
+                    throw Objects.requireNonNull(task.getException());
+                }
+
+                // Continue with the task to get the download URL
+                Log.d(TAG, imageRef.getDownloadUrl().toString());
+                return imageRef.getDownloadUrl();
+            }
+        }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+            @Override
+            public void onComplete(@NonNull Task<Uri> task) {
+                if (task.isSuccessful()) {
+                    Uri downloadUri = task.getResult();
+                    assert downloadUri != null;
+                    mDatabaseReference.push().setValue(new Message("", mUsername, downloadUri.toString()));
+                } else {
+                    // Handle failures
+                    // ...
+                    Toast.makeText(MainActivity.this, "failed to upload file", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     private FirebaseStorage mStorage;
@@ -123,7 +172,6 @@ public class MainActivity extends AppCompatActivity {
         mRootRef = mStorage.getReference("images");
         /*app UI functionality*/
         mUsername = ANONYMOUS;
-        testerImage = findViewById(R.id.testImage);
         mMessageRecyclerView = findViewById(R.id.messageRecyclerView);
         mProgressBar = findViewById(R.id.progressBar);
         mPhotoPickerButton = findViewById(R.id.photoPickerButton);
