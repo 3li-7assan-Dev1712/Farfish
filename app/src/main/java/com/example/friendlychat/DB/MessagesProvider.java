@@ -7,6 +7,7 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.util.Log;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -43,6 +44,8 @@ public class MessagesProvider extends ContentProvider {
     public Uri insert(@NotNull Uri uri, ContentValues values) {
         final SQLiteDatabase sqLiteDatabase = mMessagesDbHelper.getWritableDatabase();
         final int INSERT_REQUEST = sUriMatcher.match(uri);
+        Log.d(TAG, "from insert: " + uri.toString());
+        Log.d(TAG, "from match" + uri.toString());
         if (INSERT_REQUEST == PEOPLE){
             long id = sqLiteDatabase.insert(PeopleMessagesContract.MessageEntry.TABLE_NAME, null, values);
             if (id > 0) {

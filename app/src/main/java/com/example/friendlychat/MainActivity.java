@@ -1,6 +1,7 @@
 package com.example.friendlychat;
 
 import android.Manifest;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -27,6 +28,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.friendlychat.DB.PeopleMessagesContract;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
@@ -241,11 +243,24 @@ public class MainActivity extends AppCompatActivity {
             newMessage.put("message", messageToBeSentFromUser);
             newMessage.put("user_name", mUsername);
             newMessage.put("photo_url", "");
+            newMessage.put("timestamp", System.currentTimeMillis());
 
             messages
                     .add(newMessage)
                     .addOnSuccessListener(
-                            documentReference -> Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId())
+                            documentReference -> {
+                                Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
+                                ContentValues cv = new ContentValues();
+                                cv.put(PeopleMessagesContract.MessageEntry.COLUMN_MESSAGE, "hello world");
+                                cv.put(PeopleMessagesContract.MessageEntry.COLUMN_PHOTO_URL, "");
+                                cv.put(PeopleMessagesContract.MessageEntry.COLUMN_SENDER_NAME, "Ali");
+                                cv.put(PeopleMessagesContract.MessageEntry.COLUMN_MESSAGE_TIMESTAMP, System.currentTimeMillis());
+                                Uri newMessageUri = getContentResolver().insert(PeopleMessagesContract.MessageEntry.CONTENT_URI,
+                                        cv);
+                                assert newMessageUri != null;
+                                Toast.makeText(this, "saved item successfully, "+ newMessageUri.toString(), Toast.LENGTH_SHORT).show();
+                            }
+
                     )
                     .addOnFailureListener(e -> Log.w(TAG, "Error adding document", e));
             // Clear input box
