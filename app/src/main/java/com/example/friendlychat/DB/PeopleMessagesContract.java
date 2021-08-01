@@ -25,5 +25,6 @@ public class PeopleMessagesContract implements BaseColumns {
         public static final String COLUMN_MESSAGE = "message";
         public static final String COLUMN_SENDER_NAME = "sender_name";
         public static final String COLUMN_PHOTO_URL = "photo_url";
+        public static final String COLUMN_MESSAGE_TIMESTAMP = "timestamp";
     }
 }
