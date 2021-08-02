@@ -46,7 +46,12 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -83,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton mPhotoPickerButton;
     private EditText mMessageEditText;
     private Button mSendButton;
-
+    private CollectionReference messagesRef;
     private List<Message> messages;
     private MessagesAdapter messagesAdapter;
     private DatabaseReference mDatabaseReference;
@@ -166,6 +171,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Log.d(TAG, "onCreate");
+
         /*firebase database & auth*/
         mAuth = FirebaseAuth.getInstance();
         /*firebase real-time database and its references*/
@@ -179,7 +185,8 @@ public class MainActivity extends AppCompatActivity {
         /*Firestore functionality*/
         mFirebasestore = FirebaseFirestore.getInstance();
 
-
+        messagesRef = mFirebasestore.collection("rooms").document("people use the app")
+                .collection("messages");
         /*app UI functionality*/
         mUsername = ANONYMOUS;
         mMessageRecyclerView = findViewById(R.id.messageRecyclerView);
@@ -230,35 +237,32 @@ public class MainActivity extends AppCompatActivity {
         });
         mMessageEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(DEFAULT_MSG_LENGTH_LIMIT)});
 
-        CollectionReference rooms = mFirebasestore.collection("rooms");
+       /* CollectionReference rooms = mFirebasestore.collection("rooms");
         DocumentReference people =  rooms.document("people use the app");
         CollectionReference messages =people.collection("messages");
-        DocumentReference friend_room = rooms.document(Objects.requireNonNull(mAuth.getUid()));
+        DocumentReference friend_room = rooms.document(Objects.requireNonNull(mAuth.getUid()));*/
         // Send button sends a message and clears the EditText
         mSendButton.setOnClickListener( view -> {
 
             String messageToBeSentFromUser = mMessageEditText.getText().toString();
             mDatabaseReference.push().setValue(new Message(messageToBeSentFromUser, mUsername, ""));
-            Map<String, Object> newMessage = new HashMap<>();
-            newMessage.put("message", messageToBeSentFromUser);
-            newMessage.put("user_name", mUsername);
-            newMessage.put("photo_url", "");
-            newMessage.put("timestamp", System.currentTimeMillis());
 
-            messages
-                    .add(newMessage)
+
+            messagesRef
+                    .add(new Message(messageToBeSentFromUser, mUsername, "", System.currentTimeMillis()))
                     .addOnSuccessListener(
                             documentReference -> {
                                 Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
-                                ContentValues cv = new ContentValues();
-                                cv.put(PeopleMessagesContract.MessageEntry.COLUMN_MESSAGE, "hello world");
-                                cv.put(PeopleMessagesContract.MessageEntry.COLUMN_PHOTO_URL, "");
-                                cv.put(PeopleMessagesContract.MessageEntry.COLUMN_SENDER_NAME, "Ali");
-                                cv.put(PeopleMessagesContract.MessageEntry.COLUMN_MESSAGE_TIMESTAMP, System.currentTimeMillis());
-                                Uri newMessageUri = getContentResolver().insert(PeopleMessagesContract.MessageEntry.CONTENT_URI,
-                                        cv);
-                                assert newMessageUri != null;
-                                Toast.makeText(this, "saved item successfully, "+ newMessageUri.toString(), Toast.LENGTH_SHORT).show();
+                               /* messagesRef.document(documentReference.getId()).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                                        if (value != null) {
+                                            Message m = value.toObject(Message.class);
+                                            messages.add(m);
+                                            messagesAdapter.notifyItemInserted(messages.size());
+                                        }
+                                    }
+                                });*/
                             }
 
                     )
@@ -266,6 +270,7 @@ public class MainActivity extends AppCompatActivity {
             // Clear input box
             mMessageEditText.setText("");
         });
+
 
 
 
@@ -324,8 +329,45 @@ public class MainActivity extends AppCompatActivity {
         /*read all messages form the database and add any new messages with notifying the Adapter after that*/
         Toast.makeText(this, "Welcome " + userName + "!", Toast.LENGTH_SHORT).show();
         mUsername = userName;
+
+        messagesRef.get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            Log.d(TAG, "onComplete");
+                            messages.clear();
+                            for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+                                Message message = document.toObject(Message.class);
+                                messages.add(message);
+                            }
+                            messagesAdapter.notifyDataSetChanged();
+                        } else {
+                            Log.d(TAG, "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
+
+        messagesRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (error != null){
+                    Toast.makeText(MainActivity.this, "fail", Toast.LENGTH_SHORT).show();
+                }else{
+                   /* assert value != null;
+                    int size = value.getDocuments().size();
+                    Message newMsg = value.getDocuments().get(size).toObject(Message.class);
+                    messages.add(newMsg);
+                    messagesAdapter.notifyItemInserted(messages.size()-1);
+                    */
+                    Log.d(TAG, "onEvent");
+                    Toast.makeText(MainActivity.this, "Added new data", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
         /* after make sure the user singed in successfully we get the data from the database*/
-        mDatabaseReference.addChildEventListener(new ChildEventListener() {
+        /*mDatabaseReference.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 Log.d(TAG, "onChildAdded");
@@ -352,7 +394,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
             }
-        });
+        });*/
     }
 
     private void onSignInResult(FirebaseAuthUIAuthenticationResult result) {
