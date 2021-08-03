@@ -1,4 +1,4 @@
-package com.example.friendlychat;
+package com.example.friendlychat.Activities;
 
 import android.Manifest;
 import android.content.Context;
@@ -26,6 +26,10 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.friendlychat.Message;
+import com.example.friendlychat.Adapters.MessagesAdapter;
+import com.example.friendlychat.MessagesPreference;
+import com.example.friendlychat.R;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
@@ -46,9 +50,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-
-import io.grpc.Compressor;
-import io.grpc.CompressorRegistry;
 
 public class MainActivity extends AppCompatActivity {
     // Register the permissions callback, which handles the user's response to the

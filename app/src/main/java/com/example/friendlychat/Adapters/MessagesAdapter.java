@@ -1,4 +1,4 @@
-package com.example.friendlychat;
+package com.example.friendlychat.Adapters;
 
 import android.content.Context;
 import android.view.Gravity;
@@ -12,6 +12,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.friendlychat.Message;
+import com.example.friendlychat.MessagesPreference;
+import com.example.friendlychat.R;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
