@@ -1,7 +1,6 @@
 package com.example.friendlychat;
 
 import android.Manifest;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -22,45 +21,29 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.friendlychat.DB.PeopleMessagesContract;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
-import com.google.android.gms.tasks.Continuation;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
@@ -81,18 +64,13 @@ public class MainActivity extends AppCompatActivity {
 
     public static final String ANONYMOUS = "anonymous";
     public static final int DEFAULT_MSG_LENGTH_LIMIT = 1000;
-    private FirebaseFirestore mFirebasestore;
-    private FirebaseAuth.AuthStateListener mAuthStateListener;
     private RecyclerView mMessageRecyclerView;
-    private ProgressBar mProgressBar;
-    private ImageButton mPhotoPickerButton;
     private EditText mMessageEditText;
     private Button mSendButton;
     private CollectionReference messagesRef;
     private List<Message> messages;
     private MessagesAdapter messagesAdapter;
     private DatabaseReference mDatabaseReference;
-    private FirebaseDatabase mFirebaseDatabase;
     private String mUsername;
     private FirebaseAuth mAuth;
     private List<AuthUI.IdpConfig> providers = Arrays.asList(
@@ -114,57 +92,24 @@ public class MainActivity extends AppCompatActivity {
             },
             this::putIntoImage);
 
+
     private void putIntoImage(Uri uri) {
 
         StorageReference imageRef = mRootRef.child(Objects.requireNonNull(uri.getLastPathSegment()));
         UploadTask uploadTask = imageRef.putFile(uri);
 
 // Register observers to listen for when the download is done or if it fails
-        uploadTask.addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception exception) {
-                // Handle unsuccessful uploads
-                Toast.makeText(MainActivity.this, "failed to set the image please try again later", Toast.LENGTH_SHORT).show();
-            }
-        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
-                // ...
+        uploadTask.addOnFailureListener(exception -> {
+            // Handle unsuccessful uploads
+            Toast.makeText(MainActivity.this, "failed to set the image please try again later", Toast.LENGTH_SHORT).show();
+        }).addOnSuccessListener(taskSnapshot -> {
+            // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
+            // ...
 
-            }
         });
 
-        Task<Uri> urlTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
-            @Override
-            public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
-                if (!task.isSuccessful()) {
-                    throw Objects.requireNonNull(task.getException());
-                }
-
-                // Continue with the task to get the download URL
-                Log.d(TAG, imageRef.getDownloadUrl().toString());
-                return imageRef.getDownloadUrl();
-            }
-        }).addOnCompleteListener(new OnCompleteListener<Uri>() {
-            @Override
-            public void onComplete(@NonNull Task<Uri> task) {
-                if (task.isSuccessful()) {
-                    Uri downloadUri = task.getResult();
-                    assert downloadUri != null;
-                    mDatabaseReference.push().setValue(new Message("", mUsername, downloadUri.toString()));
-                } else {
-                    // Handle failures
-                    // ...
-                    Toast.makeText(MainActivity.this, "failed to upload file", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
     }
 
-    private FirebaseStorage mStorage;
-    // Create a storage reference from our app
-    private StorageReference mStorageRef;
     private StorageReference mRootRef;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -175,23 +120,24 @@ public class MainActivity extends AppCompatActivity {
         /*firebase database & auth*/
         mAuth = FirebaseAuth.getInstance();
         /*firebase real-time database and its references*/
-        mFirebaseDatabase = FirebaseDatabase.getInstance();
+        FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
         mDatabaseReference= mFirebaseDatabase.getReference().child("messages");
         /*firebase storage and its references*/
-        mStorage = FirebaseStorage.getInstance();
-        mStorageRef = mStorage.getReference();
+        FirebaseStorage mStorage = FirebaseStorage.getInstance();
+        // Create a storage reference from our app
+        StorageReference mStorageRef = mStorage.getReference();
         mRootRef = mStorage.getReference("images");
 
         /*Firestore functionality*/
-        mFirebasestore = FirebaseFirestore.getInstance();
+        FirebaseFirestore mFirebasestore = FirebaseFirestore.getInstance();
 
         messagesRef = mFirebasestore.collection("rooms").document("people use the app")
                 .collection("messages");
         /*app UI functionality*/
         mUsername = ANONYMOUS;
         mMessageRecyclerView = findViewById(R.id.messageRecyclerView);
-        mProgressBar = findViewById(R.id.progressBar);
-        mPhotoPickerButton = findViewById(R.id.photoPickerButton);
+        ProgressBar mProgressBar = findViewById(R.id.progressBar);
+        ImageButton mPhotoPickerButton = findViewById(R.id.photoPickerButton);
         mMessageEditText = findViewById(R.id.messageEditText);
         mSendButton = findViewById(R.id.sendButton);
         mProgressBar.setVisibility(ProgressBar.INVISIBLE);
@@ -237,11 +183,6 @@ public class MainActivity extends AppCompatActivity {
         });
         mMessageEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(DEFAULT_MSG_LENGTH_LIMIT)});
 
-       /* CollectionReference rooms = mFirebasestore.collection("rooms");
-        DocumentReference people =  rooms.document("people use the app");
-        CollectionReference messages =people.collection("messages");
-        DocumentReference friend_room = rooms.document(Objects.requireNonNull(mAuth.getUid()));*/
-        // Send button sends a message and clears the EditText
         mSendButton.setOnClickListener( view -> {
 
             String messageToBeSentFromUser = mMessageEditText.getText().toString();
@@ -330,71 +271,52 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, "Welcome " + userName + "!", Toast.LENGTH_SHORT).show();
         mUsername = userName;
 
-        messagesRef.get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            Log.d(TAG, "onComplete");
-                            messages.clear();
-                            for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
-                                Message message = document.toObject(Message.class);
-                                messages.add(message);
-                            }
-                            messagesAdapter.notifyDataSetChanged();
-                        } else {
-                            Log.d(TAG, "Error getting documents: ", task.getException());
+        messagesRef.orderBy("timestamp").get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Log.d(TAG, "onComplete");
+                        messages.clear();
+                        for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+                            Message message = document.toObject(Message.class);
+                            messages.add(message);
                         }
+                        messagesAdapter.notifyDataSetChanged();
+                    } else {
+                        Log.d(TAG, "Error getting documents: ", task.getException());
                     }
                 });
 
-        messagesRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                if (error != null){
-                    Toast.makeText(MainActivity.this, "fail", Toast.LENGTH_SHORT).show();
-                }else{
-                   /* assert value != null;
-                    int size = value.getDocuments().size();
-                    Message newMsg = value.getDocuments().get(size).toObject(Message.class);
-                    messages.add(newMsg);
-                    messagesAdapter.notifyItemInserted(messages.size()-1);
-                    */
+        messagesRef.orderBy("timestamp").addSnapshotListener((value, error) -> {
+            if (error != null){
+                Toast.makeText(MainActivity.this, "fail", Toast.LENGTH_SHORT).show();
+            }else {
+                if (messages.size() == 0) {
+                    if (value != null) {
+                        for (DocumentSnapshot document : value.getDocuments()) {
+                            messages.add(document.toObject(Message.class));
+                        }
+                        messagesAdapter.notifyDataSetChanged();
+                        mMessageRecyclerView.smoothScrollToPosition(messages.size()-1);
+                    }else{
+                        Log.d(TAG, "no value to add");
+                    }
+                } else {
                     Log.d(TAG, "onEvent");
-                    Toast.makeText(MainActivity.this, "Added new data", Toast.LENGTH_SHORT).show();
+
+                    String source = value != null && value.getMetadata().hasPendingWrites()
+                            ? "Local" : "Server";
+                    Log.d(TAG, source);
+                    Toast.makeText(MainActivity.this, source, Toast.LENGTH_SHORT).show();
+                    Message m = value.getDocuments().get(value.getDocuments().size() - 1).toObject(Message.class);
+                    Toast.makeText(MainActivity.this, "Message: " + m.getText(), Toast.LENGTH_SHORT).show();
+                    messages.add(m);
+                    messagesAdapter.notifyItemInserted(messages.size() - 1);
+                    mMessageRecyclerView.smoothScrollToPosition(messages.size() - 1);
+
                 }
             }
         });
 
-        /* after make sure the user singed in successfully we get the data from the database*/
-        /*mDatabaseReference.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                Log.d(TAG, "onChildAdded");
-                Message newMessage = snapshot.getValue(Message.class);
-                if (newMessage != null) {
-                    messages.add(newMessage);
-                    messagesAdapter.notifyDataSetChanged();
-                    mMessageRecyclerView.smoothScrollToPosition(messages.size()-1);
-                }
-                else {
-                    Log.w(TAG, "the newMessage is null!");
-                }
-            }
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-            }
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-            }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-            }
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-            }
-        });*/
     }
 
     private void onSignInResult(FirebaseAuthUIAuthenticationResult result) {
