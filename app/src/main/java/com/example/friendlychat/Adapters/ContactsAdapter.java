@@ -38,8 +38,8 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
         if (users != null){
             for (User user: users){
                 holder.userName.setText(user.getUserName());
-                holder.lastMessageTime.setText("");
-                holder.lastMessage.setText("");
+                holder.lastMessageTime.setText("2:04PM");
+                holder.lastMessage.setText("OK, I will do that If Allah wills");
                 Picasso.get().load(user.getPhotoUrl()).placeholder(R.drawable.fui_ic_anonymous_white_24dp).into(holder.userPhoto);
             }
         }
@@ -57,7 +57,7 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
         private ImageView userPhoto;
         public ContactsViewHolder(@NonNull View itemView) {
             super(itemView);
-            userName = itemView.findViewById(R.id.nameTextView);
+            userName = itemView.findViewById(R.id.personName);
             lastMessage = itemView.findViewById(R.id.lastMessage);
             lastMessageTime= itemView.findViewById(R.id.lastMessageTime);
             userPhoto = itemView.findViewById(R.id.profileImage);

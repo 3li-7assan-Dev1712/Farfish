@@ -1,15 +1,14 @@
 package com.example.friendlychat;
 
 public class User {
-    private String userName, phoneNumber, email, photoUrl;
+    private String userName, phoneNumber, photoUrl;
 
     public User() {
     }
 
-    public User(String userName, String phoneNumber, String email, String photoUrl) {
+    public User(String userName, String phoneNumber, String photoUrl) {
         this.userName = userName;
         this.phoneNumber = phoneNumber;
-        this.email = email;
         this.photoUrl = photoUrl;
     }
 
@@ -21,9 +20,6 @@ public class User {
         return phoneNumber;
     }
 
-    public String getEmail() {
-        return email;
-    }
 
     public String getPhotoUrl() {
         return photoUrl;

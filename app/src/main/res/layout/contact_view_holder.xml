@@ -15,7 +15,8 @@
         android:scaleType="centerInside"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:srcCompat="@tools:sample/avatars" />
+        tools:srcCompat="@tools:sample/avatars" 
+        android:background="@drawable/image_background"/>
 
     <TextView
         android:id="@+id/personName"

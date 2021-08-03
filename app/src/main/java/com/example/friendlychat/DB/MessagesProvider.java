@@ -9,7 +9,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.util.Log;
 
-import org.jetbrains.annotations.NotNull;
+import com.google.firebase.database.annotations.NotNull;
+
 
 public class MessagesProvider extends ContentProvider {
     public static final int PEOPLE = 100;
@@ -41,7 +42,7 @@ public class MessagesProvider extends ContentProvider {
     }
 
     @Override
-    public Uri insert(@NotNull Uri uri, ContentValues values) {
+    public Uri insert(Uri uri, ContentValues values) {
         final SQLiteDatabase sqLiteDatabase = mMessagesDbHelper.getWritableDatabase();
         final int INSERT_REQUEST = sUriMatcher.match(uri);
         Log.d(TAG, "from insert: " + uri.toString());

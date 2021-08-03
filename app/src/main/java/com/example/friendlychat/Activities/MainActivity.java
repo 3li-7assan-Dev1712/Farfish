@@ -10,8 +10,6 @@ import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -26,16 +24,9 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.friendlychat.Message;
 import com.example.friendlychat.Adapters.MessagesAdapter;
-import com.example.friendlychat.MessagesPreference;
+import com.example.friendlychat.Message;
 import com.example.friendlychat.R;
-import com.firebase.ui.auth.AuthUI;
-import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
-import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -47,7 +38,6 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -75,16 +65,7 @@ public class MainActivity extends AppCompatActivity {
     private CollectionReference messagesRef;
     private List<Message> messages;
     private MessagesAdapter messagesAdapter;
-    private DatabaseReference mDatabaseReference;
     private String mUsername;
-    private FirebaseAuth mAuth;
-    private List<AuthUI.IdpConfig> providers = Arrays.asList(
-            new AuthUI.IdpConfig.EmailBuilder().build(),
-            new AuthUI.IdpConfig.GoogleBuilder().build());
-    private ActivityResultLauncher<Intent> signInLauncher = registerForActivityResult(
-            new FirebaseAuthUIActivityResultContract(),
-            this::onSignInResult
-    );
 
 
     private ActivityResultLauncher<String> pickPic = registerForActivityResult(
@@ -124,11 +105,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Log.d(TAG, "onCreate");
 
-        /*firebase database & auth*/
-        mAuth = FirebaseAuth.getInstance();
-        /*firebase real-time database and its references*/
-        FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
-        mDatabaseReference= mFirebaseDatabase.getReference().child("messages");
         /*firebase storage and its references*/
         FirebaseStorage mStorage = FirebaseStorage.getInstance();
         // Create a storage reference from our app
@@ -193,9 +169,6 @@ public class MainActivity extends AppCompatActivity {
         mSendButton.setOnClickListener( view -> {
 
             String messageToBeSentFromUser = mMessageEditText.getText().toString();
-            mDatabaseReference.push().setValue(new Message(messageToBeSentFromUser, mUsername, ""));
-
-
             messagesRef
                     .add(new Message(messageToBeSentFromUser, mUsername, "", System.currentTimeMillis()))
                     .addOnSuccessListener(
@@ -211,56 +184,12 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-
-        /*firstly check if the user is signed in or not and interact accourdingly*/
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if(currentUser != null){
-            // there's a user go and sign in
-            String userName = currentUser.getDisplayName();
-            MessagesPreference.saveUserName(this, userName);
-            initializeUserAndData(userName);
-        }else{
-            // three's no user, ge and sign up
-            launchFirebaseUI();
-        }
     }
 
     private void pickImageFromGallery() {
         pickPic.launch("image/*");
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        int itemId = item.getItemId();
-        if (itemId == R.id.sign_out){
-            AuthUI.getInstance()
-                    .signOut(this)
-                    .addOnCompleteListener(task -> {
-                        // ...
-                        Toast.makeText(this, "Signed out successfully", Toast.LENGTH_SHORT).show();
-                        launchFirebaseUI();
-                        finish();
-                    });
-        }
-        return true;
-    }
-
-    private void launchFirebaseUI(){
-        Intent signInIntent = AuthUI.getInstance()
-                .createSignInIntentBuilder()
-                .setAvailableProviders(providers)
-                .setIsSmartLockEnabled(false)
-                .setLogo(R.drawable.ui_logo)
-                .build();
-        signInLauncher.launch(signInIntent);
-
-    }
 
     private void initializeUserAndData(String userName) {
 
@@ -317,26 +246,4 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void onSignInResult(FirebaseAuthUIAuthenticationResult result) {
-        /*IdpResponse response = result.getIdpResponse();*/
-        Log.d(TAG, "result: " + result.getResultCode());
-        Log.d(TAG, "onSignInResult");
-        if (result.getResultCode() == RESULT_OK) {
-            // Successfully signed in
-            Toast.makeText(this, "You've signed in successfully", Toast.LENGTH_SHORT).show();
-            FirebaseUser currentUser = mAuth.getCurrentUser();
-            if (currentUser != null) {
-                MessagesPreference.saveUserName(this, currentUser.getDisplayName());
-                initializeUserAndData(currentUser.getDisplayName());
-            }
-            // ...
-        } else{
-            // Sign in failed. If response is null the user canceled the
-            // sign-in flow using the back button. Otherwise check
-            // response.getError().getErrorCode() and handle the error.
-            // ...
-            Log.d(TAG, "onSignInResult"+ " should finish the Activity");
-            finish();
-        }
-    }
 }
