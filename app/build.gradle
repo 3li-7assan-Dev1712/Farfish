@@ -44,7 +44,7 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
     implementation 'com.squareup.picasso:picasso:2.8'
-    implementation 'id.zelory:compressor:3.0.1'
+    implementation 'id.zelory:compressor:2.1.1'
     implementation "androidx.multidex:multidex:2.0.1"
 
     /*firebase*/

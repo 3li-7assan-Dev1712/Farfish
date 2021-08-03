@@ -6,5 +6,6 @@
     <string name="sign_out">Sign Out</string>
     <string name="menu_action">always</string>
     <string name="message_image_des">Image to be sent to users</string>
+    <string name="profile_image">profile image</string>
 
 </resources>

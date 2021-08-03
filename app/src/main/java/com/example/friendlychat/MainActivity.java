@@ -41,10 +41,14 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+
+import io.grpc.Compressor;
+import io.grpc.CompressorRegistry;
 
 public class MainActivity extends AppCompatActivity {
     // Register the permissions callback, which handles the user's response to the
@@ -96,6 +100,8 @@ public class MainActivity extends AppCompatActivity {
     private void putIntoImage(Uri uri) {
 
         StorageReference imageRef = mRootRef.child(Objects.requireNonNull(uri.getLastPathSegment()));
+
+        File galeryFile = new File(String.valueOf(uri));
         UploadTask uploadTask = imageRef.putFile(uri);
 
 // Register observers to listen for when the download is done or if it fails
