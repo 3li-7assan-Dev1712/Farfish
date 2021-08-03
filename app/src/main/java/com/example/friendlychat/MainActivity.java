@@ -125,7 +125,6 @@ public class MainActivity extends AppCompatActivity {
         /*firebase storage and its references*/
         FirebaseStorage mStorage = FirebaseStorage.getInstance();
         // Create a storage reference from our app
-        StorageReference mStorageRef = mStorage.getReference();
         mRootRef = mStorage.getReference("images");
 
         /*Firestore functionality*/
@@ -166,6 +165,7 @@ public class MainActivity extends AppCompatActivity {
         mMessageEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                Toast.makeText(MainActivity.this, "before text change", Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -194,16 +194,6 @@ public class MainActivity extends AppCompatActivity {
                     .addOnSuccessListener(
                             documentReference -> {
                                 Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
-                               /* messagesRef.document(documentReference.getId()).addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                                    @Override
-                                    public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-                                        if (value != null) {
-                                            Message m = value.toObject(Message.class);
-                                            messages.add(m);
-                                            messagesAdapter.notifyItemInserted(messages.size());
-                                        }
-                                    }
-                                });*/
                             }
 
                     )
@@ -248,6 +238,7 @@ public class MainActivity extends AppCompatActivity {
                         // ...
                         Toast.makeText(this, "Signed out successfully", Toast.LENGTH_SHORT).show();
                         launchFirebaseUI();
+                        finish();
                     });
         }
         return true;
