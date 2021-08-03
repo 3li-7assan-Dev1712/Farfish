@@ -2,6 +2,7 @@ package com.example.friendlychat.Activities;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.ConcatAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
@@ -9,14 +10,17 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.friendlychat.Adapters.ContactsAdapter;
 import com.example.friendlychat.MessagesPreference;
 import com.example.friendlychat.R;
+import com.example.friendlychat.User;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -30,11 +34,18 @@ public class ContactsActivity extends AppCompatActivity {
             new FirebaseAuthUIActivityResultContract(),
             this::onSignInResult
     );
+    private List<User> users;
+    private ContactsAdapter contactsAdapter;
+    private  RecyclerView contactsRecycler;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_contacts);
-        RecyclerView contactsRecycler = findViewById(R.id.contactsRecyclerView);
+        contactsRecycler = findViewById(R.id.contactsRecyclerView);
+        users = new ArrayList<>();
+        contactsAdapter = new ContactsAdapter(this, users);
+        contactsRecycler.setAdapter(contactsAdapter);
+
         /*firebase database & auth*/
         mAuth = FirebaseAuth.getInstance();
         /*firstly check if the user is signed in or not and interact accordingly*/
@@ -61,6 +72,12 @@ public class ContactsActivity extends AppCompatActivity {
     }
 
     private void initializeUserAndData(String userName) {
+
+        /* here i should read user from the firestore but that will be done tomorrow if Allah wills *_*  */
+        /* for checking*/
+        User user = new User("Abdualah AbdAlgalil", "", "", "no");
+        users.add(user);
+        contactsAdapter.notifyItemInserted(users.size()-1);
 
     }
 
