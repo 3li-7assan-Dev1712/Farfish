@@ -139,13 +139,12 @@ public class ContactsActivity extends AppCompatActivity implements ContactsAdapt
                 MessagesPreference.saveUserName(this, userName);
                 String phoneNumber = currentUser.getPhoneNumber();
                 String photoUrl = Objects.requireNonNull(currentUser.getPhotoUrl()).toString();
-                User newUser = new User(userName, phoneNumber, photoUrl);
-                mFirestore.collection("rooms").document(mAuth.getUid()).set(newUser).addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        Toast.makeText(ContactsActivity.this, "saved new user successfully", Toast.LENGTH_SHORT).show();
-                    }
-                });
+                String userId = mAuth.getUid();
+                User newUser = new User(userName, phoneNumber, photoUrl, userId);
+                assert userId != null;
+                mFirestore.collection("rooms").document(userId).set(newUser).addOnCompleteListener(task ->
+                        Toast.makeText(ContactsActivity.this, "saved new user successfully", Toast.LENGTH_SHORT).show()
+                );
                 initializeUserAndData(userName);
             }
             // ...
