@@ -68,6 +68,7 @@ public class ChatsActivity extends AppCompatActivity {
     private String mUsername;
 
 
+
     private ActivityResultLauncher<String> pickPic = registerForActivityResult(
             new ActivityResultContracts.GetContent(){
                 @NonNull
@@ -166,23 +167,30 @@ public class ChatsActivity extends AppCompatActivity {
         });
         mMessageEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(DEFAULT_MSG_LENGTH_LIMIT)});
 
-        mSendButton.setOnClickListener( view -> {
+        Intent intent = getIntent();
+        if (intent != null){
+            setTitle(intent.getStringExtra("chatTitle"));
+        }
+        if (intent != null && intent.hasExtra("targetId")){
 
-            String messageToBeSentFromUser = mMessageEditText.getText().toString();
-            messagesRef
-                    .add(new Message(messageToBeSentFromUser, mUsername, "", System.currentTimeMillis()))
-                    .addOnSuccessListener(
-                            documentReference -> {
-                                Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
-                            }
+        }else {
+            mSendButton.setOnClickListener(view -> {
 
-                    )
-                    .addOnFailureListener(e -> Log.w(TAG, "Error adding document", e));
-            // Clear input box
-            mMessageEditText.setText("");
-        });
+                String messageToBeSentFromUser = mMessageEditText.getText().toString();
+                messagesRef
+                        .add(new Message(messageToBeSentFromUser, mUsername, "", System.currentTimeMillis()))
+                        .addOnSuccessListener(
+                                documentReference -> {
+                                    Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
+                                }
 
+                        )
+                        .addOnFailureListener(e -> Log.w(TAG, "Error adding document", e));
+                // Clear input box
+                mMessageEditText.setText("");
+            });
 
+        }
 
         initializeUserAndData();
     }

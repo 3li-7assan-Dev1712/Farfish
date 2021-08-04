@@ -28,6 +28,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
@@ -164,11 +165,21 @@ public class ContactsActivity extends AppCompatActivity implements ContactsAdapt
     public void onChatClicked(int position) {
         Toast.makeText(this, users.get(position).getUserName(), Toast.LENGTH_SHORT).show();
         String chatTitle = users.get(position).getUserName();
+        Intent chatsIntent = new Intent(this, ChatsActivity.class);
+        chatsIntent.putExtra("chatTitle", chatTitle);
         if (chatTitle.equals("All people use the app")){
-            Intent chatsIntent = new Intent(this, ChatsActivity.class);
             startActivity(chatsIntent);
         }else{
             Toast.makeText(this, "Wait for this feature soon!", Toast.LENGTH_SHORT).show();
+            String targetUserId = users.get(position).getUserId();
+            String senderUserId = mAuth.getUid();
+            assert senderUserId != null;
+            mFirestore.collection("rooms").document(senderUserId)
+                    .collection("chats").add(Objects.requireNonNull(new HashMap<>().put("chat", targetUserId)));
+            mFirestore.collection("rooms").document(targetUserId)
+                    .collection("chats").add(Objects.requireNonNull(new HashMap<>().put("chat", senderUserId)));
+            chatsIntent.putExtra("targetId", targetUserId);
+            startActivity(chatsIntent);
         }
     }
 }

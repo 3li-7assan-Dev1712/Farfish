@@ -1,6 +1,7 @@
 package com.example.friendlychat.Adapters;
 
 import android.content.Context;
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.friendlychat.R;
 import com.example.friendlychat.User;
+import com.google.firebase.installations.Utils;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -49,7 +51,11 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
             holder.userName.setText(users.get(position).getUserName());
             holder.lastMessageTime.setText("2:04PM");
             holder.lastMessage.setText("OK, I will do that If Allah wills");
-            Picasso.get().load(users.get(position).getPhotoUrl()).placeholder(R.drawable.fui_ic_anonymous_white_24dp).into(holder.userPhoto);
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.JELLY_BEAN_MR2){
+                Picasso.get().load(users.get(position).getPhotoUrl()).into(holder.userPhoto);
+            }else {
+                Picasso.get().load(users.get(position).getPhotoUrl()).placeholder(R.drawable.fui_ic_anonymous_white_24dp).into(holder.userPhoto);
+            }
         }
     }
 
