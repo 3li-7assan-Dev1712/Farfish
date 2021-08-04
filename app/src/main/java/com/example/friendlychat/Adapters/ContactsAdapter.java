@@ -36,12 +36,10 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
     @Override
     public void onBindViewHolder(@NonNull ContactsViewHolder holder, int position) {
         if (users != null){
-            for (User user: users){
-                holder.userName.setText(user.getUserName());
-                holder.lastMessageTime.setText("2:04PM");
-                holder.lastMessage.setText("OK, I will do that If Allah wills");
-                Picasso.get().load(user.getPhotoUrl()).placeholder(R.drawable.fui_ic_anonymous_white_24dp).into(holder.userPhoto);
-            }
+            holder.userName.setText(users.get(position).getUserName());
+            holder.lastMessageTime.setText("2:04PM");
+            holder.lastMessage.setText("OK, I will do that If Allah wills");
+            Picasso.get().load(users.get(position).getPhotoUrl()).placeholder(R.drawable.fui_ic_anonymous_white_24dp).into(holder.userPhoto);
         }
     }
 

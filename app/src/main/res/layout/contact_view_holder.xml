@@ -7,8 +7,8 @@
 
     <ImageView
         android:id="@+id/profileImage"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
         android:contentDescription="@string/profile_image"
@@ -23,13 +23,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
         android:fontFamily="sans-serif-black"
-        tools:text="Ali Hassan"
         android:textSize="18sp"
         android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/profileImage"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.31"
+        tools:text="Ali Hassan" />
 
     <TextView
         android:id="@+id/lastMessage"
@@ -51,4 +52,13 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:id="@+id/separaterView"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        app:layout_constraintStart_toStartOf="@id/lastMessage"
+        app:layout_constraintEnd_toEndOf="@id/lastMessageTime"
+        app:layout_constraintTop_toBottomOf="@id/profileImage"
+        android:background="@android:color/darker_gray"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

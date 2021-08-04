@@ -23,15 +23,13 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import com.example.friendlychat.User;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 public class ContactsActivity extends AppCompatActivity {
     private static final String TAG = ContactsActivity.class.getSimpleName();
