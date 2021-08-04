@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public class ContactsActivity extends AppCompatActivity implements ContactsAdapter.OnChatClicked{
@@ -173,11 +174,15 @@ public class ContactsActivity extends AppCompatActivity implements ContactsAdapt
             Toast.makeText(this, "Wait for this feature soon!", Toast.LENGTH_SHORT).show();
             String targetUserId = users.get(position).getUserId();
             String senderUserId = mAuth.getUid();
-            assert senderUserId != null;
+            Map<String, Object> map = new HashMap();
+            map.put("chat", targetUserId);
+            Map<String, Object> map2 = new HashMap();
+            map.put("chat", senderUserId);
+
             mFirestore.collection("rooms").document(senderUserId)
-                    .collection("chats").add(Objects.requireNonNull(new HashMap<>().put("chat", targetUserId)));
+                    .collection("chats").add(map);
             mFirestore.collection("rooms").document(targetUserId)
-                    .collection("chats").add(Objects.requireNonNull(new HashMap<>().put("chat", senderUserId)));
+                    .collection("chats").add(map2);
             chatsIntent.putExtra("targetId", targetUserId);
             startActivity(chatsIntent);
         }

@@ -28,10 +28,15 @@ import com.example.friendlychat.Adapters.MessagesAdapter;
 import com.example.friendlychat.Message;
 import com.example.friendlychat.MessagesPreference;
 import com.example.friendlychat.R;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -66,8 +71,8 @@ public class ChatsActivity extends AppCompatActivity {
     private List<Message> messages;
     private MessagesAdapter messagesAdapter;
     private String mUsername;
-
-
+    private boolean isGroup;
+    private CollectionReference messageSingleRef;
 
     private ActivityResultLauncher<String> pickPic = registerForActivityResult(
             new ActivityResultContracts.GetContent(){
@@ -116,6 +121,7 @@ public class ChatsActivity extends AppCompatActivity {
 
         messagesRef = mFirebasestore.collection("rooms").document("people use the app")
                 .collection("messages");
+
         /*app UI functionality*/
         mUsername = ANONYMOUS;
         mMessageRecyclerView = findViewById(R.id.messageRecyclerView);
@@ -144,7 +150,18 @@ public class ChatsActivity extends AppCompatActivity {
             }
 
         });
-
+        /*message indiviual */
+        Intent intent = getIntent();
+        if (intent != null){
+            setTitle(intent.getStringExtra("chatTitle"));
+            isGroup = !intent.hasExtra("targetId");
+        }
+        String messageToBeSentFromUser = mMessageEditText.getText().toString();
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        messageSingleRef = mFirebasestore.collection("rooms").document(auth.getUid())
+                .collection("chats")
+                .whereEqualTo("chat", intent.getStringExtra("targetId"))
+                .getFirestore().collection("messages");
         // Enable Send button when there's text to send
         mMessageEditText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -167,16 +184,10 @@ public class ChatsActivity extends AppCompatActivity {
         });
         mMessageEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(DEFAULT_MSG_LENGTH_LIMIT)});
 
-        Intent intent = getIntent();
-        if (intent != null){
-            setTitle(intent.getStringExtra("chatTitle"));
-        }
-        if (intent != null && intent.hasExtra("targetId")){
-
-        }else {
+        if (isGroup){
             mSendButton.setOnClickListener(view -> {
 
-                String messageToBeSentFromUser = mMessageEditText.getText().toString();
+
                 messagesRef
                         .add(new Message(messageToBeSentFromUser, mUsername, "", System.currentTimeMillis()))
                         .addOnSuccessListener(
@@ -190,6 +201,22 @@ public class ChatsActivity extends AppCompatActivity {
                 mMessageEditText.setText("");
             });
 
+        }else {
+            mSendButton.setOnClickListener(v -> {
+                messageSingleRef
+                        .add((new Message(messageToBeSentFromUser, mUsername, "", System.currentTimeMillis())))
+                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                            @Override
+                            public void onSuccess(DocumentReference documentReference) {
+                                Toast.makeText(ChatsActivity.this, "Added new message", Toast.LENGTH_SHORT).show();
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(ChatsActivity.this, "Error" + e.toString(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            });
         }
 
         initializeUserAndData();
@@ -210,52 +237,55 @@ public class ChatsActivity extends AppCompatActivity {
         Toast.makeText(this, "Welcome " + userName + "!", Toast.LENGTH_SHORT).show();
 
 
-        messagesRef.orderBy("timestamp").get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        Log.d(TAG, "onComplete");
-                        messages.clear();
-                        for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
-                            Message message = document.toObject(Message.class);
-                            messages.add(message);
+        if (isGroup) {
+            messagesRef.orderBy("timestamp").get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            Log.d(TAG, "onComplete");
+                            messages.clear();
+                            for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+                                Message message = document.toObject(Message.class);
+                                messages.add(message);
+                            }
+                            messagesAdapter.notifyDataSetChanged();
+                        } else {
+                            Log.d(TAG, "Error getting documents: ", task.getException());
                         }
-                        messagesAdapter.notifyDataSetChanged();
-                    } else {
-                        Log.d(TAG, "Error getting documents: ", task.getException());
-                    }
-                });
+                    });
 
-        messagesRef.orderBy("timestamp").addSnapshotListener((value, error) -> {
-            if (error != null){
-                Toast.makeText(ChatsActivity.this, "fail", Toast.LENGTH_SHORT).show();
-            }else {
-                if (messages.size() == 0) {
-                    if (value != null) {
-                        for (DocumentSnapshot document : value.getDocuments()) {
-                            messages.add(document.toObject(Message.class));
-                        }
-                        messagesAdapter.notifyDataSetChanged();
-                        mMessageRecyclerView.smoothScrollToPosition(messages.size()-1);
-                    }else{
-                        Log.d(TAG, "no value to add");
-                    }
+            messagesRef.orderBy("timestamp").addSnapshotListener((value, error) -> {
+                if (error != null) {
+                    Toast.makeText(ChatsActivity.this, "fail", Toast.LENGTH_SHORT).show();
                 } else {
-                    Log.d(TAG, "onEvent");
+                    if (messages.size() == 0) {
+                        if (value != null) {
+                            for (DocumentSnapshot document : value.getDocuments()) {
+                                messages.add(document.toObject(Message.class));
+                            }
+                            messagesAdapter.notifyDataSetChanged();
+                            mMessageRecyclerView.smoothScrollToPosition(messages.size() - 1);
+                        } else {
+                            Log.d(TAG, "no value to add");
+                        }
+                    } else {
+                        Log.d(TAG, "onEvent");
 
-                    String source = value != null && value.getMetadata().hasPendingWrites()
-                            ? "Local" : "Server";
-                    Log.d(TAG, source);
-                    Toast.makeText(ChatsActivity.this, source, Toast.LENGTH_SHORT).show();
-                    Message m = value.getDocuments().get(value.getDocuments().size() - 1).toObject(Message.class);
-                    Toast.makeText(ChatsActivity.this, "Message: " + m.getText(), Toast.LENGTH_SHORT).show();
-                    messages.add(m);
-                    messagesAdapter.notifyItemInserted(messages.size() - 1);
-                    mMessageRecyclerView.smoothScrollToPosition(messages.size() - 1);
+                        String source = value != null && value.getMetadata().hasPendingWrites()
+                                ? "Local" : "Server";
+                        Log.d(TAG, source);
+                        Toast.makeText(ChatsActivity.this, source, Toast.LENGTH_SHORT).show();
+                        Message m = value.getDocuments().get(value.getDocuments().size() - 1).toObject(Message.class);
+                        Toast.makeText(ChatsActivity.this, "Message: " + m.getText(), Toast.LENGTH_SHORT).show();
+                        messages.add(m);
+                        messagesAdapter.notifyItemInserted(messages.size() - 1);
+                        mMessageRecyclerView.smoothScrollToPosition(messages.size() - 1);
 
+                    }
                 }
-            }
-        });
-
+            });
+        }else {
+            Toast.makeText(this, "Make it step by step", Toast.LENGTH_SHORT).show();
+        }
     }
 
 }
