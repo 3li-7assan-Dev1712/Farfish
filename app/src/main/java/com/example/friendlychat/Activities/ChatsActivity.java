@@ -27,7 +27,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.friendlychat.Adapters.MessagesAdapter;
 import com.example.friendlychat.Message;
 import com.example.friendlychat.R;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -41,7 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class MainActivity extends AppCompatActivity {
+public class ChatsActivity extends AppCompatActivity {
     // Register the permissions callback, which handles the user's response to the
 // system permissions dialog. Save the return value, an instance of
 // ActivityResultLauncher, as an instance variable.
@@ -89,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
 // Register observers to listen for when the download is done or if it fails
         uploadTask.addOnFailureListener(exception -> {
             // Handle unsuccessful uploads
-            Toast.makeText(MainActivity.this, "failed to set the image please try again later", Toast.LENGTH_SHORT).show();
+            Toast.makeText(ChatsActivity.this, "failed to set the image please try again later", Toast.LENGTH_SHORT).show();
         }).addOnSuccessListener(taskSnapshot -> {
             // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
             // ...
@@ -102,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_chats);
         Log.d(TAG, "onCreate");
 
         /*firebase storage and its references*/
@@ -148,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
         mMessageEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                Toast.makeText(MainActivity.this, "before text change", Toast.LENGTH_SHORT).show();
+                Toast.makeText(ChatsActivity.this, "before text change", Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -215,7 +214,7 @@ public class MainActivity extends AppCompatActivity {
 
         messagesRef.orderBy("timestamp").addSnapshotListener((value, error) -> {
             if (error != null){
-                Toast.makeText(MainActivity.this, "fail", Toast.LENGTH_SHORT).show();
+                Toast.makeText(ChatsActivity.this, "fail", Toast.LENGTH_SHORT).show();
             }else {
                 if (messages.size() == 0) {
                     if (value != null) {
@@ -233,9 +232,9 @@ public class MainActivity extends AppCompatActivity {
                     String source = value != null && value.getMetadata().hasPendingWrites()
                             ? "Local" : "Server";
                     Log.d(TAG, source);
-                    Toast.makeText(MainActivity.this, source, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ChatsActivity.this, source, Toast.LENGTH_SHORT).show();
                     Message m = value.getDocuments().get(value.getDocuments().size() - 1).toObject(Message.class);
-                    Toast.makeText(MainActivity.this, "Message: " + m.getText(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ChatsActivity.this, "Message: " + m.getText(), Toast.LENGTH_SHORT).show();
                     messages.add(m);
                     messagesAdapter.notifyItemInserted(messages.size() - 1);
                     mMessageRecyclerView.smoothScrollToPosition(messages.size() - 1);
