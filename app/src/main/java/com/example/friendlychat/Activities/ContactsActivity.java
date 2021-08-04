@@ -164,5 +164,12 @@ public class ContactsActivity extends AppCompatActivity implements ContactsAdapt
     @Override
     public void onChatClicked(int position) {
         Toast.makeText(this, users.get(position).getUserName(), Toast.LENGTH_SHORT).show();
+        String chatTitle = users.get(position).getUserName();
+        if (chatTitle.equals("All people use the app")){
+            Intent chatsIntent = new Intent(this, ChatsActivity.class);
+            startActivity(chatsIntent);
+        }else{
+            Toast.makeText(this, "Wait for this feature soon!", Toast.LENGTH_SHORT).show();
+        }
     }
 }

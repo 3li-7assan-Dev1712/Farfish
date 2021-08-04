@@ -26,6 +26,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.friendlychat.Adapters.MessagesAdapter;
 import com.example.friendlychat.Message;
+import com.example.friendlychat.MessagesPreference;
 import com.example.friendlychat.R;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -183,6 +184,7 @@ public class ChatsActivity extends AppCompatActivity {
 
 
 
+        initializeUserAndData();
     }
 
     private void pickImageFromGallery() {
@@ -190,12 +192,15 @@ public class ChatsActivity extends AppCompatActivity {
     }
 
 
-    private void initializeUserAndData(String userName) {
+    private void initializeUserAndData() {
+
 
 
         /*read all messages form the database and add any new messages with notifying the Adapter after that*/
-        Toast.makeText(this, "Welcome " + userName + "!", Toast.LENGTH_SHORT).show();
+        String userName = MessagesPreference.getUserName(this);
         mUsername = userName;
+        Toast.makeText(this, "Welcome " + userName + "!", Toast.LENGTH_SHORT).show();
+
 
         messagesRef.orderBy("timestamp").get()
                 .addOnCompleteListener(task -> {
