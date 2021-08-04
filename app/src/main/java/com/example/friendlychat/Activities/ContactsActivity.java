@@ -31,7 +31,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-public class ContactsActivity extends AppCompatActivity {
+public class ContactsActivity extends AppCompatActivity implements ContactsAdapter.OnChatClicked{
     private static final String TAG = ContactsActivity.class.getSimpleName();
     private FirebaseAuth mAuth;
     private List<AuthUI.IdpConfig> providers = Arrays.asList(
@@ -52,7 +52,7 @@ public class ContactsActivity extends AppCompatActivity {
         mFirestore = FirebaseFirestore.getInstance();
         contactsRecycler = findViewById(R.id.contactsRecyclerView);
         users = new ArrayList<>();
-        contactsAdapter = new ContactsAdapter(this, users);
+        contactsAdapter = new ContactsAdapter(this, users, this);
         contactsRecycler.setAdapter(contactsAdapter);
 
         /*firebase database & auth*/
@@ -159,5 +159,10 @@ public class ContactsActivity extends AppCompatActivity {
 
             finish();
         }
+    }
+
+    @Override
+    public void onChatClicked(int position) {
+        Toast.makeText(this, users.get(position).getUserName(), Toast.LENGTH_SHORT).show();
     }
 }

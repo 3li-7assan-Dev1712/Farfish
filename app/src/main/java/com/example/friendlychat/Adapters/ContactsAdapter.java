@@ -20,9 +20,19 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
     private Context mContext;
     private List<User> users;
 
+    public interface OnChatClicked {
+        void onChatClicked(int position);
+    }
+    private static OnChatClicked onChatClicked;
     public ContactsAdapter(Context mContext, List<User> users) {
         this.mContext = mContext;
         this.users = users;
+    }
+
+    public ContactsAdapter(Context mContext, List<User> users, OnChatClicked onChatClicked) {
+        this.mContext = mContext;
+        this.users = users;
+        ContactsAdapter.onChatClicked = onChatClicked;
     }
 
     @NonNull
@@ -48,7 +58,7 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
         return (users == null)? 0: users.size();
     }
 
-    static class ContactsViewHolder extends RecyclerView.ViewHolder{
+    static class ContactsViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private TextView userName;
         private TextView lastMessage;
         private TextView lastMessageTime;
@@ -59,6 +69,12 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
             lastMessage = itemView.findViewById(R.id.lastMessage);
             lastMessageTime= itemView.findViewById(R.id.lastMessageTime);
             userPhoto = itemView.findViewById(R.id.profileImage);
+            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+            onChatClicked.onChatClicked(getBindingAdapterPosition());
         }
     }
 }
