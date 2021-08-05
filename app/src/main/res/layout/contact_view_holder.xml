@@ -16,7 +16,9 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:srcCompat="@tools:sample/avatars" 
-        android:background="@drawable/image_background"/>
+        android:background="@drawable/image_background"
+        android:outlineProvider="background"
+       />
 
     <TextView
         android:id="@+id/personName"
