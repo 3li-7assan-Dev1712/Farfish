@@ -177,12 +177,6 @@ public class ContactsActivity extends AppCompatActivity implements ContactsAdapt
             String senderUserId = mAuth.getUid();
             String senderRoom = senderUserId + targetUserId;
             String targetRoom = targetUserId + senderUserId;
-            mFirestore.collection("rooms").document(senderUserId)
-                    .collection("chats").document(senderRoom).collection("messages")
-                    .add(new Message("Test message", "Sender", "no", System.currentTimeMillis()));
-            mFirestore.collection("rooms").document(targetUserId)
-                    .collection("chats").document(targetRoom).collection("messages")
-                    .add(new Message("Test message", "Sender", "no", System.currentTimeMillis()));
             chatsIntent.putExtra("targetId", targetUserId);
             startActivity(chatsIntent);
         }

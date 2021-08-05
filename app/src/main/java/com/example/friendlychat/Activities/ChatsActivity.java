@@ -36,7 +36,6 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -60,7 +59,7 @@ public class ChatsActivity extends AppCompatActivity {
                     Toast.makeText(this, "Ok, if you need to send images please grant the requested permission", Toast.LENGTH_SHORT).show();
                 }
             });
-    private static final String TAG = "MainActivity";
+    private static final String TAG = ChatsActivity.class.getSimpleName();
 
     public static final String ANONYMOUS = "anonymous";
     public static final int DEFAULT_MSG_LENGTH_LIMIT = 1000;
@@ -73,7 +72,9 @@ public class ChatsActivity extends AppCompatActivity {
     private String mUsername;
     private boolean isGroup;
     private CollectionReference messageSingleRef;
+    private CollectionReference messageSingleRefTarget;
 
+    private String messageTobeSentFromUser;
     private ActivityResultLauncher<String> pickPic = registerForActivityResult(
             new ActivityResultContracts.GetContent(){
                 @NonNull
@@ -156,17 +157,13 @@ public class ChatsActivity extends AppCompatActivity {
             setTitle(intent.getStringExtra("chatTitle"));
             isGroup = !intent.hasExtra("targetId");
         }
-        String messageToBeSentFromUser = mMessageEditText.getText().toString();
-        FirebaseAuth auth = FirebaseAuth.getInstance();
-        messageSingleRef = mFirebasestore.collection("rooms").document(auth.getUid())
-                .collection("chats")
-                .whereEqualTo("chat", intent.getStringExtra("targetId"))
-                .getFirestore().collection("messages");
+        messageTobeSentFromUser= mMessageEditText.getText().toString();
+
         // Enable Send button when there's text to send
         mMessageEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                Toast.makeText(ChatsActivity.this, "before text change", Toast.LENGTH_SHORT).show();
+
             }
 
             @Override
@@ -184,12 +181,13 @@ public class ChatsActivity extends AppCompatActivity {
         });
         mMessageEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(DEFAULT_MSG_LENGTH_LIMIT)});
 
+        Log.d(TAG, "isGroup" + isGroup);
         if (isGroup){
             mSendButton.setOnClickListener(view -> {
 
 
                 messagesRef
-                        .add(new Message(messageToBeSentFromUser, mUsername, "", System.currentTimeMillis()))
+                        .add(new Message(messageTobeSentFromUser, mUsername, "", System.currentTimeMillis()))
                         .addOnSuccessListener(
                                 documentReference -> {
                                     Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
@@ -202,20 +200,36 @@ public class ChatsActivity extends AppCompatActivity {
             });
 
         }else {
+            String targetId = intent.getStringExtra("targetId");
+            FirebaseAuth auth = FirebaseAuth.getInstance();
+            messageSingleRef = mFirebasestore.collection("rooms").document(auth.getUid())
+                    .collection("chats")
+                    .document(auth.getUid()+targetId)
+                    .collection("messages");
+            messageSingleRefTarget = mFirebasestore.collection("rooms")
+                    .document(targetId)
+                    .collection("chats").document(targetId + auth.getUid())
+                    .collection("messages");
             mSendButton.setOnClickListener(v -> {
+                Message message = new Message(mMessageEditText.getText().toString(), mUsername, "", System.currentTimeMillis());
+                Log.d(TAG, "from edit text" +  messageTobeSentFromUser );
+                Log.d(TAG, message.getText());
                 messageSingleRef
-                        .add((new Message(messageToBeSentFromUser, mUsername, "", System.currentTimeMillis())))
+                        .add(message)
                         .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                             @Override
                             public void onSuccess(DocumentReference documentReference) {
                                 Toast.makeText(ChatsActivity.this, "Added new message", Toast.LENGTH_SHORT).show();
+                                messageSingleRefTarget.add(message);
                             }
                         }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Toast.makeText(ChatsActivity.this, "Error" + e.toString(), Toast.LENGTH_SHORT).show();
                     }
+
                 });
+                mMessageEditText.setText("");
             });
         }
 
@@ -283,8 +297,37 @@ public class ChatsActivity extends AppCompatActivity {
                     }
                 }
             });
-        }else {
+        }else{
             Toast.makeText(this, "Make it step by step", Toast.LENGTH_SHORT).show();
+            messageSingleRefTarget.orderBy("timestamp").addSnapshotListener((value, error) ->{
+                if (error != null){
+                    Toast.makeText(this, "Error reading message", Toast.LENGTH_SHORT).show();
+                }else{
+                    if (messages.size() == 0) { /*check if there's already some data*/
+                        if (value != null) {
+                            for (DocumentSnapshot document : value.getDocuments()) {
+                                messages.add(document.toObject(Message.class));
+                            }
+                            messagesAdapter.notifyDataSetChanged();
+                            mMessageRecyclerView.smoothScrollToPosition(messages.size() - 1);
+                        } else {
+                            Log.d(TAG, "no value to add");
+                        }
+                    } else {
+                        Log.d(TAG, "onEvent");
+
+                        String source = value != null && value.getMetadata().hasPendingWrites()
+                                ? "Local" : "Server";
+                        Log.d(TAG, source);
+                        Toast.makeText(ChatsActivity.this, source, Toast.LENGTH_SHORT).show();
+                        Message m = value.getDocuments().get(value.getDocuments().size() - 1).toObject(Message.class);
+                        Toast.makeText(ChatsActivity.this, "Message: " + m.getText(), Toast.LENGTH_SHORT).show();
+                        messages.add(m);
+                        messagesAdapter.notifyItemInserted(messages.size() - 1);
+                        mMessageRecyclerView.smoothScrollToPosition(messages.size() - 1);
+                }
+            }
+        });
         }
     }
 
