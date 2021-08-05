@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.friendlychat.Adapters.ContactsAdapter;
+import com.example.friendlychat.Message;
 import com.example.friendlychat.MessagesPreference;
 import com.example.friendlychat.R;
 import com.example.friendlychat.User;
@@ -174,15 +175,14 @@ public class ContactsActivity extends AppCompatActivity implements ContactsAdapt
             Toast.makeText(this, "Wait for this feature soon!", Toast.LENGTH_SHORT).show();
             String targetUserId = users.get(position).getUserId();
             String senderUserId = mAuth.getUid();
-            Map<String, Object> map = new HashMap();
-            map.put("chat", targetUserId);
-            Map<String, Object> map2 = new HashMap();
-            map.put("chat", senderUserId);
-
+            String senderRoom = senderUserId + targetUserId;
+            String targetRoom = targetUserId + senderUserId;
             mFirestore.collection("rooms").document(senderUserId)
-                    .collection("chats").add(map);
+                    .collection("chats").document(senderRoom).collection("messages")
+                    .add(new Message("Test message", "Sender", "no", System.currentTimeMillis()));
             mFirestore.collection("rooms").document(targetUserId)
-                    .collection("chats").add(map2);
+                    .collection("chats").document(targetRoom).collection("messages")
+                    .add(new Message("Test message", "Sender", "no", System.currentTimeMillis()));
             chatsIntent.putExtra("targetId", targetUserId);
             startActivity(chatsIntent);
         }
