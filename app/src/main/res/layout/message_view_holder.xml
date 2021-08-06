@@ -14,12 +14,6 @@
     android:paddingStart="16dp"
     android:paddingEnd="16dp"
     >
-    <ImageView
-        android:id="@+id/photoImageView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:adjustViewBounds="true"
-        android:contentDescription="@string/message_image_des" />
 
     <TextView
         android:id="@+id/nameTextView"
