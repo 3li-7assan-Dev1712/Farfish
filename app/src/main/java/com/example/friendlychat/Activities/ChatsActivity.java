@@ -101,7 +101,13 @@ public class ChatsActivity extends AppCompatActivity {
         try {
             File galeryFile = FileUtil.from(this, uri);
             File compressedImageFile = new Compressor(this).compressToFile(galeryFile);
-            UploadTask uploadTask = imageRef.putFile(uri);
+            UploadTask uploadTask = imageRef.putFile(Uri.fromFile(compressedImageFile));
+
+
+            String originalFileName = FileUtil.getFileName(this, uri);
+            String compressedFileName = compressedImageFile.getName();
+            Log.d(TAG, "Original file uri is: " +uri);
+            Log.d(TAG, "Compressed file uri is: " + Uri.fromFile(compressedImageFile));
 
             // Register observers to listen for when the download is done or if it fails
             uploadTask.addOnFailureListener(exception -> {
