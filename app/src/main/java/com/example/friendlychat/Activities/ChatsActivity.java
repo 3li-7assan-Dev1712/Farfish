@@ -25,6 +25,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.friendlychat.Adapters.MessagesAdapter;
+import com.example.friendlychat.FileUtil;
 import com.example.friendlychat.Message;
 import com.example.friendlychat.MessagesPreference;
 import com.example.friendlychat.R;
@@ -41,9 +42,13 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import id.zelory.compressor.Compressor;
 
 public class ChatsActivity extends AppCompatActivity {
     // Register the permissions callback, which handles the user's response to the
@@ -86,22 +91,25 @@ public class ChatsActivity extends AppCompatActivity {
             this::putIntoImage);
 
 
-    private void putIntoImage(Uri uri) {
+    private void putIntoImage(Uri uri)  {
 
         StorageReference imageRef = mRootRef.child(Objects.requireNonNull(uri.getLastPathSegment()));
 
-        File galeryFile = new File(String.valueOf(uri));
-        UploadTask uploadTask = imageRef.putFile(uri);
 
-// Register observers to listen for when the download is done or if it fails
-        uploadTask.addOnFailureListener(exception -> {
-            // Handle unsuccessful uploads
-            Toast.makeText(ChatsActivity.this, "failed to set the image please try again later", Toast.LENGTH_SHORT).show();
-        }).addOnSuccessListener(taskSnapshot -> {
-            // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
-            // ...
+        try {
+            File galeryFile = FileUtil.from(this, uri);
+            File compressedImageFile = new Compressor(this).compressToFile(galeryFile);
 
-        });
+            Log.d(TAG, "compressed file into: " + compressedImageFile.getAbsolutePath() );
+            Log.d(TAG, "Original file size: " + galeryFile.length() / 1024);
+            Log.d(TAG, "Compressed file size: " + compressedImageFile.length() / 1024);
+            Toast.makeText(this, "Compressed file into: " + compressedImageFile.getAbsolutePath(), Toast.LENGTH_SHORT).show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.d(TAG, "Error copressign the file");
+            Toast.makeText(this, "Error happended", Toast.LENGTH_SHORT).show();
+        }
+
 
     }
 
