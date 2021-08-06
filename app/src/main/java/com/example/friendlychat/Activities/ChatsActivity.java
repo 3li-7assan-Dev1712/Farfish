@@ -29,8 +29,10 @@ import com.example.friendlychat.FileUtil;
 import com.example.friendlychat.Message;
 import com.example.friendlychat.MessagesPreference;
 import com.example.friendlychat.R;
+import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -78,7 +80,7 @@ public class ChatsActivity extends AppCompatActivity {
     private boolean isGroup;
     private CollectionReference messageSingleRef;
     private CollectionReference messageSingleRefTarget;
-
+    private StorageReference mRootRef;
     private String messageTobeSentFromUser;
     private ActivityResultLauncher<String> pickPic = registerForActivityResult(
             new ActivityResultContracts.GetContent(){
@@ -99,7 +101,19 @@ public class ChatsActivity extends AppCompatActivity {
         try {
             File galeryFile = FileUtil.from(this, uri);
             File compressedImageFile = new Compressor(this).compressToFile(galeryFile);
+            UploadTask uploadTask = imageRef.putFile(uri);
 
+            // Register observers to listen for when the download is done or if it fails
+            uploadTask.addOnFailureListener(exception -> {
+                // Handle unsuccessful uploads
+                Toast.makeText(ChatsActivity.this, "failed to set the image please try again later", Toast.LENGTH_SHORT).show();
+            }).addOnSuccessListener(taskSnapshot -> {
+                // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
+                // ...
+
+                Toast.makeText(this, "Added image to Storage successfully", Toast.LENGTH_SHORT).show();
+
+            });
             Log.d(TAG, "compressed file into: " + compressedImageFile.getAbsolutePath() );
             Log.d(TAG, "Original file size: " + galeryFile.length() / 1024);
             Log.d(TAG, "Compressed file size: " + compressedImageFile.length() / 1024);
@@ -113,7 +127,7 @@ public class ChatsActivity extends AppCompatActivity {
 
     }
 
-    private StorageReference mRootRef;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
