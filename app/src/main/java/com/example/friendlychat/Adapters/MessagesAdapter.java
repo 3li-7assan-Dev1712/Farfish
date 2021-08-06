@@ -85,7 +85,8 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
             if (photoUrl != null && !photoUrl.equals("")){
                 holder.itemView.setPadding(0,0,0,0);/*to make full bleed image*/
                 holder.messageTextView.setVisibility(View.GONE);
-                Picasso.get().load(photoUrl).into(holder.imageView);
+                Log.d(TAG, "photoUrl is: "+photoUrl);
+                Picasso.get().load(photoUrl).placeholder(R.drawable.ic_baseline_emoji_emotions_24).into(holder.imageView);
             }else {
                 holder.imageView.setVisibility(View.GONE);
                 holder.messageTextView.setVisibility(View.VISIBLE);

@@ -29,11 +29,8 @@ import com.example.friendlychat.FileUtil;
 import com.example.friendlychat.Message;
 import com.example.friendlychat.MessagesPreference;
 import com.example.friendlychat.R;
-import com.google.android.gms.tasks.Continuation;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -46,7 +43,6 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -85,7 +81,7 @@ public class ChatsActivity extends AppCompatActivity {
     private CollectionReference messageSingleRef;
     private CollectionReference messageSingleRefTarget;
     private StorageReference mRootRef;
-    private String messageTobeSentFromUser;
+
     private ActivityResultLauncher<String> pickPic = registerForActivityResult(
             new ActivityResultContracts.GetContent(){
                 @NonNull
@@ -124,9 +120,17 @@ public class ChatsActivity extends AppCompatActivity {
                 Toast.makeText(this, "Added image to Storage successfully", Toast.LENGTH_SHORT).show();
 
                 Date date = new Date();
-                String downloadUrl = imageRef.getDownloadUrl().toString();
-                Message message = new Message("", mUsername, downloadUrl, date.getTime());
-                sendMessage(message);
+                imageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    @Override
+                    public void onSuccess(Uri uri) {
+                        Log.d(TAG, uri.toString());
+                        Log.d(TAG, String.valueOf(uri));
+                        String downloadUrl = uri.toString();
+                        Message message = new Message("", mUsername, downloadUrl, date.getTime());
+                        sendMessage(message);
+                    }
+                });
+
             });
 
             Log.d(TAG, "compressed file into: " + compressedImageFile.getAbsolutePath() );
@@ -157,8 +161,7 @@ public class ChatsActivity extends AppCompatActivity {
         /*Firestore functionality*/
         mFirebasestore = FirebaseFirestore.getInstance();
 
-        messagesRef = mFirebasestore.collection("rooms").document("people use the app")
-                .collection("messages");
+
 
         /*app UI functionality*/
         mUsername = ANONYMOUS;
@@ -194,7 +197,6 @@ public class ChatsActivity extends AppCompatActivity {
             setTitle(mIntent.getStringExtra("chatTitle"));
             isGroup = !mIntent.hasExtra("targetId");
         }
-        messageTobeSentFromUser= mMessageEditText.getText().toString();
 
         // Enable Send button when there's text to send
         mMessageEditText.addTextChangedListener(new TextWatcher() {
@@ -219,6 +221,7 @@ public class ChatsActivity extends AppCompatActivity {
         mMessageEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(DEFAULT_MSG_LENGTH_LIMIT)});
 
         Log.d(TAG, "isGroup" + isGroup);
+
         mSendButton.setOnClickListener( v -> {
             Date date = new Date();
             Message message = new Message(mMessageEditText.getText().toString(), mUsername, "", date.getTime());
@@ -226,24 +229,7 @@ public class ChatsActivity extends AppCompatActivity {
         });
 
 
-        initializeUserAndData();
-    }
-
-    private void sendMessage(Message message) {
-
-        if (isGroup){
-            messagesRef
-                    .add(message)
-                    .addOnSuccessListener(
-                            documentReference -> {
-                                Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
-                            }
-
-                    )
-                    .addOnFailureListener(e -> Log.w(TAG, "Error adding document", e));
-            // Clear input box
-            mMessageEditText.setText("");
-        }else {
+        if (!isGroup) {
             String targetId = mIntent.getStringExtra("targetId");
             FirebaseAuth auth = FirebaseAuth.getInstance();
             messageSingleRef = mFirebasestore.collection("rooms").document(auth.getUid())
@@ -254,25 +240,47 @@ public class ChatsActivity extends AppCompatActivity {
                     .document(targetId)
                     .collection("chats").document(targetId + auth.getUid())
                     .collection("messages");
-            mSendButton.setOnClickListener(v -> {
-                messageSingleRef
-                        .add(message)
-                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                            @Override
-                            public void onSuccess(DocumentReference documentReference) {
-                                Toast.makeText(ChatsActivity.this, "Added new message", Toast.LENGTH_SHORT).show();
-                                messageSingleRefTarget.add(message);
-                            }
-                        }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(ChatsActivity.this, "Error" + e.toString(), Toast.LENGTH_SHORT).show();
-                    }
+            initializeUserAndData();
+        }
+    }
 
-                });
-                mMessageEditText.setText("");
+    private void sendMessage(Message message) {
+
+        if (isGroup){
+            messagesRef = mFirebasestore.collection("rooms").document("people use the app")
+                    .collection("messages");
+            messagesRef
+                    .add(message)
+                    .addOnSuccessListener(
+                            documentReference -> {
+                                Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
+                            }
+
+                    )
+                    .addOnFailureListener(e -> Log.w(TAG, "Error adding document", e));
+            // Clear input box
+        }else {
+
+
+
+            messageSingleRef
+                    .add(message)
+                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                        @Override
+                        public void onSuccess(DocumentReference documentReference) {
+                            Toast.makeText(ChatsActivity.this, "Added new message", Toast.LENGTH_SHORT).show();
+                            messageSingleRefTarget.add(message);
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(ChatsActivity.this, "Error" + e.toString(), Toast.LENGTH_SHORT).show();
+                }
+
             });
         }
+        mMessageEditText.setText("");
+
     }
 
     private void pickImageFromGallery() {
@@ -282,7 +290,8 @@ public class ChatsActivity extends AppCompatActivity {
 
     private void initializeUserAndData() {
 
-
+        messagesRef = mFirebasestore.collection("rooms").document("people use the app")
+                .collection("messages");
 
         /*read all messages form the database and add any new messages with notifying the Adapter after that*/
         String userName = MessagesPreference.getUserName(this);
@@ -338,7 +347,7 @@ public class ChatsActivity extends AppCompatActivity {
             });
         }else{
             Toast.makeText(this, "Make it step by step", Toast.LENGTH_SHORT).show();
-            messageSingleRefTarget.orderBy("timestamp").addSnapshotListener((value, error) ->{
+            messageSingleRef.orderBy("timestamp").addSnapshotListener((value, error) ->{
                 if (error != null){
                     Toast.makeText(this, "Error reading message", Toast.LENGTH_SHORT).show();
                 }else{
