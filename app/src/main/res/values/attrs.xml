@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="CircleImageView">
+        <attr name="strokeColor" format="color"/>
+        <attr name="strokeWidth" format="dimension"/>
+        <attr name="highlightEnable" format="boolean"/>
+        <attr name="highlightColor" format="color"/>
+    </declare-styleable>
+
+</resources>

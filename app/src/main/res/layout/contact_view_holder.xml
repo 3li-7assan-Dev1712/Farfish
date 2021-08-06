@@ -3,21 +3,20 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+  >
 
-    <ImageView
+    <com.example.friendlychat.CustomViews.CustomCircleImageView
         android:id="@+id/profileImage"
         android:layout_width="56dp"
         android:layout_height="56dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
         android:contentDescription="@string/profile_image"
-        android:scaleType="centerInside"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:srcCompat="@tools:sample/avatars" 
-        android:background="@drawable/image_background"
-        android:outlineProvider="background"
+        tools:srcCompat="@tools:sample/avatars"
+
        />
 
     <TextView
@@ -62,5 +61,6 @@
         app:layout_constraintStart_toStartOf="@id/lastMessage"
         app:layout_constraintEnd_toEndOf="@id/lastMessageTime"
         app:layout_constraintTop_toBottomOf="@id/profileImage"
-        android:background="@android:color/darker_gray"/>
+        android:background="@android:color/darker_gray"
+        />
 </androidx.constraintlayout.widget.ConstraintLayout>
