@@ -30,6 +30,7 @@ import com.example.friendlychat.Message;
 import com.example.friendlychat.MessagesPreference;
 import com.example.friendlychat.R;
 import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -47,6 +48,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -78,6 +80,8 @@ public class ChatsActivity extends AppCompatActivity {
     private MessagesAdapter messagesAdapter;
     private String mUsername;
     private boolean isGroup;
+    private Intent mIntent;
+    private FirebaseFirestore mFirebasestore;
     private CollectionReference messageSingleRef;
     private CollectionReference messageSingleRefTarget;
     private StorageReference mRootRef;
@@ -119,7 +123,12 @@ public class ChatsActivity extends AppCompatActivity {
 
                 Toast.makeText(this, "Added image to Storage successfully", Toast.LENGTH_SHORT).show();
 
+                Date date = new Date();
+                String downloadUrl = imageRef.getDownloadUrl().toString();
+                Message message = new Message("", mUsername, downloadUrl, date.getTime());
+                sendMessage(message);
             });
+
             Log.d(TAG, "compressed file into: " + compressedImageFile.getAbsolutePath() );
             Log.d(TAG, "Original file size: " + galeryFile.length() / 1024);
             Log.d(TAG, "Compressed file size: " + compressedImageFile.length() / 1024);
@@ -146,7 +155,7 @@ public class ChatsActivity extends AppCompatActivity {
         mRootRef = mStorage.getReference("images");
 
         /*Firestore functionality*/
-        FirebaseFirestore mFirebasestore = FirebaseFirestore.getInstance();
+        mFirebasestore = FirebaseFirestore.getInstance();
 
         messagesRef = mFirebasestore.collection("rooms").document("people use the app")
                 .collection("messages");
@@ -180,10 +189,10 @@ public class ChatsActivity extends AppCompatActivity {
 
         });
         /*message indiviual */
-        Intent intent = getIntent();
-        if (intent != null){
-            setTitle(intent.getStringExtra("chatTitle"));
-            isGroup = !intent.hasExtra("targetId");
+        mIntent= getIntent();
+        if (mIntent != null){
+            setTitle(mIntent.getStringExtra("chatTitle"));
+            isGroup = !mIntent.hasExtra("targetId");
         }
         messageTobeSentFromUser= mMessageEditText.getText().toString();
 
@@ -210,25 +219,32 @@ public class ChatsActivity extends AppCompatActivity {
         mMessageEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(DEFAULT_MSG_LENGTH_LIMIT)});
 
         Log.d(TAG, "isGroup" + isGroup);
+        mSendButton.setOnClickListener( v -> {
+            Date date = new Date();
+            Message message = new Message(mMessageEditText.getText().toString(), mUsername, "", date.getTime());
+            sendMessage(message);
+        });
+
+
+        initializeUserAndData();
+    }
+
+    private void sendMessage(Message message) {
+
         if (isGroup){
-            mSendButton.setOnClickListener(view -> {
+            messagesRef
+                    .add(message)
+                    .addOnSuccessListener(
+                            documentReference -> {
+                                Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
+                            }
 
-
-                messagesRef
-                        .add(new Message(messageTobeSentFromUser, mUsername, "", System.currentTimeMillis()))
-                        .addOnSuccessListener(
-                                documentReference -> {
-                                    Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
-                                }
-
-                        )
-                        .addOnFailureListener(e -> Log.w(TAG, "Error adding document", e));
-                // Clear input box
-                mMessageEditText.setText("");
-            });
-
+                    )
+                    .addOnFailureListener(e -> Log.w(TAG, "Error adding document", e));
+            // Clear input box
+            mMessageEditText.setText("");
         }else {
-            String targetId = intent.getStringExtra("targetId");
+            String targetId = mIntent.getStringExtra("targetId");
             FirebaseAuth auth = FirebaseAuth.getInstance();
             messageSingleRef = mFirebasestore.collection("rooms").document(auth.getUid())
                     .collection("chats")
@@ -239,9 +255,6 @@ public class ChatsActivity extends AppCompatActivity {
                     .collection("chats").document(targetId + auth.getUid())
                     .collection("messages");
             mSendButton.setOnClickListener(v -> {
-                Message message = new Message(mMessageEditText.getText().toString(), mUsername, "", System.currentTimeMillis());
-                Log.d(TAG, "from edit text" +  messageTobeSentFromUser );
-                Log.d(TAG, message.getText());
                 messageSingleRef
                         .add(message)
                         .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
@@ -260,8 +273,6 @@ public class ChatsActivity extends AppCompatActivity {
                 mMessageEditText.setText("");
             });
         }
-
-        initializeUserAndData();
     }
 
     private void pickImageFromGallery() {
