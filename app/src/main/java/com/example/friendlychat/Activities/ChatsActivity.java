@@ -59,7 +59,7 @@ public class ChatsActivity extends AppCompatActivity {
                     Toast.makeText(this, "Ok, if you need to send images please grant the requested permission", Toast.LENGTH_SHORT).show();
                 }
             });
-    /*TAG for loging*/
+    /*TAG for logging*/
     private static final String TAG = ChatsActivity.class.getSimpleName();
     public static final String ANONYMOUS = "anonymous";
     public static final int DEFAULT_MSG_LENGTH_LIMIT = 1000;
@@ -176,8 +176,12 @@ public class ChatsActivity extends AppCompatActivity {
                     .document(targetId)
                     .collection("chats").document(targetId + auth.getUid())
                     .collection("messages");
-            initializeUserAndData();
+
+        }else{
+            messagesRef = mFirebasestore.collection("rooms").document("people use the app")
+                    .collection("messages");
         }
+        initializeUserAndData();
     }
 
     /*getting the image from gallery compress and save it in firebase storage*/
@@ -228,8 +232,7 @@ public class ChatsActivity extends AppCompatActivity {
     private void sendMessage(Message message) {
 
         if (isGroup){
-            messagesRef = mFirebasestore.collection("rooms").document("people use the app")
-                    .collection("messages");
+
             messagesRef
                     .add(message)
                     .addOnSuccessListener(
@@ -239,9 +242,6 @@ public class ChatsActivity extends AppCompatActivity {
                     .addOnFailureListener(e -> Log.w(TAG, "Error adding document", e));
             // Clear input box
         }else {
-
-
-
             messageSingleRef
                     .add(message)
                     .addOnSuccessListener(
@@ -262,17 +262,15 @@ public class ChatsActivity extends AppCompatActivity {
 
     private void initializeUserAndData() {
 
-        messagesRef = mFirebasestore.collection("rooms").document("people use the app")
-                .collection("messages");
-
         /*read all messages form the database and add any new messages with notifying the Adapter after that*/
         String userName = MessagesPreference.getUserName(this);
         mUsername = userName;
         Toast.makeText(this, "Welcome " + userName + "!", Toast.LENGTH_SHORT).show();
 
 
+        Log.d(TAG, "initialize user and data");
         if (isGroup) {
-            messagesRef.orderBy("timestamp").get()
+           /* messagesRef.orderBy("timestamp").get()
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
                             Log.d(TAG, "onComplete");
@@ -286,15 +284,21 @@ public class ChatsActivity extends AppCompatActivity {
                             Log.d(TAG, "Error getting documents: ", task.getException());
                         }
                     });
-
+*/
+           Log.d(TAG, "going to read group's messages");
             messagesRef.orderBy("timestamp").addSnapshotListener((value, error) -> {
                 if (error != null) {
                     Toast.makeText(ChatsActivity.this, "fail", Toast.LENGTH_SHORT).show();
                 } else {
+                    Log.d(TAG, "no error should read data properly");
                     if (messages.size() == 0) {
                         if (value != null) {
                             for (DocumentSnapshot document : value.getDocuments()) {
                                 messages.add(document.toObject(Message.class));
+                            }
+                            Log.d(TAG, "added new data");
+                            if (messages == null){
+                                throw new NullPointerException("messages is null");
                             }
                             messagesAdapter.notifyDataSetChanged();
                             mMessageRecyclerView.smoothScrollToPosition(messages.size() - 1);

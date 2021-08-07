@@ -50,6 +50,13 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
     public int getItemViewType(int position) {
         String userName = messages.get(position).getName();
         String photoUrl = messages.get(position).getPhotoUrl();
+        if (messages == null){
+            throw new NullPointerException("From getItemViewType message is null");
+        }
+        if (userName == null || photoUrl == null) {
+            return USE_SENDER_BACKGROUND;
+        }
+
         if (useCurrentMessageBackground(userName) && !photoUrl.equals("")){
             return USE_LOCAL_BACKGROUND_IMG;
         }else if (useCurrentMessageBackground(userName) && photoUrl.equals("")){
@@ -105,8 +112,10 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
             }/*
             long messageTime = message.getTimestamp();
             Date date = new Date(messageTime);*/
-            holder.authorName.setText(name);
-
+            if (name == null)
+                holder.authorName.setText("null");
+            else
+                holder.authorName.setText(name);
         }
     }
 
