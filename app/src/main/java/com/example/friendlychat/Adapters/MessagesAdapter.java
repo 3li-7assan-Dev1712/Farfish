@@ -1,6 +1,7 @@
 package com.example.friendlychat.Adapters;
 
 import android.content.Context;
+import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -18,6 +19,8 @@ import com.example.friendlychat.MessagesPreference;
 import com.example.friendlychat.R;
 import com.squareup.picasso.Picasso;
 
+import java.text.DateFormat;
+import java.util.Date;
 import java.util.List;
 
 public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.MessageViewHolder> {
@@ -27,7 +30,10 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
     private List<Message> messages;
 
     private static final int USE_SENDER_BACKGROUND = 1;
+    private static final int USE_SENDER_BACKGROUND_IMG = 3;
     private static final int USE_LOCAL_BACKGROUND = 0;
+    private static final int USE_LOCAL_BACKGROUND_IMG = 2;
+
     public void setMessages(List<Message> messages) {
 
         this.messages = messages;
@@ -43,10 +49,15 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
     @Override
     public int getItemViewType(int position) {
         String userName = messages.get(position).getName();
-        if (useCurrentMessageBackground(userName)){
+        String photoUrl = messages.get(position).getPhotoUrl();
+        if (useCurrentMessageBackground(userName) && !photoUrl.equals("")){
+            return USE_LOCAL_BACKGROUND_IMG;
+        }else if (useCurrentMessageBackground(userName) && photoUrl.equals("")){
             return USE_LOCAL_BACKGROUND;
-        }else {
+        }else if (!useCurrentMessageBackground(userName) && photoUrl.equals("")){
             return USE_SENDER_BACKGROUND;
+        }else {
+            return USE_SENDER_BACKGROUND_IMG;
         }
     }
 
@@ -56,11 +67,17 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
 
         Log.d(TAG, "onCreateViewHolder");
         if (viewType == USE_LOCAL_BACKGROUND){
-            View v = LayoutInflater.from(mContext).inflate(R.layout.local_message_view_holder, parent, false);
-            return new MessageViewHolder(v);
-        }else {
-            View v2 = LayoutInflater.from(mContext).inflate(R.layout.message_view_holder, parent, false);
-            return new MessageViewHolder(v2);
+            View localMessage = LayoutInflater.from(mContext).inflate(R.layout.local_message_view_holder, parent, false);
+            return new MessageViewHolder(localMessage);
+        }else  if (viewType == USE_LOCAL_BACKGROUND_IMG){
+            View sendImageView = LayoutInflater.from(mContext).inflate(R.layout.send_image_view_holder, parent, false);
+            return new MessageViewHolder(sendImageView);
+        }else if (viewType == USE_SENDER_BACKGROUND){
+            View receivedMessage = LayoutInflater.from(mContext).inflate(R.layout.message_view_holder, parent, false);
+            return new MessageViewHolder(receivedMessage);
+        }else{
+            View receivedImageView = LayoutInflater.from(mContext).inflate(R.layout.receive_image_view_holder, parent, false);
+            return new MessageViewHolder(receivedImageView);
         }
 
     }
@@ -76,30 +93,21 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
 
         if (messages != null && messages.size() != 0){
 
-            LinearLayout.LayoutParams paramsMsg = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT);
             Message message = messages.get(position);
             String name =message.getName();
             String messageText = message.getText();
             String photoUrl = message.getPhotoUrl();
             if (photoUrl != null && !photoUrl.equals("")){
-                holder.itemView.setPadding(0,0,0,0);/*to make full bleed image*/
-                holder.messageTextView.setVisibility(View.GONE);
                 Log.d(TAG, "photoUrl is: "+photoUrl);
                 Picasso.get().load(photoUrl).placeholder(R.drawable.ic_baseline_emoji_emotions_24).into(holder.imageView);
             }else {
-                holder.imageView.setVisibility(View.GONE);
-                holder.messageTextView.setVisibility(View.VISIBLE);
                 holder.messageTextView.setText(messageText);
-            }
+            }/*
+            long messageTime = message.getTimestamp();
+            Date date = new Date(messageTime);*/
             holder.authorName.setText(name);
-            if (useCurrentMessageBackground(name)){
 
-                holder.messageLayout.setBackground(mContext.getResources().getDrawable(R.drawable.current_message_background));
-                /*paramsMsg.gravity = Gravity.END;*/
-            }
         }
-        /*will be done in the next commit*/
     }
 
     @Override
@@ -114,15 +122,17 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
         private TextView messageTextView;
         private TextView authorName;
         private ImageView imageView;
-        private LinearLayout layout;
-        private LinearLayout messageLayout;
+        private TextView timeMessageTextView;
         public MessageViewHolder(@NonNull View itemView) {
             super(itemView);
             messageTextView = itemView.findViewById(R.id.messageTextView);
             imageView = itemView.findViewById(R.id.photoImageView);
             authorName = itemView.findViewById(R.id.nameTextView);
-            messageLayout = itemView.findViewById(R.id.messageLayout);
+            timeMessageTextView = itemView.findViewById(R.id.timeMessage);
+
         }
 
     }
+
+
 }

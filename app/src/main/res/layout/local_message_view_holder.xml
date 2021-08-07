@@ -10,31 +10,38 @@
     android:paddingStart="16dp"
     android:layout_width="match_parent">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/messageLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
         android:background="@drawable/current_message_background"
-        android:orientation="vertical"
-        android:paddingStart="16dp"
         android:layout_marginTop="8dp"
         android:paddingEnd="16dp"
+        android:paddingStart="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
             android:id="@+id/photoImageView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:adjustViewBounds="true"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/nameTextView"
+            app:layout_constraintBottom_toBottomOf="@id/timeMessage"
             android:contentDescription="@string/message_image_des" />
 
         <TextView
             android:id="@+id/nameTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="0"
+            android:layout_marginEnd="16dp"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             android:textAppearance="?android:attr/textAppearanceSmall"
             tools:text="Name" />
 
@@ -42,9 +49,22 @@
             android:id="@+id/messageTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="0"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/nameTextView"
             android:textAppearance="?android:attr/textAppearanceLarge"
             tools:text="Message" />
-    </LinearLayout>
+        <TextView
+            android:id="@+id/timeMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/messageTextView"
+            android:layout_weight="0"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@android:color/white"
+            android:background="@drawable/time_background"
+            android:layout_marginEnd="16dp"
+            android:fontFamily="sans-serif-light"
+            tools:text="4:55PM" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
-

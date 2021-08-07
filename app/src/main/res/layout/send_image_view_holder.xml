@@ -1,51 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:id="@+id/local_view_holder_container"
+    android:layout_height="wrap_content"
+    android:paddingEnd="16dp"
+    android:paddingStart="16dp"
+    android:layout_width="match_parent">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/container_constraint_layout"
-        android:layout_width="156dp"
-        android:layout_height="200dp"
-        android:layout_marginEnd="16dp"
+        android:id="@+id/messageLayout"
+        android:layout_width="200dp"
+        android:layout_height="250dp"
+        android:background="@drawable/current_message_background"
+        android:layout_marginTop="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent">
-        <TextView
-            android:id="@+id/senderNameImage"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="senderNameImage"
-            android:textStyle="bold"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            tools:layout_editor_absoluteX="267dp" />
 
         <ImageView
-            android:id="@+id/send_image"
+            android:id="@+id/photoImageView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:adjustViewBounds="true"
-            android:cropToPadding="true"
-            android:scaleType="centerCrop"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/senderNameImage"
-            tools:srcCompat="@tools:sample/avatars" />
+            app:layout_constraintTop_toBottomOf="@id/nameTextView"
+            app:layout_constraintBottom_toBottomOf="@id/timeMessage"
+            android:contentDescription="@string/message_image_des" />
 
         <TextView
-            android:id="@+id/sendMessageTime"
+            android:id="@+id/nameTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
-            android:fontFamily="sans-serif-light"
-            android:text="3:09PM"
-            android:background="@drawable/time_background"
-            android:textColor="@android:color/white"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            android:layout_marginEnd="16dp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            tools:text="Name" />
 
+        <TextView
+            android:id="@+id/messageTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:layout_weight="0"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            tools:text="Message" />
+        <TextView
+            android:id="@+id/timeMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_weight="0"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@android:color/white"
+            android:background="@drawable/time_background"
+            android:layout_marginEnd="16dp"
+            android:fontFamily="sans-serif-light"
+            tools:text="4:55PM" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
