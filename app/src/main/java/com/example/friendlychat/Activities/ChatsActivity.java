@@ -29,11 +29,16 @@ import com.example.friendlychat.FileUtil;
 import com.example.friendlychat.Message;
 import com.example.friendlychat.MessagesPreference;
 import com.example.friendlychat.R;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.Source;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -267,96 +272,81 @@ public class ChatsActivity extends AppCompatActivity {
         mUsername = userName;
         Toast.makeText(this, "Welcome " + userName + "!", Toast.LENGTH_SHORT).show();
 
+        Source dataSource = Source.CACHE;
+
 
         Log.d(TAG, "initialize user and data");
         if (isGroup) {
-           /* messagesRef.orderBy("timestamp").get()
+            /*get data from the local cache*/
+            messagesRef.orderBy("timestamp").get(dataSource)
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
                             Log.d(TAG, "onComplete");
-                            messages.clear();
-                            for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
-                                Message message = document.toObject(Message.class);
-                                messages.add(message);
-                            }
-                            messagesAdapter.notifyDataSetChanged();
+                            insertData(task);
                         } else {
                             Log.d(TAG, "Error getting documents: ", task.getException());
                         }
                     });
-*/
-           Log.d(TAG, "going to read group's messages");
+           /*listen to any new new data*/
             messagesRef.orderBy("timestamp").addSnapshotListener((value, error) -> {
                 if (error != null) {
                     Toast.makeText(ChatsActivity.this, "fail", Toast.LENGTH_SHORT).show();
                 } else {
                     Log.d(TAG, "no error should read data properly");
-                    if (messages.size() == 0) {
-                        if (value != null) {
-                            for (DocumentSnapshot document : value.getDocuments()) {
-                                messages.add(document.toObject(Message.class));
-                            }
-                            Log.d(TAG, "added new data");
-                            if (messages == null){
-                                throw new NullPointerException("messages is null");
-                            }
-                            messagesAdapter.notifyDataSetChanged();
-                            mMessageRecyclerView.smoothScrollToPosition(messages.size() - 1);
-                        } else {
-                            Log.d(TAG, "no value to add");
-                        }
-                    } else {
-                        Log.d(TAG, "onEvent");
-
-                        String source = value != null && value.getMetadata().hasPendingWrites()
-                                ? "Local" : "Server";
-                        Log.d(TAG, source);
-                        Toast.makeText(ChatsActivity.this, source, Toast.LENGTH_SHORT).show();
-                        assert value != null;
-                        Message m = value.getDocuments().get(value.getDocuments().size() - 1).toObject(Message.class);
-                        assert m != null;
-                        Toast.makeText(ChatsActivity.this, "Message: " + m.getText(), Toast.LENGTH_SHORT).show();
-                        messages.add(m);
-                        messagesAdapter.notifyItemInserted(messages.size() - 1);
-                        mMessageRecyclerView.smoothScrollToPosition(messages.size() - 1);
-
-                    }
+                    String source = value != null && value.getMetadata().hasPendingWrites()
+                            ? "Local" : "Server";
+                    Log.d(TAG, source);
+                    Toast.makeText(ChatsActivity.this, source, Toast.LENGTH_SHORT).show();
+                    addNewMessage(value);
                 }
             });
         }else{
-            Toast.makeText(this, "Make it step by step", Toast.LENGTH_SHORT).show();
-            messageSingleRef.orderBy("timestamp").addSnapshotListener((value, error) ->{
+            messageSingleRef.orderBy("timestamp").get(dataSource)
+                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            insertData(task);
+                        }
+                    });
+            messageSingleRef.orderBy("timestamp").addSnapshotListener((value, error) -> {
                 if (error != null){
                     Toast.makeText(this, "Error reading message", Toast.LENGTH_SHORT).show();
                 }else{
-                    if (messages.size() == 0) { /*check if there's already some data*/
-                        if (value != null) {
-                            for (DocumentSnapshot document : value.getDocuments()) {
-                                messages.add(document.toObject(Message.class));
-                            }
-                            messagesAdapter.notifyDataSetChanged();
-                            mMessageRecyclerView.smoothScrollToPosition(messages.size() - 1);
-                        } else {
-                            Log.d(TAG, "no value to add");
-                        }
-                    } else {
-                        Log.d(TAG, "onEvent");
-
-                        String source = value != null && value.getMetadata().hasPendingWrites()
-                                ? "Local" : "Server";
-                        Log.d(TAG, source);
-                        Toast.makeText(ChatsActivity.this, source, Toast.LENGTH_SHORT).show();
-                        assert value != null;
-                        Message m = value.getDocuments().get(value.getDocuments().size() - 1).toObject(Message.class);
-                        assert m != null;
-                        Toast.makeText(ChatsActivity.this, "Message: " + m.getText(), Toast.LENGTH_SHORT).show();
-                        messages.add(m);
-                        messagesAdapter.notifyItemInserted(messages.size() - 1);
-                        mMessageRecyclerView.smoothScrollToPosition(messages.size() - 1);
-                }
+                    String source = value != null && value.getMetadata().hasPendingWrites()
+                            ? "Local" : "Server";
+                    Log.d(TAG, source);
+                    Toast.makeText(ChatsActivity.this, source, Toast.LENGTH_SHORT).show();
+                   addNewMessage(value);
             }
         });
         }
+    }
+
+    private void addNewMessage(QuerySnapshot value) {
+        if (value != null) {
+            for (DocumentChange dc: value.getDocumentChanges()){
+                if (dc.getType().equals(DocumentChange.Type.ADDED)){
+                    Message m = dc.getDocument().toObject(Message.class);
+                    messages.add(m);
+                    Log.d(TAG, "add new document");
+                }
+            }
+            messagesAdapter.notifyDataSetChanged();
+            Log.d(TAG, "added new data");
+            mMessageRecyclerView.smoothScrollToPosition(messages.size() - 1);
+        } else {
+            Log.d(TAG, "no value to add");
+        }
+    }
+
+    private void insertData(Task<QuerySnapshot> task) {
+        messages.clear();
+        for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+            Message message = document.toObject(Message.class);
+            messages.add(message);
+        }
+        messagesAdapter.notifyDataSetChanged();
+        mMessageRecyclerView.smoothScrollToPosition(messages.size() - 1);
     }
 
 }

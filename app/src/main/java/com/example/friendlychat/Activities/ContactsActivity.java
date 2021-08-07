@@ -87,6 +87,7 @@ public class ContactsActivity extends AppCompatActivity implements ContactsAdapt
                 for (QueryDocumentSnapshot document: Objects.requireNonNull(task.getResult())){
                     User user = document.toObject(User.class);
                     Log.d(TAG, "userName: " + user.getUserName());
+
                     users.add(user);
                 }
                 contactsAdapter.notifyDataSetChanged();
