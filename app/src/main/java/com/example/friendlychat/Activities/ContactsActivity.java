@@ -13,15 +13,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.friendlychat.Adapters.ContactsAdapter;
-import com.example.friendlychat.Message;
 import com.example.friendlychat.MessagesPreference;
 import com.example.friendlychat.R;
 import com.example.friendlychat.User;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -29,9 +26,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 public class ContactsActivity extends AppCompatActivity implements ContactsAdapter.OnChatClicked{
@@ -46,14 +41,13 @@ public class ContactsActivity extends AppCompatActivity implements ContactsAdapt
     );
     private List<User> users;
     private ContactsAdapter contactsAdapter;
-    private  RecyclerView contactsRecycler;
     private FirebaseFirestore mFirestore;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_contacts);
         mFirestore = FirebaseFirestore.getInstance();
-        contactsRecycler = findViewById(R.id.contactsRecyclerView);
+        RecyclerView contactsRecycler = findViewById(R.id.contactsRecyclerView);
         users = new ArrayList<>();
         contactsAdapter = new ContactsAdapter(this, users, this);
         contactsRecycler.setAdapter(contactsAdapter);
@@ -66,7 +60,7 @@ public class ContactsActivity extends AppCompatActivity implements ContactsAdapt
             // there's a user go and sign in
             String userName = currentUser.getDisplayName();
             MessagesPreference.saveUserName(this, userName);
-            initializeUserAndData(userName);
+            initializeUserAndData();
         }else{
             // three's no user, ge and sign up
             launchFirebaseUI();
@@ -83,10 +77,8 @@ public class ContactsActivity extends AppCompatActivity implements ContactsAdapt
         signInLauncher.launch(signInIntent);
     }
 
-    private void initializeUserAndData(String userName) {
+    private void initializeUserAndData() {
 
-        /* here i should read user from the firestore but that will be done tomorrow if Allah wills *_*  */
-        /* for checking*/
         mFirestore.collection("rooms").get().addOnCompleteListener(task -> {
             if (task.isSuccessful()){
                 users.clear();
@@ -99,13 +91,8 @@ public class ContactsActivity extends AppCompatActivity implements ContactsAdapt
                 }
                 contactsAdapter.notifyDataSetChanged();
             }
-        }).addOnFailureListener(e -> {
+        }).addOnFailureListener(e -> Toast.makeText(this, "error "+ e.toString(), Toast.LENGTH_SHORT).show());
 
-            Toast.makeText(this, "error "+ e.toString(), Toast.LENGTH_SHORT).show();
-        });
-        /*User user = new User("Abdualah AbdAlgalil", "", "no");
-        users.add(user);
-        contactsAdapter.notifyItemInserted(users.size()-1);*/
 
     }
 
@@ -148,7 +135,7 @@ public class ContactsActivity extends AppCompatActivity implements ContactsAdapt
                 mFirestore.collection("rooms").document(userId).set(newUser).addOnCompleteListener(task ->
                         Toast.makeText(ContactsActivity.this, "saved new user successfully", Toast.LENGTH_SHORT).show()
                 );
-                initializeUserAndData(userName);
+                initializeUserAndData();
             }
             // ...
         } else{
@@ -169,16 +156,10 @@ public class ContactsActivity extends AppCompatActivity implements ContactsAdapt
         String chatTitle = users.get(position).getUserName();
         Intent chatsIntent = new Intent(this, ChatsActivity.class);
         chatsIntent.putExtra("chatTitle", chatTitle);
-        if (chatTitle.equals("All people use the app")){
-            startActivity(chatsIntent);
-        }else{
-            Toast.makeText(this, "Wait for this feature soon!", Toast.LENGTH_SHORT).show();
+        if (!chatTitle.equals("All people use the app")) {
             String targetUserId = users.get(position).getUserId();
-            String senderUserId = mAuth.getUid();
-            String senderRoom = senderUserId + targetUserId;
-            String targetRoom = targetUserId + senderUserId;
             chatsIntent.putExtra("targetId", targetUserId);
-            startActivity(chatsIntent);
         }
+        startActivity(chatsIntent);
     }
 }
