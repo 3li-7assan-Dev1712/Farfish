@@ -19,10 +19,15 @@ import com.example.friendlychat.User;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.Source;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -79,22 +84,40 @@ public class ContactsActivity extends AppCompatActivity implements ContactsAdapt
 
     private void initializeUserAndData() {
 
-        mFirestore.collection("rooms").get().addOnCompleteListener(task -> {
+        Source s = Source.CACHE;
+        mFirestore.collection("rooms").get(s).addOnCompleteListener(task -> {
             if (task.isSuccessful()){
-                users.clear();
-                Log.d(TAG, "onSuccess");
-                /*task.getResult().getDocuments().get(0).getD*/
-                for (QueryDocumentSnapshot document: Objects.requireNonNull(task.getResult())){
-                    User user = document.toObject(User.class);
-                    Log.d(TAG, "userName: " + user.getUserName());
-
-                    users.add(user);
-                }
-                contactsAdapter.notifyDataSetChanged();
+                insertUsers(task);
             }
         }).addOnFailureListener(e -> Toast.makeText(this, "error "+ e.toString(), Toast.LENGTH_SHORT).show());
+        mFirestore.collection("rooms").get(Source.SERVER)
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                   for (DocumentChange dc: queryDocumentSnapshots.getDocumentChanges()){
+                      users.clear();
+                       User user = dc.getDocument().toObject(User.class);
+                       String currentUserId = mAuth.getUid();
+                       assert currentUserId != null;
+                       if (!currentUserId.equals(user.getUserId()))
+                           users.add(user);
+                   }
+                   contactsAdapter.notifyDataSetChanged();
+                });
 
+    }
 
+    private void insertUsers(Task<QuerySnapshot> task) {
+        users.clear();
+        Log.d(TAG, "onSuccess");
+        /*task.getResult().getDocuments().get(0).getD*/
+        for (QueryDocumentSnapshot document: Objects.requireNonNull(task.getResult())){
+            User user = document.toObject(User.class);
+            Log.d(TAG, "userName: " + user.getUserName());
+            String currentUserId = mAuth.getUid();
+            assert currentUserId != null;
+            if (!currentUserId.equals(user.getUserId()))
+                users.add(user);
+        }
+        contactsAdapter.notifyDataSetChanged();
     }
 
     @Override
