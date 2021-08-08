@@ -116,11 +116,13 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
                 holder.authorName.setText("null");
             else
                 holder.authorName.setText(name);
-            long dateInUTC = message.getTimestamp();
-            long localDate = DateUtils.getLocalDateFromUTC(dateInUTC);
+            long dateFromServer = message.getTimestamp();
+            long currentTime = System.currentTimeMillis();
+            if (dateFromServer == currentTime)
+                Log.d(TAG, "There are the same");
             SimpleDateFormat d = new SimpleDateFormat("h:mm a", Locale.getDefault());
-            d.setTimeZone(TimeZone.getDefault());
-            String readableDate = d.format(dateInUTC);
+            String readableDate = d.format(dateFromServer);
+            Log.d(TAG, "readable date in Adapter is : " + readableDate);
             holder.timeMessageTextView.setText(readableDate);
         }
     }

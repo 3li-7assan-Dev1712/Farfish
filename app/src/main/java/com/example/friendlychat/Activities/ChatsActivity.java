@@ -35,6 +35,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -42,12 +43,15 @@ import com.google.firebase.firestore.Source;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.google.firestore.v1.Document;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
@@ -165,7 +169,19 @@ public class ChatsActivity extends AppCompatActivity {
 
         mSendButton.setOnClickListener( v -> {
             long dateInUTC = DateUtils.getNormalizedUtcDateForToday();
-            Message message = new Message(mMessageEditText.getText().toString(), mUsername, "", dateInUTC);
+            long dateInLocalTime = System.currentTimeMillis();
+            long dateFromDateClass = new Date().getTime();
+            Log.d(TAG, "Date in UTC" + dateInUTC);
+            Log.d(TAG, "Date in Local (System.currentTimeMillis() ) " + dateInLocalTime);
+            Log.d(TAG, "Date in Local (Date().getTime()) " + dateFromDateClass);
+            if (dateInLocalTime == dateFromDateClass)
+                Log.d(TAG, "Date from System and Date from date are the same");
+            SimpleDateFormat sdf = new SimpleDateFormat("EEEE, MMM dd. yyyy. -- H:mm aa zzzz" , Locale.getDefault());
+            Log.d(TAG, "---------------------------------------------------------------------------");
+            Log.d(TAG, "Date in UTC" + sdf.format(dateInUTC));
+            Log.d(TAG, "Date in Local (System.currentTimeMillis() ) " + sdf.format(dateInLocalTime));
+            Log.d(TAG, "Date in Local (Date().getTime()) " + sdf.format(dateFromDateClass));
+            Message message = new Message(mMessageEditText.getText().toString(), mUsername, "", dateFromDateClass);
             sendMessage(message);
         });
 
@@ -217,8 +233,8 @@ public class ChatsActivity extends AppCompatActivity {
                     Log.d(TAG, downloadUri.toString());
                     Log.d(TAG, String.valueOf(downloadUri));
                     String downloadUrl = downloadUri.toString();
-                    long dateInUTC = DateUtils.getNormalizedUtcDateForToday();
-                    Message message = new Message("", mUsername, downloadUrl, dateInUTC);
+                    long dateFromDateClass = new Date().getTime();
+                    Message message = new Message("", mUsername, downloadUrl, dateFromDateClass);
                     sendMessage(message);
                 });
 
@@ -274,9 +290,6 @@ public class ChatsActivity extends AppCompatActivity {
         mUsername = userName;
         Toast.makeText(this, "Welcome " + userName + "!", Toast.LENGTH_SHORT).show();
 
-        Source dataSource = Source.CACHE;
-
-
         Log.d(TAG, "initialize user and data");
         if (isGroup) {
             /*get data from the local cache*/
@@ -304,10 +317,12 @@ public class ChatsActivity extends AppCompatActivity {
             });
         }else{
             messageSingleRef.orderBy("timestamp").get()
-                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            Log.d(TAG, "onComplete");
                             insertData(task);
+                        } else {
+                            Log.d(TAG, "Error getting documents: ", task.getException());
                         }
                     });
             messageSingleRef.orderBy("timestamp").addSnapshotListener((value, error) -> {
@@ -318,7 +333,7 @@ public class ChatsActivity extends AppCompatActivity {
                             ? "Local" : "Server";
                     Log.d(TAG, source);
                     Toast.makeText(ChatsActivity.this, source, Toast.LENGTH_SHORT).show();
-                   addNewMessage(value);
+                    addNewMessage(value);
             }
         });
         }
@@ -326,24 +341,37 @@ public class ChatsActivity extends AppCompatActivity {
 
     private void addNewMessage(QuerySnapshot value) {
         if (value != null) {
-            for (DocumentChange dc: value.getDocumentChanges()){
-                if (dc.getType().equals(DocumentChange.Type.ADDED)){
-                    Message m = dc.getDocument().toObject(Message.class);
-                    messages.add(m);
-                    Log.d(TAG, "add new document");
-                }
+
+            for (DocumentChange dc : value.getDocumentChanges()) {
+                messages.add(dc.getDocument().toObject(Message.class));
+                Log.d(TAG, "document change");
             }
             messagesAdapter.notifyDataSetChanged();
-            Log.d(TAG, "added new data");
+            mMessageRecyclerView.smoothScrollToPosition(messages.size() - 1);
+            /*if (messages.size() == 0) {
+                for (DocumentSnapshot documentSnapshot : value.getDocuments()) {
+                    messages.add(documentSnapshot.toObject(Message.class));
+                    Log.d(TAG, " reading all the documents");
+                }
+                messagesAdapter.notifyDataSetChanged();
+                Log.d(TAG, "added new data");*/
+           /* }else{
+               Log.d(TAG, "the number of the documents change is " + value.getDocumentChanges().size());
+               Message m = value.getDocuments().get(value.getDocuments().size()-1).toObject(Message.class);
+               messages.add(m);
+               messagesAdapter.notifyItemInserted(messages.size()-1);
+            }
             mMessageRecyclerView.smoothScrollToPosition(messages.size() - 1);
         } else {
             Log.d(TAG, "no value to add");
+        }*/
         }
     }
 
     private void insertData(Task<QuerySnapshot> task) {
+        Log.d(TAG, "insertData");
         messages.clear();
-        for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+        for (DocumentSnapshot document : Objects.requireNonNull(task.getResult()).getDocuments()) {
             Message message = document.toObject(Message.class);
             messages.add(message);
         }
