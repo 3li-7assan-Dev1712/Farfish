@@ -10,6 +10,7 @@ import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -59,7 +60,7 @@ import java.util.concurrent.TimeUnit;
 import id.zelory.compressor.Compressor;
 
 public class ChatsActivity extends AppCompatActivity {
-    /*real time perimssion*/
+    /*real time permission*/
     private ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
@@ -99,9 +100,26 @@ public class ChatsActivity extends AppCompatActivity {
             this::putIntoImage);
 
     @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {// This is called when the Home (Up) button is pressed
+            // in the Action Bar.
+            Intent ContactsActivity = new Intent(this, ContactsActivity.class);
+            ContactsActivity.addFlags(
+                    Intent.FLAG_ACTIVITY_CLEAR_TOP |
+                            Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(ContactsActivity);
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chats);
+        Objects.requireNonNull(getActionBar()).setDisplayHomeAsUpEnabled(true); // this line will let the system make a navigation back button to move the parent Activity.
         /*firebase storage and its references*/
         FirebaseStorage mStorage = FirebaseStorage.getInstance();
         // Create a storage reference from our app
@@ -136,6 +154,7 @@ public class ChatsActivity extends AppCompatActivity {
             }
 
         });
+
 
         Intent mIntent = getIntent();
         if (mIntent != null){
@@ -348,23 +367,6 @@ public class ChatsActivity extends AppCompatActivity {
             }
             messagesAdapter.notifyDataSetChanged();
             mMessageRecyclerView.smoothScrollToPosition(messages.size() - 1);
-            /*if (messages.size() == 0) {
-                for (DocumentSnapshot documentSnapshot : value.getDocuments()) {
-                    messages.add(documentSnapshot.toObject(Message.class));
-                    Log.d(TAG, " reading all the documents");
-                }
-                messagesAdapter.notifyDataSetChanged();
-                Log.d(TAG, "added new data");*/
-           /* }else{
-               Log.d(TAG, "the number of the documents change is " + value.getDocumentChanges().size());
-               Message m = value.getDocuments().get(value.getDocuments().size()-1).toObject(Message.class);
-               messages.add(m);
-               messagesAdapter.notifyItemInserted(messages.size()-1);
-            }
-            mMessageRecyclerView.smoothScrollToPosition(messages.size() - 1);
-        } else {
-            Log.d(TAG, "no value to add");
-        }*/
         }
     }
 
