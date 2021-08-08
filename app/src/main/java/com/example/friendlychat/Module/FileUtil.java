@@ -1,4 +1,4 @@
-package com.example.friendlychat;
+package com.example.friendlychat.Module;
 
 import android.content.Context;
 import android.database.Cursor;

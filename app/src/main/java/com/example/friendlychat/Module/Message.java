@@ -1,4 +1,4 @@
-package com.example.friendlychat;
+package com.example.friendlychat.Module;
 
 public class Message {
     private String text;

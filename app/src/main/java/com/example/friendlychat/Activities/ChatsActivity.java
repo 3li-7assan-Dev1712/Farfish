@@ -25,16 +25,16 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.friendlychat.Adapters.MessagesAdapter;
-import com.example.friendlychat.FileUtil;
-import com.example.friendlychat.Message;
-import com.example.friendlychat.MessagesPreference;
+import com.example.friendlychat.Module.DateUtils;
+import com.example.friendlychat.Module.FileUtil;
+import com.example.friendlychat.Module.Message;
+import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -49,6 +49,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
 import id.zelory.compressor.Compressor;
 
@@ -162,8 +164,8 @@ public class ChatsActivity extends AppCompatActivity {
         Log.d(TAG, "isGroup" + isGroup);
 
         mSendButton.setOnClickListener( v -> {
-            Date date = new Date();
-            Message message = new Message(mMessageEditText.getText().toString(), mUsername, "", date.getTime());
+            long dateInUTC = DateUtils.getNormalizedUtcDateForToday();
+            Message message = new Message(mMessageEditText.getText().toString(), mUsername, "", dateInUTC);
             sendMessage(message);
         });
 
@@ -211,12 +213,12 @@ public class ChatsActivity extends AppCompatActivity {
                 // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
                 // ...
                 Toast.makeText(this, "Added image to Storage successfully", Toast.LENGTH_SHORT).show();
-                Date date = new Date();
                 imageRef.getDownloadUrl().addOnSuccessListener(downloadUri -> {
                     Log.d(TAG, downloadUri.toString());
                     Log.d(TAG, String.valueOf(downloadUri));
                     String downloadUrl = downloadUri.toString();
-                    Message message = new Message("", mUsername, downloadUrl, date.getTime());
+                    long dateInUTC = DateUtils.getNormalizedUtcDateForToday();
+                    Message message = new Message("", mUsername, downloadUrl, dateInUTC);
                     sendMessage(message);
                 });
 
@@ -348,5 +350,6 @@ public class ChatsActivity extends AppCompatActivity {
         messagesAdapter.notifyDataSetChanged();
         mMessageRecyclerView.smoothScrollToPosition(messages.size() - 1);
     }
+
 
 }

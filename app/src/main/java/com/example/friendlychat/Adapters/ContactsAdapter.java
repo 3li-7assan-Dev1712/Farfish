@@ -12,8 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.friendlychat.R;
-import com.example.friendlychat.User;
-import com.google.firebase.installations.Utils;
+import com.example.friendlychat.Module.User;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;

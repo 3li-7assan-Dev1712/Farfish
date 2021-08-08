@@ -1,27 +1,27 @@
 package com.example.friendlychat.Adapters;
 
 import android.content.Context;
-import android.provider.ContactsContract;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.friendlychat.Message;
-import com.example.friendlychat.MessagesPreference;
+import com.example.friendlychat.Module.DateUtils;
+import com.example.friendlychat.Module.Message;
+import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.R;
 import com.squareup.picasso.Picasso;
 
 import java.text.DateFormat;
-import java.util.Date;
+import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 
 public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.MessageViewHolder> {
 
@@ -116,8 +116,14 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
                 holder.authorName.setText("null");
             else
                 holder.authorName.setText(name);
+            long dateInUTC = message.getTimestamp();
+            long localDate = DateUtils.getLocalDateFromUTC(dateInUTC);
+            String readableDate = new SimpleDateFormat("h:mm a", Locale.getDefault()).format(localDate);
+            holder.timeMessageTextView.setText(readableDate);
         }
     }
+
+
 
     @Override
     public int getItemCount() {

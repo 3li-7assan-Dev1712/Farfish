@@ -13,13 +13,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.friendlychat.Adapters.ContactsAdapter;
-import com.example.friendlychat.MessagesPreference;
+import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.R;
-import com.example.friendlychat.User;
+import com.example.friendlychat.Module.User;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -93,7 +92,6 @@ public class ContactsActivity extends AppCompatActivity implements ContactsAdapt
         mFirestore.collection("rooms").get(Source.SERVER)
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                    for (DocumentChange dc: queryDocumentSnapshots.getDocumentChanges()){
-                      users.clear();
                        User user = dc.getDocument().toObject(User.class);
                        String currentUserId = mAuth.getUid();
                        assert currentUserId != null;

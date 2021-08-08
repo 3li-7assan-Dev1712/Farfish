@@ -1,4 +1,4 @@
-package com.example.friendlychat;
+package com.example.friendlychat.Module;
 
 public class User {
     private String userName, phoneNumber, photoUrl, userId;
