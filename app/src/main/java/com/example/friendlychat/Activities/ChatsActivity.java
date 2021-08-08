@@ -280,7 +280,7 @@ public class ChatsActivity extends AppCompatActivity {
         Log.d(TAG, "initialize user and data");
         if (isGroup) {
             /*get data from the local cache*/
-            messagesRef.orderBy("timestamp").get(dataSource)
+            messagesRef.orderBy("timestamp").get()
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
                             Log.d(TAG, "onComplete");
@@ -303,7 +303,7 @@ public class ChatsActivity extends AppCompatActivity {
                 }
             });
         }else{
-            messageSingleRef.orderBy("timestamp").get(dataSource)
+            messageSingleRef.orderBy("timestamp").get()
                     .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<QuerySnapshot> task) {

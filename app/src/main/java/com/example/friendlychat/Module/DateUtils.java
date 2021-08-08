@@ -26,13 +26,13 @@ public class DateUtils {
         // milliseconds in UTC date, but might contains some fractional (extra part) days.
         long timeSinceEpochLocalTimeMillis = utcNowMillis + gmtOffsetMillis;
         /* This method simply converts milliseconds to days, disregarding any fractional days */
-        long daysSinceEpochLocal = TimeUnit.MILLISECONDS.toDays(timeSinceEpochLocalTimeMillis);
+        /*long daysSinceEpochLocal = TimeUnit.MILLISECONDS.toDays(timeSinceEpochLocalTimeMillis);*/
         /*
          * Finally, we convert back to milliseconds. This time stamp represents today's date at
          * midnight in GMT time. We will need to account for local time zone offsets when
          * extracting this information from the database.
          */
-        return TimeUnit.DAYS.toMillis(daysSinceEpochLocal);
+        return timeSinceEpochLocalTimeMillis;
     }
 
     public static long getLocalDateFromUTC(long dateInUTC) {

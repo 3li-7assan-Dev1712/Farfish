@@ -83,13 +83,8 @@ public class ContactsActivity extends AppCompatActivity implements ContactsAdapt
 
     private void initializeUserAndData() {
 
-        Source s = Source.CACHE;
-        mFirestore.collection("rooms").get(s).addOnCompleteListener(task -> {
-            if (task.isSuccessful()){
-                insertUsers(task);
-            }
-        }).addOnFailureListener(e -> Toast.makeText(this, "error "+ e.toString(), Toast.LENGTH_SHORT).show());
-        mFirestore.collection("rooms").get(Source.SERVER)
+
+        mFirestore.collection("rooms").get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                    for (DocumentChange dc: queryDocumentSnapshots.getDocumentChanges()){
                        User user = dc.getDocument().toObject(User.class);

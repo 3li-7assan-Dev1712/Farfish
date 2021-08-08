@@ -118,7 +118,9 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
                 holder.authorName.setText(name);
             long dateInUTC = message.getTimestamp();
             long localDate = DateUtils.getLocalDateFromUTC(dateInUTC);
-            String readableDate = new SimpleDateFormat("h:mm a", Locale.getDefault()).format(localDate);
+            SimpleDateFormat d = new SimpleDateFormat("h:mm a", Locale.getDefault());
+            d.setTimeZone(TimeZone.getDefault());
+            String readableDate = d.format(dateInUTC);
             holder.timeMessageTextView.setText(readableDate);
         }
     }
