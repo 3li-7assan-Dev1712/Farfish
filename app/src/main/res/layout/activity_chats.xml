@@ -5,9 +5,10 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:paddingBottom="@dimen/activity_vertical_margin"
-    tools:context="com.example.friendlychat.Activities.ChatsActivity">
+    tools:context="com.example.friendlychat.Activities.ChatsActivity"
+    android:fitsSystemWindows="true">
 
-    <com.google.android.material.appbar.AppBarLayout
+    <!--<com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -19,7 +20,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <!-- ToolBar widget -->
+            &lt;!&ndash; ToolBar widget &ndash;&gt;
             <ImageView
                 android:id="@+id/moreOption"
                 android:layout_width="wrap_content"
@@ -47,11 +48,11 @@
                 app:subtitle="last seen in 10:32PM"
                 app:titleTextColor="#ffff" />
 
-            <!-- Right most TextView -->
+            &lt;!&ndash; Right most TextView &ndash;&gt;
 
-            <!-- Right most ImageView -->
+            &lt;!&ndash; Right most ImageView &ndash;&gt;
 
-            <!-- ImageView beside title of ToolBar -->
+            &lt;!&ndash; ImageView beside title of ToolBar &ndash;&gt;
             <ImageView
                 android:id="@+id/makeVidoCall"
                 android:layout_width="wrap_content"
@@ -77,9 +78,25 @@
                 app:tint="#ffff" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-    </com.google.android.material.appbar.AppBarLayout>
+    </com.google.android.material.appbar.AppBarLayout>-->
 
-
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#0F9D58"
+        app:contentInsetStart="0dp"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:title="Person name"
+        app:layout_goneMarginStart="16dp"
+        app:subtitle="last seen in 10:32PM"
+        app:logo="@drawable/ic_baseline_emoji_emotions_24"
+        app:titleTextColor="#ffff"
+        />
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/messageRecyclerView"
         android:layout_width="match_parent"
@@ -91,7 +108,7 @@
         app:layout_constraintBottom_toTopOf="@+id/linearLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/appbar" />
+        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
         <!--tools:listitem="@layout/item_message"-->
     <ProgressBar
         android:id="@+id/progressBar"
@@ -102,7 +119,7 @@
         app:layout_constraintBottom_toTopOf="@+id/linearLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/appbar" />
+        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
 
     <LinearLayout
         android:id="@+id/linearLayout"

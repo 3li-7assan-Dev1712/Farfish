@@ -50,6 +50,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.google.firestore.v1.Document;
+import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.io.IOException;
@@ -133,9 +134,10 @@ public class ChatsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_chats);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
-        getSupportActionBar().setLogo(R.drawable.ic_launcher_foreground);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setLogo(R.drawable.ic_baseline_emoji_emotions_24);
         getSupportActionBar().setDisplayUseLogoEnabled(true);
+        /*Picasso.get().load(R.drawable.ic_baseline_emoji_emotions_24).re*/
        /* if (getActionBar() != null){
             getActionBar().setDisplayHomeAsUpEnabled(true);
 
