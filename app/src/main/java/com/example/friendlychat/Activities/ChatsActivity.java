@@ -5,11 +5,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
@@ -20,7 +23,9 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -116,10 +121,29 @@ public class ChatsActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.chats_menu, menu);
+        return true;
+    }
+
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chats);
-        Objects.requireNonNull(getActionBar()).setDisplayHomeAsUpEnabled(true); // this line will let the system make a navigation back button to move the parent Activity.
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setLogo(R.drawable.ic_launcher_foreground);
+        getSupportActionBar().setDisplayUseLogoEnabled(true);
+       /* if (getActionBar() != null){
+            getActionBar().setDisplayHomeAsUpEnabled(true);
+
+        }else{
+            Toast.makeText(this, "Action bar is null", Toast.LENGTH_SHORT).show();
+        }*/
+        ; // this line will let the system make a navigation back button to move the parent Activity.
+
         /*firebase storage and its references*/
         FirebaseStorage mStorage = FirebaseStorage.getInstance();
         // Create a storage reference from our app

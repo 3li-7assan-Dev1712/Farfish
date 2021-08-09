@@ -30,7 +30,7 @@
 
         <activity
             android:name=".Activities.ChatsActivity"
-           />
+            android:theme="@style/ChatsTheme"/>
     </application>
 
 </manifest>
