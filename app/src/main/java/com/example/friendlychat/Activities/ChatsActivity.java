@@ -38,6 +38,7 @@ import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
@@ -83,7 +84,7 @@ public class ChatsActivity extends AppCompatActivity {
     public static final int DEFAULT_MSG_LENGTH_LIMIT = 1000;
     private RecyclerView mMessageRecyclerView;
     private EditText mMessageEditText;
-    private Button mSendButton;
+    private FloatingActionButton mSendButton;
     private CollectionReference messagesRef;
     private List<Message> messages;
     private MessagesAdapter messagesAdapter;

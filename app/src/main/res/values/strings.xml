@@ -2,7 +2,7 @@
     <string name="app_name">Friendly Chat</string>
     <string name="image_button_description">Through this image button the user can send pick image to send</string>
     <string name="send_button_label">Send</string>
-    <string name="edit_text_hint">Type a message to send…</string>
+    <string name="edit_text_hint">Type a message…</string>
     <string name="sign_out">Sign Out</string>
     <string name="menu_action">always</string>
     <string name="message_image_des">Image to be sent to users</string>
