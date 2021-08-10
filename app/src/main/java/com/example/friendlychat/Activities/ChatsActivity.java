@@ -17,6 +17,8 @@ import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -135,9 +137,19 @@ public class ChatsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_chats);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setLogo(R.drawable.ic_baseline_emoji_emotions_24);
-        getSupportActionBar().setDisplayUseLogoEnabled(true);
+        ImageView chatImage = findViewById(R.id.chat_conversation_profile);
+        LinearLayout layout = findViewById(R.id.go_back);
+        layout.setOnClickListener(v-> {
+            Intent ContactsActivity = new Intent(this, ContactsActivity.class);
+            ContactsActivity.addFlags(
+                    Intent.FLAG_ACTIVITY_CLEAR_TOP |
+                            Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(ContactsActivity);
+            finish();
+        });
+      /*  getSupportActionBar().setDisplayHomeAsUpEnabled(true);*/
+        /*getSupportActionBar().setLogo(R.drawable.ic_baseline_emoji_emotions_24);
+        getSupportActionBar().setDisplayUseLogoEnabled(true);*/
         /*Picasso.get().load(R.drawable.ic_baseline_emoji_emotions_24).re*/
        /* if (getActionBar() != null){
             getActionBar().setDisplayHomeAsUpEnabled(true);
