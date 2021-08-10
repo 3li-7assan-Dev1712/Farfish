@@ -13,6 +13,7 @@
     <string name="last_time_seen">last time seen</string>
     <string name="targetUidKey">targetId</string>
     <string name="chat_title">chatTitle</string>
+    <string name="isWriting">is writing...</string>
 
 
 </resources>

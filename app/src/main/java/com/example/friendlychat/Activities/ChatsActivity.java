@@ -94,6 +94,8 @@ public class ChatsActivity extends AppCompatActivity {
     private ImageView chat_image;
     private TextView chat_title;
     private TextView chat_last_seen;
+    private int tracker = 0;
+    private String targetUserId;
     /*pick picture via calling picPic.launch() method*/
     private ActivityResultLauncher<String> pickPic = registerForActivityResult(
             new ActivityResultContracts.GetContent(){
@@ -194,6 +196,7 @@ public class ChatsActivity extends AppCompatActivity {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 Log.d(TAG, "beforeTextChanged");
+                setUserIsWriting();
             }
 
             @Override
@@ -202,6 +205,8 @@ public class ChatsActivity extends AppCompatActivity {
                     mSendButton.setEnabled(true);
                 } else {
                     mSendButton.setEnabled(false);
+                    setUserIsNotWriting();
+                    tracker = 0;
                 }
             }
 
@@ -236,7 +241,7 @@ public class ChatsActivity extends AppCompatActivity {
         if (!isGroup) {
             assert mIntent != null;
             /*target user Id*/
-            String targetUserId = mIntent.getStringExtra("targetId");
+            targetUserId = mIntent.getStringExtra(getResources().getString(R.string.targetUidKey));
             FirebaseAuth auth = FirebaseAuth.getInstance();
             messageSingleRef = mFirebasestore.collection("rooms").document(Objects.requireNonNull(auth.getUid()))
                     .collection("chats")
@@ -254,6 +259,22 @@ public class ChatsActivity extends AppCompatActivity {
                     .collection("messages");
         }
         initializeUserAndData();
+    }
+
+    private void setUserIsNotWriting() {
+        Log.d(TAG, "set user is not writing");
+
+        mFirebasestore.collection("rooms").document(targetUserId)
+                .update("isWritting", false);
+    }
+
+    private void setUserIsWriting() {
+        Log.d(TAG, "set user is writing");
+        if (tracker == 0 && !isGroup){
+            mFirebasestore.collection("rooms").document(targetUserId)
+                    .update("isWritting", true);
+            tracker++;
+        }
     }
 
     private void setChatInfo(String targetUserId) {
@@ -284,10 +305,16 @@ public class ChatsActivity extends AppCompatActivity {
     }
 
     private void updateChatInfo(User user) {
+        boolean isWriting = user.getIsWritting();
         boolean isActive = user.getIsActive();
 
-        if (isActive)
+        if (isWriting){
+            chat_last_seen.setText(getResources().getString(R.string.isWriting));
+            chat_last_seen.setTextColor(getResources().getColor(R.color.colorAccent));
+        }
+        else if (isActive) {
             chat_last_seen.setText(getResources().getString(R.string.online));
+        }
         else {
             long lastTimeSeen = user.getLastTimeSeen();
             SimpleDateFormat df = new SimpleDateFormat("EEE, MMM d", Locale.getDefault());

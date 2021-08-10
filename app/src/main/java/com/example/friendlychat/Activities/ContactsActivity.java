@@ -158,7 +158,7 @@ public class ContactsActivity extends AppCompatActivity implements ContactsAdapt
                 String userId = mAuth.getUid();
 
                 long lastTimeSeen = new Date().getTime();
-                User newUser = new User(userName, phoneNumber, photoUrl, userId, true, lastTimeSeen);
+                User newUser = new User(userName, phoneNumber, photoUrl, userId, true, false,lastTimeSeen);
                 assert userId != null;
                 mFirestore.collection("rooms").document(userId).set(newUser).addOnCompleteListener(task ->
                         Toast.makeText(ContactsActivity.this, "saved new user successfully", Toast.LENGTH_SHORT).show()
