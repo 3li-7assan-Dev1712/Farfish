@@ -30,6 +30,7 @@ import com.google.firebase.firestore.Source;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -84,6 +85,7 @@ public class ContactsActivity extends AppCompatActivity implements ContactsAdapt
     private void initializeUserAndData() {
 
 
+        makeUserActive();
         mFirestore.collection("rooms").get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                    for (DocumentChange dc: queryDocumentSnapshots.getDocumentChanges()){
@@ -98,21 +100,23 @@ public class ContactsActivity extends AppCompatActivity implements ContactsAdapt
 
     }
 
-    private void insertUsers(Task<QuerySnapshot> task) {
-        users.clear();
-        Log.d(TAG, "onSuccess");
-        /*task.getResult().getDocuments().get(0).getD*/
-        for (QueryDocumentSnapshot document: Objects.requireNonNull(task.getResult())){
-            User user = document.toObject(User.class);
-            Log.d(TAG, "userName: " + user.getUserName());
-            String currentUserId = mAuth.getUid();
-            assert currentUserId != null;
-            if (!currentUserId.equals(user.getUserId()))
-                users.add(user);
-        }
-        contactsAdapter.notifyDataSetChanged();
+    private void makeUserActive() {
+        String userId = mAuth.getUid();
+        assert userId != null;
+        mFirestore.collection("rooms").document(userId)
+                .update("isActive", true);
     }
 
+    private void makeUserInActive() {
+        String userId = mAuth.getUid();
+        long lastTimeSeen = new Date().getTime();
+        assert userId != null;
+        mFirestore.collection("rooms").document(userId)
+                .update(
+                        "isActive", false,
+                        "lastTimeSeen", lastTimeSeen
+                );
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
        getMenuInflater().inflate(R.menu.main, menu);
@@ -147,7 +151,9 @@ public class ContactsActivity extends AppCompatActivity implements ContactsAdapt
                 String phoneNumber = currentUser.getPhoneNumber();
                 String photoUrl = Objects.requireNonNull(currentUser.getPhotoUrl()).toString();
                 String userId = mAuth.getUid();
-                User newUser = new User(userName, phoneNumber, photoUrl, userId);
+
+                long lastTimeSeen = new Date().getTime();
+                User newUser = new User(userName, phoneNumber, photoUrl, userId, true, lastTimeSeen);
                 assert userId != null;
                 mFirestore.collection("rooms").document(userId).set(newUser).addOnCompleteListener(task ->
                         Toast.makeText(ContactsActivity.this, "saved new user successfully", Toast.LENGTH_SHORT).show()
@@ -178,5 +184,17 @@ public class ContactsActivity extends AppCompatActivity implements ContactsAdapt
             chatsIntent.putExtra("targetId", targetUserId);
         }
         startActivity(chatsIntent);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d(TAG, "onPause");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d(TAG, "onStop");
     }
 }

@@ -67,7 +67,8 @@
         app:layout_constraintStart_toStartOf="parent"
         android:background="@drawable/sending_background"
         android:paddingStart="8dp"
-        android:paddingEnd="8dp">
+        android:paddingEnd="8dp"
+        android:layout_marginTop="8dp">
 
         <ImageButton
             android:id="@+id/send_emoji_btn"
