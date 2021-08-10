@@ -147,17 +147,6 @@ public class ChatsActivity extends AppCompatActivity {
             startActivity(ContactsActivity);
             finish();
         });
-      /*  getSupportActionBar().setDisplayHomeAsUpEnabled(true);*/
-        /*getSupportActionBar().setLogo(R.drawable.ic_baseline_emoji_emotions_24);
-        getSupportActionBar().setDisplayUseLogoEnabled(true);*/
-        /*Picasso.get().load(R.drawable.ic_baseline_emoji_emotions_24).re*/
-       /* if (getActionBar() != null){
-            getActionBar().setDisplayHomeAsUpEnabled(true);
-
-        }else{
-            Toast.makeText(this, "Action bar is null", Toast.LENGTH_SHORT).show();
-        }*/
-        ; // this line will let the system make a navigation back button to move the parent Activity.
 
         /*firebase storage and its references*/
         FirebaseStorage mStorage = FirebaseStorage.getInstance();
@@ -223,7 +212,7 @@ public class ChatsActivity extends AppCompatActivity {
         });
         mMessageEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(DEFAULT_MSG_LENGTH_LIMIT)});
 
-        Log.d(TAG, "isGroup" + isGroup);
+        Log.d(TAG, "isGroup " + isGroup);
 
         mSendButton.setOnClickListener( v -> {
             long dateInUTC = DateUtils.getNormalizedUtcDateForToday();

@@ -20,14 +20,14 @@
             android:id="@+id/chat_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Ali Hassan"
+            tools:text="Sample name"
             android:textSize="18sp" />
 
         <TextView
             android:id="@+id/chat_last_seen"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="last seen 1 hour ago"
+            tools:text="last seen 1 hour ago"
             android:textSize="14sp" />
 
     </LinearLayout>
@@ -40,7 +40,9 @@
         android:padding="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        android:clickable="true"
+        android:focusable="true">
 
         <ImageView
             android:id="@+id/back_arrow"
@@ -48,6 +50,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             app:srcCompat="?attr/homeAsUpIndicator"
+            android:clickable="false"
             android:contentDescription="@string/app_name"/>
 
         <com.example.friendlychat.CustomViews.CustomCircleImageView
@@ -55,7 +58,8 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_gravity="center_vertical"
-            tools:srcCompat="@tools:sample/avatars" />
+            tools:srcCompat="@tools:sample/avatars"
+            android:clickable="false"/>
 
     </LinearLayout>
 

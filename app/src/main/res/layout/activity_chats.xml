@@ -9,7 +9,6 @@
     android:paddingBottom="8dp"
     android:background="#C8C5C5">
 
-
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar"
         android:layout_width="match_parent"
@@ -26,6 +25,7 @@
             app:contentInsetStart="0dp">
             <include layout="@layout/toolbar_conversation"/>
         </androidx.appcompat.widget.Toolbar>
+
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -41,7 +41,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/appbar"
         tools:listitem="@layout/message_view_holder"/>
-        <!--tools:listitem="@layout/item_message"-->
+
     <ProgressBar
         android:id="@+id/progressBar"
         style="?android:attr/progressBarStyleLarge"
