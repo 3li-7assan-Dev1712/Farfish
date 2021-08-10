@@ -88,7 +88,8 @@
             android:autofillHints=""
             android:hint="@string/edit_text_hint"
             android:textColor="@android:color/darker_gray"
-            android:inputType="text"
+            android:inputType="text|textMultiLine"
+            android:scrollHorizontally="false"
             android:fontFamily="sans-serif-thin"/>
 
         <ImageButton
