@@ -20,6 +20,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -98,6 +99,10 @@ public class ChatsActivity extends AppCompatActivity {
     private StorageReference mRootRef;
     /*target user Id*/
     private String targetUserId;
+    /*user profile image*/
+    private ImageView chat_image;
+    private TextView chat_title;
+    private TextView chat_last_seen;
     /*pick picture via calling picPic.launch() method*/
     private ActivityResultLauncher<String> pickPic = registerForActivityResult(
             new ActivityResultContracts.GetContent(){
@@ -138,7 +143,9 @@ public class ChatsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_chats);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        ImageView chatImage = findViewById(R.id.chat_conversation_profile);
+        chat_image = findViewById(R.id.chat_conversation_profile);
+        chat_title = findViewById(R.id.chat_title);
+        chat_last_seen = findViewById(R.id.chat_last_seen);
         LinearLayout layout = findViewById(R.id.go_back);
         layout.setOnClickListener(v-> {
             Intent ContactsActivity = new Intent(this, ContactsActivity.class);
@@ -247,12 +254,17 @@ public class ChatsActivity extends AppCompatActivity {
                     .document(targetUserId)
                     .collection("chats").document(targetUserId + auth.getUid())
                     .collection("messages");
+            setChatInfo(targetUserId);
 
         }else{
             messagesRef = mFirebasestore.collection("rooms").document("people use the app")
                     .collection("messages");
         }
         initializeUserAndData();
+    }
+
+    private void setChatInfo(String targetUserId) {
+        /*in the next commit I'll be setting the chat's info*/
     }
 
     /*getting the image from gallery compress and save it in firebase storage*/

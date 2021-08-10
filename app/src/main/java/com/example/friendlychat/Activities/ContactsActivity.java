@@ -92,8 +92,8 @@ public class ContactsActivity extends AppCompatActivity implements ContactsAdapt
                        User user = dc.getDocument().toObject(User.class);
                        String currentUserId = mAuth.getUid();
                        assert currentUserId != null;
-                       if (!currentUserId.equals(user.getUserId()))
-                           users.add(user);
+                       /*if (!currentUserId.equals(user.getUserId()))*/
+                       users.add(user);
                    }
                    contactsAdapter.notifyDataSetChanged();
                 });
