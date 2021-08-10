@@ -43,7 +43,7 @@ public class User {
         return userId;
     }
 
-    public boolean isActive() {
+    public boolean getIsActive() {
         return isActive;
     }
 

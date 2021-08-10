@@ -19,6 +19,7 @@ import com.example.friendlychat.Module.User;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -104,7 +105,14 @@ public class ContactsActivity extends AppCompatActivity implements ContactsAdapt
         String userId = mAuth.getUid();
         assert userId != null;
         mFirestore.collection("rooms").document(userId)
-                .update("isActive", true);
+                .update("isActive", true).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                Log.d(TAG, "made user active");
+                Toast.makeText(ContactsActivity.this, "User activated successfully", Toast.LENGTH_SHORT).show();
+            }
+        });
+
     }
 
     private void makeUserInActive() {

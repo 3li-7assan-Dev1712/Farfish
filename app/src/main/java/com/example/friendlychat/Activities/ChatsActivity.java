@@ -5,16 +5,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -26,7 +23,6 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
@@ -38,8 +34,8 @@ import com.example.friendlychat.Module.DateUtils;
 import com.example.friendlychat.Module.FileUtil;
 import com.example.friendlychat.Module.Message;
 import com.example.friendlychat.Module.MessagesPreference;
+import com.example.friendlychat.Module.User;
 import com.example.friendlychat.R;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
@@ -47,13 +43,11 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.Source;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.google.firestore.v1.Document;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
@@ -64,8 +58,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.TimeZone;
-import java.util.concurrent.TimeUnit;
 
 import id.zelory.compressor.Compressor;
 
@@ -265,6 +257,32 @@ public class ChatsActivity extends AppCompatActivity {
 
     private void setChatInfo(String targetUserId) {
         /*in the next commit I'll be setting the chat's info*/
+        mFirebasestore.collection("rooms").document(targetUserId)
+                .get(Source.SERVER).addOnSuccessListener(documentSnapshot -> {
+                    User user = documentSnapshot.toObject(User.class);
+                    if (user != null) {
+                        String userPhotoUrl = user.getPhotoUrl();
+                        String userName = user.getUserName();
+                        boolean userIsActive = user.getIsActive();
+                        Log.d(TAG, "user is active " + userIsActive);
+                        Log.d(TAG, "last time seetn : " + user.getLastTimeSeen());
+                        Toast.makeText(this, "last time" + user.getLastTimeSeen(), Toast.LENGTH_SHORT).show();
+                        chat_title.setText(userName);
+                        Picasso.get().load(userPhotoUrl).placeholder(R.drawable.ic_baseline_emoji_emotions_24).into(chat_image);
+                        if (userIsActive)
+                            chat_last_seen.setText("Online");
+                        else{
+                            long lastTimeSeen = user.getLastTimeSeen();
+                            SimpleDateFormat df = new SimpleDateFormat("EEE, MMM d", Locale.getDefault());
+                            String lastTimeSeenText = df.format(lastTimeSeen);
+                            SimpleDateFormat df2 = new SimpleDateFormat("h:mm a", Locale.getDefault());
+                            String text2 = df2.format(lastTimeSeen);
+                            String lastTimeSeenToDisplay = lastTimeSeenText + text2;
+                            chat_last_seen.setText(lastTimeSeenToDisplay);
+                        }
+                    }
+
+                });
     }
 
     /*getting the image from gallery compress and save it in firebase storage*/
