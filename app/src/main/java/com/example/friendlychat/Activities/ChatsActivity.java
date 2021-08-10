@@ -96,7 +96,8 @@ public class ChatsActivity extends AppCompatActivity {
     private CollectionReference messageSingleRef;
     private CollectionReference messageSingleRefTarget;
     private StorageReference mRootRef;
-
+    /*target user Id*/
+    private String targetUserId;
     /*pick picture via calling picPic.launch() method*/
     private ActivityResultLauncher<String> pickPic = registerForActivityResult(
             new ActivityResultContracts.GetContent(){
@@ -235,16 +236,16 @@ public class ChatsActivity extends AppCompatActivity {
 
         if (!isGroup) {
             assert mIntent != null;
-            String targetId = mIntent.getStringExtra("targetId");
+            targetUserId = mIntent.getStringExtra("targetId");
             FirebaseAuth auth = FirebaseAuth.getInstance();
             messageSingleRef = mFirebasestore.collection("rooms").document(Objects.requireNonNull(auth.getUid()))
                     .collection("chats")
-                    .document(auth.getUid()+targetId)
+                    .document(auth.getUid()+targetUserId)
                     .collection("messages");
-            assert targetId != null;
+            assert targetUserId != null;
             messageSingleRefTarget = mFirebasestore.collection("rooms")
-                    .document(targetId)
-                    .collection("chats").document(targetId + auth.getUid())
+                    .document(targetUserId)
+                    .collection("chats").document(targetUserId + auth.getUid())
                     .collection("messages");
 
         }else{
