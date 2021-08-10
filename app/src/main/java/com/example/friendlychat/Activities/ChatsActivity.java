@@ -43,6 +43,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.MetadataChanges;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.Source;
 import com.google.firebase.storage.FirebaseStorage;
@@ -89,8 +90,6 @@ public class ChatsActivity extends AppCompatActivity {
     private CollectionReference messageSingleRef;
     private CollectionReference messageSingleRefTarget;
     private StorageReference mRootRef;
-    /*target user Id*/
-    private String targetUserId;
     /*user profile image*/
     private ImageView chat_image;
     private TextView chat_title;
@@ -186,15 +185,15 @@ public class ChatsActivity extends AppCompatActivity {
 
         Intent mIntent = getIntent();
         if (mIntent != null){
-            setTitle(mIntent.getStringExtra("chatTitle"));
-            isGroup = !mIntent.hasExtra("targetId");
+            setTitle(mIntent.getStringExtra(getResources().getString(R.string.chat_title)));
+            isGroup = !mIntent.hasExtra(getResources().getString(R.string.targetUidKey));
         }
 
         // Enable Send button when there's text to send
         mMessageEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
+                Log.d(TAG, "beforeTextChanged");
             }
 
             @Override
@@ -208,6 +207,7 @@ public class ChatsActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable editable) {
+                Log.d(TAG, "afterTextChanged");
             }
         });
         mMessageEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(DEFAULT_MSG_LENGTH_LIMIT)});
@@ -235,11 +235,12 @@ public class ChatsActivity extends AppCompatActivity {
 
         if (!isGroup) {
             assert mIntent != null;
-            targetUserId = mIntent.getStringExtra("targetId");
+            /*target user Id*/
+            String targetUserId = mIntent.getStringExtra("targetId");
             FirebaseAuth auth = FirebaseAuth.getInstance();
             messageSingleRef = mFirebasestore.collection("rooms").document(Objects.requireNonNull(auth.getUid()))
                     .collection("chats")
-                    .document(auth.getUid()+targetUserId)
+                    .document(auth.getUid()+ targetUserId)
                     .collection("messages");
             assert targetUserId != null;
             messageSingleRefTarget = mFirebasestore.collection("rooms")
@@ -263,29 +264,41 @@ public class ChatsActivity extends AppCompatActivity {
                     if (user != null) {
                         String userPhotoUrl = user.getPhotoUrl();
                         String userName = user.getUserName();
-                        boolean userIsActive = user.getIsActive();
-                        Log.d(TAG, "user is active " + userIsActive);
-                        Log.d(TAG, "last time seetn : " + user.getLastTimeSeen());
-                        Toast.makeText(this, "last time" + user.getLastTimeSeen(), Toast.LENGTH_SHORT).show();
                         chat_title.setText(userName);
                         Picasso.get().load(userPhotoUrl).placeholder(R.drawable.ic_baseline_emoji_emotions_24).into(chat_image);
-                        if (userIsActive)
-                            chat_last_seen.setText("Online");
-                        else{
-                            long lastTimeSeen = user.getLastTimeSeen();
-                            SimpleDateFormat df = new SimpleDateFormat("EEE, MMM d", Locale.getDefault());
-                            String lastTimeSeenText = df.format(lastTimeSeen);
-                            SimpleDateFormat df2 = new SimpleDateFormat("h:mm a", Locale.getDefault());
-                            String text2 = df2.format(lastTimeSeen);
-                            String lastTimeSeenToDisplay = lastTimeSeenText + text2;
-                            chat_last_seen.setText(lastTimeSeenToDisplay);
-                        }
+                        updateChatInfo(user);
                     }
-
                 });
+        listenToChange(targetUserId);
     }
 
-    /*getting the image from gallery compress and save it in firebase storage*/
+    private void listenToChange(String targetUserId) {
+        mFirebasestore.collection("rooms").document(targetUserId)
+                .addSnapshotListener( (value, error) -> {
+                    assert value != null;
+                    User user = value.toObject(User.class);
+                    assert user != null;
+                    updateChatInfo(user);
+                });
+
+    }
+
+    private void updateChatInfo(User user) {
+        boolean isActive = user.getIsActive();
+
+        if (isActive)
+            chat_last_seen.setText(getResources().getString(R.string.online));
+        else {
+            long lastTimeSeen = user.getLastTimeSeen();
+            SimpleDateFormat df = new SimpleDateFormat("EEE, MMM d", Locale.getDefault());
+            String lastTimeSeenText = df.format(lastTimeSeen);
+            SimpleDateFormat df2 = new SimpleDateFormat("h:mm a", Locale.getDefault());
+            String text2 = df2.format(lastTimeSeen);
+            String lastTimeSeenToDisplay = lastTimeSeenText +", "+ text2;
+            chat_last_seen.setText(lastTimeSeenToDisplay);
+        }
+    }
+
     private void putIntoImage(Uri uri)  {
 
         try {

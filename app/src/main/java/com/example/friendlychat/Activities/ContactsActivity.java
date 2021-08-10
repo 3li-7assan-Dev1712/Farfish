@@ -105,13 +105,10 @@ public class ContactsActivity extends AppCompatActivity implements ContactsAdapt
         String userId = mAuth.getUid();
         assert userId != null;
         mFirestore.collection("rooms").document(userId)
-                .update("isActive", true).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                Log.d(TAG, "made user active");
-                Toast.makeText(ContactsActivity.this, "User activated successfully", Toast.LENGTH_SHORT).show();
-            }
-        });
+                .update("isActive", true).addOnCompleteListener(task -> {
+                    Log.d(TAG, "made user active");
+                    Toast.makeText(ContactsActivity.this, "User activated successfully", Toast.LENGTH_SHORT).show();
+                });
 
     }
 
@@ -186,10 +183,10 @@ public class ContactsActivity extends AppCompatActivity implements ContactsAdapt
         Toast.makeText(this, users.get(position).getUserName(), Toast.LENGTH_SHORT).show();
         String chatTitle = users.get(position).getUserName();
         Intent chatsIntent = new Intent(this, ChatsActivity.class);
-        chatsIntent.putExtra("chatTitle", chatTitle);
+        chatsIntent.putExtra(getResources().getString(R.string.chat_title), chatTitle);
         if (!chatTitle.equals("All people use the app")) {
             String targetUserId = users.get(position).getUserId();
-            chatsIntent.putExtra("targetId", targetUserId);
+            chatsIntent.putExtra(getResources().getString(R.string.targetUidKey), targetUserId);
         }
         startActivity(chatsIntent);
     }
@@ -204,5 +201,16 @@ public class ContactsActivity extends AppCompatActivity implements ContactsAdapt
     protected void onStop() {
         super.onStop();
         Log.d(TAG, "onStop");
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        makeUserInActive();
+        super.onDestroy();
+        Log.d(TAG, "onDestroy");
+        /*when the user navigate into another app or just close their phone
+         * then they are no longer active *_-  */
+
     }
 }
