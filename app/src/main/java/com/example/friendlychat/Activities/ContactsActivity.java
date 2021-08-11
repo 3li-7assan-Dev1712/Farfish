@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.friendlychat.Adapters.ContactsAdapter;
 import com.example.friendlychat.Module.MessagesPreference;
+import com.example.friendlychat.Module.SharedPreferenceUtils;
 import com.example.friendlychat.R;
 import com.example.friendlychat.Module.User;
 import com.firebase.ui.auth.AuthUI;
@@ -135,6 +136,7 @@ public class ContactsActivity extends AppCompatActivity implements ContactsAdapt
         if (id == R.id.sign_out){
             mAuth.signOut();
             Toast.makeText(this, "Signed out successfully", Toast.LENGTH_SHORT).show();
+            SharedPreferenceUtils.saveUserSignOut(this);
             launchFirebaseUI();
         }
         return true;
@@ -148,6 +150,7 @@ public class ContactsActivity extends AppCompatActivity implements ContactsAdapt
             // Successfully signed in
             Toast.makeText(this, "You've signed in successfully", Toast.LENGTH_SHORT).show();
             Log.d(TAG, "sign in successfully");
+            SharedPreferenceUtils.saveUserSignIn(this);
             FirebaseUser currentUser = mAuth.getCurrentUser();
             if (currentUser != null) {
                 /*after the user sign in/up saving their information in the firestore*/

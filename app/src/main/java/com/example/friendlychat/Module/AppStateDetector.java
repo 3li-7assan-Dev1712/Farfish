@@ -1,5 +1,6 @@
 package com.example.friendlychat.Module;
 
+import android.content.SharedPreferences;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -27,8 +28,10 @@ public class AppStateDetector extends androidx.multidex.MultiDexApplication impl
     @Override
     public void onCreate() {
         super.onCreate();
-        mAuth = FirebaseAuth.getInstance();
-        mFirestore = FirebaseFirestore.getInstance();
+        if (SharedPreferenceUtils.getUserState(this)) {
+            mAuth = FirebaseAuth.getInstance();
+            mFirestore = FirebaseFirestore.getInstance();
+        }
         ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
 
     }
@@ -52,28 +55,30 @@ public class AppStateDetector extends androidx.multidex.MultiDexApplication impl
     }
 
     private void makeUserInActive() {
-        String userId = mAuth.getUid();
-        long lastTimeSeen = new Date().getTime();
-        assert userId != null;
-        mFirestore.collection("rooms").document(userId)
-                .update(
-                        "isActive", false,
-                        "lastTimeSeen", lastTimeSeen
-                ).addOnSuccessListener(aVoid -> {
-            Log.d(TAG, "made user active");
-            Toast.makeText(this, "User inactivated successfully", Toast.LENGTH_SHORT).show();
-        });
-
+        if (SharedPreferenceUtils.getUserState(this)) {
+            String userId = mAuth.getUid();
+            long lastTimeSeen = new Date().getTime();
+            assert userId != null;
+            mFirestore.collection("rooms").document(userId)
+                    .update(
+                            "isActive", false,
+                            "lastTimeSeen", lastTimeSeen
+                    ).addOnSuccessListener(aVoid -> {
+                Log.d(TAG, "made user active");
+                Toast.makeText(this, "User inactivated successfully", Toast.LENGTH_SHORT).show();
+            });
+        }
     }
 
     private void makeUserActive() {
-        String userId = mAuth.getUid();
-        assert userId != null;
-        mFirestore.collection("rooms").document(userId)
-                .update("isActive", true).addOnCompleteListener(task -> {
-            Log.d(TAG, "made user active");
-            Toast.makeText(this, "User activated successfully", Toast.LENGTH_SHORT).show();
-        });
-
+        if (SharedPreferenceUtils.getUserState(this)) {
+            String userId = mAuth.getUid();
+            assert userId != null;
+            mFirestore.collection("rooms").document(userId)
+                    .update("isActive", true).addOnCompleteListener(task -> {
+                Log.d(TAG, "made user active");
+                Toast.makeText(this, "User activated successfully", Toast.LENGTH_SHORT).show();
+            });
+        }
     }
 }
