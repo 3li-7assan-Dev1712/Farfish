@@ -290,6 +290,7 @@ public class ChatsActivity extends AppCompatActivity {
             messageSingleRef.document("isWriting")
                     .update("isWriting", true);
             tracker++;
+            Log.d(TAG, " just one time *_* ");
         }
     }
 
