@@ -86,7 +86,7 @@ public class ContactsActivity extends AppCompatActivity implements ContactsAdapt
     private void initializeUserAndData() {
 
 
-        makeUserActive();
+        /*makeUserActive();*/
         mFirestore.collection("rooms").get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                    for (DocumentChange dc: queryDocumentSnapshots.getDocumentChanges()){
@@ -206,7 +206,7 @@ public class ContactsActivity extends AppCompatActivity implements ContactsAdapt
 
     @Override
     protected void onDestroy() {
-        makeUserInActive();
+      /*  makeUserInActive();*/
         super.onDestroy();
         Log.d(TAG, "onDestroy");
         /*when the user navigate into another app or just close their phone
