@@ -274,10 +274,14 @@ public class ChatsActivity extends AppCompatActivity {
     }
 
     private void setUserIsNotWriting() {
-        Log.d(TAG, "set user is not writing");
 
-        messageSingleRef.document("isWriting")
-                .update("isWriting", false);
+
+        if (!isGroup) {
+            messageSingleRef.document("isWriting")
+                    .update("isWriting", false);
+
+            Log.d(TAG, "set user is not writing");
+        }
     }
 
     private void setUserIsWriting() {

@@ -40,7 +40,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/appbar"
-        tools:listitem="@layout/message_view_holder"/>
+        tools:listitem="@layout/message_view_holder"
+        android:layout_marginBottom="8dp"/>
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -82,7 +83,7 @@
             android:id="@+id/messageEditText"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:maxHeight="72dp"
+            android:maxHeight="104dp"
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
             android:autofillHints=""
