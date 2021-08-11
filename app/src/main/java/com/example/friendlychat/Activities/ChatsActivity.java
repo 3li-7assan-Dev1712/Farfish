@@ -56,8 +56,10 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 
 import id.zelory.compressor.Compressor;
@@ -96,6 +98,12 @@ public class ChatsActivity extends AppCompatActivity {
     private TextView chat_last_seen;
     private int tracker = 0;
     private String targetUserId;
+
+    /*chat info in upper toolbar*/
+    private boolean isWriting;
+    private boolean isActive;
+    private long lastTimeSeen;
+    /*---------------------*/
     /*pick picture via calling picPic.launch() method*/
     private ActivityResultLauncher<String> pickPic = registerForActivityResult(
             new ActivityResultContracts.GetContent(){
@@ -247,11 +255,15 @@ public class ChatsActivity extends AppCompatActivity {
                     .collection("chats")
                     .document(auth.getUid()+ targetUserId)
                     .collection("messages");
+            Map<String, Object> data = new HashMap<>();
+            data.put("isWriting", false);
+            messageSingleRef.document("isWriting").set(data);
             assert targetUserId != null;
             messageSingleRefTarget = mFirebasestore.collection("rooms")
                     .document(targetUserId)
                     .collection("chats").document(targetUserId + auth.getUid())
                     .collection("messages");
+            messageSingleRefTarget.document("isWriting").set(data);
             setChatInfo(targetUserId);
 
         }else{
@@ -264,15 +276,15 @@ public class ChatsActivity extends AppCompatActivity {
     private void setUserIsNotWriting() {
         Log.d(TAG, "set user is not writing");
 
-        mFirebasestore.collection("rooms").document(targetUserId)
-                .update("isWritting", false);
+        messageSingleRef.document("isWriting")
+                .update("isWriting", false);
     }
 
     private void setUserIsWriting() {
         Log.d(TAG, "set user is writing");
         if (tracker == 0 && !isGroup){
-            mFirebasestore.collection("rooms").document(targetUserId)
-                    .update("isWritting", true);
+            messageSingleRef.document("isWriting")
+                    .update("isWriting", true);
             tracker++;
         }
     }
@@ -280,33 +292,41 @@ public class ChatsActivity extends AppCompatActivity {
     private void setChatInfo(String targetUserId) {
         /*in the next commit I'll be setting the chat's info*/
         mFirebasestore.collection("rooms").document(targetUserId)
-                .get(Source.SERVER).addOnSuccessListener(documentSnapshot -> {
+                .get().addOnSuccessListener(documentSnapshot -> {
                     User user = documentSnapshot.toObject(User.class);
                     if (user != null) {
                         String userPhotoUrl = user.getPhotoUrl();
                         String userName = user.getUserName();
                         chat_title.setText(userName);
                         Picasso.get().load(userPhotoUrl).placeholder(R.drawable.ic_baseline_emoji_emotions_24).into(chat_image);
-                        updateChatInfo(user);
+                        isActive = user.getIsActive();
+                        lastTimeSeen = user.getLastTimeSeen();
+                        updateChatInfo();
                     }
                 });
         listenToChange(targetUserId);
     }
 
     private void listenToChange(String targetUserId) {
-        mFirebasestore.collection("rooms").document(targetUserId)
+        messageSingleRefTarget.document("isWriting")
                 .addSnapshotListener( (value, error) -> {
+                    assert value != null;
+                    isWriting = (boolean) value.get("isWriting");
+                    updateChatInfo();
+                });
+        mFirebasestore.collection("rooms").document(targetUserId)
+                .addSnapshotListener( ((value, error) -> {
                     assert value != null;
                     User user = value.toObject(User.class);
                     assert user != null;
-                    updateChatInfo(user);
-                });
+                    isActive = user.getIsActive();
+                    lastTimeSeen = user.getLastTimeSeen();
+                    updateChatInfo();
+                }));
 
     }
 
-    private void updateChatInfo(User user) {
-        boolean isWriting = user.getIsWritting();
-        boolean isActive = user.getIsActive();
+    private void updateChatInfo() {
 
         if (isWriting){
             chat_last_seen.setText(getResources().getString(R.string.isWriting));
@@ -316,7 +336,7 @@ public class ChatsActivity extends AppCompatActivity {
             chat_last_seen.setText(getResources().getString(R.string.online));
         }
         else {
-            long lastTimeSeen = user.getLastTimeSeen();
+
             SimpleDateFormat df = new SimpleDateFormat("EEE, MMM d", Locale.getDefault());
             String lastTimeSeenText = df.format(lastTimeSeen);
             SimpleDateFormat df2 = new SimpleDateFormat("h:mm a", Locale.getDefault());
