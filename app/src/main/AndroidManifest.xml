@@ -13,16 +13,17 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
-        <activity
-            android:name=".Activities.ContactsActivity"
+        <activity android:name=".Activities.UserContactsActivity"
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity> <!-- android:name="androidx.multidex.MultiDexApplication" -->
+        </activity>
+        <activity
+            android:name=".Activities.ContactsActivity"
+            />
         <provider
             android:name=".DB.MessagesProvider"
             android:authorities="com.example.friendlychat"
@@ -31,7 +32,8 @@
 
         <activity
             android:name=".Activities.ChatsActivity"
-            android:theme="@style/ChatsTheme" />
+            android:theme="@style/ChatsTheme"
+            android:parentActivityName=".Activities.UserContactsActivity"/>
     </application>
 
 </manifest>
