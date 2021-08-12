@@ -23,4 +23,16 @@ public class SharedPreferenceUtils {
         SharedPreferences sp = context.getSharedPreferences("user_state", Context.MODE_PRIVATE);
         return sp.getBoolean("user_sign_in", false);
     }
+
+    public static void saveUserId(Context context, String userId){
+        SharedPreferences sp = context.getSharedPreferences("user_state", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putString("user_id", userId);
+        editor.apply();
+    }
+
+    public static String getUserId(Context context){
+        SharedPreferences sp = context.getSharedPreferences("user_state", Context.MODE_PRIVATE);
+        return sp.getString("user_id", "id");
+    }
 }

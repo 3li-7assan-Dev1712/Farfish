@@ -15,20 +15,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.friendlychat.Adapters.ContactsAdapter;
 import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.SharedPreferenceUtils;
-import com.example.friendlychat.R;
 import com.example.friendlychat.Module.User;
+import com.example.friendlychat.R;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.Source;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,7 +31,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-public class ContactsActivity extends AppCompatActivity implements ContactsAdapter.OnChatClicked{
+public class ContactsActivity extends AppCompatActivity implements ContactsAdapter.OnChatClicked {
     private static final String TAG = ContactsActivity.class.getSimpleName();
     private FirebaseAuth mAuth;
     private List<AuthUI.IdpConfig> providers = Arrays.asList(
@@ -102,27 +97,7 @@ public class ContactsActivity extends AppCompatActivity implements ContactsAdapt
 
     }
 
-    private void makeUserActive() {
-        String userId = mAuth.getUid();
-        assert userId != null;
-        mFirestore.collection("rooms").document(userId)
-                .update("isActive", true).addOnCompleteListener(task -> {
-                    Log.d(TAG, "made user active");
-                    Toast.makeText(ContactsActivity.this, "User activated successfully", Toast.LENGTH_SHORT).show();
-                });
 
-    }
-
-    private void makeUserInActive() {
-        String userId = mAuth.getUid();
-        long lastTimeSeen = new Date().getTime();
-        assert userId != null;
-        mFirestore.collection("rooms").document(userId)
-                .update(
-                        "isActive", false,
-                        "lastTimeSeen", lastTimeSeen
-                );
-    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
        getMenuInflater().inflate(R.menu.main, menu);
@@ -137,6 +112,7 @@ public class ContactsActivity extends AppCompatActivity implements ContactsAdapt
             mAuth.signOut();
             Toast.makeText(this, "Signed out successfully", Toast.LENGTH_SHORT).show();
             SharedPreferenceUtils.saveUserSignOut(this);
+            users.clear();
             launchFirebaseUI();
         }
         return true;
@@ -159,7 +135,7 @@ public class ContactsActivity extends AppCompatActivity implements ContactsAdapt
                 String phoneNumber = currentUser.getPhoneNumber();
                 String photoUrl = Objects.requireNonNull(currentUser.getPhotoUrl()).toString();
                 String userId = mAuth.getUid();
-
+                SharedPreferenceUtils.saveUserId(this, userId);
                 long lastTimeSeen = new Date().getTime();
                 User newUser = new User(userName, phoneNumber, photoUrl, userId, true, false,lastTimeSeen);
                 assert userId != null;
@@ -216,4 +192,5 @@ public class ContactsActivity extends AppCompatActivity implements ContactsAdapt
          * then they are no longer active *_-  */
 
     }
+
 }

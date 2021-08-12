@@ -19,7 +19,7 @@ import java.util.Date;
 * this class demonstrates the process*/
 
 public class AppStateDetector extends androidx.multidex.MultiDexApplication implements
-        LifecycleObserver {
+        LifecycleObserver, SharedPreferences.OnSharedPreferenceChangeListener {
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore mFirestore;
@@ -28,10 +28,11 @@ public class AppStateDetector extends androidx.multidex.MultiDexApplication impl
     @Override
     public void onCreate() {
         super.onCreate();
-        if (SharedPreferenceUtils.getUserState(this)) {
-            mAuth = FirebaseAuth.getInstance();
-            mFirestore = FirebaseFirestore.getInstance();
-        }
+        getSharedPreferences("user_state", MODE_PRIVATE).registerOnSharedPreferenceChangeListener(this);
+
+        mAuth = FirebaseAuth.getInstance();
+        mFirestore = FirebaseFirestore.getInstance();
+
         ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
 
     }
@@ -48,15 +49,16 @@ public class AppStateDetector extends androidx.multidex.MultiDexApplication impl
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     public void stopped() {
+        getSharedPreferences("user_state", MODE_PRIVATE).unregisterOnSharedPreferenceChangeListener(this);
         Log.d("SampleLifeCycle", "ON_STOP");
         Toast.makeText(this, "Goodbye", Toast.LENGTH_SHORT).show();
-        UserStateIntentService.startActionSaveLastTimeActivation(this);
         makeUserInActive();
     }
 
     private void makeUserInActive() {
         if (SharedPreferenceUtils.getUserState(this)) {
             String userId = mAuth.getUid();
+
             long lastTimeSeen = new Date().getTime();
             assert userId != null;
             mFirestore.collection("rooms").document(userId)
@@ -64,7 +66,7 @@ public class AppStateDetector extends androidx.multidex.MultiDexApplication impl
                             "isActive", false,
                             "lastTimeSeen", lastTimeSeen
                     ).addOnSuccessListener(aVoid -> {
-                Log.d(TAG, "made user active");
+                Log.d(TAG, "made user inactive");
                 Toast.makeText(this, "User inactivated successfully", Toast.LENGTH_SHORT).show();
             });
         }
@@ -81,4 +83,27 @@ public class AppStateDetector extends androidx.multidex.MultiDexApplication impl
             });
         }
     }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        boolean userIsSignIn = sharedPreferences.getBoolean(key, false);
+
+        Log.d(TAG, "user state is: " + userIsSignIn);
+        if (userIsSignIn)
+            makeUserActive();
+        else {
+            forceUserToBeInActive();
+        }
+    }
+
+    private void forceUserToBeInActive() {
+        String userId = SharedPreferenceUtils.getUserId(this);
+        mFirestore.collection("rooms").document(userId)
+                .update("isActive", false).addOnCompleteListener(task -> {
+            Log.d(TAG, "forced user to be in Active");
+            Toast.makeText(this, "successfully done!", Toast.LENGTH_SHORT).show();
+        });
+    }
+
+
 }

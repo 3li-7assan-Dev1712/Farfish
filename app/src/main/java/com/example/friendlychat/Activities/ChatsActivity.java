@@ -97,7 +97,6 @@ public class ChatsActivity extends AppCompatActivity {
     private TextView chat_title;
     private TextView chat_last_seen;
     private int tracker = 0;
-    private String targetUserId;
 
     /*chat info in upper toolbar*/
     private boolean isWriting;
@@ -249,7 +248,7 @@ public class ChatsActivity extends AppCompatActivity {
         if (!isGroup) {
             assert mIntent != null;
             /*target user Id*/
-            targetUserId = mIntent.getStringExtra(getResources().getString(R.string.targetUidKey));
+            String targetUserId = mIntent.getStringExtra(getResources().getString(R.string.targetUidKey));
             FirebaseAuth auth = FirebaseAuth.getInstance();
             messageSingleRef = mFirebasestore.collection("rooms").document(Objects.requireNonNull(auth.getUid()))
                     .collection("chats")
