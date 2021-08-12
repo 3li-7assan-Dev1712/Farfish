@@ -43,9 +43,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.MetadataChanges;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.Source;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -338,6 +336,7 @@ public class ChatsActivity extends AppCompatActivity {
         }
         else if (isActive) {
             chat_last_seen.setText(getResources().getString(R.string.online));
+            chat_last_seen.setTextColor(getResources().getColor(R.color.colorTitle));
         }
         else {
 
@@ -504,5 +503,12 @@ public class ChatsActivity extends AppCompatActivity {
         mMessageRecyclerView.smoothScrollToPosition(messages.size() - 1);
     }
 
+    /*when the user navigate out from the activity (closing the app or navigate to other chat) while is writing. The server
+    * should be notified*/
+    @Override
+    protected void onPause() {
+        super.onPause();
+        setUserIsNotWriting();
 
+    }
 }
