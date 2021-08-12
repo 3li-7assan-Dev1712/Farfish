@@ -83,17 +83,29 @@ public class UserContactsActivity extends AppCompatActivity implements ContactsA
 
 
         /*makeUserActive();*/
-        mFirestore.collection("rooms").get()
+        mFirestore.collection("rooms").document(mAuth.getUid())
+                .collection("chats").get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     for (DocumentChange dc: queryDocumentSnapshots.getDocumentChanges()){
-                        User user = dc.getDocument().toObject(User.class);
-                        String currentUserId = mAuth.getUid();
-                        assert currentUserId != null;
-                        /*if (!currentUserId.equals(user.getUserId()))*/
-                        users.add(user);
+                        String changeType = dc.getType().name();
+                        /*if the type is added than means there's a new user*/
+                        if (changeType.equals(DocumentChange.Type.ADDED)) {
+                            String targetUserId = Objects.requireNonNull(dc.getDocument().get("target_user_id")).toString();
+                            mFirestore.collection("rooms").document(targetUserId).get().addOnSuccessListener(documentSnapshot -> {
+                                User user = documentSnapshot.toObject(User.class);
+                                users.add(user);
+                            });
+                            contactsAdapter.notifyDataSetChanged();
+                        }
+                        /*if the change type is modified that means that that the user is writing or sent a new message
+                        * and will be handled after a while*/
+                        else if (changeType.equals(DocumentChange.Type.MODIFIED)){
+                            Toast.makeText(this, "Modification happened will be done in the future", Toast.LENGTH_SHORT).show();
+                        }
                     }
-                    contactsAdapter.notifyDataSetChanged();
+
                 });
+
 
     }
 
@@ -163,10 +175,8 @@ public class UserContactsActivity extends AppCompatActivity implements ContactsA
         String chatTitle = users.get(position).getUserName();
         Intent chatsIntent = new Intent(this, ChatsActivity.class);
         chatsIntent.putExtra(getResources().getString(R.string.chat_title), chatTitle);
-        if (!chatTitle.equals("All people use the app")) {
-            String targetUserId = users.get(position).getUserId();
-            chatsIntent.putExtra(getResources().getString(R.string.targetUidKey), targetUserId);
-        }
+        String targetUserId = users.get(position).getUserId();
+        chatsIntent.putExtra(getResources().getString(R.string.targetUidKey), targetUserId);
         startActivity(chatsIntent);
     }
 
@@ -183,14 +193,5 @@ public class UserContactsActivity extends AppCompatActivity implements ContactsA
 
     }
 
-    @Override
-    protected void onDestroy() {
-        /*  makeUserInActive();*/
-        super.onDestroy();
-        Log.d(TAG, "onDestroy");
-        /*when the user navigate into another app or just close their phone
-         * then they are no longer active *_-  */
-
-    }
 
 }
