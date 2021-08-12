@@ -40,7 +40,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/appbar"
-        tools:listitem="@layout/message_view_holder"/>
+        tools:listitem="@layout/message_view_holder"
+        android:layout_marginBottom="8dp"/>
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -67,7 +68,8 @@
         app:layout_constraintStart_toStartOf="parent"
         android:background="@drawable/sending_background"
         android:paddingStart="8dp"
-        android:paddingEnd="8dp">
+        android:paddingEnd="8dp"
+        android:layout_marginTop="8dp">
 
         <ImageButton
             android:id="@+id/send_emoji_btn"
@@ -81,13 +83,14 @@
             android:id="@+id/messageEditText"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:maxHeight="72dp"
+            android:maxHeight="104dp"
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
             android:autofillHints=""
             android:hint="@string/edit_text_hint"
             android:textColor="@android:color/darker_gray"
-            android:inputType="text"
+            android:inputType="text|textMultiLine"
+            android:scrollHorizontally="false"
             android:fontFamily="sans-serif-thin"/>
 
         <ImageButton

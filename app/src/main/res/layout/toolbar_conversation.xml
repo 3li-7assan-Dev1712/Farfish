@@ -43,7 +43,7 @@
         app:layout_constraintTop_toTopOf="parent"
         android:clickable="true"
         android:focusable="true"
-        android:background="?android:colorPressedHighlight">
+      >
 
         <ImageView
             android:id="@+id/back_arrow"

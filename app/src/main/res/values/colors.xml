@@ -10,4 +10,5 @@
     <color name="colorPrimaryDark">#007874</color>
     <color name="colorAccent">#a81e23</color>
     <color name="colorTitle">#ffffff</color>
+    <color name="surface_disabled">#999999</color>
 </resources>

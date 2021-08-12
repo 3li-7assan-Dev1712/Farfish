@@ -14,26 +14,24 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.friendlychat.Adapters.ContactsAdapter;
 import com.example.friendlychat.Module.MessagesPreference;
-import com.example.friendlychat.R;
+import com.example.friendlychat.Module.SharedPreferenceUtils;
 import com.example.friendlychat.Module.User;
+import com.example.friendlychat.R;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.Source;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-public class ContactsActivity extends AppCompatActivity implements ContactsAdapter.OnChatClicked{
+public class ContactsActivity extends AppCompatActivity implements ContactsAdapter.OnChatClicked {
     private static final String TAG = ContactsActivity.class.getSimpleName();
     private FirebaseAuth mAuth;
     private List<AuthUI.IdpConfig> providers = Arrays.asList(
@@ -84,34 +82,21 @@ public class ContactsActivity extends AppCompatActivity implements ContactsAdapt
     private void initializeUserAndData() {
 
 
+        /*makeUserActive();*/
         mFirestore.collection("rooms").get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                    for (DocumentChange dc: queryDocumentSnapshots.getDocumentChanges()){
                        User user = dc.getDocument().toObject(User.class);
                        String currentUserId = mAuth.getUid();
                        assert currentUserId != null;
-                       if (!currentUserId.equals(user.getUserId()))
-                           users.add(user);
+                       /*if (!currentUserId.equals(user.getUserId()))*/
+                       users.add(user);
                    }
                    contactsAdapter.notifyDataSetChanged();
                 });
 
     }
 
-    private void insertUsers(Task<QuerySnapshot> task) {
-        users.clear();
-        Log.d(TAG, "onSuccess");
-        /*task.getResult().getDocuments().get(0).getD*/
-        for (QueryDocumentSnapshot document: Objects.requireNonNull(task.getResult())){
-            User user = document.toObject(User.class);
-            Log.d(TAG, "userName: " + user.getUserName());
-            String currentUserId = mAuth.getUid();
-            assert currentUserId != null;
-            if (!currentUserId.equals(user.getUserId()))
-                users.add(user);
-        }
-        contactsAdapter.notifyDataSetChanged();
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -126,6 +111,8 @@ public class ContactsActivity extends AppCompatActivity implements ContactsAdapt
         if (id == R.id.sign_out){
             mAuth.signOut();
             Toast.makeText(this, "Signed out successfully", Toast.LENGTH_SHORT).show();
+            SharedPreferenceUtils.saveUserSignOut(this);
+            users.clear();
             launchFirebaseUI();
         }
         return true;
@@ -139,6 +126,7 @@ public class ContactsActivity extends AppCompatActivity implements ContactsAdapt
             // Successfully signed in
             Toast.makeText(this, "You've signed in successfully", Toast.LENGTH_SHORT).show();
             Log.d(TAG, "sign in successfully");
+            SharedPreferenceUtils.saveUserSignIn(this);
             FirebaseUser currentUser = mAuth.getCurrentUser();
             if (currentUser != null) {
                 /*after the user sign in/up saving their information in the firestore*/
@@ -147,7 +135,9 @@ public class ContactsActivity extends AppCompatActivity implements ContactsAdapt
                 String phoneNumber = currentUser.getPhoneNumber();
                 String photoUrl = Objects.requireNonNull(currentUser.getPhotoUrl()).toString();
                 String userId = mAuth.getUid();
-                User newUser = new User(userName, phoneNumber, photoUrl, userId);
+                SharedPreferenceUtils.saveUserId(this, userId);
+                long lastTimeSeen = new Date().getTime();
+                User newUser = new User(userName, phoneNumber, photoUrl, userId, true, false,lastTimeSeen);
                 assert userId != null;
                 mFirestore.collection("rooms").document(userId).set(newUser).addOnCompleteListener(task ->
                         Toast.makeText(ContactsActivity.this, "saved new user successfully", Toast.LENGTH_SHORT).show()
@@ -172,11 +162,35 @@ public class ContactsActivity extends AppCompatActivity implements ContactsAdapt
         Toast.makeText(this, users.get(position).getUserName(), Toast.LENGTH_SHORT).show();
         String chatTitle = users.get(position).getUserName();
         Intent chatsIntent = new Intent(this, ChatsActivity.class);
-        chatsIntent.putExtra("chatTitle", chatTitle);
+        chatsIntent.putExtra(getResources().getString(R.string.chat_title), chatTitle);
         if (!chatTitle.equals("All people use the app")) {
             String targetUserId = users.get(position).getUserId();
-            chatsIntent.putExtra("targetId", targetUserId);
+            chatsIntent.putExtra(getResources().getString(R.string.targetUidKey), targetUserId);
         }
         startActivity(chatsIntent);
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d(TAG, "onPause");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d(TAG, "onStop");
+
+    }
+
+    @Override
+    protected void onDestroy() {
+      /*  makeUserInActive();*/
+        super.onDestroy();
+        Log.d(TAG, "onDestroy");
+        /*when the user navigate into another app or just close their phone
+         * then they are no longer active *_-  */
+
+    }
+
 }

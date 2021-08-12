@@ -5,27 +5,24 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
@@ -37,8 +34,8 @@ import com.example.friendlychat.Module.DateUtils;
 import com.example.friendlychat.Module.FileUtil;
 import com.example.friendlychat.Module.Message;
 import com.example.friendlychat.Module.MessagesPreference;
+import com.example.friendlychat.Module.User;
 import com.example.friendlychat.R;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
@@ -46,13 +43,10 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.Source;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.google.firestore.v1.Document;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
@@ -60,11 +54,11 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
-import java.util.TimeZone;
-import java.util.concurrent.TimeUnit;
 
 import id.zelory.compressor.Compressor;
 
@@ -96,7 +90,17 @@ public class ChatsActivity extends AppCompatActivity {
     private CollectionReference messageSingleRef;
     private CollectionReference messageSingleRefTarget;
     private StorageReference mRootRef;
+    /*user profile image*/
+    private ImageView chat_image;
+    private TextView chat_title;
+    private TextView chat_last_seen;
+    private int tracker = 0;
 
+    /*chat info in upper toolbar*/
+    private boolean isWriting;
+    private boolean isActive;
+    private long lastTimeSeen;
+    /*---------------------*/
     /*pick picture via calling picPic.launch() method*/
     private ActivityResultLauncher<String> pickPic = registerForActivityResult(
             new ActivityResultContracts.GetContent(){
@@ -137,7 +141,9 @@ public class ChatsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_chats);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        ImageView chatImage = findViewById(R.id.chat_conversation_profile);
+        chat_image = findViewById(R.id.chat_conversation_profile);
+        chat_title = findViewById(R.id.chat_title);
+        chat_last_seen = findViewById(R.id.chat_last_seen);
         LinearLayout layout = findViewById(R.id.go_back);
         layout.setOnClickListener(v-> {
             Intent ContactsActivity = new Intent(this, ContactsActivity.class);
@@ -186,15 +192,16 @@ public class ChatsActivity extends AppCompatActivity {
 
         Intent mIntent = getIntent();
         if (mIntent != null){
-            setTitle(mIntent.getStringExtra("chatTitle"));
-            isGroup = !mIntent.hasExtra("targetId");
+            setTitle(mIntent.getStringExtra(getResources().getString(R.string.chat_title)));
+            isGroup = !mIntent.hasExtra(getResources().getString(R.string.targetUidKey));
         }
 
         // Enable Send button when there's text to send
         mMessageEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
+                Log.d(TAG, "beforeTextChanged");
+                setUserIsWriting();
             }
 
             @Override
@@ -203,11 +210,14 @@ public class ChatsActivity extends AppCompatActivity {
                     mSendButton.setEnabled(true);
                 } else {
                     mSendButton.setEnabled(false);
+                    setUserIsNotWriting();
+                    tracker = 0;
                 }
             }
 
             @Override
             public void afterTextChanged(Editable editable) {
+                Log.d(TAG, "afterTextChanged");
             }
         });
         mMessageEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(DEFAULT_MSG_LENGTH_LIMIT)});
@@ -235,17 +245,23 @@ public class ChatsActivity extends AppCompatActivity {
 
         if (!isGroup) {
             assert mIntent != null;
-            String targetId = mIntent.getStringExtra("targetId");
+            /*target user Id*/
+            String targetUserId = mIntent.getStringExtra(getResources().getString(R.string.targetUidKey));
             FirebaseAuth auth = FirebaseAuth.getInstance();
             messageSingleRef = mFirebasestore.collection("rooms").document(Objects.requireNonNull(auth.getUid()))
                     .collection("chats")
-                    .document(auth.getUid()+targetId)
+                    .document(auth.getUid()+ targetUserId)
                     .collection("messages");
-            assert targetId != null;
+            Map<String, Object> data = new HashMap<>();
+            data.put("isWriting", false);
+            messageSingleRef.document("isWriting").set(data);
+            assert targetUserId != null;
             messageSingleRefTarget = mFirebasestore.collection("rooms")
-                    .document(targetId)
-                    .collection("chats").document(targetId + auth.getUid())
+                    .document(targetUserId)
+                    .collection("chats").document(targetUserId + auth.getUid())
                     .collection("messages");
+            messageSingleRefTarget.document("isWriting").set(data);
+            setChatInfo(targetUserId);
 
         }else{
             messagesRef = mFirebasestore.collection("rooms").document("people use the app")
@@ -254,7 +270,85 @@ public class ChatsActivity extends AppCompatActivity {
         initializeUserAndData();
     }
 
-    /*getting the image from gallery compress and save it in firebase storage*/
+    private void setUserIsNotWriting() {
+
+
+        if (!isGroup) {
+            messageSingleRef.document("isWriting")
+                    .update("isWriting", false);
+
+            Log.d(TAG, "set user is not writing");
+        }
+    }
+
+    private void setUserIsWriting() {
+        Log.d(TAG, "set user is writing");
+        if (tracker == 0 && !isGroup){
+            messageSingleRef.document("isWriting")
+                    .update("isWriting", true);
+            tracker++;
+            Log.d(TAG, " just one time *_* ");
+        }
+    }
+
+    private void setChatInfo(String targetUserId) {
+        /*in the next commit I'll be setting the chat's info*/
+        mFirebasestore.collection("rooms").document(targetUserId)
+                .get().addOnSuccessListener(documentSnapshot -> {
+                    User user = documentSnapshot.toObject(User.class);
+                    if (user != null) {
+                        String userPhotoUrl = user.getPhotoUrl();
+                        String userName = user.getUserName();
+                        chat_title.setText(userName);
+                        Picasso.get().load(userPhotoUrl).placeholder(R.drawable.ic_baseline_emoji_emotions_24).into(chat_image);
+                        isActive = user.getIsActive();
+                        lastTimeSeen = user.getLastTimeSeen();
+                        updateChatInfo();
+                    }
+                });
+        listenToChange(targetUserId);
+    }
+
+    private void listenToChange(String targetUserId) {
+        messageSingleRefTarget.document("isWriting")
+                .addSnapshotListener( (value, error) -> {
+                    assert value != null;
+                    isWriting = (boolean) value.get("isWriting");
+                    updateChatInfo();
+                });
+        mFirebasestore.collection("rooms").document(targetUserId)
+                .addSnapshotListener( ((value, error) -> {
+                    assert value != null;
+                    User user = value.toObject(User.class);
+                    assert user != null;
+                    isActive = user.getIsActive();
+                    lastTimeSeen = user.getLastTimeSeen();
+                    updateChatInfo();
+                }));
+
+    }
+
+    private void updateChatInfo() {
+
+        if (isWriting){
+            chat_last_seen.setText(getResources().getString(R.string.isWriting));
+            chat_last_seen.setTextColor(getResources().getColor(R.color.colorAccent));
+        }
+        else if (isActive) {
+            chat_last_seen.setText(getResources().getString(R.string.online));
+            chat_last_seen.setTextColor(getResources().getColor(R.color.colorTitle));
+        }
+        else {
+
+            SimpleDateFormat df = new SimpleDateFormat("EEE, MMM d", Locale.getDefault());
+            String lastTimeSeenText = df.format(lastTimeSeen);
+            SimpleDateFormat df2 = new SimpleDateFormat("h:mm a", Locale.getDefault());
+            String text2 = df2.format(lastTimeSeen);
+            String lastTimeSeenToDisplay = lastTimeSeenText +", "+ text2;
+            chat_last_seen.setText(lastTimeSeenToDisplay);
+        }
+    }
+
     private void putIntoImage(Uri uri)  {
 
         try {
@@ -409,5 +503,12 @@ public class ChatsActivity extends AppCompatActivity {
         mMessageRecyclerView.smoothScrollToPosition(messages.size() - 1);
     }
 
+    /*when the user navigate out from the activity (closing the app or navigate to other chat) while is writing. The server
+    * should be notified*/
+    @Override
+    protected void onPause() {
+        super.onPause();
+        setUserIsNotWriting();
 
+    }
 }

@@ -9,5 +9,11 @@
     <string name="profile_image">profile image</string>
     <string name="today">Today</string>
     <string name="yesterday">Yesterday</string>
+    <string name="online">Online</string>
+    <string name="last_time_seen">last time seen</string>
+    <string name="targetUidKey">targetId</string>
+    <string name="chat_title">chatTitle</string>
+    <string name="isWriting">is writing...</string>
+
 
 </resources>
