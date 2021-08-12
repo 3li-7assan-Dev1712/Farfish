@@ -24,7 +24,7 @@
             android:id="@+id/photoImageView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:maxWidth="110dp"
+            android:maxWidth="300dp"
             android:adjustViewBounds="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/nameTextView"

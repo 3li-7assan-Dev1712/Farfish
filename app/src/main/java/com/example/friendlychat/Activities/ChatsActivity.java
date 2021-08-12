@@ -351,42 +351,45 @@ public class ChatsActivity extends AppCompatActivity {
 
     private void putIntoImage(Uri uri)  {
 
-        try {
-            File galeryFile = FileUtil.from(this, uri);
-            /*compress the file using a special library*/
-            File compressedImageFile = new Compressor(this).compressToFile(galeryFile);
-            /*take the file name as a unique identifier*/
-            StorageReference imageRef = mRootRef.child(compressedImageFile.getName());
-            // finally uploading the file to firebase storage.
-            UploadTask uploadTask = imageRef.putFile(Uri.fromFile(compressedImageFile));
-            Log.d(TAG, "Original file size is: " +galeryFile.length() / 1024+"KB");
-            Log.d(TAG, "Compressed file size is: " +compressedImageFile.length() / 1024+"KB");
+        if (uri != null) {
+            try {
+                File galeryFile = FileUtil.from(this, uri);
+                /*compress the file using a special library*/
+                File compressedImageFile = new Compressor(this).compressToFile(galeryFile);
+                /*take the file name as a unique identifier*/
+                StorageReference imageRef = mRootRef.child(compressedImageFile.getName());
+                // finally uploading the file to firebase storage.
+                UploadTask uploadTask = imageRef.putFile(Uri.fromFile(compressedImageFile));
+                Log.d(TAG, "Original file size is: " + galeryFile.length() / 1024 + "KB");
+                Log.d(TAG, "Compressed file size is: " + compressedImageFile.length() / 1024 + "KB");
 
-            // Register observers to listen for when the download is done or if it fails
-            uploadTask.addOnFailureListener(exception -> {
-                // Handle unsuccessful uploads
-                Toast.makeText(ChatsActivity.this, "failed to set the image please try again later", Toast.LENGTH_SHORT).show();
-            }).addOnSuccessListener(taskSnapshot -> {
-                // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
-                // ...
-                Toast.makeText(this, "Added image to Storage successfully", Toast.LENGTH_SHORT).show();
-                imageRef.getDownloadUrl().addOnSuccessListener(downloadUri -> {
-                    Log.d(TAG, downloadUri.toString());
-                    Log.d(TAG, String.valueOf(downloadUri));
-                    String downloadUrl = downloadUri.toString();
-                    long dateFromDateClass = new Date().getTime();
-                    Message message = new Message("", mUsername, downloadUrl, dateFromDateClass);
-                    sendMessage(message);
+                // Register observers to listen for when the download is done or if it fails
+                uploadTask.addOnFailureListener(exception -> {
+                    // Handle unsuccessful uploads
+                    Toast.makeText(ChatsActivity.this, "failed to set the image please try again later", Toast.LENGTH_SHORT).show();
+                }).addOnSuccessListener(taskSnapshot -> {
+                    // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
+                    // ...
+                    Toast.makeText(this, "Added image to Storage successfully", Toast.LENGTH_SHORT).show();
+                    imageRef.getDownloadUrl().addOnSuccessListener(downloadUri -> {
+                        Log.d(TAG, downloadUri.toString());
+                        Log.d(TAG, String.valueOf(downloadUri));
+                        String downloadUrl = downloadUri.toString();
+                        long dateFromDateClass = new Date().getTime();
+                        Message message = new Message("", mUsername, downloadUrl, dateFromDateClass);
+                        sendMessage(message);
+                    });
+
                 });
 
-            });
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            Log.d(TAG, "Error copressign the file");
-            Toast.makeText(this, "Error occurs", Toast.LENGTH_SHORT).show();
+            } catch (IOException e) {
+                e.printStackTrace();
+                Log.d(TAG, "Error copressign the file");
+                Toast.makeText(this, "Error occurs", Toast.LENGTH_SHORT).show();
+            }
+        }else{
+            Toast.makeText(this, "Sending image operation canceled", Toast.LENGTH_SHORT).show();
         }
-
 
     }
 

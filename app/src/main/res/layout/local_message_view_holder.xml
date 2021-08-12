@@ -14,7 +14,7 @@
         android:id="@+id/messageLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:maxWidth="156dp"
+        android:maxWidth="300dp"
         android:background="@drawable/current_message_background"
         android:layout_marginTop="8dp"
         android:paddingEnd="16dp"
