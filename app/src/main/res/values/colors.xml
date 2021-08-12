@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#FF9800</color>
+  <!--  <color name="colorPrimary">#FF9800</color>
     <color name="colorPrimaryDark">#E65100</color>
-    <color name="colorAccent">#2E7D32</color>
+    <color name="colorAccent">#2E7D32</color>-     -->
+
+    <!--  colors from the material design website  -->
+    <color name="colorPrimary">#1ea8a3</color>
+    <color name="primaryLightColor">#61dad4</color>
+    <color name="colorPrimaryDark">#007874</color>
+    <color name="colorAccent">#a81e23</color>
     <color name="colorTitle">#ffffff</color>
+    <color name="surface_disabled">#999999</color>
 </resources>

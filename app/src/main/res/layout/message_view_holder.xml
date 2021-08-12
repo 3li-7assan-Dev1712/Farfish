@@ -6,9 +6,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/local_view_holder_container"
     android:layout_height="wrap_content"
-    android:paddingEnd="16dp"
-    android:paddingStart="16dp"
-    android:layout_width="match_parent">
+    android:paddingEnd="8dp"
+    android:paddingStart="8dp"
+    android:layout_width="match_parent"
+    tools:context=".Activities.ChatsActivity"
+    tools:background="@android:color/darker_gray">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/messageLayout"
@@ -20,7 +22,6 @@
         android:paddingStart="16dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
-
         <ImageView
             android:id="@+id/photoImageView"
             android:layout_width="match_parent"
@@ -36,14 +37,14 @@
             android:id="@+id/nameTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:textStyle="bold"
+            android:layout_marginEnd="4dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            tools:text="Name" />
+            tools:text="Name"
+            android:textSize="16sp"
+            android:textColor="@android:color/darker_gray"
+            android:fontFamily="sans-serif-light"/>
 
         <TextView
             android:id="@+id/messageTextView"
@@ -51,7 +52,10 @@
             android:layout_height="wrap_content"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/nameTextView"
-            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-thin"
+            android:textColor="@android:color/black"
             tools:text="Message" />
         <TextView
             android:id="@+id/timeMessage"
@@ -59,12 +63,10 @@
             android:layout_height="wrap_content"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/messageTextView"
-            android:layout_weight="0"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@android:color/white"
-            android:background="@drawable/time_background"
-            android:layout_marginEnd="16dp"
-            android:fontFamily="sans-serif-light"
+            android:textColor="@android:color/holo_green_dark"
+            android:textSize="12sp"
+            android:fontFamily="sans-serif-thin"
             tools:text="4:55PM" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

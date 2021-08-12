@@ -6,22 +6,23 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
-        android:name="androidx.multidex.MultiDexApplication"
+        android:name=".Module.AppStateDetector"
         android:allowBackup="true"
         android:icon="@mipmap/ic_icon"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Activities.ContactsActivity"
+
+        <activity
+            android:name=".Activities.ContactsActivity"
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-        <!-- android:name="androidx.multidex.MultiDexApplication" -->
+        </activity> <!-- android:name="androidx.multidex.MultiDexApplication" -->
         <provider
             android:name=".DB.MessagesProvider"
             android:authorities="com.example.friendlychat"
@@ -30,7 +31,7 @@
 
         <activity
             android:name=".Activities.ChatsActivity"
-           />
+            android:theme="@style/ChatsTheme" />
     </application>
 
 </manifest>
