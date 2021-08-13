@@ -1,10 +1,5 @@
 package com.example.friendlychat.Activities;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,9 +7,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.friendlychat.Adapters.ContactsAdapter;
 import com.example.friendlychat.Module.FullMessage;
-import com.example.friendlychat.Module.Message;
 import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.SharedPreferenceUtils;
 import com.example.friendlychat.Module.User;
@@ -22,8 +21,6 @@ import com.example.friendlychat.R;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentChange;
@@ -31,7 +28,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.lang.invoke.ConstantCallSite;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -90,17 +86,18 @@ public class UserContactsActivity extends AppCompatActivity implements ContactsA
 
 
         /*makeUserActive();*/
-        mFirestore.collection("rooms").document(mAuth.getUid())
+        mFirestore.collection("rooms").document(Objects.requireNonNull(mAuth.getUid()))
                 .collection("chats").get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        int num = task.getResult().getDocumentChanges().size();
+                        int num = Objects.requireNonNull(task.getResult()).getDocumentChanges().size();
                         Toast.makeText(this, "change ", Toast.LENGTH_SHORT).show();
                         Log.d(TAG, "change in the console");
                         String name = task.getResult().getDocumentChanges().get(0).getDocument().toObject(FullMessage.class).getTargetUserName();
                         Toast.makeText(this, "change from " + name, Toast.LENGTH_SHORT).show();
                         Log.d(TAG, "change in the console from " + name);
                         Log.d(TAG, "going to loop");
+                        fullMessages.clear();
                         for (DocumentSnapshot ds: task.getResult().getDocuments()){
                             fullMessages.add(ds.toObject(FullMessage.class));
                             Log.d(TAG, "add full message in the loop");
@@ -145,9 +142,7 @@ public class UserContactsActivity extends AppCompatActivity implements ContactsA
                 String upComingId = fullMessage.getTargetUserId();
                 for (int i = 0 ; i < fullMessages.size(); i ++){
                     String toBeReplaceId = fullMessages.get(i).getTargetUserId();
-                    if (toBeReplaceId.equals(upComingId)){
-                        fullMessages.remove(i);
-                    }
+                    if (toBeReplaceId.equals(upComingId)) fullMessages.remove(i);
                 }
 
                 fullMessages.add(fullMessage);

@@ -2,9 +2,6 @@ package com.example.friendlychat.Module;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
-
-import com.google.android.gms.common.util.SharedPreferencesUtils;
 
 public class MessagesPreference {
 

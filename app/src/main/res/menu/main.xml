@@ -4,7 +4,7 @@
 
     <item android:id="@+id/sign_out"
         android:title="@string/sign_out"
-        app:showAsAction="never"
+        app:showAsAction="always"
         android:orderInCategory="2"/>
 
     <item android:id="@+id/see_all_users"
