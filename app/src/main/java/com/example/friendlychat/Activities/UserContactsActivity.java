@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import com.example.friendlychat.Adapters.ContactsAdapter;
 import com.example.friendlychat.Module.FullMessage;
+import com.example.friendlychat.Module.Message;
 import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.SharedPreferenceUtils;
 import com.example.friendlychat.Module.User;
@@ -118,29 +119,42 @@ public class UserContactsActivity extends AppCompatActivity implements ContactsA
                         }
                     }
                 });
-                /*.addOnSuccessListener(queryDocumentSnapshots -> {
-                    int num = queryDocumentSnapshots.getDocumentChanges().size();
-                    Toast.makeText(this, "changes in " + num+ " chats", Toast.LENGTH_SHORT).show();
-                    Log.d(TAG, "there are " + num + " changes");
-                    for (DocumentChange dc: queryDocumentSnapshots.getDocumentChanges()){
-                        String changeType = dc.getType().name();
-                        *//*if the type is added than means there's a new user*//*
-                        if (changeType.equals(DocumentChange.Type.ADDED)) {
-                           fullMessages.add(dc.getDocument().toObject(FullMessage.class));
-                            contactsAdapter.setFullMessages(fullMessages);
-                        }
-
-                        *//*if the change type is modified that means that that the user is writing or sent a new message
-                        * and will be handled after a while*//*
-                        else if (changeType.equals(DocumentChange.Type.MODIFIED)){
-                            Log.d(TAG, "modification");
-                            Toast.makeText(this, "Modification happened will be done in the future", Toast.LENGTH_SHORT).show();
-                        }
-                    }*/
-
-                /*});*/
+        mFirestore.collection("rooms").document(mAuth.getUid())
+                .collection("chats").addSnapshotListener((value, error) -> {
+            if (error != null){
+                Toast.makeText(this, "Error reading message", Toast.LENGTH_SHORT).show();
+            }else{
+                String source = value != null && value.getMetadata().hasPendingWrites()
+                        ? "Local" : "Server";
+                Log.d(TAG, source);
+                Toast.makeText(UserContactsActivity.this, source, Toast.LENGTH_SHORT).show();
+                updateUI(value);
+            }
+        });
 
 
+    }
+
+    private void updateUI(QuerySnapshot value) {
+        if (value != null) {
+
+            for (DocumentChange dc : value.getDocumentChanges()) {
+                Toast.makeText(this, "document has changed ", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "document change in User Contacts Activity");
+                FullMessage fullMessage = dc.getDocument().toObject(FullMessage.class);
+                String upComingId = fullMessage.getTargetUserId();
+                for (int i = 0 ; i < fullMessages.size(); i ++){
+                    String toBeReplaceId = fullMessages.get(i).getTargetUserId();
+                    if (toBeReplaceId.equals(upComingId)){
+                        fullMessages.remove(i);
+                    }
+                }
+
+                fullMessages.add(fullMessage);
+                contactsAdapter.notifyDataSetChanged();
+            }
+            contactsAdapter.notifyDataSetChanged();
+        }
     }
 
 

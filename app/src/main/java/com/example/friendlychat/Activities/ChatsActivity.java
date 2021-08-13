@@ -496,8 +496,8 @@ public class ChatsActivity extends AppCompatActivity {
                     Log.d(TAG, source);
                     Toast.makeText(ChatsActivity.this, source, Toast.LENGTH_SHORT).show();
                     addNewMessage(value);
-            }
-        });
+                }
+            });
         }
     }
 
