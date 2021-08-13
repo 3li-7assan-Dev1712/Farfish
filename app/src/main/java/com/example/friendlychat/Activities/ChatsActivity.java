@@ -35,6 +35,7 @@ import com.example.friendlychat.Module.FileUtil;
 import com.example.friendlychat.Module.FullMessage;
 import com.example.friendlychat.Module.Message;
 import com.example.friendlychat.Module.MessagesPreference;
+import com.example.friendlychat.Module.SharedPreferenceUtils;
 import com.example.friendlychat.Module.User;
 import com.example.friendlychat.R;
 import com.google.android.gms.tasks.Task;
@@ -254,6 +255,8 @@ public class ChatsActivity extends AppCompatActivity {
             assert mIntent != null;
             /*target user Id*/
             targetUserId = mIntent.getStringExtra(getResources().getString(R.string.targetUidKey));
+            targetUserName = mIntent.getStringExtra(getResources().getString(R.string.chat_title));
+            targetUserPhotoUrl = mIntent.getStringExtra(getResources().getString(R.string.photoUrl));
             FirebaseAuth auth = FirebaseAuth.getInstance();
             messageSingleRef = mFirebasestore.collection("rooms").document(Objects.requireNonNull(auth.getUid()))
                     .collection("chats")
@@ -424,7 +427,12 @@ public class ChatsActivity extends AppCompatActivity {
                         messageSingleRefTarget.add(message);
                         lastMessage = message;
                         FullMessage fullMessage = new FullMessage(lastMessage, targetUserName, targetUserPhotoUrl, targetUserId);
-                        messageSingleRefTarget.getParent().set(fullMessage);
+                        messageSingleRef.getParent().set(fullMessage);
+                        String currentUserName = MessagesPreference.getUserName(this);
+                        String currentPhotoUrl = MessagesPreference.getUsePhoto(this);
+                        String currenId = SharedPreferenceUtils.getUserId(this);
+                        FullMessage targetFullMessage = new FullMessage(lastMessage, currentUserName, currentPhotoUrl, currenId);
+                        messageSingleRefTarget.getParent().set(targetFullMessage);
                     }).addOnFailureListener(e ->
                     Toast.makeText(ChatsActivity.this, "Error" + e.toString(), Toast.LENGTH_SHORT).show());
         }

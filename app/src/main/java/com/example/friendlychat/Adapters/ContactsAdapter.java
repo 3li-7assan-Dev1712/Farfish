@@ -44,7 +44,12 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
         this.users = users;
         ContactsAdapter.onChatClicked = onChatClicked;
     }
-
+    public ContactsAdapter(Context mContext, List<FullMessage> fullMessages, OnChatClicked onChatClicked, List<User> users) {
+        this.mContext = mContext;
+        this.fullMessages = fullMessages;
+        this.users = users;
+        ContactsAdapter.onChatClicked = onChatClicked;
+    }
     public ContactsAdapter(Context mContext, OnChatClicked onChatClicked) {
         this.mContext = mContext;
         ContactsAdapter.onChatClicked = onChatClicked;
@@ -82,18 +87,30 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
                 Picasso.get().load(targetUserPhotoUrl).placeholder(R.drawable.fui_ic_anonymous_white_24dp).into(holder.userPhoto);
             }
             Message lastMessage = fullMessage.getLastMessage();
-            String messageText = lastMessage.getText();
-            holder.lastMessageTextView.setText(messageText);
-            long messageTime = lastMessage.getTimestamp();
-            SimpleDateFormat d = new SimpleDateFormat("h:mm a", Locale.getDefault());
-            String readableDate = d.format(messageTime);
-            holder.lastMessageTimeTextView.setText(readableDate);
+            if (lastMessage != null) {
+                String messageText = lastMessage.getText();
+                holder.lastMessageTextView.setText(messageText);
+                long messageTime = lastMessage.getTimestamp();
+                SimpleDateFormat d = new SimpleDateFormat("h:mm a", Locale.getDefault());
+                String readableDate = d.format(messageTime);
+                holder.lastMessageTimeTextView.setText(readableDate);
+            }
+        }
+        if (fullMessages == null){
+            Log.d("TAG", "the data is null");
         }
     }
 
     @Override
     public int getItemCount() {
-        return (users == null)? 0: users.size();
+        if (fullMessages != null)
+            return fullMessages.size();
+        else if (users != null)
+            return users.size();
+        else {
+            Log.d("TAG", "check the getItemCount int the ContactsAdapter");
+            return 0;
+        }
     }
 
     static class ContactsViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {

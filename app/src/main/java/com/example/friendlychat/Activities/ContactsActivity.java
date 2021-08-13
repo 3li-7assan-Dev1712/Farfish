@@ -75,12 +75,13 @@ public class ContactsActivity extends AppCompatActivity implements ContactsAdapt
     public void onChatClicked(int position) {
         Toast.makeText(this, users.get(position).getUserName(), Toast.LENGTH_SHORT).show();
         String chatTitle = users.get(position).getUserName();
-
+        String photoUrl = users.get(position).getPhotoUrl();
         Intent chatsIntent = new Intent(this, ChatsActivity.class);
         chatsIntent.putExtra(getResources().getString(R.string.chat_title), chatTitle);
         if (!chatTitle.equals("All people use the app")) {
             String targetUserId = users.get(position).getUserId();
             chatsIntent.putExtra(getResources().getString(R.string.targetUidKey), targetUserId);
+            chatsIntent.putExtra(getResources().getString(R.string.photoUrl), photoUrl);
         }
         startActivity(chatsIntent);
     }

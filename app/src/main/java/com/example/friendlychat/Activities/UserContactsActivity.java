@@ -21,10 +21,14 @@ import com.example.friendlychat.R;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.lang.invoke.ConstantCallSite;
 import java.util.ArrayList;
@@ -51,9 +55,9 @@ public class UserContactsActivity extends AppCompatActivity implements ContactsA
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_contacts);
         mFirestore = FirebaseFirestore.getInstance();
-        RecyclerView contactsRecycler = findViewById(R.id.contactsRecyclerView);
+        RecyclerView contactsRecycler = findViewById(R.id.userContactsRecyclerView);
         fullMessages = new ArrayList<>();
-        contactsAdapter = new ContactsAdapter(this, this);
+        contactsAdapter = new ContactsAdapter(this, fullMessages, this, null);
         contactsRecycler.setAdapter(contactsAdapter);
 
         /*firebase database & auth*/
@@ -87,27 +91,54 @@ public class UserContactsActivity extends AppCompatActivity implements ContactsA
         /*makeUserActive();*/
         mFirestore.collection("rooms").document(mAuth.getUid())
                 .collection("chats").get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        int num = task.getResult().getDocumentChanges().size();
+                        Toast.makeText(this, "change ", Toast.LENGTH_SHORT).show();
+                        Log.d(TAG, "change in the console");
+                        String name = task.getResult().getDocumentChanges().get(0).getDocument().toObject(FullMessage.class).getTargetUserName();
+                        Toast.makeText(this, "change from " + name, Toast.LENGTH_SHORT).show();
+                        Log.d(TAG, "change in the console from " + name);
+                        Log.d(TAG, "going to loop");
+                        for (DocumentSnapshot ds: task.getResult().getDocuments()){
+                            fullMessages.add(ds.toObject(FullMessage.class));
+                            Log.d(TAG, "add full message in the loop");
+                        }
+                        if (fullMessages.size() != 0) {
+                            contactsAdapter.setFullMessages(fullMessages);
+                            contactsAdapter.notifyDataSetChanged();
+
+                            Log.d(TAG, "set the data to the adapter");
+                            Toast.makeText(this, "data is " + fullMessages.size(), Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, " there is " + fullMessages.size() + " contacts should appear");
+                        }
+                        else {
+                            Toast.makeText(this, "no data to send", Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, "no data to show");
+                        }
+                    }
+                });
+                /*.addOnSuccessListener(queryDocumentSnapshots -> {
                     int num = queryDocumentSnapshots.getDocumentChanges().size();
                     Toast.makeText(this, "changes in " + num+ " chats", Toast.LENGTH_SHORT).show();
                     Log.d(TAG, "there are " + num + " changes");
                     for (DocumentChange dc: queryDocumentSnapshots.getDocumentChanges()){
                         String changeType = dc.getType().name();
-                        /*if the type is added than means there's a new user*/
+                        *//*if the type is added than means there's a new user*//*
                         if (changeType.equals(DocumentChange.Type.ADDED)) {
                            fullMessages.add(dc.getDocument().toObject(FullMessage.class));
                             contactsAdapter.setFullMessages(fullMessages);
                         }
 
-                        /*if the change type is modified that means that that the user is writing or sent a new message
-                        * and will be handled after a while*/
+                        *//*if the change type is modified that means that that the user is writing or sent a new message
+                        * and will be handled after a while*//*
                         else if (changeType.equals(DocumentChange.Type.MODIFIED)){
                             Log.d(TAG, "modification");
                             Toast.makeText(this, "Modification happened will be done in the future", Toast.LENGTH_SHORT).show();
                         }
-                    }
+                    }*/
 
-                });
+                /*});*/
 
 
     }
@@ -157,6 +188,7 @@ public class UserContactsActivity extends AppCompatActivity implements ContactsA
                 String photoUrl = Objects.requireNonNull(currentUser.getPhotoUrl()).toString();
                 String userId = mAuth.getUid();
                 SharedPreferenceUtils.saveUserId(this, userId);
+                MessagesPreference.saveUserPhotoUrl(this, photoUrl);
                 long lastTimeSeen = new Date().getTime();
                 User newUser = new User(userName, phoneNumber, photoUrl, userId, true, false,lastTimeSeen);
                 assert userId != null;
@@ -182,7 +214,9 @@ public class UserContactsActivity extends AppCompatActivity implements ContactsA
     public void onChatClicked(int position) {
         Toast.makeText(this, fullMessages.get(position).getTargetUserName(), Toast.LENGTH_SHORT).show();
         String chatTitle = fullMessages.get(position).getTargetUserName();
+        String photoUrl= fullMessages.get(position).getTargetUserPhotoUrl();
         Intent chatsIntent = new Intent(this, ChatsActivity.class);
+        chatsIntent.putExtra(getResources().getString(R.string.photoUrl), photoUrl);
         chatsIntent.putExtra(getResources().getString(R.string.chat_title), chatTitle);
         String targetUserId = fullMessages.get(position).getTargetUserId();
         chatsIntent.putExtra(getResources().getString(R.string.targetUidKey), targetUserId);

@@ -20,4 +20,16 @@ public class MessagesPreference {
         return context.getSharedPreferences("messages", Context.MODE_PRIVATE).getString("user-name", "Ali");
     }
 
+
+    public static void saveUserPhotoUrl(Context context, String  photoUrl){
+        SharedPreferences sharedPreferences = context.getSharedPreferences("messages", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("user-photo", photoUrl);
+        editor.apply();
+    }
+
+    public static String getUsePhoto(Context context){
+        return context.getSharedPreferences("messages", Context.MODE_PRIVATE).getString("user-photo", "photo");
+    }
+
 }
