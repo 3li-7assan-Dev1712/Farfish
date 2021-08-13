@@ -70,28 +70,12 @@ public class ContactsActivity extends AppCompatActivity implements ContactsAdapt
     }
 
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-       getMenuInflater().inflate(R.menu.main, menu);
-       return true;
-
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.sign_out){
-
-        }
-        return true;
-    }
-
-
 
     @Override
     public void onChatClicked(int position) {
         Toast.makeText(this, users.get(position).getUserName(), Toast.LENGTH_SHORT).show();
         String chatTitle = users.get(position).getUserName();
+
         Intent chatsIntent = new Intent(this, ChatsActivity.class);
         chatsIntent.putExtra(getResources().getString(R.string.chat_title), chatTitle);
         if (!chatTitle.equals("All people use the app")) {

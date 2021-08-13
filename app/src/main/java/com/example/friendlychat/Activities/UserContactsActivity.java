@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.example.friendlychat.Adapters.ContactsAdapter;
+import com.example.friendlychat.Module.FullMessage;
 import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.SharedPreferenceUtils;
 import com.example.friendlychat.Module.User;
@@ -25,6 +26,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.lang.invoke.ConstantCallSite;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -41,7 +43,7 @@ public class UserContactsActivity extends AppCompatActivity implements ContactsA
             new FirebaseAuthUIActivityResultContract(),
             this::onSignInResult
     );
-    private List<User> users;
+    private List<FullMessage> fullMessages;
     private ContactsAdapter contactsAdapter;
     private FirebaseFirestore mFirestore;
     @Override
@@ -50,8 +52,8 @@ public class UserContactsActivity extends AppCompatActivity implements ContactsA
         setContentView(R.layout.activity_user_contacts);
         mFirestore = FirebaseFirestore.getInstance();
         RecyclerView contactsRecycler = findViewById(R.id.contactsRecyclerView);
-        users = new ArrayList<>();
-        contactsAdapter = new ContactsAdapter(this, users, this);
+        fullMessages = new ArrayList<>();
+        contactsAdapter = new ContactsAdapter(this, this);
         contactsRecycler.setAdapter(contactsAdapter);
 
         /*firebase database & auth*/
@@ -86,20 +88,21 @@ public class UserContactsActivity extends AppCompatActivity implements ContactsA
         mFirestore.collection("rooms").document(mAuth.getUid())
                 .collection("chats").get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
+                    int num = queryDocumentSnapshots.getDocumentChanges().size();
+                    Toast.makeText(this, "changes in " + num+ " chats", Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "there are " + num + " changes");
                     for (DocumentChange dc: queryDocumentSnapshots.getDocumentChanges()){
                         String changeType = dc.getType().name();
                         /*if the type is added than means there's a new user*/
                         if (changeType.equals(DocumentChange.Type.ADDED)) {
-                            String targetUserId = Objects.requireNonNull(dc.getDocument().get("target_user_id")).toString();
-                            mFirestore.collection("rooms").document(targetUserId).get().addOnSuccessListener(documentSnapshot -> {
-                                User user = documentSnapshot.toObject(User.class);
-                                users.add(user);
-                            });
-                            contactsAdapter.notifyDataSetChanged();
+                           fullMessages.add(dc.getDocument().toObject(FullMessage.class));
+                            contactsAdapter.setFullMessages(fullMessages);
                         }
+
                         /*if the change type is modified that means that that the user is writing or sent a new message
                         * and will be handled after a while*/
                         else if (changeType.equals(DocumentChange.Type.MODIFIED)){
+                            Log.d(TAG, "modification");
                             Toast.makeText(this, "Modification happened will be done in the future", Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -120,13 +123,19 @@ public class UserContactsActivity extends AppCompatActivity implements ContactsA
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.sign_out){
-            mAuth.signOut();
-            Toast.makeText(this, "Signed out successfully", Toast.LENGTH_SHORT).show();
-            SharedPreferenceUtils.saveUserSignOut(this);
-            users.clear();
-            launchFirebaseUI();
-        }
+       switch (id) {
+           case R.id.sign_out:
+               mAuth.signOut();
+               Toast.makeText(this, "Signed out successfully", Toast.LENGTH_SHORT).show();
+               SharedPreferenceUtils.saveUserSignOut(this);
+               fullMessages.clear();
+               launchFirebaseUI();
+               break;
+           case R.id.see_all_users:
+               Intent seeAllUsersIntent = new Intent(this, ContactsActivity.class);
+               startActivity(seeAllUsersIntent);
+               break;
+       }
         return true;
     }
 
@@ -171,11 +180,11 @@ public class UserContactsActivity extends AppCompatActivity implements ContactsA
 
     @Override
     public void onChatClicked(int position) {
-        Toast.makeText(this, users.get(position).getUserName(), Toast.LENGTH_SHORT).show();
-        String chatTitle = users.get(position).getUserName();
+        Toast.makeText(this, fullMessages.get(position).getTargetUserName(), Toast.LENGTH_SHORT).show();
+        String chatTitle = fullMessages.get(position).getTargetUserName();
         Intent chatsIntent = new Intent(this, ChatsActivity.class);
         chatsIntent.putExtra(getResources().getString(R.string.chat_title), chatTitle);
-        String targetUserId = users.get(position).getUserId();
+        String targetUserId = fullMessages.get(position).getTargetUserId();
         chatsIntent.putExtra(getResources().getString(R.string.targetUidKey), targetUserId);
         startActivity(chatsIntent);
     }

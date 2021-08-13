@@ -32,6 +32,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.friendlychat.Adapters.MessagesAdapter;
 import com.example.friendlychat.Module.DateUtils;
 import com.example.friendlychat.Module.FileUtil;
+import com.example.friendlychat.Module.FullMessage;
 import com.example.friendlychat.Module.Message;
 import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.User;
@@ -95,6 +96,12 @@ public class ChatsActivity extends AppCompatActivity {
     private TextView chat_title;
     private TextView chat_last_seen;
     private int tracker = 0;
+
+    /*info for FullMessage class*/
+    private String targetUserId;
+    private Message lastMessage;
+    private String targetUserName;
+    private String targetUserPhotoUrl;
 
     /*chat info in upper toolbar*/
     private boolean isWriting;
@@ -246,7 +253,7 @@ public class ChatsActivity extends AppCompatActivity {
         if (!isGroup) {
             assert mIntent != null;
             /*target user Id*/
-            String targetUserId = mIntent.getStringExtra(getResources().getString(R.string.targetUidKey));
+            targetUserId = mIntent.getStringExtra(getResources().getString(R.string.targetUidKey));
             FirebaseAuth auth = FirebaseAuth.getInstance();
             messageSingleRef = mFirebasestore.collection("rooms").document(Objects.requireNonNull(auth.getUid()))
                     .collection("chats")
@@ -297,10 +304,10 @@ public class ChatsActivity extends AppCompatActivity {
                 .get().addOnSuccessListener(documentSnapshot -> {
                     User user = documentSnapshot.toObject(User.class);
                     if (user != null) {
-                        String userPhotoUrl = user.getPhotoUrl();
-                        String userName = user.getUserName();
-                        chat_title.setText(userName);
-                        Picasso.get().load(userPhotoUrl).placeholder(R.drawable.ic_baseline_emoji_emotions_24).into(chat_image);
+                        targetUserPhotoUrl = user.getPhotoUrl();
+                        targetUserName = user.getUserName();
+                        chat_title.setText(targetUserName);
+                        Picasso.get().load(targetUserPhotoUrl).placeholder(R.drawable.ic_baseline_emoji_emotions_24).into(chat_image);
                         isActive = user.getIsActive();
                         lastTimeSeen = user.getLastTimeSeen();
                         updateChatInfo();
@@ -415,6 +422,9 @@ public class ChatsActivity extends AppCompatActivity {
                             documentReference -> {
                         Toast.makeText(ChatsActivity.this, "Added new message", Toast.LENGTH_SHORT).show();
                         messageSingleRefTarget.add(message);
+                        lastMessage = message;
+                        FullMessage fullMessage = new FullMessage(lastMessage, targetUserName, targetUserPhotoUrl, targetUserId);
+                        messageSingleRefTarget.getParent().set(fullMessage);
                     }).addOnFailureListener(e ->
                     Toast.makeText(ChatsActivity.this, "Error" + e.toString(), Toast.LENGTH_SHORT).show());
         }
