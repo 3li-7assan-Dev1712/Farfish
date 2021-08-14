@@ -79,7 +79,18 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
             Message lastMessage = fullMessage.getLastMessage();
             if (lastMessage != null) {
                 String messageText = lastMessage.getText();
-                holder.lastMessageTextView.setText(messageText);
+                /* if the message is equals to ("") then there's a new photo */
+                if (!messageText.equals(""))
+                    holder.lastMessageTextView.setText(messageText);
+                else {
+                    holder.lastMessageTextView.setText(R.string.new_photo_view_holder);
+                    holder.lastMessageTextView.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                            R.drawable.ic_baseline_photo_camera_24,
+                            0,
+                            0,
+                            0
+                    );
+                }
                 long messageTime = lastMessage.getTimestamp();
                 SimpleDateFormat d = new SimpleDateFormat("h:mm a", Locale.getDefault());
                 String readableDate = d.format(messageTime);

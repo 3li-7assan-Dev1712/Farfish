@@ -453,16 +453,6 @@ public class ChatsActivity extends AppCompatActivity {
 
         Log.d(TAG, "initialize user and data");
         if (isGroup) {
-            /*get data from the local cache*/
-            messagesRef.orderBy("timestamp").get()
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            Log.d(TAG, "onComplete");
-                            insertData(task);
-                        } else {
-                            Log.d(TAG, "Error getting documents: ", task.getException());
-                        }
-                    });
            /*listen to any new new data*/
             messagesRef.orderBy("timestamp").addSnapshotListener((value, error) -> {
                 if (error != null) {
@@ -477,15 +467,7 @@ public class ChatsActivity extends AppCompatActivity {
                 }
             });
         }else{
-           /* messageSingleRef.orderBy("timestamp").get()
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            Log.d(TAG, "onComplete");
-                            insertData(task);
-                        } else {
-                            Log.d(TAG, "Error getting documents: ", task.getException());
-                        }
-                    });*/
+         /*get all the messages, and listen to any up coming one*/
             messageSingleRef.orderBy("timestamp").addSnapshotListener((value, error) -> {
                 if (error != null){
                     Toast.makeText(this, "Error reading message", Toast.LENGTH_SHORT).show();
@@ -513,6 +495,10 @@ public class ChatsActivity extends AppCompatActivity {
         }
     }
 
+    /*in order to reduce the number of calling firestore API this method
+    * will not be used any more, instead send message will handle its operation, as well as
+    * listen and adding any new message*/
+/*
     private void insertData(Task<QuerySnapshot> task) {
         Log.d(TAG, "insertData");
         messages.clear();
@@ -522,7 +508,7 @@ public class ChatsActivity extends AppCompatActivity {
         }
         messagesAdapter.notifyDataSetChanged();
         mMessageRecyclerView.smoothScrollToPosition(messages.size() - 1);
-    }
+    }*/
 
     /*when the user navigate out from the activity (closing the app or navigate to other chat) while is writing. The server
     * should be notified*/
