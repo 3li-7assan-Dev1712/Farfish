@@ -17,6 +17,7 @@
     <string name="go_to_contacts">See all users</string>
     <string name="photoUrl">photoUrl</string>
     <string name="new_photo_view_holder">new photo</string>
+    <string name="notification_utils_farfish">notification_utils_in_farfish</string>
 
 
 </resources>

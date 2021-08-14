@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.friendlychat.Adapters.ContactsAdapter;
 import com.example.friendlychat.Module.FullMessage;
 import com.example.friendlychat.Module.MessagesPreference;
+import com.example.friendlychat.Module.NotificationUtils;
 import com.example.friendlychat.Module.SharedPreferenceUtils;
 import com.example.friendlychat.Module.User;
 import com.example.friendlychat.R;
@@ -28,6 +29,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -133,6 +135,11 @@ public class UserContactsActivity extends AppCompatActivity implements ContactsA
                 for (int i = 0 ; i < fullMessages.size(); i ++){
                     String toBeReplaceId = fullMessages.get(i).getTargetUserId();
                     if (toBeReplaceId.equals(upComingId)) fullMessages.remove(i);
+                }
+                try {
+                    NotificationUtils.notifyUserOfNewMessage(this, fullMessage);
+                }catch (IOException ex){
+                    Toast.makeText(this, "error in showing notification", Toast.LENGTH_SHORT).show();
                 }
                 fullMessages.add(fullMessage);
                 contactsAdapter.notifyDataSetChanged();
