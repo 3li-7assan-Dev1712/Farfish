@@ -337,11 +337,12 @@ public class ChatsActivity extends AppCompatActivity {
 
     }
 
+    /*this method will update the chat info int the toolbar in real time!*/
     private void updateChatInfo() {
 
         if (isWriting){
             chat_last_seen.setText(getResources().getString(R.string.isWriting));
-            chat_last_seen.setTextColor(getResources().getColor(R.color.colorAccent));
+            chat_last_seen.setTextColor(getResources().getColor(R.color.colorAccentLight));
         }
         else if (isActive) {
             chat_last_seen.setText(getResources().getString(R.string.online));
@@ -393,7 +394,7 @@ public class ChatsActivity extends AppCompatActivity {
 
             } catch (IOException e) {
                 e.printStackTrace();
-                Log.d(TAG, "Error copressign the file");
+                Log.d(TAG, "Error compressing the file");
                 Toast.makeText(this, "Error occurs", Toast.LENGTH_SHORT).show();
             }
         }else{

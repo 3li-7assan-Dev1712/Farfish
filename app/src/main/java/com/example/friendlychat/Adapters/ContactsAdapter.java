@@ -84,6 +84,7 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
                     holder.lastMessageTextView.setText(messageText);
                 else {
                     holder.lastMessageTextView.setText(R.string.new_photo_view_holder);
+                    /*at the first of the text set this drawable to indicate of new photo*/
                     holder.lastMessageTextView.setCompoundDrawablesRelativeWithIntrinsicBounds(
                             R.drawable.ic_baseline_photo_camera_24,
                             0,

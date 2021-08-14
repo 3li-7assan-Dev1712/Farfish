@@ -5,10 +5,34 @@
     <color name="colorAccent">#2E7D32</color>-     -->
 
     <!--  colors from the material design website  -->
+
+  <!--
+
+      <color name="colorPrimary">#1ea8a3</color>
+    <color name="primaryLightColor">#61dad4</color>
+    <color name="colorPrimaryDark">#007874</color>
+    <color name="colorAccent">#a81e23</color>
+    <color name="lightStepColor">#e0544b</color>
+    <color name="secondaryDarkColor">#720000</color>
+    <color name="primaryTextColor">#000000</color>
+    <color name="secondaryTextColor">#ffffff</color>
+
+    <color name="activated">#E0E0E0</color>
+    <color name="colorPrimaryText">#212121</color>
+    <color name="colorSecondaryText">#757575</color>
+    <color name="colorWidgetBackground">#F8D3D0</color>
+    <color name="colorWhite">#FFFFFF</color>
+
+  -->
     <color name="colorPrimary">#1ea8a3</color>
     <color name="primaryLightColor">#61dad4</color>
     <color name="colorPrimaryDark">#007874</color>
     <color name="colorAccent">#a81e23</color>
     <color name="colorTitle">#ffffff</color>
     <color name="surface_disabled">#999999</color>
+
+  <!-- new related colors from material design-->
+  <color name="colorAccentLight">#e0544b</color>
+  <color name="colorAccentDark">#720000</color>
+  <color name="colorSecondaryText">#757575</color>
 </resources>
