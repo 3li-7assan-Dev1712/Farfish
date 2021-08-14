@@ -25,11 +25,9 @@ import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentChange;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -136,13 +134,12 @@ public class UserContactsActivity extends AppCompatActivity implements ContactsA
                     String toBeReplaceId = fullMessages.get(i).getTargetUserId();
                     if (toBeReplaceId.equals(upComingId)) fullMessages.remove(i);
                 }
-                try {
-                    NotificationUtils.notifyUserOfNewMessage(this, fullMessage);
-                }catch (IOException ex){
-                    Toast.makeText(this, "error in showing notification", Toast.LENGTH_SHORT).show();
-                }
+
+                NotificationUtils.notifyUserOfNewMessage(this, fullMessage);
+
                 fullMessages.add(fullMessage);
                 contactsAdapter.notifyDataSetChanged();
+
             }
             contactsAdapter.notifyDataSetChanged();
         }

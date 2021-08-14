@@ -6,7 +6,7 @@ public class FullMessage {
     private String targetUserPhotoUrl;
     private String targetUserId;
 
-    private boolean isNew;
+    private boolean isNew = false;
     public FullMessage() {
     }
 
