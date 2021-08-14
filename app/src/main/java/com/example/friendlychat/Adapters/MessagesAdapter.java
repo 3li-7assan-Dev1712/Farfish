@@ -11,17 +11,14 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.friendlychat.Module.DateUtils;
 import com.example.friendlychat.Module.Message;
 import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.R;
 import com.squareup.picasso.Picasso;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
-import java.util.TimeZone;
 
 public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.MessageViewHolder> {
 
@@ -34,12 +31,6 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
     private static final int USE_LOCAL_BACKGROUND = 0;
     private static final int USE_LOCAL_BACKGROUND_IMG = 2;
 
-    public void setMessages(List<Message> messages) {
-
-        this.messages = messages;
-        notifyDataSetChanged();
-
-    }
 
     public MessagesAdapter(Context mContext, List<Message> messages) {
         this.mContext = mContext;
@@ -152,6 +143,5 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
         }
 
     }
-
 
 }

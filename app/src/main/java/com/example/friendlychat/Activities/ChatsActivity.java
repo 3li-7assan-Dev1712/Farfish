@@ -427,12 +427,12 @@ public class ChatsActivity extends AppCompatActivity {
                         messageSingleRefTarget.add(message);
                         lastMessage = message;
                         FullMessage fullMessage = new FullMessage(lastMessage, targetUserName, targetUserPhotoUrl, targetUserId);
-                        messageSingleRef.getParent().set(fullMessage);
+                        Objects.requireNonNull(messageSingleRef.getParent()).set(fullMessage);
                         String currentUserName = MessagesPreference.getUserName(this);
                         String currentPhotoUrl = MessagesPreference.getUsePhoto(this);
                         String currenId = SharedPreferenceUtils.getUserId(this);
                         FullMessage targetFullMessage = new FullMessage(lastMessage, currentUserName, currentPhotoUrl, currenId);
-                        messageSingleRefTarget.getParent().set(targetFullMessage);
+                        Objects.requireNonNull(messageSingleRefTarget.getParent()).set(targetFullMessage);
                     }).addOnFailureListener(e ->
                     Toast.makeText(ChatsActivity.this, "Error" + e.toString(), Toast.LENGTH_SHORT).show());
         }

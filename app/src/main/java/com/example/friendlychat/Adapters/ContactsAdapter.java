@@ -14,11 +14,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.friendlychat.Module.FullMessage;
 import com.example.friendlychat.Module.Message;
-import com.example.friendlychat.R;
 import com.example.friendlychat.Module.User;
+import com.example.friendlychat.R;
 import com.squareup.picasso.Picasso;
-
-import org.w3c.dom.Text;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -34,11 +32,6 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
         void onChatClicked(int position);
     }
     private static OnChatClicked onChatClicked;
-    public ContactsAdapter(Context mContext, List<User> users) {
-        this.mContext = mContext;
-        this.users = users;
-    }
-
     public ContactsAdapter(Context mContext, List<User> users, OnChatClicked onChatClicked) {
         this.mContext = mContext;
         this.users = users;
@@ -95,6 +88,7 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
                 String readableDate = d.format(messageTime);
                 holder.lastMessageTimeTextView.setText(readableDate);
             }
+
         }
         if (fullMessages == null){
             Log.d("TAG", "the data is null");
@@ -133,14 +127,4 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
         }
     }
 
-
-    public void setUsers(List<User> users) {
-        this.users = users;
-        notifyDataSetChanged();
-    }
-
-    public void setFullMessages(List<FullMessage> fullMessages) {
-        this.fullMessages = fullMessages;
-        notifyDataSetChanged();
-    }
 }

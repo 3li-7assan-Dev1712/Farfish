@@ -85,27 +85,18 @@ public class UserContactsActivity extends AppCompatActivity implements ContactsA
     private void initializeUserAndData() {
 
 
-        /*makeUserActive();*/
-        mFirestore.collection("rooms").document(Objects.requireNonNull(mAuth.getUid()))
+
+       /* mFirestore.collection("rooms").document(Objects.requireNonNull(mAuth.getUid()))
                 .collection("chats").get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        int num = Objects.requireNonNull(task.getResult()).getDocumentChanges().size();
-                        Toast.makeText(this, "change ", Toast.LENGTH_SHORT).show();
-                        Log.d(TAG, "change in the console");
                         String name = task.getResult().getDocumentChanges().get(0).getDocument().toObject(FullMessage.class).getTargetUserName();
-                        Toast.makeText(this, "change from " + name, Toast.LENGTH_SHORT).show();
-                        Log.d(TAG, "change in the console from " + name);
-                        Log.d(TAG, "going to loop");
                         fullMessages.clear();
                         for (DocumentSnapshot ds: task.getResult().getDocuments()){
                             fullMessages.add(ds.toObject(FullMessage.class));
-                            Log.d(TAG, "add full message in the loop");
                         }
                         if (fullMessages.size() != 0) {
-                            contactsAdapter.setFullMessages(fullMessages);
                             contactsAdapter.notifyDataSetChanged();
-
                             Log.d(TAG, "set the data to the adapter");
                             Toast.makeText(this, "data is " + fullMessages.size(), Toast.LENGTH_SHORT).show();
                             Log.d(TAG, " there is " + fullMessages.size() + " contacts should appear");
@@ -115,7 +106,7 @@ public class UserContactsActivity extends AppCompatActivity implements ContactsA
                             Log.d(TAG, "no data to show");
                         }
                     }
-                });
+                });*/
         mFirestore.collection("rooms").document(mAuth.getUid())
                 .collection("chats").addSnapshotListener((value, error) -> {
             if (error != null){
@@ -128,7 +119,6 @@ public class UserContactsActivity extends AppCompatActivity implements ContactsA
                 updateUI(value);
             }
         });
-
 
     }
 
@@ -144,7 +134,6 @@ public class UserContactsActivity extends AppCompatActivity implements ContactsA
                     String toBeReplaceId = fullMessages.get(i).getTargetUserId();
                     if (toBeReplaceId.equals(upComingId)) fullMessages.remove(i);
                 }
-
                 fullMessages.add(fullMessage);
                 contactsAdapter.notifyDataSetChanged();
             }
@@ -244,6 +233,5 @@ public class UserContactsActivity extends AppCompatActivity implements ContactsA
         Log.d(TAG, "onStop");
 
     }
-
 
 }

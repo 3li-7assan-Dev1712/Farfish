@@ -6,6 +6,7 @@ public class FullMessage {
     private String targetUserPhotoUrl;
     private String targetUserId;
 
+    private boolean isNew;
     public FullMessage() {
     }
 
@@ -14,6 +15,14 @@ public class FullMessage {
         this.targetUserName = targetUserName;
         this.targetUserPhotoUrl = targetUserPhotoUrl;
         this.targetUserId = targetUserId;
+    }
+
+    public FullMessage(Message lastMessage, String targetUserName, String targetUserPhotoUrl, String targetUserId, boolean isNew) {
+        this.lastMessage = lastMessage;
+        this.targetUserName = targetUserName;
+        this.targetUserPhotoUrl = targetUserPhotoUrl;
+        this.targetUserId = targetUserId;
+        this.isNew = isNew;
     }
 
     public Message getLastMessage() {
@@ -30,5 +39,13 @@ public class FullMessage {
 
     public String getTargetUserId() {
         return targetUserId;
+    }
+
+    public boolean getIsNew() {
+        return isNew;
+    }
+
+    public void setIsNew(boolean isNew) {
+        this.isNew = isNew;
     }
 }
