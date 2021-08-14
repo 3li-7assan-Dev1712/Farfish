@@ -35,7 +35,6 @@ import com.example.friendlychat.Module.FileUtil;
 import com.example.friendlychat.Module.FullMessage;
 import com.example.friendlychat.Module.Message;
 import com.example.friendlychat.Module.MessagesPreference;
-import com.example.friendlychat.Module.SharedPreferenceUtils;
 import com.example.friendlychat.Module.User;
 import com.example.friendlychat.R;
 import com.google.android.gms.tasks.Task;
@@ -430,8 +429,8 @@ public class ChatsActivity extends AppCompatActivity {
                         Objects.requireNonNull(messageSingleRef.getParent()).set(fullMessage);
                         String currentUserName = MessagesPreference.getUserName(this);
                         String currentPhotoUrl = MessagesPreference.getUsePhoto(this);
-                        String currenId = SharedPreferenceUtils.getUserId(this);
-                        FullMessage targetFullMessage = new FullMessage(lastMessage, currentUserName, currentPhotoUrl, currenId);
+                        String currentUserId = MessagesPreference.getUserId(this);
+                        FullMessage targetFullMessage = new FullMessage(lastMessage, currentUserName, currentPhotoUrl, currentUserId);
                         Objects.requireNonNull(messageSingleRefTarget.getParent()).set(targetFullMessage);
                     }).addOnFailureListener(e ->
                     Toast.makeText(ChatsActivity.this, "Error" + e.toString(), Toast.LENGTH_SHORT).show());
@@ -478,7 +477,7 @@ public class ChatsActivity extends AppCompatActivity {
                 }
             });
         }else{
-            messageSingleRef.orderBy("timestamp").get()
+           /* messageSingleRef.orderBy("timestamp").get()
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
                             Log.d(TAG, "onComplete");
@@ -486,7 +485,7 @@ public class ChatsActivity extends AppCompatActivity {
                         } else {
                             Log.d(TAG, "Error getting documents: ", task.getException());
                         }
-                    });
+                    });*/
             messageSingleRef.orderBy("timestamp").addSnapshotListener((value, error) -> {
                 if (error != null){
                     Toast.makeText(this, "Error reading message", Toast.LENGTH_SHORT).show();
@@ -508,6 +507,7 @@ public class ChatsActivity extends AppCompatActivity {
                 messages.add(dc.getDocument().toObject(Message.class));
                 Log.d(TAG, "document change");
             }
+            Log.d(TAG, "the number of messages in this chat is: " + value.getDocumentChanges().size());
             messagesAdapter.notifyDataSetChanged();
             mMessageRecyclerView.smoothScrollToPosition(messages.size() - 1);
         }

@@ -43,10 +43,7 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
         this.users = users;
         ContactsAdapter.onChatClicked = onChatClicked;
     }
-    public ContactsAdapter(Context mContext, OnChatClicked onChatClicked) {
-        this.mContext = mContext;
-        ContactsAdapter.onChatClicked = onChatClicked;
-    }
+
 
 
 

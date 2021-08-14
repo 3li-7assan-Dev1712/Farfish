@@ -3,32 +3,24 @@ package com.example.friendlychat.Activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.friendlychat.Adapters.ContactsAdapter;
 import com.example.friendlychat.Module.User;
 import com.example.friendlychat.R;
-import com.firebase.ui.auth.AuthUI;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class ContactsActivity extends AppCompatActivity implements ContactsAdapter.OnChatClicked {
     private static final String TAG = ContactsActivity.class.getSimpleName();
     private FirebaseAuth mAuth;
-    private List<AuthUI.IdpConfig> providers = Arrays.asList(
-            new AuthUI.IdpConfig.EmailBuilder().build(),
-            new AuthUI.IdpConfig.GoogleBuilder().build());
     private List<User> users;
     private ContactsAdapter contactsAdapter;
     private FirebaseFirestore mFirestore;

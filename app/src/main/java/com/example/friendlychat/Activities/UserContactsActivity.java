@@ -185,7 +185,7 @@ public class UserContactsActivity extends AppCompatActivity implements ContactsA
                 String phoneNumber = currentUser.getPhoneNumber();
                 String photoUrl = Objects.requireNonNull(currentUser.getPhotoUrl()).toString();
                 String userId = mAuth.getUid();
-                SharedPreferenceUtils.saveUserId(this, userId);
+                MessagesPreference.saveUserId(this, userId);
                 MessagesPreference.saveUserPhotoUrl(this, photoUrl);
                 long lastTimeSeen = new Date().getTime();
                 User newUser = new User(userName, phoneNumber, photoUrl, userId, true, false,lastTimeSeen);
