@@ -136,9 +136,7 @@ public class UserContactsActivity extends AppCompatActivity implements ContactsA
                 }
 
                 NotificationUtils.notifyUserOfNewMessage(this, fullMessage);
-
                 fullMessages.add(fullMessage);
-                contactsAdapter.notifyDataSetChanged();
 
             }
             contactsAdapter.notifyDataSetChanged();
