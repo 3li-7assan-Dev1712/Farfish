@@ -8,6 +8,7 @@ public class User {
 
 
     public User() {
+
     }
 
     public User(String userName, String phoneNumber, String photoUrl, String userId) {
