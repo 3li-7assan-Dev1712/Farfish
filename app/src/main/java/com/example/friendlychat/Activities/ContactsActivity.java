@@ -17,6 +17,7 @@ import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.SharedPreferenceUtils;
 import com.example.friendlychat.Module.User;
 import com.example.friendlychat.R;
+import com.example.friendlychat.SignInActivity;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
@@ -114,6 +115,9 @@ public class ContactsActivity extends AppCompatActivity implements ContactsAdapt
             SharedPreferenceUtils.saveUserSignOut(this);
             users.clear();
             launchFirebaseUI();
+        }else if(id == R.id.action_see_sign_in){
+            Intent seeSignInActivity = new Intent(this, SignInActivity.class);
+            startActivity(seeSignInActivity);
         }
         return true;
     }
