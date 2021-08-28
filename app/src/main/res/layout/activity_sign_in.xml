@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/root_constraint_layout_sign_in"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    tools:context=".SignInActivity"
-    android:paddingBottom="8dp">
+    android:paddingBottom="8dp"
+    tools:context=".SignInActivity">
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        >
+        android:layout_height="wrap_content">
+
         <View
             android:id="@+id/icon_container_view"
             android:layout_width="wrap_content"
@@ -124,11 +124,11 @@
             android:id="@+id/farfish_sign_in_icon"
             android:layout_width="150dp"
             android:layout_height="150dp"
+            android:contentDescription="@string/unique_logo_for_the_app"
             app:layout_constraintBottom_toBottomOf="@+id/icon_container_view"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/icon_container_view"
-            app:srcCompat="@drawable/farfish_sign_icon"
-            android:contentDescription="@string/unique_logo_for_the_app"/>
+            app:srcCompat="@drawable/farfish_sign_icon" />
 
         <TextView
             android:id="@+id/farfish_title"
