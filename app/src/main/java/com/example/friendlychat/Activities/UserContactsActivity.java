@@ -53,10 +53,10 @@ public class UserContactsActivity extends AppCompatActivity implements ContactsA
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_contacts);
         mFirestore = FirebaseFirestore.getInstance();
-        RecyclerView contactsRecycler = findViewById(R.id.userContactsRecyclerView);
+       /* RecyclerView contactsRecycler = findViewById(R.id.userContactsRecyclerView);*/
         fullMessages = new ArrayList<>();
         contactsAdapter = new ContactsAdapter(this, fullMessages, this, null);
-        contactsRecycler.setAdapter(contactsAdapter);
+       /* contactsRecycler.setAdapter(contactsAdapter);*/
 
         /*firebase database & auth*/
         mAuth = FirebaseAuth.getInstance();
@@ -64,9 +64,9 @@ public class UserContactsActivity extends AppCompatActivity implements ContactsA
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if(currentUser != null){
             // there's a user go and sign in
-            String userName = currentUser.getDisplayName();
+            /*String userName = currentUser.getDisplayName();
             MessagesPreference.saveUserName(this, userName);
-            initializeUserAndData();
+            */
         }else{
             // three's no user, ge and sign up
             launchFirebaseUI();
@@ -83,31 +83,8 @@ public class UserContactsActivity extends AppCompatActivity implements ContactsA
         signInLauncher.launch(signInIntent);
     }
 
-    private void initializeUserAndData() {
+   /* private void initializeUserAndData() {
 
-
-
-       /* mFirestore.collection("rooms").document(Objects.requireNonNull(mAuth.getUid()))
-                .collection("chats").get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        String name = task.getResult().getDocumentChanges().get(0).getDocument().toObject(FullMessage.class).getTargetUserName();
-                        fullMessages.clear();
-                        for (DocumentSnapshot ds: task.getResult().getDocuments()){
-                            fullMessages.add(ds.toObject(FullMessage.class));
-                        }
-                        if (fullMessages.size() != 0) {
-                            contactsAdapter.notifyDataSetChanged();
-                            Log.d(TAG, "set the data to the adapter");
-                            Toast.makeText(this, "data is " + fullMessages.size(), Toast.LENGTH_SHORT).show();
-                            Log.d(TAG, " there is " + fullMessages.size() + " contacts should appear");
-                        }
-                        else {
-                            Toast.makeText(this, "no data to send", Toast.LENGTH_SHORT).show();
-                            Log.d(TAG, "no data to show");
-                        }
-                    }
-                });*/
         mFirestore.collection("rooms").document(mAuth.getUid())
                 .collection("chats").addSnapshotListener((value, error) -> {
             if (error != null){
@@ -142,7 +119,7 @@ public class UserContactsActivity extends AppCompatActivity implements ContactsA
             }
             contactsAdapter.notifyDataSetChanged();
         }
-    }
+    }*/
 
 
     @Override
@@ -202,7 +179,7 @@ public class UserContactsActivity extends AppCompatActivity implements ContactsA
                 mFirestore.collection("rooms").document(userId).set(newUser).addOnCompleteListener(task ->
                         Toast.makeText(UserContactsActivity.this, "saved new user successfully", Toast.LENGTH_SHORT).show()
                 );
-                initializeUserAndData();
+               /* initializeUserAndData();*/
             }
             // ...
         } else{
