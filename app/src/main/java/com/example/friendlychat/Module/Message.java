@@ -4,6 +4,7 @@ public class Message {
     private String text;
     private String name;
     private String photoUrl;
+    private String senderId;
     private long timestamp;
 
 
@@ -14,6 +15,14 @@ public class Message {
         this.text = text;
         this.name = name;
         this.photoUrl = photoUrl;
+    }
+
+    public Message(String text, String name, String photoUrl, String senderId, long timestamp) {
+        this.text = text;
+        this.name = name;
+        this.photoUrl = photoUrl;
+        this.senderId = senderId;
+        this.timestamp = timestamp;
     }
 
     public Message(String text, String name, String photoUrl, long timestamp) {
@@ -47,4 +56,7 @@ public class Message {
         return photoUrl;
     }
 
+    public String getSenderId() {
+        return senderId;
+    }
 }

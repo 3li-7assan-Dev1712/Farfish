@@ -24,7 +24,7 @@ public class NotificationUtils {
     private static final String FARFISH_NOTIFICATION = "farfish_notification";
 
 
-    public static void notifyUserOfNewMessage(final Context context, FullMessage newFullMessage) {
+    public static void notifyUserOfNewMessage(final Context context, Message newMessage) {
 
         final NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context, FARFISH_NOTIFICATION);
         /* Build the URI for today's weather in order to show up to date data in notification */
@@ -36,14 +36,15 @@ public class NotificationUtils {
                     NotificationManager.IMPORTANCE_HIGH);
             notificationManager.createNotificationChannel(notificationChannel);
         }
-        String messageContent = newFullMessage.getLastMessage().getText();
+
         notificationBuilder
-                .setContentTitle(newFullMessage.getTargetUserName())
+                .setContentTitle(newMessage.getName())
                 .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
                 .setSmallIcon(R.drawable.ui_logo)
                 .setAutoCancel(true);
-        if (!messageContent.equals("")){
-            notificationBuilder.setContentText(messageContent);
+        String messageItSelf = newMessage.getText();
+        if (!messageItSelf.equals("")){
+            notificationBuilder.setContentText(messageItSelf);
         }else{
             notificationBuilder.setContentTitle(context.getResources().getString(R.string.new_photo_view_holder));
                    /* .setLargeIcon(Picasso.get().load(newFullMessage.getLastMessage().getPhotoUrl()).get());*/ // will be done if Allah wills

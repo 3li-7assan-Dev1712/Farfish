@@ -136,7 +136,7 @@ public class UserContactsActivity extends AppCompatActivity implements ContactsA
                     if (toBeReplaceId.equals(upComingId)) fullMessages.remove(i);
                 }
 
-                NotificationUtils.notifyUserOfNewMessage(this, fullMessage);
+
                 fullMessages.add(fullMessage);
 
             }

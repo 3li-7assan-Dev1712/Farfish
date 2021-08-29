@@ -35,6 +35,7 @@ import com.example.friendlychat.Module.FileUtil;
 import com.example.friendlychat.Module.FullMessage;
 import com.example.friendlychat.Module.Message;
 import com.example.friendlychat.Module.MessagesPreference;
+import com.example.friendlychat.Module.NotificationUtils;
 import com.example.friendlychat.Module.User;
 import com.example.friendlychat.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -243,7 +244,7 @@ public class ChatsActivity extends AppCompatActivity {
             Log.d(TAG, "Date in UTC" + sdf.format(dateInUTC));
             Log.d(TAG, "Date in Local (System.currentTimeMillis() ) " + sdf.format(dateInLocalTime));
             Log.d(TAG, "Date in Local (Date().getTime()) " + sdf.format(dateFromDateClass));
-            Message message = new Message(mMessageEditText.getText().toString(), mUsername, "", dateFromDateClass);
+            Message message = new Message(mMessageEditText.getText().toString(), mUsername, "", MessagesPreference.getUserId(this), dateFromDateClass);
             sendMessage(message);
         });
 
@@ -438,6 +439,15 @@ public class ChatsActivity extends AppCompatActivity {
 
     }
 
+    private void sendNotification(Message message) {
+        String currentUserId = MessagesPreference.getUserId(this);
+        String senderId = message.getSenderId();
+        if (senderId != null) {
+            if (!senderId.equals(currentUserId))
+                NotificationUtils.notifyUserOfNewMessage(this, message);
+        }
+    }
+
     private void pickImageFromGallery() {
         pickPic.launch("image/*");
     }
@@ -485,12 +495,16 @@ public class ChatsActivity extends AppCompatActivity {
         if (value != null) {
 
             for (DocumentChange dc : value.getDocumentChanges()) {
-                messages.add(dc.getDocument().toObject(Message.class));
+                Message newMessage = dc.getDocument().toObject(Message.class);
+                messages.add(newMessage);
                 Log.d(TAG, "document change");
+
             }
             Log.d(TAG, "the number of messages in this chat is: " + value.getDocumentChanges().size());
             messagesAdapter.notifyDataSetChanged();
+            sendNotification(messages.get(messages.size() -1));
             mMessageRecyclerView.smoothScrollToPosition(messages.size() - 1);
+
         }
     }
 
