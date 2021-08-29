@@ -6,7 +6,6 @@ public class User {
     private long lastTimeSeen;
 
 
-
     public User() {
 
     }

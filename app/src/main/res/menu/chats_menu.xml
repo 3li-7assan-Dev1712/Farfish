@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
         android:id="@+id/make_video_call"
@@ -13,7 +12,7 @@
         android:id="@+id/make_normal_call"
         app:showAsAction="ifRoom"
         android:icon="@drawable/fui_ic_phone_white_24dp"
-        android:title="Video Call" />
+        android:title="Sound Call" />
 
     <item
         android:id="@+id/profile"

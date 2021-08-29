@@ -12,12 +12,13 @@
         android:layout_height="56dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
         android:contentDescription="@string/profile_image"
+        app:layout_constraintBottom_toBottomOf="parent"
+
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:srcCompat="@tools:sample/avatars"
-
-       />
+        tools:srcCompat="@tools:sample/avatars" />
 
     <TextView
         android:id="@+id/personName"
@@ -30,7 +31,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/profileImage"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.31"
+        app:layout_constraintVertical_bias="0.3"
         tools:text="Ali Hassan" />
 
     <TextView
@@ -49,18 +50,31 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:fontFamily="sans-serif-light"
-        tools:text="6:09 PM"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.32999998"
+        tools:text="6:09 PM" />
 
     <View
         android:id="@+id/separaterView"
         android:layout_width="0dp"
         android:layout_height="1dp"
-        app:layout_constraintStart_toStartOf="@id/lastMessage"
-        app:layout_constraintEnd_toEndOf="@id/lastMessageTime"
-        app:layout_constraintTop_toBottomOf="@id/profileImage"
         android:background="@android:color/darker_gray"
-        />
+        app:layout_constraintEnd_toEndOf="@id/lastMessageTime"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@id/lastMessage"
+        app:layout_constraintTop_toBottomOf="@id/profileImage" />
+
+    <View
+        android:id="@+id/newMessageIndicatorView"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/new_message_indicator_background"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/lastMessageTime" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

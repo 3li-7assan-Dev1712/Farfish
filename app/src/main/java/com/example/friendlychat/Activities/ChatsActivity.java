@@ -32,6 +32,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.friendlychat.Adapters.MessagesAdapter;
 import com.example.friendlychat.Module.DateUtils;
 import com.example.friendlychat.Module.FileUtil;
+import com.example.friendlychat.Module.FullMessage;
 import com.example.friendlychat.Module.Message;
 import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.User;
@@ -95,6 +96,12 @@ public class ChatsActivity extends AppCompatActivity {
     private TextView chat_title;
     private TextView chat_last_seen;
     private int tracker = 0;
+
+    /*info for FullMessage class*/
+    private String targetUserId;
+    private Message lastMessage;
+    private String targetUserName;
+    private String targetUserPhotoUrl;
 
     /*chat info in upper toolbar*/
     private boolean isWriting;
@@ -246,7 +253,9 @@ public class ChatsActivity extends AppCompatActivity {
         if (!isGroup) {
             assert mIntent != null;
             /*target user Id*/
-            String targetUserId = mIntent.getStringExtra(getResources().getString(R.string.targetUidKey));
+            targetUserId = mIntent.getStringExtra(getResources().getString(R.string.targetUidKey));
+            targetUserName = mIntent.getStringExtra(getResources().getString(R.string.chat_title));
+            targetUserPhotoUrl = mIntent.getStringExtra(getResources().getString(R.string.photoUrl));
             FirebaseAuth auth = FirebaseAuth.getInstance();
             messageSingleRef = mFirebasestore.collection("rooms").document(Objects.requireNonNull(auth.getUid()))
                     .collection("chats")
@@ -297,10 +306,10 @@ public class ChatsActivity extends AppCompatActivity {
                 .get().addOnSuccessListener(documentSnapshot -> {
                     User user = documentSnapshot.toObject(User.class);
                     if (user != null) {
-                        String userPhotoUrl = user.getPhotoUrl();
-                        String userName = user.getUserName();
-                        chat_title.setText(userName);
-                        Picasso.get().load(userPhotoUrl).placeholder(R.drawable.ic_baseline_emoji_emotions_24).into(chat_image);
+                        targetUserPhotoUrl = user.getPhotoUrl();
+                        targetUserName = user.getUserName();
+                        chat_title.setText(targetUserName);
+                        Picasso.get().load(targetUserPhotoUrl).placeholder(R.drawable.ic_baseline_emoji_emotions_24).into(chat_image);
                         isActive = user.getIsActive();
                         lastTimeSeen = user.getLastTimeSeen();
                         updateChatInfo();
@@ -328,11 +337,12 @@ public class ChatsActivity extends AppCompatActivity {
 
     }
 
+    /*this method will update the chat info int the toolbar in real time!*/
     private void updateChatInfo() {
 
         if (isWriting){
             chat_last_seen.setText(getResources().getString(R.string.isWriting));
-            chat_last_seen.setTextColor(getResources().getColor(R.color.colorAccent));
+            chat_last_seen.setTextColor(getResources().getColor(R.color.colorAccentLight));
         }
         else if (isActive) {
             chat_last_seen.setText(getResources().getString(R.string.online));
@@ -384,7 +394,7 @@ public class ChatsActivity extends AppCompatActivity {
 
             } catch (IOException e) {
                 e.printStackTrace();
-                Log.d(TAG, "Error copressign the file");
+                Log.d(TAG, "Error compressing the file");
                 Toast.makeText(this, "Error occurs", Toast.LENGTH_SHORT).show();
             }
         }else{
@@ -415,6 +425,14 @@ public class ChatsActivity extends AppCompatActivity {
                             documentReference -> {
                         Toast.makeText(ChatsActivity.this, "Added new message", Toast.LENGTH_SHORT).show();
                         messageSingleRefTarget.add(message);
+                        lastMessage = message;
+                        FullMessage fullMessage = new FullMessage(lastMessage, targetUserName, targetUserPhotoUrl, targetUserId);
+                        Objects.requireNonNull(messageSingleRef.getParent()).set(fullMessage);
+                        String currentUserName = MessagesPreference.getUserName(this);
+                        String currentPhotoUrl = MessagesPreference.getUsePhoto(this);
+                        String currentUserId = MessagesPreference.getUserId(this);
+                        FullMessage targetFullMessage = new FullMessage(lastMessage, currentUserName, currentPhotoUrl, currentUserId);
+                        Objects.requireNonNull(messageSingleRefTarget.getParent()).set(targetFullMessage);
                     }).addOnFailureListener(e ->
                     Toast.makeText(ChatsActivity.this, "Error" + e.toString(), Toast.LENGTH_SHORT).show());
         }
@@ -436,16 +454,6 @@ public class ChatsActivity extends AppCompatActivity {
 
         Log.d(TAG, "initialize user and data");
         if (isGroup) {
-            /*get data from the local cache*/
-            messagesRef.orderBy("timestamp").get()
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            Log.d(TAG, "onComplete");
-                            insertData(task);
-                        } else {
-                            Log.d(TAG, "Error getting documents: ", task.getException());
-                        }
-                    });
            /*listen to any new new data*/
             messagesRef.orderBy("timestamp").addSnapshotListener((value, error) -> {
                 if (error != null) {
@@ -460,15 +468,7 @@ public class ChatsActivity extends AppCompatActivity {
                 }
             });
         }else{
-            messageSingleRef.orderBy("timestamp").get()
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            Log.d(TAG, "onComplete");
-                            insertData(task);
-                        } else {
-                            Log.d(TAG, "Error getting documents: ", task.getException());
-                        }
-                    });
+         /*get all the messages, and listen to any up coming one*/
             messageSingleRef.orderBy("timestamp").addSnapshotListener((value, error) -> {
                 if (error != null){
                     Toast.makeText(this, "Error reading message", Toast.LENGTH_SHORT).show();
@@ -478,8 +478,8 @@ public class ChatsActivity extends AppCompatActivity {
                     Log.d(TAG, source);
                     Toast.makeText(ChatsActivity.this, source, Toast.LENGTH_SHORT).show();
                     addNewMessage(value);
-            }
-        });
+                }
+            });
         }
     }
 
@@ -490,11 +490,16 @@ public class ChatsActivity extends AppCompatActivity {
                 messages.add(dc.getDocument().toObject(Message.class));
                 Log.d(TAG, "document change");
             }
+            Log.d(TAG, "the number of messages in this chat is: " + value.getDocumentChanges().size());
             messagesAdapter.notifyDataSetChanged();
             mMessageRecyclerView.smoothScrollToPosition(messages.size() - 1);
         }
     }
 
+    /*in order to reduce the number of calling firestore API this method
+    * will not be used any more, instead send message will handle its operation, as well as
+    * listen and adding any new message*/
+/*
     private void insertData(Task<QuerySnapshot> task) {
         Log.d(TAG, "insertData");
         messages.clear();
@@ -504,7 +509,7 @@ public class ChatsActivity extends AppCompatActivity {
         }
         messagesAdapter.notifyDataSetChanged();
         mMessageRecyclerView.smoothScrollToPosition(messages.size() - 1);
-    }
+    }*/
 
     /*when the user navigate out from the activity (closing the app or navigate to other chat) while is writing. The server
     * should be notified*/
