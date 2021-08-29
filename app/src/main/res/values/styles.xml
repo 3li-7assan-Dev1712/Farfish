@@ -15,4 +15,9 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <!-- edit text style -->
+    <style name="edit_text_sign_up_style">
+        <item name="background">@drawable/edit_text_sign_in_background</item>
+        <item name="android:padding">8dp</item>
+    </style>
 </resources>

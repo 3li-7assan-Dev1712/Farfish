@@ -30,6 +30,7 @@
     <color name="colorAccent">#a81e23</color>
     <color name="colorTitle">#ffffff</color>
     <color name="surface_disabled">#999999</color>
+    <color name="sign_in_color">#2196F3</color>
 
   <!-- new related colors from material design-->
   <color name="colorAccentLight">#e0544b</color>

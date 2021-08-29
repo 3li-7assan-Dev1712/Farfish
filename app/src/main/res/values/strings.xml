@@ -18,6 +18,21 @@
     <string name="photoUrl">photoUrl</string>
     <string name="new_photo_view_holder">new photo</string>
     <string name="notification_utils_farfish">notification_utils_in_farfish</string>
+    <string name="enter_email_address_hint">Enter your e-mail address</string>
+    <string name="password_sign_in">Password</string>
+    <string name="login">LOGIN</string>
+    <string name="foregot_password">Foregot password?</string>
+    <string name="don_t_have_an_account">Don\'t have an account?</string>
+    <string name="register">Register</string>
+    <string name="farfish">Farfish</string>
+    <string name="unique_logo_for_the_app">unique logo for the app</string>
+    <string name="first_name">First name</string>
+    <string name="last_name">Last name</string>
+    <string name="name">Name</string>
+    <string name="e_mail">E-mail</string>
+    <string name="confirm_password">Confirm password</string>
+    <string name="i_agree_to_the_terms_conditions"><![CDATA[I Agree To The Terms & Conditions]]></string>
+    <string name="already_have_an_account">already have an account?</string>
 
 
 </resources>

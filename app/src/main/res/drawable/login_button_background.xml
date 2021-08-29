@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <solid android:color="@color/sign_in_color"
+        />
+    <corners android:radius="8dp"/>
+    <gradient android:type="linear"
+        android:startColor="@color/sign_in_color"
+        android:endColor="@color/design_default_color_primary_dark" />
+
+</shape>
