@@ -13,21 +13,20 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".SignUpActivity"></activity>
+        <activity android:name=".SignUpActivity" />
         <activity android:name=".SignInActivity" />
         <activity
             android:name=".Activities.ContactsActivity"
+            android:parentActivityName=".Activities.UserContactsActivity"/>
         <activity android:name=".Activities.UserContactsActivity"
-            android:launchMode="singleTop">
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".Activities.ContactsActivity"
-            />
+
         <provider
             android:name=".DB.MessagesProvider"
             android:authorities="com.example.friendlychat"

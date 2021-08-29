@@ -37,12 +37,10 @@ import com.example.friendlychat.Module.Message;
 import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.User;
 import com.example.friendlychat.R;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
@@ -153,7 +151,7 @@ public class ChatsActivity extends AppCompatActivity {
         chat_last_seen = findViewById(R.id.chat_last_seen);
         LinearLayout layout = findViewById(R.id.go_back);
         layout.setOnClickListener(v-> {
-            Intent ContactsActivity = new Intent(this, ContactsActivity.class);
+            Intent ContactsActivity = new Intent(this, UserContactsActivity.class);
             ContactsActivity.addFlags(
                     Intent.FLAG_ACTIVITY_CLEAR_TOP |
                             Intent.FLAG_ACTIVITY_NEW_TASK);

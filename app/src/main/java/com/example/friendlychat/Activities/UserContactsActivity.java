@@ -19,6 +19,7 @@ import com.example.friendlychat.Module.NotificationUtils;
 import com.example.friendlychat.Module.SharedPreferenceUtils;
 import com.example.friendlychat.Module.User;
 import com.example.friendlychat.R;
+import com.example.friendlychat.SignUpActivity;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
@@ -165,7 +166,13 @@ public class UserContactsActivity extends AppCompatActivity implements ContactsA
            case R.id.see_all_users:
                Intent seeAllUsersIntent = new Intent(this, ContactsActivity.class);
                startActivity(seeAllUsersIntent);
+
                break;
+           case R.id.action_see_sign_in:
+               Intent seeSignUpActivity = new Intent(this, SignUpActivity.class);
+               startActivity(seeSignUpActivity);
+               break;
+
        }
         return true;
     }
@@ -219,6 +226,7 @@ public class UserContactsActivity extends AppCompatActivity implements ContactsA
         chatsIntent.putExtra(getResources().getString(R.string.photoUrl), photoUrl);
         chatsIntent.putExtra(getResources().getString(R.string.chat_title), chatTitle);
         String targetUserId = fullMessages.get(position).getTargetUserId();
+        Log.d(TAG, "onChatClicked: targetUid: " + targetUserId);
         chatsIntent.putExtra(getResources().getString(R.string.targetUidKey), targetUserId);
         startActivity(chatsIntent);
     }
