@@ -35,7 +35,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-public class UserContactsActivity extends AppCompatActivity implements ContactsAdapter.OnChatClicked {
+public class UserContactsActivity extends AppCompatActivity  {
     private static final String TAG = ContactsActivity.class.getSimpleName();
     private FirebaseAuth mAuth;
     private List<AuthUI.IdpConfig> providers = Arrays.asList(
@@ -54,8 +54,7 @@ public class UserContactsActivity extends AppCompatActivity implements ContactsA
         setContentView(R.layout.activity_user_contacts);
         mFirestore = FirebaseFirestore.getInstance();
        /* RecyclerView contactsRecycler = findViewById(R.id.userContactsRecyclerView);*/
-        fullMessages = new ArrayList<>();
-        contactsAdapter = new ContactsAdapter(this, fullMessages, this, null);
+
        /* contactsRecycler.setAdapter(contactsAdapter);*/
 
         /*firebase database & auth*/
@@ -194,19 +193,7 @@ public class UserContactsActivity extends AppCompatActivity implements ContactsA
         }
     }
 
-    @Override
-    public void onChatClicked(int position) {
-        Toast.makeText(this, fullMessages.get(position).getTargetUserName(), Toast.LENGTH_SHORT).show();
-        String chatTitle = fullMessages.get(position).getTargetUserName();
-        String photoUrl= fullMessages.get(position).getTargetUserPhotoUrl();
-        Intent chatsIntent = new Intent(this, ChatsActivity.class);
-        chatsIntent.putExtra(getResources().getString(R.string.photoUrl), photoUrl);
-        chatsIntent.putExtra(getResources().getString(R.string.chat_title), chatTitle);
-        String targetUserId = fullMessages.get(position).getTargetUserId();
-        Log.d(TAG, "onChatClicked: targetUid: " + targetUserId);
-        chatsIntent.putExtra(getResources().getString(R.string.targetUidKey), targetUserId);
-        startActivity(chatsIntent);
-    }
+
 
     @Override
     protected void onPause() {
