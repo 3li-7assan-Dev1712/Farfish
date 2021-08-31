@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/userChatsFragment"
-        android:name="com.example.friendlychat.UserChatsFragment"
+        android:name="com.example.friendlychat.fragments.UserChatsFragment"
         android:label="fragment_user_chats"
         tools:layout="@layout/fragment_user_chats" />
 </navigation>

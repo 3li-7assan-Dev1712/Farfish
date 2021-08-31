@@ -1,4 +1,4 @@
-package com.example.friendlychat;
+package com.example.friendlychat.fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,9 +13,9 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.example.friendlychat.Activities.ChatsActivity;
-import com.example.friendlychat.Activities.UserContactsActivity;
 import com.example.friendlychat.Adapters.ContactsAdapter;
 import com.example.friendlychat.Module.FullMessage;
+import com.example.friendlychat.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.FirebaseFirestore;
