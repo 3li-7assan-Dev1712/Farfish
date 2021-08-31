@@ -137,6 +137,13 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
     @Override
     public void onChatClicked(int position) {
 
+//        UserChatsFragmentDirections.
+//        action_userChatsFragment_to_chatsFragment
+
+
+        UserChatsFragmentDirections.ActionUserChatsFragmentToChatsFragment action =
+                UserChatsFragmentDirections.actionUserChatsFragmentToChatsFragment();
+        
         String chatTitle = fullMessages.get(position).getTargetUserName();
         String photoUrl= fullMessages.get(position).getTargetUserPhotoUrl();
         Intent chatsIntent = new Intent(getContext(), ChatsActivity.class);

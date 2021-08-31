@@ -9,10 +9,20 @@
         android:id="@+id/userChatsFragment"
         android:name="com.example.friendlychat.fragments.UserChatsFragment"
         android:label="fragment_user_chats"
-        tools:layout="@layout/fragment_user_chats" />
+        tools:layout="@layout/fragment_user_chats" >
+        <action
+            android:id="@+id/action_userChatsFragment_to_chatsFragment"
+            app:destination="@id/chatsFragment" />
+
+    </fragment>
     <fragment
         android:id="@+id/chatsFragment"
         android:name="com.example.friendlychat.fragments.ChatsFragment"
         android:label="chats_fragment"
-        tools:layout="@layout/chats_fragment" />
+        tools:layout="@layout/chats_fragment" >
+        <argument
+            android:name="data"
+            app:argType="string"
+            android:defaultValue="data" />
+    </fragment>
 </navigation>
