@@ -88,7 +88,7 @@ public class ChatsFragment extends Fragment {
     private List<Message> messages;
     private MessagesAdapter messagesAdapter;
     private String mUsername;
-    private boolean isGroup;
+    private boolean isGroup = false; // at the moment this field will be false, then we'll change it.
     private FirebaseFirestore mFirebasestore;
     private CollectionReference messageSingleRef;
     private CollectionReference messageSingleRefTarget;
@@ -132,6 +132,12 @@ public class ChatsFragment extends Fragment {
         /*app UI functionality*/
         mUsername = ANONYMOUS;
         messages = new ArrayList<>();
+        Bundle data = getArguments();
+        assert data != null;
+        targetUserName = data.getString("chat_title", "Chat title");
+        targetUserPhotoUrl = data.getString("photo_url", "photo");
+        targetUserId = data.getString("target_user_id", "id for target user");
+
     }
 
     @Nullable
@@ -142,7 +148,7 @@ public class ChatsFragment extends Fragment {
         chat_title = view.findViewById(R.id.chat_title);
         chat_last_seen = view.findViewById(R.id.chat_last_seen);
         LinearLayout layout = view.findViewById(R.id.go_back);
-        layout.setOnClickListener(v-> {
+        layout.setOnClickListener( v -> {
             Intent ContactsActivity = new Intent(getContext(), UserContactsActivity.class);
             ContactsActivity.addFlags(
                     Intent.FLAG_ACTIVITY_CLEAR_TOP |
@@ -233,16 +239,10 @@ public class ChatsFragment extends Fragment {
             sendMessage(message);
         });
 
-/*
+
 
         if (!isGroup) {
-            assert mIntent != null;
-            */
-/*target user Id*//*
 
-            targetUserId = mIntent.getStringExtra(getResources().getString(R.string.targetUidKey));
-            targetUserName = mIntent.getStringExtra(getResources().getString(R.string.chat_title));
-            targetUserPhotoUrl = mIntent.getStringExtra(getResources().getString(R.string.photoUrl));
             FirebaseAuth auth = FirebaseAuth.getInstance();
             messageSingleRef = mFirebasestore.collection("rooms").document(Objects.requireNonNull(auth.getUid()))
                     .collection("chats")
@@ -264,7 +264,6 @@ public class ChatsFragment extends Fragment {
                     .collection("messages");
         }
         initializeUserAndData();
-*/
 
         return view;
     }

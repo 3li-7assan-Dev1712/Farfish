@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
@@ -143,15 +144,21 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
 
         UserChatsFragmentDirections.ActionUserChatsFragmentToChatsFragment action =
                 UserChatsFragmentDirections.actionUserChatsFragmentToChatsFragment();
-        
+
         String chatTitle = fullMessages.get(position).getTargetUserName();
         String photoUrl= fullMessages.get(position).getTargetUserPhotoUrl();
-        Intent chatsIntent = new Intent(getContext(), ChatsActivity.class);
+        String targetUserId = fullMessages.get(position).getTargetUserId();
+        Bundle primaryDataBundle = new Bundle();
+        primaryDataBundle.putString("chat_title", chatTitle);
+        primaryDataBundle.putString("photo_url", photoUrl);
+        primaryDataBundle.putString("target_user_id", targetUserId);
+        Navigation.findNavController(requireActivity(), R.id.nav_host_fragment).navigate(R.id.action_userChatsFragment_to_chatsFragment, primaryDataBundle);
+        /*Intent chatsIntent = new Intent(getContext(), ChatsActivity.class);
         chatsIntent.putExtra(getResources().getString(R.string.photoUrl), photoUrl);
         chatsIntent.putExtra(getResources().getString(R.string.chat_title), chatTitle);
-        String targetUserId = fullMessages.get(position).getTargetUserId();
+
         Log.d(TAG, "onChatClicked: targetUid: " + targetUserId);
         chatsIntent.putExtra(getResources().getString(R.string.targetUidKey), targetUserId);
-        startActivity(chatsIntent);
+        startActivity(chatsIntent);*/
     }
 }
