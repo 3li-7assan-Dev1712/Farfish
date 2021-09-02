@@ -8,6 +8,8 @@ import android.view.MenuItem;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.friendlychat.R;
 import com.example.friendlychat.fragments.UserChatsFragmentDirections;
@@ -99,6 +101,19 @@ public class ChatsActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
 
+        Intent intent = getIntent();
+        if (intent.hasExtra(getString(R.string.targetUidKey))){
+            Bundle primaryDataBundle = new Bundle();
+            primaryDataBundle.putString("chat_title", intent.getStringExtra(getString(R.string.chat_title)));
+            primaryDataBundle.putString("photo_url", intent.getStringExtra(getString(R.string.photoUrl)));
+            primaryDataBundle.putString("target_user_id", intent.getStringExtra(getString(R.string.targetUidKey)));
+            NavHostFragment f = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_chats_fragment);
+
+            if (f != null) {
+                NavController navController = f.getNavController();
+                navController.setGraph(R.navigation.chats_nav, primaryDataBundle);
+            }
+        }
 
      /*   NavHostFragment f = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_chats_fragment);
         if ( f != null ){

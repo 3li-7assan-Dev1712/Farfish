@@ -1,5 +1,6 @@
 package com.example.friendlychat.fragments;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -143,18 +144,18 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
 
 //        UserChatsFragmentDirections.
 //        action_userChatsFragment_to_chatsFragment
-
+/*
 
         UserChatsFragmentDirections.ActionUserChatsFragmentToChatsFragment action =
-                UserChatsFragmentDirections.actionUserChatsFragmentToChatsFragment();
+                UserChatsFragmentDirections.actionUserChatsFragmentToChatsFragment();*/
 
         String chatTitle = fullMessages.get(position).getTargetUserName();
         String photoUrl= fullMessages.get(position).getTargetUserPhotoUrl();
         String targetUserId = fullMessages.get(position).getTargetUserId();
-        Bundle primaryDataBundle = new Bundle();
+        /*Bundle primaryDataBundle = new Bundle();
         primaryDataBundle.putString("chat_title", chatTitle);
         primaryDataBundle.putString("photo_url", photoUrl);
-        primaryDataBundle.putString("target_user_id", targetUserId);
+        primaryDataBundle.putString("target_user_id", targetUserId);*/
 
        /* ActivityNavigator(this)
                 .createDestination()
@@ -163,16 +164,22 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
 
        String [] primaryData = {chatTitle, photoUrl, targetUserId};
 
-       UserChatsFragmentDirections.ActionUserChatsFragmentToChatsActivity ac =
+       Context context = requireContext();
+       Intent chats_intent = new Intent(context, ChatsActivity.class);
+       chats_intent.putExtra(context.getString(R.string.chat_title), chatTitle);
+       chats_intent.putExtra(context.getString(R.string.photoUrl), photoUrl);
+       chats_intent.putExtra(context.getString(R.string.targetUidKey), targetUserId);
+       context.startActivity(chats_intent);
+      /* UserChatsFragmentDirections.ActionUserChatsFragmentToChatsActivity ac =
                UserChatsFragmentDirections.actionUserChatsFragmentToChatsActivity(primaryData);
+*/
 
 
-
-
+/*
         NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
                 navController.navigate(ac);
         AppBarConfiguration appBarConfiguration =
-                new AppBarConfiguration.Builder(navController.getGraph()).build();
+                new AppBarConfiguration.Builder(navController.getGraph()).build();*/
 
         /*Intent chatsIntent = new Intent(getContext(), ChatsActivity.class);
         chatsIntent.putExtra(getResources().getString(R.string.photoUrl), photoUrl);
