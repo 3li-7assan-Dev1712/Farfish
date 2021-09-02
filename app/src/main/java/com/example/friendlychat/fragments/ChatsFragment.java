@@ -20,6 +20,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.Toolbar;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -123,6 +124,7 @@ public class ChatsFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate: CALLLLLLED");
         /*firebase storage and its references*/
         FirebaseStorage mStorage = FirebaseStorage.getInstance();
         // Create a storage reference from our app
@@ -140,6 +142,14 @@ public class ChatsFragment extends Fragment {
        }else{
            Toast.makeText(requireContext(), "Data is null", Toast.LENGTH_SHORT).show();
        }
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
+
+        Log.d(TAG, "onAttach: CALLLLLLLED");
     }
 
     @Nullable

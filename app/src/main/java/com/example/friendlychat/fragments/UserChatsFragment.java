@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.example.friendlychat.Activities.ChatsActivity;
 import com.example.friendlychat.Activities.ChatsActivityArgs;
+import com.example.friendlychat.Activities.UserContactsActivity;
 import com.example.friendlychat.Adapters.ContactsAdapter;
 import com.example.friendlychat.Module.FullMessage;
 import com.example.friendlychat.R;
@@ -152,24 +153,20 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
         String chatTitle = fullMessages.get(position).getTargetUserName();
         String photoUrl= fullMessages.get(position).getTargetUserPhotoUrl();
         String targetUserId = fullMessages.get(position).getTargetUserId();
-        /*Bundle primaryDataBundle = new Bundle();
+        Bundle primaryDataBundle = new Bundle();
         primaryDataBundle.putString("chat_title", chatTitle);
         primaryDataBundle.putString("photo_url", photoUrl);
-        primaryDataBundle.putString("target_user_id", targetUserId);*/
+        primaryDataBundle.putString("target_user_id", targetUserId);
+        NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+        navController.navigate(R.id.chatsFragment, primaryDataBundle);
 
-       /* ActivityNavigator(this)
-                .createDestination()
-                .setIntent(Intent(this, SecondActivity::class.java))
-                    .navigate(null, null);*/
-
-       String [] primaryData = {chatTitle, photoUrl, targetUserId};
-
+    /*   String [] primaryData = {chatTitle, photoUrl, targetUserId};
        Context context = requireContext();
        Intent chats_intent = new Intent(context, ChatsActivity.class);
        chats_intent.putExtra(context.getString(R.string.chat_title), chatTitle);
        chats_intent.putExtra(context.getString(R.string.photoUrl), photoUrl);
        chats_intent.putExtra(context.getString(R.string.targetUidKey), targetUserId);
-       context.startActivity(chats_intent);
+       context.startActivity(chats_intent);*/
       /* UserChatsFragmentDirections.ActionUserChatsFragmentToChatsActivity ac =
                UserChatsFragmentDirections.actionUserChatsFragmentToChatsActivity(primaryData);
 */
