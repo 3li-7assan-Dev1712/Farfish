@@ -133,11 +133,13 @@ public class ChatsFragment extends Fragment {
         mUsername = ANONYMOUS;
         messages = new ArrayList<>();
         Bundle data = getArguments();
-        assert data != null;
-        targetUserName = data.getString("chat_title", "Chat title");
-        targetUserPhotoUrl = data.getString("photo_url", "photo");
-        targetUserId = data.getString("target_user_id", "id for target user");
-
+       if (data != null) {
+           targetUserName = data.getString("chat_title", "Chat title");
+           targetUserPhotoUrl = data.getString("photo_url", "photo");
+           targetUserId = data.getString("target_user_id", "id for target user");
+       }else{
+           Toast.makeText(requireContext(), "Data is null", Toast.LENGTH_SHORT).show();
+       }
     }
 
     @Nullable

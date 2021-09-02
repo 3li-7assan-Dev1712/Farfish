@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/chats_nav"
+    app:startDestination="@id/chatsFragment2">
+
+    <fragment
+        android:id="@+id/chatsFragment2"
+        android:name="com.example.friendlychat.fragments.ChatsFragment"
+        android:label="chats_fragment"
+        tools:layout="@layout/chats_fragment" />
+</navigation>

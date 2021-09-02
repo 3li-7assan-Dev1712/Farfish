@@ -11,7 +11,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 
@@ -74,6 +73,7 @@ public class UserContactsActivity extends AppCompatActivity  {
                 NavController navController = f.getNavController();
                 BottomNavigationView bottomNav = findViewById(R.id.bottom_nav);
                 NavigationUI.setupWithNavController(bottomNav, navController);
+
             }else{
                 Toast.makeText(this, "Masorah !", Toast.LENGTH_SHORT).show();
             }

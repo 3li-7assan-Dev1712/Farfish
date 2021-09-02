@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.example.friendlychat.Activities.ChatsActivity;
+import com.example.friendlychat.Activities.ChatsActivityArgs;
 import com.example.friendlychat.Adapters.ContactsAdapter;
 import com.example.friendlychat.Module.FullMessage;
 import com.example.friendlychat.R;
@@ -160,8 +161,16 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
                 .setIntent(Intent(this, SecondActivity::class.java))
                     .navigate(null, null);*/
 
+       String [] primaryData = {chatTitle, photoUrl, targetUserId};
+
+       UserChatsFragmentDirections.ActionUserChatsFragmentToChatsActivity ac =
+               UserChatsFragmentDirections.actionUserChatsFragmentToChatsActivity(primaryData);
+
+
+
+
         NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
-                navController.navigate(R.id.action_userChatsFragment_to_chatsFragment, primaryDataBundle);
+                navController.navigate(ac);
         AppBarConfiguration appBarConfiguration =
                 new AppBarConfiguration.Builder(navController.getGraph()).build();
 

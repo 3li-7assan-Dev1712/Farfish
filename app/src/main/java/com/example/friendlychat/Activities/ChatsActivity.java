@@ -1,70 +1,20 @@
 package com.example.friendlychat.Activities;
 
-import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.InputFilter;
-import android.text.TextWatcher;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.friendlychat.Adapters.MessagesAdapter;
-import com.example.friendlychat.Module.DateUtils;
-import com.example.friendlychat.Module.FileUtil;
-import com.example.friendlychat.Module.FullMessage;
-import com.example.friendlychat.Module.Message;
-import com.example.friendlychat.Module.MessagesPreference;
-import com.example.friendlychat.Module.NotificationUtils;
-import com.example.friendlychat.Module.User;
 import com.example.friendlychat.R;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentChange;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
-import com.squareup.picasso.Picasso;
-
-import java.io.File;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-
-import id.zelory.compressor.Compressor;
+import com.example.friendlychat.fragments.UserChatsFragmentDirections;
 
 public class ChatsActivity extends AppCompatActivity {
     /*real time permission*/
-    private ActivityResultLauncher<String> requestPermissionLauncher =
+   /* private ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
                     // Permission is granted. Continue the action or workflow in your
@@ -74,7 +24,7 @@ public class ChatsActivity extends AppCompatActivity {
                     Toast.makeText(this, "Ok, if you need to send images please grant the requested permission", Toast.LENGTH_SHORT).show();
                 }
             });
-    /*TAG for logging*/
+    *//*TAG for logging*//*
     private static final String TAG = ChatsActivity.class.getSimpleName();
     public static final String ANONYMOUS = "anonymous";
     public static final int DEFAULT_MSG_LENGTH_LIMIT = 1000;
@@ -90,24 +40,24 @@ public class ChatsActivity extends AppCompatActivity {
     private CollectionReference messageSingleRef;
     private CollectionReference messageSingleRefTarget;
     private StorageReference mRootRef;
-    /*user profile image*/
+    *//*user profile image*//*
     private ImageView chat_image;
     private TextView chat_title;
     private TextView chat_last_seen;
     private int tracker = 0;
 
-    /*info for FullMessage class*/
+    *//*info for FullMessage class*//*
     private String targetUserId;
     private Message lastMessage;
     private String targetUserName;
     private String targetUserPhotoUrl;
 
-    /*chat info in upper toolbar*/
+    *//*chat info in upper toolbar*//*
     private boolean isWriting;
     private boolean isActive;
     private long lastTimeSeen;
-    /*---------------------*/
-    /*pick picture via calling picPic.launch() method*/
+    *//*---------------------*//*
+    *//*pick picture via calling picPic.launch() method*//*
     private ActivityResultLauncher<String> pickPic = registerForActivityResult(
             new ActivityResultContracts.GetContent(){
                 @NonNull
@@ -116,7 +66,7 @@ public class ChatsActivity extends AppCompatActivity {
                     return super.createIntent(context, "image/*");
                 }
             },
-            this::putIntoImage);
+            this::putIntoImage);*/
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
@@ -147,6 +97,25 @@ public class ChatsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_chats);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+
+
+     /*   NavHostFragment f = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_chats_fragment);
+        if ( f != null ){
+            NavController navController = f.getNavController();
+
+
+        }else{
+            Toast.makeText(this, "Masorah !", Toast.LENGTH_SHORT).show();
+        }*/
+/*
+        String [] primaryData = ChatsActivityArgs.fromBundle(new Bundle()).getPrimaryData();
+        if (primaryData.length != 0){
+            Toast.makeText(this, "OK " + primaryData[0], Toast.LENGTH_SHORT).show();
+        }else{
+            Toast.makeText(this, "No, there's a problem", Toast.LENGTH_SHORT).show();
+        }
+        *//*ChatsActivityArgs.fromBundle(null).getPrimaryData();*//*
         chat_image = findViewById(R.id.chat_conversation_profile);
         chat_title = findViewById(R.id.chat_title);
         chat_last_seen = findViewById(R.id.chat_last_seen);
@@ -160,13 +129,13 @@ public class ChatsActivity extends AppCompatActivity {
             finish();
         });
 
-        /*firebase storage and its references*/
+        *//*firebase storage and its references*//*
         FirebaseStorage mStorage = FirebaseStorage.getInstance();
         // Create a storage reference from our app
         mRootRef = mStorage.getReference("images");
-        /*Firestore functionality*/
+        *//*Firestore functionality*//*
         mFirebasestore = FirebaseFirestore.getInstance();
-        /*app UI functionality*/
+        *//*app UI functionality*//*
         mUsername = ANONYMOUS;
         mMessageRecyclerView = findViewById(R.id.messageRecyclerView);
         ProgressBar mProgressBar = findViewById(R.id.progressBar);
@@ -175,7 +144,7 @@ public class ChatsActivity extends AppCompatActivity {
         mSendButton = findViewById(R.id.sendButton);
         mProgressBar.setVisibility(ProgressBar.INVISIBLE);
         messages = new ArrayList<>();
-        /*implementing Messages Adapter for the RecyclerView*/
+        *//*implementing Messages Adapter for the RecyclerView*//*
         messagesAdapter = new MessagesAdapter(this, messages);
         mMessageRecyclerView.setAdapter(messagesAdapter);
         mMessageRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -251,7 +220,7 @@ public class ChatsActivity extends AppCompatActivity {
 
         if (!isGroup) {
             assert mIntent != null;
-            /*target user Id*/
+            *//*target user Id*//*
             targetUserId = mIntent.getStringExtra(getResources().getString(R.string.targetUidKey));
             targetUserName = mIntent.getStringExtra(getResources().getString(R.string.chat_title));
             targetUserPhotoUrl = mIntent.getStringExtra(getResources().getString(R.string.photoUrl));
@@ -275,9 +244,9 @@ public class ChatsActivity extends AppCompatActivity {
             messagesRef = mFirebasestore.collection("rooms").document("people use the app")
                     .collection("messages");
         }
-        initializeUserAndData();
+        initializeUserAndData();*/
     }
-
+/*
     private void setUserIsNotWriting() {
 
 
@@ -300,7 +269,7 @@ public class ChatsActivity extends AppCompatActivity {
     }
 
     private void setChatInfo(String targetUserId) {
-        /*in the next commit I'll be setting the chat's info*/
+        *//*in the next commit I'll be setting the chat's info*//*
         mFirebasestore.collection("rooms").document(targetUserId)
                 .get().addOnSuccessListener(documentSnapshot -> {
                     User user = documentSnapshot.toObject(User.class);
@@ -336,7 +305,7 @@ public class ChatsActivity extends AppCompatActivity {
 
     }
 
-    /*this method will update the chat info int the toolbar in real time!*/
+    *//*this method will update the chat info int the toolbar in real time!*//*
     private void updateChatInfo() {
 
         if (isWriting){
@@ -363,9 +332,9 @@ public class ChatsActivity extends AppCompatActivity {
         if (uri != null) {
             try {
                 File galeryFile = FileUtil.from(this, uri);
-                /*compress the file using a special library*/
+                *//*compress the file using a special library*//*
                 File compressedImageFile = new Compressor(this).compressToFile(galeryFile);
-                /*take the file name as a unique identifier*/
+                *//*take the file name as a unique identifier*//*
                 StorageReference imageRef = mRootRef.child(compressedImageFile.getName());
                 // finally uploading the file to firebase storage.
                 UploadTask uploadTask = imageRef.putFile(Uri.fromFile(compressedImageFile));
@@ -455,14 +424,14 @@ public class ChatsActivity extends AppCompatActivity {
 
     private void initializeUserAndData() {
 
-        /*read all messages form the database and add any new messages with notifying the Adapter after that*/
+        *//*read all messages form the database and add any new messages with notifying the Adapter after that*//*
         String userName = MessagesPreference.getUserName(this);
         mUsername = userName;
         Toast.makeText(this, "Welcome " + userName + "!", Toast.LENGTH_SHORT).show();
 
         Log.d(TAG, "initialize user and data");
         if (isGroup) {
-           /*listen to any new new data*/
+           *//*listen to any new new data*//*
             messagesRef.orderBy("timestamp").addSnapshotListener((value, error) -> {
                 if (error != null) {
                     Toast.makeText(ChatsActivity.this, "fail", Toast.LENGTH_SHORT).show();
@@ -476,7 +445,7 @@ public class ChatsActivity extends AppCompatActivity {
                 }
             });
         }else{
-         /*get all the messages, and listen to any up coming one*/
+         *//*get all the messages, and listen to any up coming one*//*
             messageSingleRef.orderBy("timestamp").addSnapshotListener((value, error) -> {
                 if (error != null){
                     Toast.makeText(this, "Error reading message", Toast.LENGTH_SHORT).show();
@@ -508,10 +477,10 @@ public class ChatsActivity extends AppCompatActivity {
         }
     }
 
-    /*in order to reduce the number of calling firestore API this method
+    *//*in order to reduce the number of calling firestore API this method
     * will not be used any more, instead send message will handle its operation, as well as
-    * listen and adding any new message*/
-/*
+    * listen and adding any new message*//*
+*//*
     private void insertData(Task<QuerySnapshot> task) {
         Log.d(TAG, "insertData");
         messages.clear();
@@ -521,14 +490,14 @@ public class ChatsActivity extends AppCompatActivity {
         }
         messagesAdapter.notifyDataSetChanged();
         mMessageRecyclerView.smoothScrollToPosition(messages.size() - 1);
-    }*/
+    }*//*
 
-    /*when the user navigate out from the activity (closing the app or navigate to other chat) while is writing. The server
-    * should be notified*/
+    *//*when the user navigate out from the activity (closing the app or navigate to other chat) while is writing. The server
+    * should be notified*//*
     @Override
     protected void onPause() {
         super.onPause();
         setUserIsNotWriting();
 
-    }
+    }*/
 }
