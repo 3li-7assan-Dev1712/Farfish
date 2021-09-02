@@ -10,6 +10,10 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
+import androidx.navigation.ui.NavigationUI;
 
 import com.example.friendlychat.Adapters.ContactsAdapter;
 import com.example.friendlychat.Module.FullMessage;
@@ -21,6 +25,7 @@ import com.example.friendlychat.SignUpActivity;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -60,7 +65,18 @@ public class UserContactsActivity extends AppCompatActivity  {
             // there's a user go and sign in
             /*String userName = currentUser.getDisplayName();
             MessagesPreference.saveUserName(this, userName);
+
             */
+            /*NavHostFragment navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment);*/
+            //NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+            NavHostFragment f = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
+            if ( f != null ){
+                NavController navController = f.getNavController();
+                BottomNavigationView bottomNav = findViewById(R.id.bottom_nav);
+                NavigationUI.setupWithNavController(bottomNav, navController);
+            }else{
+                Toast.makeText(this, "Masorah !", Toast.LENGTH_SHORT).show();
+            }
         }else{
             // three's no user, ge and sign up
             launchFirebaseUI();

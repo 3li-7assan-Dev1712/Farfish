@@ -4,7 +4,9 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.navigation.ui.AppBarConfiguration;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
@@ -152,7 +154,17 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
         primaryDataBundle.putString("chat_title", chatTitle);
         primaryDataBundle.putString("photo_url", photoUrl);
         primaryDataBundle.putString("target_user_id", targetUserId);
-        Navigation.findNavController(requireActivity(), R.id.nav_host_fragment).navigate(R.id.action_userChatsFragment_to_chatsFragment, primaryDataBundle);
+
+       /* ActivityNavigator(this)
+                .createDestination()
+                .setIntent(Intent(this, SecondActivity::class.java))
+                    .navigate(null, null);*/
+
+        NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+                navController.navigate(R.id.action_userChatsFragment_to_chatsFragment, primaryDataBundle);
+        AppBarConfiguration appBarConfiguration =
+                new AppBarConfiguration.Builder(navController.getGraph()).build();
+
         /*Intent chatsIntent = new Intent(getContext(), ChatsActivity.class);
         chatsIntent.putExtra(getResources().getString(R.string.photoUrl), photoUrl);
         chatsIntent.putExtra(getResources().getString(R.string.chat_title), chatTitle);

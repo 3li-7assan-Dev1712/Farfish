@@ -35,6 +35,9 @@
     <string name="already_have_an_account">already have an account?</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="chats">chats</string>
+    <string name="status">status</string>
+    <string name="users">users</string>
 
 
 </resources>
