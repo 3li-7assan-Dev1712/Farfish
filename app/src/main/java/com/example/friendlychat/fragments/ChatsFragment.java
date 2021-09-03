@@ -11,6 +11,9 @@ import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -33,6 +36,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.friendlychat.Activities.ChatsActivity;
+import com.example.friendlychat.Activities.ContactsActivity;
 import com.example.friendlychat.Activities.UserContactsActivity;
 import com.example.friendlychat.Adapters.MessagesAdapter;
 import com.example.friendlychat.Module.DateUtils;
@@ -41,8 +45,10 @@ import com.example.friendlychat.Module.FullMessage;
 import com.example.friendlychat.Module.Message;
 import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.NotificationUtils;
+import com.example.friendlychat.Module.SharedPreferenceUtils;
 import com.example.friendlychat.Module.User;
 import com.example.friendlychat.R;
+import com.example.friendlychat.SignUpActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
@@ -54,6 +60,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -531,5 +538,28 @@ public class ChatsFragment extends Fragment {
             mMessageRecyclerView.smoothScrollToPosition(messages.size() - 1);
 
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+        switch (id) {
+            case R.id.profile:
+                Toast.makeText(requireContext(), "Go to Profile", Toast.LENGTH_SHORT).show(); // will be implemented in the future
+                break;
+            case R.id.make_video_call:
+            case R.id.make_normal_call:
+                displayFutureFeature();
+                break;
+        }
+        return true;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.chats_menu, menu);
+    }
+    private void displayFutureFeature(){
+        Toast.makeText(requireContext(), "This feature wil be added the next next version of the app", Toast.LENGTH_SHORT).show();
     }
 }
