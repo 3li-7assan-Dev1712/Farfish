@@ -18,10 +18,10 @@
 
         <!--  app:popupTheme="@style/ThemeOverlay.AppCompat.Light" -->
         <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
+            android:id="@+id/toolbar_frag"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:theme="@style/custom_toolbar_style"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
             app:contentInsetStart="0dp">
             <include layout="@layout/toolbar_conversation"/>

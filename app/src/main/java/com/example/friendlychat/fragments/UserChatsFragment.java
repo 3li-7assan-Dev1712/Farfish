@@ -10,6 +10,8 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -84,9 +86,12 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+
         Log.d(TAG, "onCreateView: ");
         View view =inflater.inflate(R.layout.fragment_user_chats, container, false);
-
+        Toolbar tb = view.findViewById(R.id.mainToolbar_frag);
+        ((AppCompatActivity) requireActivity())
+                .setSupportActionBar(tb);
 
         RecyclerView contactsRecycler = view.findViewById(R.id.userContactsRecyclerView);
 

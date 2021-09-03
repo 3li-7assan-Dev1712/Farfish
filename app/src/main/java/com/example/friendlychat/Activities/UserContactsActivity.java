@@ -52,6 +52,7 @@ public class UserContactsActivity extends AppCompatActivity  {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_contacts);
         mFirestore = FirebaseFirestore.getInstance();
+        setSupportActionBar(findViewById(R.id.mainToolbar));
        /* RecyclerView contactsRecycler = findViewById(R.id.userContactsRecyclerView);*/
 
        /* contactsRecycler.setAdapter(contactsAdapter);*/

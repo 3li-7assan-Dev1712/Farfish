@@ -159,8 +159,8 @@ public class ChatsFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.chats_fragment, container, false);
-     /*   Toolbar tb = view.findViewById(R.id.toolbar);
-        ((AppCompatActivity) requireActivity()).setSupportActionBar(tb);*/
+        Toolbar tb = view.findViewById(R.id.toolbar_frag);
+        ((AppCompatActivity) requireActivity()).setSupportActionBar(tb);
 
         chat_image = view.findViewById(R.id.chat_conversation_profile);
         chat_title = view.findViewById(R.id.chat_title);

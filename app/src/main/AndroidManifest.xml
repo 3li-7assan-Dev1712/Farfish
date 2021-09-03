@@ -19,7 +19,7 @@
             android:name=".Activities.ContactsActivity"
             android:parentActivityName=".Activities.UserContactsActivity"/>
         <activity android:name=".Activities.UserContactsActivity"
-            >
+            android:theme="@style/ChatsTheme" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
