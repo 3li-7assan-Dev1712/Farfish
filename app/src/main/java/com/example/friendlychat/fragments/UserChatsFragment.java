@@ -1,5 +1,6 @@
 package com.example.friendlychat.fragments;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -64,6 +66,7 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         mAuth = FirebaseAuth.getInstance();
         if (mAuth.getCurrentUser() == null){
             launchFirebaseUI();
@@ -86,13 +89,13 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-
+        requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.VISIBLE);
         Log.d(TAG, "onCreateView: ");
         View view =inflater.inflate(R.layout.fragment_user_chats, container, false);
         Toolbar tb = view.findViewById(R.id.mainToolbar_frag);
         ((AppCompatActivity) requireActivity())
                 .setSupportActionBar(tb);
-
+        /*requireActivity().findViewById(R.id.nav_graph).setVisibility(View.VISIBLE);*/
         RecyclerView contactsRecycler = view.findViewById(R.id.userContactsRecyclerView);
 
 
@@ -116,6 +119,12 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
                 updateUI(value);
             }
         });
+
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
 
     }
 

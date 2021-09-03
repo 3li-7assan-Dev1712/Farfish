@@ -15,14 +15,14 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:listitem="@layout/contact_view_holder"
         />-->
-    <com.google.android.material.appbar.AppBarLayout
+  <!--  <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <!--  app:popupTheme="@style/ThemeOverlay.AppCompat.Light" -->
+        &lt;!&ndash;  app:popupTheme="@style/ThemeOverlay.AppCompat.Light" &ndash;&gt;
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/mainToolbar"
             android:layout_width="match_parent"
@@ -33,7 +33,7 @@
 
         </androidx.appcompat.widget.Toolbar>
 
-    </com.google.android.material.appbar.AppBarLayout>
+    </com.google.android.material.appbar.AppBarLayout>-->
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/nav_host_fragment"
@@ -42,8 +42,8 @@
         android:layout_height="0dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/appbar"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bottom_nav"
         app:defaultNavHost="true"
         app:navGraph="@navigation/nav_graph" />
 
