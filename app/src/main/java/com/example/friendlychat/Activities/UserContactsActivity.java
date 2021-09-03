@@ -58,6 +58,12 @@ public class UserContactsActivity extends AppCompatActivity  {
 
         /*firebase database & auth*/
         mAuth = FirebaseAuth.getInstance();
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
         /*firstly check if the user is signed in or not and interact accordingly*/
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if(currentUser != null){
