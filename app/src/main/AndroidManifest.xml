@@ -27,12 +27,6 @@
             </intent-filter>
         </activity>
 
-        <provider
-            android:name=".DB.MessagesProvider"
-            android:authorities="com.example.friendlychat"
-            android:enabled="true"
-            android:exported="false" />
-
         <activity
             android:name=".Activities.ChatsActivity"
             android:theme="@style/ChatsTheme"
