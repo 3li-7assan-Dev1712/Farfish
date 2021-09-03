@@ -21,13 +21,11 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -161,7 +159,7 @@ public class ChatsFragment extends Fragment {
         View view = inflater.inflate(R.layout.chats_fragment, container, false);
         Toolbar tb = view.findViewById(R.id.toolbar_frag);
         ((AppCompatActivity) requireActivity()).setSupportActionBar(tb);
-
+        
         chat_image = view.findViewById(R.id.chat_conversation_profile);
         chat_title = view.findViewById(R.id.chat_title);
         chat_last_seen = view.findViewById(R.id.chat_last_seen);
@@ -410,8 +408,17 @@ public class ChatsFragment extends Fragment {
 
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        Log.d(TAG, "onDestroyView: ");
+    }
 
-
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy: ");
+    }
 
     private void sendMessage(Message message) {
 
