@@ -82,7 +82,7 @@ public class ChatsFragment extends Fragment {
     /*TAG for logging*/
     private static final String TAG = ChatsActivity.class.getSimpleName();
     public static final String ANONYMOUS = "anonymous";
-    public static final int DEFAULT_MSG_LENGTH_LIMIT = 1000;
+    public static final int DEFAULT_MSG_LENGTH_LIMIT = 1000; // max number of characters with a single message.
     private RecyclerView mMessageRecyclerView;
     private EditText mMessageEditText;
     private FloatingActionButton mSendButton;
@@ -118,7 +118,7 @@ public class ChatsFragment extends Fragment {
                 @NonNull
                 @Override
                 public Intent createIntent(@NonNull Context context, @NonNull String input) {
-                    return super.createIntent(context, "image/*");
+                    return super.createIntent(context, "image/*");// filter the gallery output, so the user can send a photo as they expects
                 }
             },
             this::putIntoImage);
@@ -148,6 +148,7 @@ public class ChatsFragment extends Fragment {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
+        // hide the bottom navigation view user user navigates to this destination.
          requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
 
         Log.d(TAG, "onAttach: CALLLLLLLED");
@@ -368,15 +369,17 @@ public class ChatsFragment extends Fragment {
 
         if (uri != null) {
             try {
-                File galeryFile = FileUtil.from(requireContext(), uri);
+                File galleryFile = FileUtil.from(requireContext(), uri);
                 /*compress the file using a special library*/
-                File compressedImageFile = new Compressor(requireContext()).compressToFile(galeryFile);
+                File compressedImageFile = new Compressor(requireContext()).compressToFile(galleryFile);
                 /*take the file name as a unique identifier*/
                 StorageReference imageRef = mRootRef.child(compressedImageFile.getName());
                 // finally uploading the file to firebase storage.
                 UploadTask uploadTask = imageRef.putFile(Uri.fromFile(compressedImageFile));
-                Log.d(TAG, "Original file size is: " + galeryFile.length() / 1024 + "KB");
-                Log.d(TAG, "Compressed file size is: " + compressedImageFile.length() / 1024 + "KB");
+
+                // some logging to track the file size after compressing it with the library.
+                Log.d(TAG, "Original file size is: " + galleryFile.length() / 1024 + "KB");
+                Log.d(TAG, "Compressed file size is: " + compressedImageFile.length() / 1024 + "KB"); // after compressing the file
 
                 // Register observers to listen for when the download is done or if it fails
                 uploadTask.addOnFailureListener(exception -> {
@@ -391,6 +394,8 @@ public class ChatsFragment extends Fragment {
                         Log.d(TAG, String.valueOf(downloadUri));
                         String downloadUrl = downloadUri.toString();
                         long dateFromDateClass = new Date().getTime();
+                         /* if the image sent successfully to the firebase storage send its metadata as a message
+                         to the firebase firestore */
                         Message message = new Message("", mUsername, downloadUrl, dateFromDateClass);
                         sendMessage(message);
                     });
@@ -402,12 +407,14 @@ public class ChatsFragment extends Fragment {
                 Log.d(TAG, "Error compressing the file");
                 Toast.makeText(requireContext(), "Error occurs", Toast.LENGTH_SHORT).show();
             }
+            // if the user hit the back button before choosing an image to send the code below will be executed.
         }else{
             Toast.makeText(requireContext(), "Sending image operation canceled", Toast.LENGTH_SHORT).show();
         }
 
     }
 
+    // these overriding methods for debugging only and will be cleaned up in the future.
     @Override
     public void onDestroyView() {
         super.onDestroyView();
@@ -450,6 +457,7 @@ public class ChatsFragment extends Fragment {
                             }).addOnFailureListener(e ->
                     Toast.makeText(requireContext(), "Error" + e.toString(), Toast.LENGTH_SHORT).show());
         }
+        // clean up the the edit text field after sending the message.
         mMessageEditText.setText("");
 
     }
@@ -506,6 +514,8 @@ public class ChatsFragment extends Fragment {
         }
     }
 
+    /* this method is used in two functionality, for getting all the messages from a special room
+    * and for adding new messages as the user sends. */
     private void addNewMessage(QuerySnapshot value) {
         if (value != null) {
 

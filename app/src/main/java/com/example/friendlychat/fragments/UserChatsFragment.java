@@ -1,10 +1,14 @@
 package com.example.friendlychat.fragments;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -18,12 +22,14 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.friendlychat.Activities.ContactsActivity;
 import com.example.friendlychat.Adapters.ContactsAdapter;
 import com.example.friendlychat.Module.FullMessage;
 import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.SharedPreferenceUtils;
 import com.example.friendlychat.Module.User;
 import com.example.friendlychat.R;
+import com.example.friendlychat.SignUpActivity;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
@@ -105,7 +111,7 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
 
     private void initializeUserAndData() {
 
-        mFirestore.collection("rooms").document(mAuth.getUid())
+        mFirestore.collection("rooms").document(Objects.requireNonNull(mAuth.getUid()))
                 .collection("chats").addSnapshotListener((value, error) -> {
             if (error != null){
                 Toast.makeText(getContext(), "Error reading message", Toast.LENGTH_SHORT).show();
@@ -124,6 +130,33 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
 
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+        switch (id) {
+            case R.id.sign_out:
+                mAuth.signOut();
+                Toast.makeText(requireContext(), "Signed out successfully", Toast.LENGTH_SHORT).show();
+                SharedPreferenceUtils.saveUserSignOut(requireContext());
+                launchFirebaseUI();
+                break;
+            case R.id.see_all_users:
+                Intent seeAllUsersIntent = new Intent(requireContext(), ContactsActivity.class);
+                startActivity(seeAllUsersIntent);
+                break;
+            case R.id.action_see_sign_in:
+                Intent seeSignUpActivity = new Intent(requireContext(), SignUpActivity.class);
+                startActivity(seeSignUpActivity);
+                break;
+        }
+        return true;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.main, menu);
     }
 
     private void updateUI(QuerySnapshot value) {
@@ -150,13 +183,6 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
     @Override
     public void onChatClicked(int position) {
 
-//        UserChatsFragmentDirections.
-//        action_userChatsFragment_to_chatsFragment
-/*
-
-        UserChatsFragmentDirections.ActionUserChatsFragmentToChatsFragment action =
-                UserChatsFragmentDirections.actionUserChatsFragmentToChatsFragment();*/
-
         String chatTitle = fullMessages.get(position).getTargetUserName();
         String photoUrl= fullMessages.get(position).getTargetUserPhotoUrl();
         String targetUserId = fullMessages.get(position).getTargetUserId();
@@ -167,36 +193,13 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
         NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         navController.navigate(R.id.chatsFragment, primaryDataBundle);
 
-    /*   String [] primaryData = {chatTitle, photoUrl, targetUserId};
-       Context context = requireContext();
-       Intent chats_intent = new Intent(context, ChatsActivity.class);
-       chats_intent.putExtra(context.getString(R.string.chat_title), chatTitle);
-       chats_intent.putExtra(context.getString(R.string.photoUrl), photoUrl);
-       chats_intent.putExtra(context.getString(R.string.targetUidKey), targetUserId);
-       context.startActivity(chats_intent);*/
-     /*  UserChatsFragmentDirections.ActionUserChatsFragmentToChatsActivity ac =
-               UserChatsFragmentDirections.actionUserChatsFragmentToChatsActivity(primaryData);*/
-
-
-     /*   NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
-                navController.navigate(ac);
-        AppBarConfiguration appBarConfiguration =
-                new AppBarConfiguration.Builder(navController.getGraph()).build();*/
-
-        /*Intent chatsIntent = new Intent(getContext(), ChatsActivity.class);
-        chatsIntent.putExtra(getResources().getString(R.string.photoUrl), photoUrl);
-        chatsIntent.putExtra(getResources().getString(R.string.chat_title), chatTitle);
-
-        Log.d(TAG, "onChatClicked: targetUid: " + targetUserId);
-        chatsIntent.putExtra(getResources().getString(R.string.targetUidKey), targetUserId);
-        startActivity(chatsIntent);*/
     }
 
     private void onSignInResult(FirebaseAuthUIAuthenticationResult result) {
         /*IdpResponse response = result.getIdpResponse();*/
         Log.d(TAG, "result: " + result.getResultCode());
         Log.d(TAG, "onSignInResult");
-        if (result.getResultCode() == requireActivity().RESULT_OK) {
+        if (result.getResultCode() == Activity.RESULT_OK) {
             // Successfully signed in
             Toast.makeText(requireContext(), "You've signed in successfully", Toast.LENGTH_SHORT).show();
             Log.d(TAG, "sign in successfully");
@@ -212,12 +215,12 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
                 MessagesPreference.saveUserId(requireContext(), userId);
                 MessagesPreference.saveUserPhotoUrl(requireContext(), photoUrl);
                 long lastTimeSeen = new Date().getTime();
-                User newUser = new User(userName, phoneNumber, photoUrl, userId, true, false,lastTimeSeen);
+                User newUser = new User(userName, phoneNumber, photoUrl, userId, true, false, lastTimeSeen);
                 assert userId != null;
                 mFirestore.collection("rooms").document(userId).set(newUser).addOnCompleteListener(task ->
                         Toast.makeText(requireContext(), "saved new user successfully", Toast.LENGTH_SHORT).show()
                 );
-                /* initializeUserAndData();*/
+                initializeUserAndData();
             }
             // ...
         } else{
@@ -227,7 +230,6 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
             // ...
             Log.d(TAG, "onSignInResult"+ " should finish the Activity");
             Log.d(TAG, String.valueOf(result.getResultCode()));
-
             requireActivity().finish();
         }
     }
