@@ -70,7 +70,7 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        setHasOptionsMenu(true);
         mAuth = FirebaseAuth.getInstance();
         if (mAuth.getCurrentUser() == null){
             launchFirebaseUI();

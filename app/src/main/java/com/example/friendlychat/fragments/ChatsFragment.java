@@ -132,6 +132,7 @@ public class ChatsFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
         Log.d(TAG, "onCreate: CALLLLLLED");
         /*firebase storage and its references*/
         FirebaseStorage mStorage = FirebaseStorage.getInstance();
@@ -562,4 +563,5 @@ public class ChatsFragment extends Fragment {
     private void displayFutureFeature(){
         Toast.makeText(requireContext(), "This feature wil be added the next next version of the app", Toast.LENGTH_SHORT).show();
     }
+
 }
