@@ -2,6 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
+        android:id="@+id/userChatsFragment"
         android:icon="@drawable/ic_message"
         android:title="@string/chats"
         />
@@ -9,6 +10,7 @@
         android:icon="@drawable/ic_nfc"
         android:title="@string/status" />
     <item
+        android:id="@+id/usersFragment"
         android:icon="@drawable/ic_people"
         android:title="@string/users" />
 </menu>

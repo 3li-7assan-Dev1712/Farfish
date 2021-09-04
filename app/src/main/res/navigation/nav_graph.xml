@@ -38,5 +38,10 @@
             android:name="primary_data"
             app:argType="string[]" />
     </activity>
+    <fragment
+        android:id="@+id/usersFragment"
+        android:name="com.example.friendlychat.fragments.UsersFragment"
+        android:label="users_fragment"
+        tools:layout="@layout/users_fragment" />
 
 </navigation>
