@@ -182,6 +182,7 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
         primaryDataBundle.putString("chat_title", chatTitle);
         primaryDataBundle.putString("photo_url", photoUrl);
         primaryDataBundle.putString("target_user_id", targetUserId);
+        primaryDataBundle.putBoolean("isGroup", false);
         NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         navController.navigate(R.id.chatsFragment, primaryDataBundle);
 

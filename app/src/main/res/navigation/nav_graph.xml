@@ -13,9 +13,6 @@
         <action
             android:id="@+id/action_userChatsFragment_to_chatsFragment"
             app:destination="@id/chatsFragment" />
-        <action
-            android:id="@+id/action_userChatsFragment_to_chatsActivity"
-            app:destination="@id/chatsActivity" />
 
 
     </fragment>
@@ -29,19 +26,14 @@
             android:defaultValue="data"
             app:argType="string" />
     </fragment>
-    <activity
-        android:id="@+id/chatsActivity"
-        android:name="com.example.friendlychat.Activities.ChatsActivity"
-        android:label="activity_chats"
-        tools:layout="@layout/activity_chats" >
-        <argument
-            android:name="primary_data"
-            app:argType="string[]" />
-    </activity>
     <fragment
         android:id="@+id/usersFragment"
         android:name="com.example.friendlychat.fragments.UsersFragment"
         android:label="users_fragment"
-        tools:layout="@layout/users_fragment" />
+        tools:layout="@layout/users_fragment" >
+        <action
+            android:id="@+id/action_usersFragment_to_chatsFragment"
+            app:destination="@id/chatsFragment" />
+    </fragment>
 
 </navigation>

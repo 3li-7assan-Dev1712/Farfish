@@ -3,7 +3,6 @@ package com.example.friendlychat.fragments;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -18,15 +17,15 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.friendlychat.Activities.ContactsActivity;
 import com.example.friendlychat.Adapters.ContactsAdapter;
 import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.SharedPreferenceUtils;
 import com.example.friendlychat.Module.User;
 import com.example.friendlychat.R;
-import com.example.friendlychat.SignUpActivity;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
@@ -104,23 +103,30 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
 
         String chatTitle = users.get(position).getUserName();
         String photoUrl = users.get(position).getPhotoUrl();
+        Bundle primaryDataBundle = new Bundle();
+        primaryDataBundle.putString("chat_title", chatTitle);
+        primaryDataBundle.putString("photo_url", photoUrl);
         if (!chatTitle.equals("All people use the app")) {
             String targetUserId = users.get(position).getUserId();
+            primaryDataBundle.putString("target_user_id", targetUserId);
+            primaryDataBundle.putBoolean("isGroup", false);
 
-        }
+        }else
+            primaryDataBundle.putBoolean("isGroup", true);
+
+        NavController controller = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+        controller.navigate(R.id.action_usersFragment_to_chatsFragment, primaryDataBundle);
         // will be completed in the following commits.
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
-        switch (id) {
-            case R.id.sign_out:
-                mAuth.signOut();
-                Toast.makeText(requireContext(), "Signed out successfully", Toast.LENGTH_SHORT).show();
-                SharedPreferenceUtils.saveUserSignOut(requireContext());
-                launchFirebaseUI();
-                break;
+        if (id == R.id.sign_out) {
+            mAuth.signOut();
+            Toast.makeText(requireContext(), "Signed out successfully", Toast.LENGTH_SHORT).show();
+            SharedPreferenceUtils.saveUserSignOut(requireContext());
+            launchFirebaseUI();
         }
         return true;
     }

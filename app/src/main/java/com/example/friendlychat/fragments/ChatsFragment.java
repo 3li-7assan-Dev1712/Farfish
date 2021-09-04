@@ -97,7 +97,7 @@ public class ChatsFragment extends Fragment {
     private List<Message> messages;
     private MessagesAdapter messagesAdapter;
     private String mUsername;
-    private boolean isGroup = false; // at the moment this field will be false, then we'll change it.
+    private boolean isGroup; // at the moment this field will be false, then we'll change it.
     private FirebaseFirestore mFirebasestore;
     private CollectionReference messageSingleRef;
     private CollectionReference messageSingleRefTarget;
@@ -148,6 +148,7 @@ public class ChatsFragment extends Fragment {
            targetUserName = data.getString("chat_title", "Chat title");
            targetUserPhotoUrl = data.getString("photo_url", "photo");
            targetUserId = data.getString("target_user_id", "id for target user");
+           isGroup = data.getBoolean("isGroup");
        }else{
            Toast.makeText(requireContext(), "Data is null", Toast.LENGTH_SHORT).show();
        }
