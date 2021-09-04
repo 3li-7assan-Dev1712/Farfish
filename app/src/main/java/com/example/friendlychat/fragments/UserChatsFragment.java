@@ -142,14 +142,6 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
                 SharedPreferenceUtils.saveUserSignOut(requireContext());
                 launchFirebaseUI();
                 break;
-            case R.id.see_all_users:
-                Intent seeAllUsersIntent = new Intent(requireContext(), ContactsActivity.class);
-                startActivity(seeAllUsersIntent);
-                break;
-            case R.id.action_see_sign_in:
-                Intent seeSignUpActivity = new Intent(requireContext(), SignUpActivity.class);
-                startActivity(seeSignUpActivity);
-                break;
         }
         return true;
     }
