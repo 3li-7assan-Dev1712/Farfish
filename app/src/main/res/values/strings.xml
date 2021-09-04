@@ -38,6 +38,7 @@
     <string name="chats">chats</string>
     <string name="status">status</string>
     <string name="users">users</string>
+    <string name="all_people">All People Use The App</string>
 
 
 </resources>

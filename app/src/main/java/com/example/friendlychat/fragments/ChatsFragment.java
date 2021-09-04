@@ -36,7 +36,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.friendlychat.Activities.ChatsActivity;
-import com.example.friendlychat.Activities.ContactsActivity;
 import com.example.friendlychat.Activities.UserContactsActivity;
 import com.example.friendlychat.Adapters.MessagesAdapter;
 import com.example.friendlychat.Module.DateUtils;
@@ -45,10 +44,8 @@ import com.example.friendlychat.Module.FullMessage;
 import com.example.friendlychat.Module.Message;
 import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.NotificationUtils;
-import com.example.friendlychat.Module.SharedPreferenceUtils;
 import com.example.friendlychat.Module.User;
 import com.example.friendlychat.R;
-import com.example.friendlychat.SignUpActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
@@ -60,7 +57,6 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -149,6 +145,7 @@ public class ChatsFragment extends Fragment {
            targetUserPhotoUrl = data.getString("photo_url", "photo");
            targetUserId = data.getString("target_user_id", "id for target user");
            isGroup = data.getBoolean("isGroup");
+
        }else{
            Toast.makeText(requireContext(), "Data is null", Toast.LENGTH_SHORT).show();
        }
@@ -181,7 +178,7 @@ public class ChatsFragment extends Fragment {
                             Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(ContactsActivity);
         });
-
+        setChatInfo();
         mMessageRecyclerView = view.findViewById(R.id.messageRecyclerView);
         ProgressBar mProgressBar = view.findViewById(R.id.progressBar);
         ImageButton mPhotoPickerButton = view.findViewById(R.id.photoPickerButton);
@@ -283,12 +280,13 @@ public class ChatsFragment extends Fragment {
                     .collection("chats").document(targetUserId + auth.getUid())
                     .collection("messages");
             messageSingleRefTarget.document("isWriting").set(data);
-            setChatInfo(targetUserId);
+
 
         }else{
             messagesRef = mFirebasestore.collection("rooms").document("people use the app")
                     .collection("messages");
         }
+
         initializeUserAndData();
 
         return view;
@@ -315,22 +313,32 @@ public class ChatsFragment extends Fragment {
         }
     }
 
-    private void setChatInfo(String targetUserId) {
-        /*in the next commit I'll be setting the chat's info*/
-        mFirebasestore.collection("rooms").document(targetUserId)
-                .get().addOnSuccessListener(documentSnapshot -> {
-            User user = documentSnapshot.toObject(User.class);
-            if (user != null) {
-                targetUserPhotoUrl = user.getPhotoUrl();
-                targetUserName = user.getUserName();
-                chat_title.setText(targetUserName);
-                Picasso.get().load(targetUserPhotoUrl).placeholder(R.drawable.ic_baseline_emoji_emotions_24).into(chat_image);
-                isActive = user.getIsActive();
-                lastTimeSeen = user.getLastTimeSeen();
-                updateChatInfo();
-            }
-        });
-        listenToChange(targetUserId);
+    private void setChatInfo() {
+        if (!isGroup) {
+            mFirebasestore.collection("rooms").document(targetUserId)
+                    .get().addOnSuccessListener(documentSnapshot -> {
+                User user = documentSnapshot.toObject(User.class);
+                if (user != null) {
+                    targetUserPhotoUrl = user.getPhotoUrl();
+                    targetUserName = user.getUserName();
+                    chat_title.setText(targetUserName);
+                    Picasso.get().load(targetUserPhotoUrl).placeholder(R.drawable.ic_baseline_emoji_emotions_24).into(chat_image);
+                    isActive = user.getIsActive();
+                    lastTimeSeen = user.getLastTimeSeen();
+                    updateChatInfo();
+                    listenToChange(targetUserId);
+                }
+            });
+
+        }else{
+            chat_title.setText(R.string.all_people);
+            chat_title.setTextSize(16f);
+            chat_last_seen.setVisibility(View.GONE);
+            chat_title.setLines(1);
+            chat_title.canScrollHorizontally(1);
+            /*Picasso.get().load(targetUserPhotoUrl).placeholder(R.drawable.ic_baseline_emoji_emotions_24).into(chat_image);*/
+            Picasso.get().load(R.drawable.group_icon).placeholder(R.drawable.group_icon).into(chat_image);
+        }
     }
 
     private void listenToChange(String targetUserId) {
@@ -397,7 +405,7 @@ public class ChatsFragment extends Fragment {
                 }).addOnSuccessListener(taskSnapshot -> {
                     // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
                     // ...
-                    Toast.makeText(requireContext(), "Added image to Storage successfully", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Added image to Storage successfully", Toast.LENGTH_SHORT).show();
                     imageRef.getDownloadUrl().addOnSuccessListener(downloadUri -> {
                         Log.d(TAG, downloadUri.toString());
                         Log.d(TAG, String.valueOf(downloadUri));
