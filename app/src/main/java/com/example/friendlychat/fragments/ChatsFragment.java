@@ -115,6 +115,8 @@ public class ChatsFragment extends Fragment {
     private boolean isActive;
     private long lastTimeSeen;
     /*---------------------*/
+    /* progress bar to show loading of messages*/
+    private ProgressBar mProgressBar;
     /*pick picture via calling picPic.launch() method*/
     private ActivityResultLauncher<String> pickPic = registerForActivityResult(
             new ActivityResultContracts.GetContent(){
@@ -180,11 +182,11 @@ public class ChatsFragment extends Fragment {
         });
         setChatInfo();
         mMessageRecyclerView = view.findViewById(R.id.messageRecyclerView);
-        ProgressBar mProgressBar = view.findViewById(R.id.progressBar);
+        mProgressBar = view.findViewById(R.id.progressBar);
         ImageButton mPhotoPickerButton = view.findViewById(R.id.photoPickerButton);
         mMessageEditText = view.findViewById(R.id.messageEditText);
         mSendButton = view.findViewById(R.id.sendButton);
-        mProgressBar.setVisibility(ProgressBar.INVISIBLE);
+        mProgressBar.setVisibility(ProgressBar.VISIBLE);
 
         /*implementing Messages Adapter for the RecyclerView*/
         messagesAdapter = new MessagesAdapter(requireContext(), messages);
@@ -534,6 +536,7 @@ public class ChatsFragment extends Fragment {
     /* this method is used in two functionality, for getting all the messages from a special room
     * and for adding new messages as the user sends. */
     private void addNewMessage(QuerySnapshot value) {
+        mProgressBar.setVisibility(View.INVISIBLE);
         if (value != null) {
 
             for (DocumentChange dc : value.getDocumentChanges()) {
