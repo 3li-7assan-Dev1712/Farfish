@@ -4,6 +4,8 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
@@ -580,5 +582,17 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
     @Override
     public void onMessageClick(View view, int position) {
         Toast.makeText(requireContext(), "You click a view", Toast.LENGTH_SHORT).show();
+        Message message = messages.get(position);
+        String senderName = message.getName();
+        SimpleDateFormat d = new SimpleDateFormat("EEE, MMM d", Locale.getDefault());
+        String formattedDate = d.format(message.getTimestamp());
+        ImageView imageView = (ImageView) view;
+        /* enable the drawing cache for the image view to derive a bitmap from it*/
+        /*imageView.setDrawingCacheEnabled(true);*/
+        BitmapDrawable bitmapDrawable = (BitmapDrawable) imageView.getDrawable();
+        Bitmap bitmap = bitmapDrawable.getBitmap();
+        // checking if the bitmap is correct first by the following code:
+        chat_image.setImageBitmap(bitmap);
+
     }
 }
