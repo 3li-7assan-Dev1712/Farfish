@@ -544,8 +544,9 @@ public class ChatsFragment extends Fragment {
             }
             Log.d(TAG, "the number of messages in this chat is: " + value.getDocumentChanges().size());
             messagesAdapter.notifyDataSetChanged();
-            sendNotification(messages.get(messages.size() -1));
-            mMessageRecyclerView.smoothScrollToPosition(messages.size() - 1);
+            /*sendNotification(messages.get(messages.size() -1));*/
+            if (messages.size() > 0)
+                mMessageRecyclerView.scrollToPosition(messages.size() - 1);
 
         }
     }
