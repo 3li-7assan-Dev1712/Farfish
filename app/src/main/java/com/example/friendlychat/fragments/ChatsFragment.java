@@ -34,6 +34,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -42,6 +44,7 @@ import com.example.friendlychat.Activities.UserContactsActivity;
 import com.example.friendlychat.Adapters.MessagesAdapter;
 import com.example.friendlychat.Module.DateUtils;
 import com.example.friendlychat.Module.FileUtil;
+import com.example.friendlychat.Module.FullImageData;
 import com.example.friendlychat.Module.FullMessage;
 import com.example.friendlychat.Module.Message;
 import com.example.friendlychat.Module.MessagesPreference;
@@ -592,7 +595,16 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
         BitmapDrawable bitmapDrawable = (BitmapDrawable) imageView.getDrawable();
         Bitmap bitmap = bitmapDrawable.getBitmap();
         // checking if the bitmap is correct first by the following code:
-        chat_image.setImageBitmap(bitmap);
+        chat_image.setImageBitmap(bitmap); // i loved this line of code so I will let it for a few commits *_*
+
+        /* after initializing these 3 arguments, let's use them*/
+        FullImageData imageData = new FullImageData(senderName, formattedDate, bitmap);
+        ChatsFragmentDirections.ActionChatsFragmentToFullImageFragment actionToFullImageFragment =
+                ChatsFragmentDirections.actionChatsFragmentToFullImageFragment(imageData);
+        /*NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);*/
+        NavController navController = Navigation.findNavController(view);
+        navController.navigate(actionToFullImageFragment);
+
 
     }
 }
