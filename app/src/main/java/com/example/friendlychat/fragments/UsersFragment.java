@@ -67,6 +67,7 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.VISIBLE);
          View view =  inflater.inflate(R.layout.users_fragment, container, false);
         Toolbar tb = view.findViewById(R.id.mainToolbar_frag);
         ((AppCompatActivity) requireActivity())
@@ -116,7 +117,6 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
 
         NavController controller = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         controller.navigate(R.id.action_usersFragment_to_chatsFragment, primaryDataBundle);
-        // will be completed in the following commits.
     }
 
     @Override

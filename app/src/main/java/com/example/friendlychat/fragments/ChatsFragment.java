@@ -70,7 +70,7 @@ import java.util.Objects;
 
 import id.zelory.compressor.Compressor;
 
-public class ChatsFragment extends Fragment {
+public class ChatsFragment extends Fragment implements MessagesAdapter.MessageClick{
     /*real time permission*/
     private ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
@@ -189,7 +189,7 @@ public class ChatsFragment extends Fragment {
         mProgressBar.setVisibility(ProgressBar.VISIBLE);
 
         /*implementing Messages Adapter for the RecyclerView*/
-        messagesAdapter = new MessagesAdapter(requireContext(), messages);
+        messagesAdapter = new MessagesAdapter(requireContext(), messages, this);
         mMessageRecyclerView.setAdapter(messagesAdapter);
         mMessageRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         // ImagePickerButton shows an image picker to upload a image for a message
@@ -577,4 +577,8 @@ public class ChatsFragment extends Fragment {
         Toast.makeText(requireContext(), "This feature wil be added the next next version of the app", Toast.LENGTH_SHORT).show();
     }
 
+    @Override
+    public void onMessageClick(View view, int position) {
+        Toast.makeText(requireContext(), "You click a view", Toast.LENGTH_SHORT).show();
+    }
 }
