@@ -27,9 +27,7 @@
             app:argType="string" />
         <action
             android:id="@+id/action_chatsFragment_to_fullImageFragment"
-            app:destination="@id/fullImageFragment"
-            app:launchSingleTop="false"
-            app:popUpTo="@id/chatsFragment" />
+            app:destination="@id/fullImageFragment" />
     </fragment>
     <fragment
         android:id="@+id/usersFragment"

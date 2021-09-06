@@ -33,9 +33,11 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.FragmentNavigator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -171,6 +173,7 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.chats_fragment, container, false);
+        ViewCompat.setTransitionName(view, "root_view_chats_fragment");
         Toolbar tb = view.findViewById(R.id.toolbar_frag);
         ((AppCompatActivity) requireActivity()).setSupportActionBar(tb);
         
@@ -601,9 +604,14 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
         FullImageData imageData = new FullImageData(senderName, formattedDate, bitmap);
         ChatsFragmentDirections.ActionChatsFragmentToFullImageFragment actionToFullImageFragment =
                 ChatsFragmentDirections.actionChatsFragmentToFullImageFragment(imageData);
+        FragmentNavigator.Extras extras = new FragmentNavigator.Extras.Builder()
+                .addSharedElement(view, "root_view_full_image_fragment")
+                .build();
+
+
         /*NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);*/
-        NavController navController = Navigation.findNavController(view);
-        navController.navigate(actionToFullImageFragment);
+        NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+        navController.navigate(actionToFullImageFragment, extras);
 
 
     }
