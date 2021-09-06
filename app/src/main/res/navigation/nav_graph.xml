@@ -25,6 +25,11 @@
             android:name="data"
             android:defaultValue="data"
             app:argType="string" />
+        <action
+            android:id="@+id/action_chatsFragment_to_fullImageFragment"
+            app:destination="@id/fullImageFragment"
+            app:launchSingleTop="false"
+            app:popUpTo="@id/chatsFragment" />
     </fragment>
     <fragment
         android:id="@+id/usersFragment"
@@ -35,5 +40,10 @@
             android:id="@+id/action_usersFragment_to_chatsFragment"
             app:destination="@id/chatsFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/fullImageFragment"
+        android:name="com.example.friendlychat.fragments.FullImageFragment"
+        android:label="full_image_fragment"
+        tools:layout="@layout/full_image_fragment" />
 
 </navigation>
