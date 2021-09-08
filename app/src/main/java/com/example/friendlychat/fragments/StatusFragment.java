@@ -20,11 +20,13 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.friendlychat.Module.FileUtil;
-import com.example.friendlychat.Module.Message;
 import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.Status;
 import com.example.friendlychat.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -32,11 +34,14 @@ import com.google.firebase.storage.UploadTask;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.Objects;
 
 import id.zelory.compressor.Compressor;
 
 public class StatusFragment extends Fragment {
 
+    private DatabaseReference mDatabaseReference  = FirebaseDatabase.getInstance().getReference("status");
+    private DatabaseReference mUserReference  = FirebaseDatabase.getInstance().getReference();
     private StorageReference mRootRef;
     /* request permission*/
     private ActivityResultLauncher<String> requestPermissionLauncher =
@@ -87,6 +92,7 @@ public class StatusFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         mRootRef = FirebaseStorage.getInstance().getReference("images");
+        mUserReference = mDatabaseReference.child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid()));
         super.onCreate(savedInstanceState);
     }
 
@@ -120,6 +126,7 @@ public class StatusFragment extends Fragment {
                                 downloadUrl,
                                 dateFromDateClass,
                                 0);
+                        uploadNewStatus(newStatus);
                     });
 
                 });
@@ -134,6 +141,11 @@ public class StatusFragment extends Fragment {
         }
 
     }
+
+    private void uploadNewStatus(Status newStatus) {
+        mUserReference.push().setValue(newStatus);
+    }
+
     private void pickImageFromGallery() {
         selectImageToUpload.launch("image/*");
     }
