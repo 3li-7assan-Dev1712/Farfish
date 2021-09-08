@@ -5,35 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".Activities.UserContactsActivity">
-<!--
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/userContactsRecyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:listitem="@layout/contact_view_holder"
-        />-->
-  <!--  <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-        &lt;!&ndash;  app:popupTheme="@style/ThemeOverlay.AppCompat.Light" &ndash;&gt;
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/mainToolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-            app:title="@string/app_name">
-
-        </androidx.appcompat.widget.Toolbar>
-
-    </com.google.android.material.appbar.AppBarLayout>-->
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/nav_host_fragment"
@@ -55,9 +26,9 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:itemTextColor="@android:color/white"
+        app:itemTextColor="@color/bottom_nav_style"
         app:itemTextAppearanceActive="?android:textAppearanceMedium"
-        app:itemIconTint="@android:color/white"
+        app:itemIconTint="@color/bottom_nav_style"
         app:menu="@menu/menu_bottom_nav" />
 
 
