@@ -111,6 +111,7 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
     private TextView chat_last_seen;
     private int tracker = 0;
 
+    private NavController navController;
     /*info for FullMessage class*/
     private String targetUserId;
     private Message lastMessage;
@@ -173,7 +174,7 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.chats_fragment, container, false);
-        ViewCompat.setTransitionName(view, "root_view_chats_fragment");
+         navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         Toolbar tb = view.findViewById(R.id.toolbar_frag);
         ((AppCompatActivity) requireActivity()).setSupportActionBar(tb);
         
@@ -182,11 +183,8 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
         chat_last_seen = view.findViewById(R.id.chat_last_seen);
         LinearLayout layout = view.findViewById(R.id.go_back);
         layout.setOnClickListener( v -> {
-            Intent ContactsActivity = new Intent(getContext(), UserContactsActivity.class);
-            ContactsActivity.addFlags(
-                    Intent.FLAG_ACTIVITY_CLEAR_TOP |
-                            Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(ContactsActivity);
+            Log.d(TAG, "onCreateView: navigate to the back stack through the navigation components");
+            navController.navigateUp();
         });
         setChatInfo();
         mMessageRecyclerView = view.findViewById(R.id.messageRecyclerView);
@@ -610,7 +608,6 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
 
 
         /*NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);*/
-        NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         navController.navigate(actionToFullImageFragment, extras);
 
 
