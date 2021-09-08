@@ -39,6 +39,7 @@
     <string name="status">status</string>
     <string name="users">users</string>
     <string name="all_people">All People Use The App</string>
+    <string name="status_cap">Status</string>
 
 
 </resources>
