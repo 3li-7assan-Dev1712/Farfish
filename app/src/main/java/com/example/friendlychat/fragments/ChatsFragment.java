@@ -614,5 +614,6 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
         navController.navigate(actionToFullImageFragment, extras);
 
 
+
     }
 }

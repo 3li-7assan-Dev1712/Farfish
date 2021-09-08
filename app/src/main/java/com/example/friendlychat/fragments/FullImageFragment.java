@@ -1,6 +1,5 @@
 package com.example.friendlychat.fragments;
 
-import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.transition.Transition;
@@ -11,13 +10,12 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 
 import com.example.friendlychat.Module.FullImageData;
 import com.example.friendlychat.R;
@@ -44,7 +42,9 @@ public class FullImageFragment extends Fragment {
         }
         Toolbar toolbar = view.findViewById(R.id.toolbar_full_image);
         ImageView fullImage = view.findViewById(R.id.full_bleed_image);
-
+        fullImage.setOnClickListener( v -> {
+            Navigation.findNavController(v).navigateUp();
+        });
         if (mFullImageData != null) {
             toolbar.setTitle(mFullImageData.getSenderName());
             toolbar.setSubtitle(mFullImageData.getFormattedTime());
