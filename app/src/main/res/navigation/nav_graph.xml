@@ -47,5 +47,10 @@
             android:name="image_info"
             app:argType="com.example.friendlychat.Module.FullImageData" />
     </fragment>
+    <fragment
+        android:id="@+id/statusFragment"
+        android:name="com.example.friendlychat.fragments.StatusFragment"
+        android:label="status_fragment"
+        tools:layout="@layout/status_fragment" />
 
 </navigation>

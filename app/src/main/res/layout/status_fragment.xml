@@ -8,17 +8,18 @@
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/uploadTextStatusFab"
-        style="mini"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         android:background="@color/colorAccent"
         android:clickable="true"
         android:focusable="true"
+        android:src="@drawable/ic_pen_white"
+        app:fabSize="mini"
         app:layout_constraintBottom_toTopOf="@+id/uploadImageStatusFab"
         app:layout_constraintEnd_toEndOf="@+id/uploadImageStatusFab"
         app:layout_constraintStart_toStartOf="@+id/uploadImageStatusFab"
-        app:src="@drawable/ic_pen_white" />
+        app:rippleColor="@color/primaryLightColor" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/uploadImageStatusFab"
@@ -32,6 +33,7 @@
         android:src="@drawable/ic_camera_white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:rippleColor="@color/primaryLightColor"
         tools:background="@color/colorAccent" />
 
     <com.google.android.material.appbar.AppBarLayout
