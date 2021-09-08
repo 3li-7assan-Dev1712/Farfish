@@ -40,6 +40,7 @@ public class FullImageFragment extends Fragment {
             Transition transition = TransitionInflater.from(requireContext())
                     .inflateTransition(R.transition.image_transition);
             setSharedElementEnterTransition(transition);
+            setSharedElementReturnTransition(transition);
         }
         Toolbar toolbar = view.findViewById(R.id.toolbar_full_image);
         ImageView fullImage = view.findViewById(R.id.full_bleed_image);
