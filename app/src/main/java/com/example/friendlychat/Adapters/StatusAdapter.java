@@ -49,18 +49,23 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.StatusView
     public void onBindViewHolder(@NonNull StatusViewHolder holder, int position) {
         if (statusLists != null){
             List<Status> statusList = statusLists.get(position);
-            if (statusList.size() > 0){
-                Status lastStatus = statusList.get(statusList.size() -1);
-                String uploaderName = lastStatus.getUploaderName();
-                String statusImage = lastStatus.getStatusImage();
-                String statusText = lastStatus.getStatusText(); // will be used soon
-                long statusTime = lastStatus.getTimestamp();
-                SimpleDateFormat d = new SimpleDateFormat("h:mm a", Locale.getDefault());
-                String readableDate = d.format(statusTime);
-                holder.uploaderName.setText(uploaderName);
-                holder.uploadDate.setText(readableDate);
-                if (!statusImage.equals(""))
-                    Picasso.get().load(statusImage).placeholder(R.drawable.group_icon).into(holder.statusImage);
+            if (statusList != null) {
+                if (statusList.size() > 0) {
+                    Status lastStatus = statusList.get(statusList.size() - 1);
+                    String uploaderName = lastStatus.getUploaderName();
+                    String statusImage = lastStatus.getStatusImage();
+                    String statusText = lastStatus.getStatusText(); // will be used soon
+                    long statusTime = lastStatus.getTimestamp();
+                    SimpleDateFormat d = new SimpleDateFormat("h:mm a", Locale.getDefault());
+                    String readableDate = d.format(statusTime);
+                    holder.uploaderName.setText(uploaderName);
+                    holder.uploadDate.setText(readableDate);
+                    if (!statusImage.equals(""))
+                        Picasso.get().load(statusImage).placeholder(R.drawable.group_icon).into(holder.statusImage);
+                }
+            }else{
+                Toast.makeText(mContext, "child statues are null", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "onBindViewHolder:child status are null");
             }
         }
         else {

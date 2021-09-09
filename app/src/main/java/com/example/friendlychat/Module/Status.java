@@ -5,6 +5,9 @@ public class Status {
     private long timestamp;
     private int seenBy;
 
+    public Status() {
+    }
+
     public Status(String uploaderName, String statusImage, long timestamp, int seenBy) {
         this.uploaderName = uploaderName;
         this.statusImage = statusImage;

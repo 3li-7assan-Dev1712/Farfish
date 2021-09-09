@@ -41,8 +41,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.UnaryOperator;
 
 import id.zelory.compressor.Compressor;
 
@@ -115,17 +117,20 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Log.d(TAG, "onDataChange: generally");
                 Toast.makeText(getContext(), "onDataChanged generally", Toast.LENGTH_SHORT).show();
-                StatusLists statusLists =  snapshot.getValue(StatusLists.class);
-
-                if (statusLists != null) {
-                    mStatusLists = statusLists.getStatusLists();
-                    if (mStatusLists!= null) {
-                        Log.d(TAG, "onDataChange: " + mStatusLists.size());
-                        Toast.makeText(getContext(), "status are " + mStatusLists.size(), Toast.LENGTH_SHORT).show();
+                List<Status> statuses = snapshot.child(FirebaseAuth.getInstance().getUid()).getValue(StatusLists.class).getStatusLists();
+                mStatusLists.add(statuses);
+                Iterable<DataSnapshot> iterable = snapshot.getChildren();
+                List<List<Status>> allUsersStatues = new ArrayList<>();
+                for (DataSnapshot dataSnapshot : iterable) {
+                    Iterator<DataSnapshot> childInterator = dataSnapshot.getChildren().iterator();
+                    List<Status> oneUserStatuses = new ArrayList<>();
+                    while (childInterator.hasNext()) {
+                        oneUserStatuses.add(childInterator.next().getValue(Status.class));
                     }
+                    allUsersStatues.add(oneUserStatuses);
                 }
-                else
-                    Log.d(TAG, "onDataChange: status list is null");
+                mStatusLists.clear();
+                mStatusLists.addAll(allUsersStatues);
                 mStatusAdapter.notifyDataSetChanged();
             }
 
