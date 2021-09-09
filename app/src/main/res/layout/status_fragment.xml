@@ -6,36 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".fragments.StatusFragment">
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/uploadTextStatusFab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:background="@color/colorAccent"
-        android:clickable="true"
-        android:focusable="true"
-        android:src="@drawable/ic_pen_white"
-        app:fabSize="mini"
-        app:layout_constraintBottom_toTopOf="@+id/uploadImageStatusFab"
-        app:layout_constraintEnd_toEndOf="@+id/uploadImageStatusFab"
-        app:layout_constraintStart_toStartOf="@+id/uploadImageStatusFab"
-        app:rippleColor="@color/primaryLightColor" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/uploadImageStatusFab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:background="@color/colorAccent"
-        android:clickable="true"
-        android:focusable="true"
-        android:src="@drawable/ic_camera_white"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:rippleColor="@color/primaryLightColor"
-        tools:background="@color/colorAccent" />
-
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar_users"
         android:layout_width="match_parent"
@@ -70,4 +40,30 @@
         tools:listitem="@layout/contact_view_holder">
 
     </androidx.recyclerview.widget.RecyclerView>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/uploadTextStatusFab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:background="@color/colorAccent"
+        android:src="@drawable/ic_pen_white"
+        app:fabSize="mini"
+        app:layout_constraintBottom_toTopOf="@+id/uploadImageStatusFab"
+        app:layout_constraintEnd_toEndOf="@+id/uploadImageStatusFab"
+        app:layout_constraintStart_toStartOf="@+id/uploadImageStatusFab"
+        app:rippleColor="@color/primaryLightColor" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/uploadImageStatusFab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="@color/colorAccent"
+        android:src="@drawable/ic_camera_white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:rippleColor="@color/primaryLightColor"
+        tools:background="@color/colorAccent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
