@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragments.FullImageFragment">
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".fragments.StatusDetailFragment">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar"
@@ -16,7 +16,7 @@
 
         <!--  app:popupTheme="@style/ThemeOverlay.AppCompat.Light" -->
         <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar_full_image"
+            android:id="@+id/toolbar_status_detail"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
@@ -29,12 +29,30 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <ImageView
-        android:id="@+id/full_bleed_image"
+    <!-- this will contain the statuses -->
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/statusDetailFragment"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/appbar" />
+
+    <View
+        android:id="@+id/go_to_previous_fragment"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/appbar"
-        tools:srcCompat="@tools:sample/avatars" />
+        app:layout_constraintEnd_toStartOf="@id/go_to_next_fragment"
+        app:layout_constraintTop_toBottomOf="@id/appbar" />
+
+    <View
+        android:id="@+id/go_to_next_fragment"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/go_to_previous_fragment"
+        app:layout_constraintTop_toBottomOf="@id/appbar" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

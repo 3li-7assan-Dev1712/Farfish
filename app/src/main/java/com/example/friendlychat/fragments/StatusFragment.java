@@ -203,6 +203,7 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
     @Override
     public void onStatusClicked(int position) {
         Log.d(TAG, "onStatusClicked: Ok, will be completed soon");
+
     }
     /*
     class PutStatus implements Consumer<List<Status>> {
