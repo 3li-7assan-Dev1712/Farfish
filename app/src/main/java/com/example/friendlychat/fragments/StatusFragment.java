@@ -18,7 +18,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.friendlychat.Adapters.StatusAdapter;
 import com.example.friendlychat.Module.FileUtil;
 import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.Status;
@@ -33,13 +35,16 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 import id.zelory.compressor.Compressor;
 
-public class StatusFragment extends Fragment {
+public class StatusFragment extends Fragment implements StatusAdapter.OnStatusClicked{
 
+    private static final String TAG = StatusFragment.class.getSimpleName();
     private DatabaseReference mDatabaseReference  = FirebaseDatabase.getInstance().getReference("status");
     private DatabaseReference mUserReference  = FirebaseDatabase.getInstance().getReference();
     private StorageReference mRootRef;
@@ -63,10 +68,15 @@ public class StatusFragment extends Fragment {
                 }
             },
             this::putIntoImage);
+
+    private List<List<Status>> mStatusLists = new ArrayList<>();
+    private StatusAdapter mStatusAdapter;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.status_fragment, container, false);
+        RecyclerView statusRecycler = view.findViewById(R.id.statusRecycler);
+        statusRecycler.setAdapter(mStatusAdapter);
         FloatingActionButton uploadImageFab = view.findViewById(R.id.uploadImageStatusFab);
         uploadImageFab.setOnClickListener( uploadImage -> {
 
@@ -93,6 +103,7 @@ public class StatusFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         mRootRef = FirebaseStorage.getInstance().getReference("images");
         mUserReference = mDatabaseReference.child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid()));
+        mStatusAdapter = new StatusAdapter(requireContext(), mStatusLists, this);
         super.onCreate(savedInstanceState);
     }
 
@@ -145,5 +156,10 @@ public class StatusFragment extends Fragment {
 
     private void pickImageFromGallery() {
         selectImageToUpload.launch("image/*");
+    }
+
+    @Override
+    public void onStatusClicked(int position) {
+        Log.d(TAG, "onStatusClicked: Ok, will be completed soon");
     }
 }
