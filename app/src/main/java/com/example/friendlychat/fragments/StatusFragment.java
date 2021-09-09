@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,7 +17,9 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
+import androidx.core.util.Consumer;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -24,11 +27,16 @@ import com.example.friendlychat.Adapters.StatusAdapter;
 import com.example.friendlychat.Module.FileUtil;
 import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.Status;
+import com.example.friendlychat.Module.StatusLists;
 import com.example.friendlychat.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -78,6 +86,7 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
         RecyclerView statusRecycler = view.findViewById(R.id.statusRecycler);
         statusRecycler.setAdapter(mStatusAdapter);
         FloatingActionButton uploadImageFab = view.findViewById(R.id.uploadImageStatusFab);
+        uploadImageFab.setClickable(true);
         uploadImageFab.setOnClickListener( uploadImage -> {
 
             if (ContextCompat.checkSelfPermission(
@@ -92,11 +101,43 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
                         Manifest.permission.READ_EXTERNAL_STORAGE);
             }
         });
+
         FloatingActionButton uploadTextFab = view.findViewById(R.id.uploadTextStatusFab);
-        uploadTextFab.setOnClickListener( uploadImage -> {
-            Toast.makeText(requireContext(), "Upload text as a status", Toast.LENGTH_SHORT).show();
+        uploadTextFab.setClickable(true);
+        uploadTextFab.setOnClickListener(v -> {
+            Toast.makeText(getActivity(), "Upload text as a status", Toast.LENGTH_SHORT).show();
         });
+        listenToUpComingStatus();
         return view;
+    }
+
+    private void listenToUpComingStatus() {
+
+        mDatabaseReference.addValueEventListener(new ValueEventListener() {
+            /*@RequiresApi(api = Build.VERSION_CODES.N)*/
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Log.d(TAG, "onDataChange: generally");
+                Toast.makeText(getContext(), "onDataChanged generally", Toast.LENGTH_SHORT).show();
+                StatusLists statusLists =  snapshot.getValue(StatusLists.class);
+
+                if (statusLists != null) {
+                    mStatusLists = statusLists.getStatusLists();
+                    if (mStatusLists!= null) {
+                        Log.d(TAG, "onDataChange: " + mStatusLists.size());
+                        Toast.makeText(getContext(), "status are " + mStatusLists.size(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+                else
+                    Log.d(TAG, "onDataChange: status list is null");
+                mStatusAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
     @Override
@@ -162,4 +203,11 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
     public void onStatusClicked(int position) {
         Log.d(TAG, "onStatusClicked: Ok, will be completed soon");
     }
+    /*
+    class PutStatus implements Consumer<List<Status>> {
+        @Override
+        public void accept(List<Status> statuses) {
+            mStatusLists.add(statuses);
+        }
+    }*/
 }

@@ -1,11 +1,13 @@
 package com.example.friendlychat.Adapters;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,9 +21,9 @@ import java.util.List;
 import java.util.Locale;
 
 public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.StatusViewHolder> {
+    private static final String TAG = StatusAdapter.class.getSimpleName();
     private Context mContext;
     private List<List<Status>> statusLists;
-
 
 
     public interface OnStatusClicked {
@@ -60,6 +62,10 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.StatusView
                 if (!statusImage.equals(""))
                     Picasso.get().load(statusImage).placeholder(R.drawable.group_icon).into(holder.statusImage);
             }
+        }
+        else {
+            Toast.makeText(mContext, "status lists are null", Toast.LENGTH_SHORT).show();
+            Log.d(TAG, "onBindViewHolder: no data status list is null ");
         }
     }
 
