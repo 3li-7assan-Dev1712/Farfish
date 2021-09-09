@@ -122,10 +122,7 @@ public class StatusFragment extends Fragment {
                          /* if the image sent successfully to the firebase storage send its metadata as a message
                          to the firebase firestore */
                          String uploaderName = MessagesPreference.getUserName(requireContext());
-                        Status newStatus = new Status(uploaderName,
-                                downloadUrl,
-                                dateFromDateClass,
-                                0);
+                        Status newStatus = new Status(uploaderName, downloadUrl, "", dateFromDateClass, 0);
                         uploadNewStatus(newStatus);
                     });
 
