@@ -1,6 +1,9 @@
 package com.example.friendlychat.Module;
 
-public class Status {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class Status implements Parcelable {
     private String uploaderName, statusImage, statusText;
     private long timestamp;
     private int seenBy;
@@ -23,6 +26,26 @@ public class Status {
         this.seenBy = seenBy;
     }
 
+    protected Status(Parcel in) {
+        uploaderName = in.readString();
+        statusImage = in.readString();
+        statusText = in.readString();
+        timestamp = in.readLong();
+        seenBy = in.readInt();
+    }
+
+    public static final Creator<Status> CREATOR = new Creator<Status>() {
+        @Override
+        public Status createFromParcel(Parcel in) {
+            return new Status(in);
+        }
+
+        @Override
+        public Status[] newArray(int size) {
+            return new Status[size];
+        }
+    };
+
     public String getStatusText() {
         return statusText;
     }
@@ -41,5 +64,19 @@ public class Status {
 
     public int getSeenBy() {
         return seenBy;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(uploaderName);
+        dest.writeString(statusImage);
+        dest.writeString(statusText);
+        dest.writeLong(timestamp);
+        dest.writeInt(seenBy);
     }
 }

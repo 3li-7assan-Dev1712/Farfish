@@ -18,6 +18,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.friendlychat.Adapters.StatusAdapter;
@@ -204,6 +206,11 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
     public void onStatusClicked(int position) {
         Log.d(TAG, "onStatusClicked: Ok, will be completed soon");
 
+        List<Status> userStatuses = mStatusLists.get(position);
+        StatusFragmentDirections.ActionStatusFragmentToStatusDetailFragment2 acionToDetail =
+                StatusFragmentDirections.actionStatusFragmentToStatusDetailFragment2(userStatuses);
+        NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+        navController.navigate(acionToDetail); // OK, that's it, it's time to pray!
     }
     /*
     class PutStatus implements Consumer<List<Status>> {
