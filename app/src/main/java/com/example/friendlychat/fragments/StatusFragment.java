@@ -208,7 +208,7 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
 
         List<Status> userStatuses = mStatusLists.get(position);
         StatusFragmentDirections.ActionStatusFragmentToStatusDetailFragment2 acionToDetail =
-                StatusFragmentDirections.actionStatusFragmentToStatusDetailFragment2(userStatuses);
+                StatusFragmentDirections.actionStatusFragmentToStatusDetailFragment2(userStatuses.toArray(new Status[0]));
         NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         navController.navigate(acionToDetail); // OK, that's it, it's time to pray!
     }
