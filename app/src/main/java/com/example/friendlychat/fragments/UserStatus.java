@@ -19,11 +19,11 @@ import com.squareup.picasso.Picasso;
 
 public class UserStatus extends Fragment {
 
-    private  String statusImageUrl, statusText;
+    private  String mStatusImageUrl, mStatusText;
 
-    public UserStatus(String statusImageUrl, String statusText) {
-        this.statusImageUrl = statusImageUrl;
-        this.statusText = statusText;
+    public UserStatus(String mStatusImageUrl, String mStatusText) {
+        this.mStatusImageUrl = mStatusImageUrl;
+        this.mStatusText = mStatusText;
     }
 
     @Override
@@ -40,9 +40,9 @@ public class UserStatus extends Fragment {
         statusProgressBar.setVisibility(View.VISIBLE);
         ImageView statusImage = view.findViewById(R.id.imageViewUserStatus);
         TextView statusText = view.findViewById(R.id.textViewUserStatus);
-        if (!statusImageUrl.equals("")){
+        if (!mStatusImageUrl.equals("")){
             statusText.setVisibility(View.GONE);
-            Picasso.get().load(statusImageUrl).into(statusImage, new Callback() {
+            Picasso.get().load(mStatusImageUrl).into(statusImage, new Callback() {
                 @Override
                 public void onSuccess() {
                     // hide the progress bar after successfully loading image
@@ -56,7 +56,11 @@ public class UserStatus extends Fragment {
                 }
             });
         }else{
-            // will be done soon
+            statusImage.setVisibility(View.GONE);
+            statusText.setVisibility(View.VISIBLE);
+            statusText.setText(mStatusText);
+            view.setBackgroundColor(requireActivity().getResources().getColor(R.color.colorAccent));
+            statusProgressBar.setVisibility(View.INVISIBLE);
         }
         return view;
     }

@@ -5,19 +5,40 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <com.example.friendlychat.CustomViews.CustomCircleImageView
-        android:id="@+id/profileImage"
+
+    <RelativeLayout
+        android:id="@+id/frameLayout"
         android:layout_width="56dp"
         android:layout_height="56dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
-        android:contentDescription="@string/profile_image"
+        android:background="@drawable/new_message_indicator_background"
+        android:gravity="center"
         app:layout_constraintBottom_toBottomOf="parent"
-
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:srcCompat="@tools:sample/avatars" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.example.friendlychat.CustomViews.CustomCircleImageView
+            android:id="@+id/profileImage"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/profile_image"
+            tools:srcCompat="@tools:sample/avatars" />
+
+        <TextView
+            android:id="@+id/statusTextViewAsItem"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:padding="8dp"
+            android:visibility="invisible"
+            android:textColor="@android:color/white"
+            android:textSize="8sp"
+            tools:text="Whait us soon  @farfish app" />
+
+    </RelativeLayout>
 
     <TextView
         android:id="@+id/personName"
@@ -28,7 +49,7 @@
         android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/profileImage"
+        app:layout_constraintStart_toEndOf="@+id/frameLayout"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.3"
         tools:text="Ali Hassan" />
@@ -39,7 +60,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:fontFamily="sans-serif"
-        app:layout_constraintStart_toEndOf="@+id/profileImage"
+        app:layout_constraintStart_toEndOf="@+id/frameLayout"
         app:layout_constraintTop_toBottomOf="@+id/personName"
         tools:text="Hi Abdullah" />
 
@@ -63,17 +84,7 @@
         app:layout_constraintEnd_toEndOf="@id/lastMessageTime"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@id/lastMessage"
-        app:layout_constraintTop_toBottomOf="@id/profileImage" />
-
-    <View
-        android:id="@+id/newMessageIndicatorView"
-        android:layout_width="16dp"
-        android:layout_height="16dp"
-        android:layout_marginEnd="16dp"
-        android:background="@drawable/new_message_indicator_background"
-        android:visibility="invisible"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/lastMessageTime" />
+        app:layout_constraintTop_toBottomOf="@id/frameLayout" />
 
     <ProgressBar
         android:id="@+id/progressImageIndicator"
@@ -81,10 +92,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="@id/profileImage"
-        app:layout_constraintEnd_toEndOf="@id/profileImage"
-        app:layout_constraintStart_toStartOf="@id/profileImage"
-        app:layout_constraintTop_toTopOf="@id/profileImage" />
+        app:layout_constraintBottom_toBottomOf="@id/frameLayout"
+        app:layout_constraintEnd_toEndOf="@id/frameLayout"
+        app:layout_constraintStart_toStartOf="@id/frameLayout"
+        app:layout_constraintTop_toTopOf="@id/frameLayout" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

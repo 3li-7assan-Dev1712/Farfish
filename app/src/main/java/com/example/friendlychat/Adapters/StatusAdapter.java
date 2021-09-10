@@ -62,7 +62,9 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.StatusView
                     String readableDate = d.format(statusTime);
                     holder.uploaderName.setText(uploaderName);
                     holder.uploadDate.setText(readableDate);
-                    if (!statusImage.equals(""))
+                    if (!statusImage.equals("")) {
+                        holder.statusTextView.setVisibility(View.GONE);
+                        holder.statusImage.setVisibility(View.VISIBLE);
                         Picasso.get().load(statusImage).into(holder.statusImage, new Callback() {
                             @Override
                             public void onSuccess() {
@@ -76,6 +78,12 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.StatusView
                                 Log.d(TAG, "onError: Error loading status image");
                             }
                         });
+                    }else{
+                        holder.statusImage.setVisibility(View.GONE);
+                        holder.statusTextView.setVisibility(View.generateViewId());
+                        holder.statusTextView.setText(statusText);
+                        holder.progressBar.setVisibility(View.INVISIBLE);
+                    }
                 }
             }else{
                 Toast.makeText(mContext, "child statues are null", Toast.LENGTH_SHORT).show();
@@ -101,6 +109,7 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.StatusView
         private TextView uploadDate;
         private ImageView statusImage;
         private ProgressBar progressBar;
+        private TextView statusTextView;
         public StatusViewHolder(@NonNull View itemView) {
             super(itemView);
             uploaderName = itemView.findViewById(R.id.personName);
@@ -108,6 +117,7 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.StatusView
             uploadDate = itemView.findViewById(R.id.lastMessage);
             progressBar = itemView.findViewById(R.id.progressImageIndicator);
             progressBar.setVisibility(View.VISIBLE);
+            statusTextView = itemView.findViewById(R.id.statusTextViewAsItem);
             itemView.setOnClickListener(this);
         }
 
