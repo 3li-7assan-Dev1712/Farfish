@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -14,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.friendlychat.Module.Status;
 import com.example.friendlychat.R;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
@@ -61,7 +63,19 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.StatusView
                     holder.uploaderName.setText(uploaderName);
                     holder.uploadDate.setText(readableDate);
                     if (!statusImage.equals(""))
-                        Picasso.get().load(statusImage).placeholder(R.drawable.group_icon).into(holder.statusImage);
+                        Picasso.get().load(statusImage).into(holder.statusImage, new Callback() {
+                            @Override
+                            public void onSuccess() {
+                                hideProgressBar(holder);
+                            }
+
+                            @Override
+                            public void onError(Exception e) {
+                                holder.statusImage.setImageResource(R.drawable.group_icon);
+                                hideProgressBar(holder);
+                                Log.d(TAG, "onError: Error loading status image");
+                            }
+                        });
                 }
             }else{
                 Toast.makeText(mContext, "child statues are null", Toast.LENGTH_SHORT).show();
@@ -74,6 +88,10 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.StatusView
         }
     }
 
+    private void hideProgressBar(@NonNull StatusViewHolder holder) {
+        holder.progressBar.setVisibility(View.INVISIBLE);
+    }
+
     @Override
     public int getItemCount() {
         return (statusLists == null) ? 0: statusLists.size(); // I love java syntax *_*
@@ -82,11 +100,14 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.StatusView
         private TextView uploaderName;
         private TextView uploadDate;
         private ImageView statusImage;
+        private ProgressBar progressBar;
         public StatusViewHolder(@NonNull View itemView) {
             super(itemView);
             uploaderName = itemView.findViewById(R.id.personName);
             statusImage = itemView.findViewById(R.id.profileImage);
             uploadDate = itemView.findViewById(R.id.lastMessage);
+            progressBar = itemView.findViewById(R.id.progressImageIndicator);
+            progressBar.setVisibility(View.VISIBLE);
             itemView.setOnClickListener(this);
         }
 

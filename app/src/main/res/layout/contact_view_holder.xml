@@ -3,8 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-  >
+    android:layout_height="wrap_content">
 
     <com.example.friendlychat.CustomViews.CustomCircleImageView
         android:id="@+id/profileImage"
@@ -40,9 +39,9 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:fontFamily="sans-serif"
-        tools:text="Hi Abdullah"
         app:layout_constraintStart_toEndOf="@+id/profileImage"
-        app:layout_constraintTop_toBottomOf="@+id/personName" />
+        app:layout_constraintTop_toBottomOf="@+id/personName"
+        tools:text="Hi Abdullah" />
 
     <TextView
         android:id="@+id/lastMessageTime"
@@ -75,6 +74,17 @@
         android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/lastMessageTime" />
+
+    <ProgressBar
+        android:id="@+id/progressImageIndicator"
+        style="?android:attr/progressBarStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@id/profileImage"
+        app:layout_constraintEnd_toEndOf="@id/profileImage"
+        app:layout_constraintStart_toStartOf="@id/profileImage"
+        app:layout_constraintTop_toTopOf="@id/profileImage" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

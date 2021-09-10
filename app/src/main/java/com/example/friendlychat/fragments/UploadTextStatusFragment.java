@@ -20,6 +20,7 @@ import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.Status;
 import com.example.friendlychat.R;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
@@ -55,6 +56,9 @@ public class UploadTextStatusFragment extends Fragment {
                     0);
             userRef.push().setValue(textStatus).addOnCompleteListener(task -> {
                 Navigation.findNavController(view).navigateUp();
+            }).addOnFailureListener(exception -> {
+                Log.d(TAG, "onCreateView: upload text status exception " + exception.getMessage());
+                Toast.makeText(requireActivity(), "Error uploading status, check out your internet connection", Toast.LENGTH_SHORT).show();
             });
 
         });
