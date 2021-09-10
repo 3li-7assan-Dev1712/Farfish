@@ -83,6 +83,7 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.status_fragment, container, false);
+        requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.VISIBLE);
         RecyclerView statusRecycler = view.findViewById(R.id.statusRecycler);
         statusRecycler.setAdapter(mStatusAdapter);
         FloatingActionButton uploadImageFab = view.findViewById(R.id.uploadImageStatusFab);
@@ -148,6 +149,7 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
         mRootRef = FirebaseStorage.getInstance().getReference("images");
         mUserReference = mDatabaseReference.child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid()));
         mStatusAdapter = new StatusAdapter(requireContext(), mStatusLists, this);
+
         super.onCreate(savedInstanceState);
     }
 
