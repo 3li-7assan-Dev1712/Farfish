@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
@@ -20,10 +21,12 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 public class StatusDetailFragment extends Fragment {
 
     private List<Status> userStatues;
+    private int tracker = 0;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,10 +51,21 @@ public class StatusDetailFragment extends Fragment {
         View navigateToNextStatus = statusFragment.findViewById(R.id.go_to_next_fragment);
         navigateToPreviousStatus.setOnClickListener( goToNext -> {
             Toast.makeText(requireActivity(), "Navigating to previous status", Toast.LENGTH_SHORT).show();
+            tracker++;
+            if (tracker > userStatues.size()){
+                Status nextStatus = userStatues.get(tracker);
+                UserStatus userStatus = new UserStatus(nextStatus.getStatusImage(), nextStatus.getStatusText());
+                FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+                fragmentManager.beginTransaction().replace(R.id.statusDetailFragment, userStatus).commit();
+            }
         });
-        navigateToNextStatus.setOnClickListener( goToNext -> {
+        navigateToNextStatus.setOnClickListener( goToPrevious -> {
             Toast.makeText(requireActivity(), "Navigating to next status", Toast.LENGTH_SHORT).show();
         });
+        Status firstStatus = userStatues.get(tracker);
+        UserStatus userStatus = new UserStatus(firstStatus.getStatusImage(), firstStatus.getStatusText());
+        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+        fragmentManager.beginTransaction().add(R.id.statusDetailFragment, userStatus).commit();
         return statusFragment;
     }
 }
