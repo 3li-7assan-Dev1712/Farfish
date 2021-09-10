@@ -107,6 +107,7 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
         uploadTextFab.setClickable(true);
         uploadTextFab.setOnClickListener(v -> {
             Toast.makeText(getActivity(), "Upload text as a status", Toast.LENGTH_SHORT).show();
+            Navigation.findNavController(view).navigate(R.id.uploadTextStatusFragment);
         });
         listenToUpComingStatus();
         return view;
