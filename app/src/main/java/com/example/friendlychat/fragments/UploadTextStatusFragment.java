@@ -14,13 +14,20 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 
 import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.Status;
 import com.example.friendlychat.R;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.Date;
+import java.util.Objects;
 
 public class UploadTextStatusFragment extends Fragment {
 
@@ -37,6 +44,8 @@ public class UploadTextStatusFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view =  inflater.inflate(R.layout.upload_text_status_fragment, container, false);
         EditText statusEditText = view.findViewById(R.id.editTextUploadStatus);
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("status");
+        DatabaseReference userRef = reference.child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid()));
         mUploadFab = view.findViewById(R.id.uploadTextStatusFragmentFab);
         mUploadFab.setOnClickListener( uploadFab -> {
             Toast.makeText(requireActivity(), "Upload Text", Toast.LENGTH_SHORT).show();
@@ -44,6 +53,10 @@ public class UploadTextStatusFragment extends Fragment {
                     "", statusEditText.getText().toString(),
                     new Date().getTime(),
                     0);
+            userRef.push().setValue(textStatus).addOnCompleteListener(task -> {
+                Navigation.findNavController(view).navigateUp();
+            });
+
         });
         statusEditText.addTextChangedListener(new TextWatcher() {
             @Override
