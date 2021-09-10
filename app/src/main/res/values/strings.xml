@@ -40,6 +40,7 @@
     <string name="users">users</string>
     <string name="all_people">All People Use The App</string>
     <string name="status_cap">Status</string>
+    <string name="type_a_status">Type a status</string>
 
 
 </resources>
