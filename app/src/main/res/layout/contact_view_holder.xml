@@ -13,7 +13,6 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
-        android:background="@drawable/new_message_indicator_background"
         android:gravity="center"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -26,16 +25,13 @@
             android:contentDescription="@string/profile_image"
             tools:srcCompat="@tools:sample/avatars" />
 
-        <TextView
+        <com.devlomi.circularstatusview.CircularStatusView
             android:id="@+id/statusTextViewAsItem"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:ellipsize="end"
-            android:gravity="center"
-            android:padding="8dp"
-            android:visibility="invisible"
+            android:visibility="visible"
+            app:portions_count="5"
             android:textColor="@android:color/white"
-            android:textSize="8sp"
             tools:text="Whait us soon  @farfish app" />
 
     </RelativeLayout>
