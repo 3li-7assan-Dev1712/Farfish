@@ -13,6 +13,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.devlomi.circularstatusview.CircularStatusView;
 import com.example.friendlychat.Module.Status;
 import com.example.friendlychat.R;
 import com.squareup.picasso.Callback;
@@ -56,14 +57,16 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.StatusView
                     Status lastStatus = statusList.get(statusList.size() - 1);
                     String uploaderName = lastStatus.getUploaderName();
                     String statusImage = lastStatus.getStatusImage();
-                    String statusText = lastStatus.getStatusText(); // will be used soon
+                   /* String statusText = lastStatus.getStatusText()*/; // will be used soon
+                    holder.circularStatusView.setPortionsCount(statusList.size());
+                    holder.circularStatusView.setVisibility(View.VISIBLE);
+
                     long statusTime = lastStatus.getTimestamp();
                     SimpleDateFormat d = new SimpleDateFormat("h:mm a", Locale.getDefault());
                     String readableDate = d.format(statusTime);
                     holder.uploaderName.setText(uploaderName);
                     holder.uploadDate.setText(readableDate);
                     if (!statusImage.equals("")) {
-                        holder.statusTextView.setVisibility(View.GONE);
                         holder.statusImage.setVisibility(View.VISIBLE);
                         Picasso.get().load(statusImage).into(holder.statusImage, new Callback() {
                             @Override
@@ -78,11 +81,6 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.StatusView
                                 Log.d(TAG, "onError: Error loading status image");
                             }
                         });
-                    }else{
-                        holder.statusImage.setVisibility(View.GONE);
-                        holder.statusTextView.setVisibility(View.VISIBLE);
-                        holder.statusTextView.setText(statusText);
-                        holder.progressBar.setVisibility(View.INVISIBLE);
                     }
                 }
             }else{
@@ -109,7 +107,7 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.StatusView
         private TextView uploadDate;
         private ImageView statusImage;
         private ProgressBar progressBar;
-        private TextView statusTextView;
+        private CircularStatusView circularStatusView;
         public StatusViewHolder(@NonNull View itemView) {
             super(itemView);
             uploaderName = itemView.findViewById(R.id.personName);
@@ -117,7 +115,7 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.StatusView
             uploadDate = itemView.findViewById(R.id.lastMessage);
             progressBar = itemView.findViewById(R.id.progressImageIndicator);
             progressBar.setVisibility(View.VISIBLE);
-            statusTextView = itemView.findViewById(R.id.statusTextViewAsItem);
+            circularStatusView = itemView.findViewById(R.id.circleStatusView);
             itemView.setOnClickListener(this);
         }
 

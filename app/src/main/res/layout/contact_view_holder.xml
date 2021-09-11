@@ -23,16 +23,20 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:contentDescription="@string/profile_image"
-            tools:srcCompat="@tools:sample/avatars" />
+            android:padding="6dp"
+            tools:src="@tools:sample/avatars" />
 
         <com.devlomi.circularstatusview.CircularStatusView
-            android:id="@+id/statusTextViewAsItem"
+            android:id="@+id/circleStatusView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="visible"
-            app:portions_count="5"
+            android:layout_centerInParent="true"
             android:textColor="@android:color/white"
-            tools:text="Whait us soon  @farfish app" />
+            android:visibility="visible"
+            app:portion_color="@color/colorAccent"
+            app:portion_spacing="6dp"
+            app:portion_width="4dp"
+            app:portions_count="10" />
 
     </RelativeLayout>
 

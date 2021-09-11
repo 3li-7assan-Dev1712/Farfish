@@ -147,7 +147,7 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
-        mRootRef = FirebaseStorage.getInstance().getReference("images");
+        mRootRef = FirebaseStorage.getInstance().getReference("stories");
         mUserReference = mDatabaseReference.child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid()));
         mStatusAdapter = new StatusAdapter(requireContext(), mStatusLists, this);
 
