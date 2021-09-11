@@ -80,7 +80,7 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.StatusView
                         });
                     }else{
                         holder.statusImage.setVisibility(View.GONE);
-                        holder.statusTextView.setVisibility(View.generateViewId());
+                        holder.statusTextView.setVisibility(View.VISIBLE);
                         holder.statusTextView.setText(statusText);
                         holder.progressBar.setVisibility(View.INVISIBLE);
                     }
