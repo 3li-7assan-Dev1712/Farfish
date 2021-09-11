@@ -41,6 +41,7 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -49,6 +50,10 @@ import java.util.Objects;
 import java.util.function.UnaryOperator;
 
 import id.zelory.compressor.Compressor;
+import omari.hamza.storyview.StoryView;
+import omari.hamza.storyview.callback.StoryClickListeners;
+import omari.hamza.storyview.model.MyStory;
+import omari.hamza.storyview.utils.StoryViewHeaderInfo;
 
 public class StatusFragment extends Fragment implements StatusAdapter.OnStatusClicked{
 
@@ -210,16 +215,42 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
         Log.d(TAG, "onStatusClicked: Ok, will be completed soon");
 
         List<Status> userStatuses = mStatusLists.get(position);
-        StatusFragmentDirections.ActionStatusFragmentToStatusDetailFragment2 acionToDetail =
+        /*StatusFragmentDirections.ActionStatusFragmentToStatusDetailFragment2 acionToDetail =
                 StatusFragmentDirections.actionStatusFragmentToStatusDetailFragment2(userStatuses.toArray(new Status[0]));
         NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
-        navController.navigate(acionToDetail); // OK, that's it, it's time to pray!
-    }
-    /*
-    class PutStatus implements Consumer<List<Status>> {
-        @Override
-        public void accept(List<Status> statuses) {
-            mStatusLists.add(statuses);
+        navController.navigate(acionToDetail); */// OK, that's it, it's time to pray!
+
+        // test story view library
+        ArrayList<MyStory> myStories = new ArrayList<>();
+        for (Status status : userStatuses) {
+            myStories.add( new MyStory(
+                            status.getStatusImage(),
+                            new Date(status.getTimestamp()),
+                    "Wait us soon @ farfish"
+                    )
+            );
         }
-    }*/
+        new StoryView.Builder(requireActivity().getSupportFragmentManager())
+                .setStoriesList(myStories) // Required
+                .setStoryDuration(5000) // Default is 2000 Millis (2 Seconds)
+                .setTitleText(userStatuses.get(0).getUploaderName()) // Default is Hidden
+                .setSubtitleText("Test") // Default is Hidden
+                .setTitleLogoUrl("some-link") // Default is Hidden
+                .setStoryClickListeners(new StoryClickListeners() {
+                    @Override
+                    public void onDescriptionClickListener(int position) {
+                        //your action
+                        Toast.makeText(requireActivity(), "description click", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onTitleIconClickListener(int position) {
+                        //your action
+                        Toast.makeText(requireActivity(), "title icon click", Toast.LENGTH_SHORT).show();
+                    }
+                }) // Optional Listeners
+                .build() // Must be called before calling show method
+                .show();
+    }
+
 }

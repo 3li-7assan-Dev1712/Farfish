@@ -23,7 +23,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:contentDescription="@string/profile_image"
-            android:padding="6dp"
+            android:padding="4dp"
             tools:src="@tools:sample/avatars" />
 
         <com.devlomi.circularstatusview.CircularStatusView
@@ -34,8 +34,8 @@
             android:textColor="@android:color/white"
             android:visibility="visible"
             app:portion_color="@color/colorAccent"
-            app:portion_spacing="6dp"
-            app:portion_width="4dp"
+            app:portion_spacing="4dp"
+            app:portion_width="2dp"
             app:portions_count="10" />
 
     </RelativeLayout>
