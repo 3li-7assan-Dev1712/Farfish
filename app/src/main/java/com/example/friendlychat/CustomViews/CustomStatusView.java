@@ -21,6 +21,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.viewpager.widget.ViewPager;
 
+import com.example.friendlychat.Adapters.CustomViewPagerAdapter;
 import com.example.friendlychat.R;
 import com.squareup.picasso.Picasso;
 
@@ -35,7 +36,6 @@ import omari.hamza.storyview.model.MyStory;
 import omari.hamza.storyview.progress.StoriesProgressView;
 import omari.hamza.storyview.utils.PullDismissLayout;
 import omari.hamza.storyview.utils.StoryViewHeaderInfo;
-import omari.hamza.storyview.utils.ViewPagerAdapter;
 
 import static omari.hamza.storyview.utils.Utils.getDurationBetweenDates;
 
@@ -111,7 +111,7 @@ public class CustomStatusView extends DialogFragment implements StoriesProgressV
         storiesProgressView.setStoriesCount(storiesList.size());
         storiesProgressView.setStoryDuration(duration);
         updateHeading();
-        mViewPager.setAdapter(new ViewPagerAdapter(storiesList, getContext(), this));
+        mViewPager.setAdapter(new CustomViewPagerAdapter(storiesList, getContext(), this));
     }
 
     private void readArguments() {
