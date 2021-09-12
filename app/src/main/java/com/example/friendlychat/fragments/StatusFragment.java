@@ -18,7 +18,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -26,6 +25,7 @@ import com.example.friendlychat.Adapters.StatusAdapter;
 import com.example.friendlychat.CustomViews.CustomStatusView;
 import com.example.friendlychat.Module.CustomStory;
 import com.example.friendlychat.Module.FileUtil;
+import com.example.friendlychat.Module.Message;
 import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.Status;
 import com.example.friendlychat.Module.StatusLists;
@@ -43,19 +43,14 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.UnaryOperator;
 
 import id.zelory.compressor.Compressor;
-import omari.hamza.storyview.StoryView;
 import omari.hamza.storyview.callback.StoryClickListeners;
-import omari.hamza.storyview.model.MyStory;
-import omari.hamza.storyview.utils.StoryViewHeaderInfo;
 
 public class StatusFragment extends Fragment implements StatusAdapter.OnStatusClicked{
 
@@ -143,6 +138,8 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
                 mStatusLists.clear();
                 mStatusLists.addAll(allUsersStatues);
                 mStatusAdapter.notifyDataSetChanged();
+                /* delete status older than 2 days*/
+                cleanUpOlderStatus(snapshot);
             }
 
             @Override
@@ -150,6 +147,18 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
 
             }
         });
+    }
+
+    private void cleanUpOlderStatus(DataSnapshot snapshot) {
+        String userId = MessagesPreference.getUserId(requireContext());
+        Iterable<DataSnapshot> iterable = snapshot.getChildren();
+        for (DataSnapshot dataSnapshot : iterable) {
+            if (userId.equals(dataSnapshot.getKey())){
+                Log.d(TAG, "cleanUpOlderStatus: yes I found your user id here and you can delete their out dated status");
+            }
+            Log.d(TAG, "cleanUpOlderStatus: keys (should be my users ids): " + dataSnapshot.getKey());
+            Log.d(TAG, "cleanUpOlderStatus: -------------------------------");
+        }
     }
 
     @Override
