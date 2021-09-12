@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
+import com.example.friendlychat.Module.CustomStory;
 import com.example.friendlychat.R;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
@@ -22,25 +23,33 @@ import omari.hamza.storyview.utils.ViewPagerAdapter;
 
 public class CustomViewPagerAdapter extends ViewPagerAdapter {
     private Context context;
-    private ArrayList<MyStory> images;
+    private ArrayList<CustomStory> stories;
     private StoryCallbacks storyCallbacks;
 
     private  boolean storiesStarted = false;
-    public CustomViewPagerAdapter(ArrayList<MyStory> images, Context context, StoryCallbacks storyCallbacks) {
+    public CustomViewPagerAdapter(ArrayList<CustomStory> stories, Context context, StoryCallbacks storyCallbacks) {
 
-        super(images, context, storyCallbacks);
+        super(null, context, storyCallbacks);
         this.context = context;
-        this.images = images;
+        this.stories = stories;
         this.storyCallbacks = storyCallbacks;
     }
 
+    @Override
+    public int getCount() {
+        return stories.size();
+    }
+
+    public void setStories(ArrayList<CustomStory> customStories){
+        this.stories = customStories;
+    }
     @NonNull
     @Override
     public Object instantiateItem(@NonNull ViewGroup collection, int position) {
 
         LayoutInflater inflater = LayoutInflater.from(context);
 
-        MyStory currentStory = images.get(position);
+        CustomStory currentStory = stories.get(position);
 
         final View view = inflater.inflate(R.layout.custom_layout_story_item, collection, false);
 
@@ -85,7 +94,7 @@ public class CustomViewPagerAdapter extends ViewPagerAdapter {
         }else{
             mImageView.setVisibility(View.INVISIBLE);
             mTextView.setVisibility(View.VISIBLE);
-            mTextView.setText("Test to check the text status functionality");
+            mTextView.setText(currentStory.getStatusText());
             view.setBackgroundColor(context.getResources().getColor(R.color.colorAccent));
         }
         collection.addView(view);

@@ -22,6 +22,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.viewpager.widget.ViewPager;
 
 import com.example.friendlychat.Adapters.CustomViewPagerAdapter;
+import com.example.friendlychat.Module.CustomStory;
 import com.example.friendlychat.R;
 import com.squareup.picasso.Picasso;
 
@@ -46,7 +47,7 @@ public class CustomStatusView extends DialogFragment implements StoriesProgressV
 
     private static final String TAG = CustomStatusView.class.getSimpleName();
 
-    private ArrayList<MyStory> storiesList;
+    private ArrayList<CustomStory> storiesList;
 
     private final static String IMAGES_KEY = "IMAGES";
 
@@ -116,7 +117,7 @@ public class CustomStatusView extends DialogFragment implements StoriesProgressV
 
     private void readArguments() {
         assert getArguments() != null;
-        storiesList = (ArrayList<MyStory>) getArguments().getSerializable(IMAGES_KEY);
+        storiesList = (ArrayList<CustomStory>) getArguments().getSerializable(IMAGES_KEY);
         duration = getArguments().getLong(DURATION_KEY, 2000);
         startingIndex = getArguments().getInt(STARTING_INDEX_TAG, 0);
     }
@@ -402,7 +403,7 @@ public class CustomStatusView extends DialogFragment implements StoriesProgressV
             this.storyViewHeaderInfo = new StoryViewHeaderInfo();
         }
 
-        public Builder setStoriesList(ArrayList<MyStory> storiesList) {
+        public Builder setStoriesList(ArrayList<CustomStory> storiesList) {
             bundle.putSerializable(IMAGES_KEY, storiesList);
             return this;
         }

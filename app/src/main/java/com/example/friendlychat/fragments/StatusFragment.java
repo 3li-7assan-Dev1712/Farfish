@@ -24,6 +24,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.friendlychat.Adapters.StatusAdapter;
 import com.example.friendlychat.CustomViews.CustomStatusView;
+import com.example.friendlychat.Module.CustomStory;
 import com.example.friendlychat.Module.FileUtil;
 import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.Status;
@@ -222,12 +223,12 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
         navController.navigate(acionToDetail); */// OK, that's it, it's time to pray!
 
         // test story view library
-        ArrayList<MyStory> myStories = new ArrayList<>();
+        ArrayList<CustomStory> myStories = new ArrayList<>();
         for (Status status : userStatuses) {
-            myStories.add( new MyStory(
+            myStories.add( new CustomStory(
                             status.getStatusImage(),
                             new Date(status.getTimestamp()),
-                    "Wait us soon @ farfish"
+                    status.getStatusText()
                     )
             );
         }
