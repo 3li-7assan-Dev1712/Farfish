@@ -59,28 +59,35 @@ public class CustomViewPagerAdapter extends ViewPagerAdapter {
             });
         }
 
-        Picasso.get().load(currentStory.getUrl())
-                .into(mImageView, new Callback() {
-                    @Override
-                    public void onSuccess() {
+        String imageUrl = currentStory.getUrl();
+        if (!imageUrl.equals("")) {
+            Picasso.get().load(currentStory.getUrl())
+                    .into(mImageView, new Callback() {
+                        @Override
+                        public void onSuccess() {
                       /*  PaletteExtraction pe = new PaletteExtraction(view.findViewById(R.id.relativeLayout),
                                 ((BitmapDrawable) resource).getBitmap());
 
                         pe.execute();*/
 
-                        if (!storiesStarted) {
-                            storiesStarted = true;
-                            storyCallbacks.startStories();
+                            if (!storiesStarted) {
+                                storiesStarted = true;
+                                storyCallbacks.startStories();
+                            }
                         }
-                    }
 
 
-                    @Override
-                    public void onError(Exception e) {
-                        storyCallbacks.nextStory();
-                    }
-                });
-
+                        @Override
+                        public void onError(Exception e) {
+                            storyCallbacks.nextStory();
+                        }
+                    });
+        }else{
+            mImageView.setVisibility(View.INVISIBLE);
+            mTextView.setVisibility(View.VISIBLE);
+            mTextView.setText("Test to check the text status functionality");
+            view.setBackgroundColor(context.getResources().getColor(R.color.colorAccent));
+        }
         collection.addView(view);
 
         return view;

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/relativeLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -36,7 +37,12 @@
         android:id="@+id/mTextViewStatus"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fontFamily="monospace"
+        android:fontFamily="sans-serif"
+        android:gravity="center"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        tools:text= "check to see how the status text will look check to see how the status text will look "
+        tools:textColor="@android:color/black"
         android:textColor="@android:color/white"
         android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"
