@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -57,10 +58,9 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.StatusView
                     Status lastStatus = statusList.get(statusList.size() - 1);
                     String uploaderName = lastStatus.getUploaderName();
                     String statusImage = lastStatus.getStatusImage();
-                   /* String statusText = lastStatus.getStatusText()*/; // will be used soon
+                    String statusText = lastStatus.getStatusText(); // will be used soon
                     holder.circularStatusView.setPortionsCount(statusList.size());
                     holder.circularStatusView.setVisibility(View.VISIBLE);
-
                     long statusTime = lastStatus.getTimestamp();
                     SimpleDateFormat d = new SimpleDateFormat("h:mm a", Locale.getDefault());
                     String readableDate = d.format(statusTime);
@@ -81,6 +81,13 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.StatusView
                                 Log.d(TAG, "onError: Error loading status image");
                             }
                         });
+                    }else{
+                        /* text status comes to the party*/
+                        holder.textView.setText(statusText);
+                        holder.textView.setVisibility(View.VISIBLE);
+                        holder.progressBar.setVisibility(View.GONE);
+                        holder.circularStatusView.setPortionsColor(mContext.getResources().getColor(R.color.primaryLightColor));
+
                     }
                 }
             }else{
@@ -107,6 +114,7 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.StatusView
         private TextView uploadDate;
         private ImageView statusImage;
         private ProgressBar progressBar;
+        private TextView textView;
         private CircularStatusView circularStatusView;
         public StatusViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -116,6 +124,7 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.StatusView
             progressBar = itemView.findViewById(R.id.progressImageIndicator);
             progressBar.setVisibility(View.VISIBLE);
             circularStatusView = itemView.findViewById(R.id.circleStatusView);
+            textView = itemView.findViewById(R.id.textStatusAsItem);
             itemView.setOnClickListener(this);
         }
 

@@ -32,11 +32,24 @@
             android:layout_height="match_parent"
             android:layout_centerInParent="true"
             android:textColor="@android:color/white"
-            android:visibility="invisible"
+            android:visibility="visible"
             app:portion_color="@color/colorAccent"
             app:portion_spacing="4dp"
             app:portion_width="2dp"
             app:portions_count="10" />
+
+        <TextView
+            android:id="@+id/textStatusAsItem"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/new_message_indicator_background"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:padding="8dp"
+            android:visibility="visible"
+            android:textColor="@android:color/white"
+            android:textSize="8sp"
+            tools:text="Mock status for testing and debugging the app" />
 
     </RelativeLayout>
 
