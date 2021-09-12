@@ -24,7 +24,23 @@
             android:layout_height="match_parent"
             android:contentDescription="@string/profile_image"
             android:padding="4dp"
+            android:visibility="visible"
             tools:src="@tools:sample/avatars" />
+
+        <TextView
+            android:id="@+id/textStatusAsItem"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="3dp"
+            android:background="@drawable/new_message_indicator_background"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:padding="4dp"
+            android:textColor="@android:color/white"
+            android:textSize="8sp"
+            android:visibility="invisible"
+            tools:text="Mock status for testing and debugging the app" />
+
 
         <com.devlomi.circularstatusview.CircularStatusView
             android:id="@+id/circleStatusView"
@@ -36,20 +52,9 @@
             app:portion_color="@color/colorAccent"
             app:portion_spacing="4dp"
             app:portion_width="2dp"
-            app:portions_count="10" />
+            app:portions_count="10">
 
-        <TextView
-            android:id="@+id/textStatusAsItem"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/new_message_indicator_background"
-            android:ellipsize="end"
-            android:gravity="center"
-            android:padding="8dp"
-            android:visibility="visible"
-            android:textColor="@android:color/white"
-            android:textSize="8sp"
-            tools:text="Mock status for testing and debugging the app" />
+        </com.devlomi.circularstatusview.CircularStatusView>
 
     </RelativeLayout>
 
