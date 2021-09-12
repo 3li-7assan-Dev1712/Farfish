@@ -23,6 +23,7 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.friendlychat.Adapters.StatusAdapter;
+import com.example.friendlychat.CustomViews.CustomStatusView;
 import com.example.friendlychat.Module.FileUtil;
 import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.Status;
@@ -230,7 +231,7 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
                     )
             );
         }
-        new StoryView.Builder(requireActivity().getSupportFragmentManager())
+        new CustomStatusView.Builder(requireActivity().getSupportFragmentManager())
                 .setStoriesList(myStories) // Required
                 .setStoryDuration(5000) // Default is 2000 Millis (2 Seconds)
                 .setTitleText(userStatuses.get(0).getUploaderName()) // Default is Hidden

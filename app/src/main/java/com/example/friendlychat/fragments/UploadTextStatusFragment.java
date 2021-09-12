@@ -1,5 +1,10 @@
 package com.example.friendlychat.fragments;
 
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
@@ -27,6 +32,11 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Date;
 import java.util.Objects;
 
@@ -54,6 +64,46 @@ public class UploadTextStatusFragment extends Fragment {
                     "", statusEditText.getText().toString(),
                     new Date().getTime(),
                     0);
+            /* create a bitmap from the text of the editText*/
+            String text = statusEditText.getText().toString();
+            final Paint textPaint = new Paint() {
+                @Override
+                public void setColor(int color) {
+                    super.setColor(Color.WHITE);
+                }
+
+                @Override
+                public void setTextAlign(Align align) {
+                    super.setTextAlign(Align.CENTER);
+                }
+
+                @Override
+                public void setTextSize(float textSize) {
+                    super.setTextSize(20f);
+                }
+
+                @Override
+                public void setAntiAlias(boolean aa) {
+                    super.setAntiAlias(true);
+                }
+            };
+
+            final Rect bounds = new Rect();
+            textPaint.getTextBounds(text, 0, text.length(), bounds);
+            final Bitmap bitmap = Bitmap.createBitmap(bounds.width(), bounds.height(), Bitmap.Config.ARGB_8888);
+            final Canvas canvas = new Canvas(bitmap);
+            canvas.drawText(text, 0, 20f, textPaint);
+            try {
+                FileOutputStream stream = new FileOutputStream("testStatus");
+                bitmap.compress(Bitmap.CompressFormat.PNG, 85, stream);
+                bitmap.recycle();
+                stream.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            //
             userRef.push().setValue(textStatus).addOnCompleteListener(task -> {
                 Navigation.findNavController(view).navigateUp();
             }).addOnFailureListener(exception -> {
