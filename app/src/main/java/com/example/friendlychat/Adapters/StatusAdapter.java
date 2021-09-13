@@ -107,7 +107,13 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.StatusView
 
     @Override
     public int getItemCount() {
-        return (statusLists == null) ? 0: statusLists.size(); // I love java syntax *_*
+        if (statusLists == null) {
+            Log.d(TAG, "getItemCount: you list is null");
+            return 0;// I love java syntax *_*
+        }else {
+            Log.d(TAG, "getItemCount: list size is " + statusLists.size());
+            return statusLists.size();
+        }
     }
     static class StatusViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private TextView uploaderName;

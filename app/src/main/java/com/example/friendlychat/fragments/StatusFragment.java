@@ -27,9 +27,7 @@ import com.example.friendlychat.Module.CustomStory;
 import com.example.friendlychat.Module.FileUtil;
 import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.Status;
-import com.example.friendlychat.Module.StatusLists;
 import com.example.friendlychat.R;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -124,8 +122,8 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Log.d(TAG, "onDataChange: generally");
                 Toast.makeText(getContext(), "onDataChanged generally", Toast.LENGTH_SHORT).show();
-                List<Status> statuses = snapshot.child(FirebaseAuth.getInstance().getUid()).getValue(StatusLists.class).getStatusLists();
-                mStatusLists.add(statuses);
+              /*  List<Status> statuses = snapshot.child(FirebaseAuth.getInstance().getUid()).getValue(StatusLists.class).getStatusLists();
+                mStatusLists.add(statuses);*/
                 Iterable<DataSnapshot> iterable = snapshot.getChildren();
                 List<List<Status>> allUsersStatues = new ArrayList<>();
                 for (DataSnapshot dataSnapshot : iterable) {
@@ -183,7 +181,7 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
         FirebaseStorage storage = FirebaseStorage.getInstance();
         String path = storage.getReferenceFromUrl(statusImageUrl).getName();
         Log.d(TAG, "removeImageFromStorage: out dated status path to delete " + path);
-        storage.getReference(path).delete().addOnSuccessListener(aVoid -> {
+        mRootRef.child(path).delete().addOnSuccessListener(aVoid -> {
             // after successfully removing the image we remove the status it self
             removeOutDatedStatusWithText(singleStatusSnapshot);
         }).addOnFailureListener(exception -> {
