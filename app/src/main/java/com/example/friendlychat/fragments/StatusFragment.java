@@ -25,7 +25,6 @@ import com.example.friendlychat.Adapters.StatusAdapter;
 import com.example.friendlychat.CustomViews.CustomStatusView;
 import com.example.friendlychat.Module.CustomStory;
 import com.example.friendlychat.Module.FileUtil;
-import com.example.friendlychat.Module.Message;
 import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.Status;
 import com.example.friendlychat.Module.StatusLists;
@@ -54,6 +53,7 @@ import omari.hamza.storyview.callback.StoryClickListeners;
 
 public class StatusFragment extends Fragment implements StatusAdapter.OnStatusClicked{
 
+    private static final long MAX_STATUS_DURATION = 172800000; /*two days in milliseconds*/
     private static final String TAG = StatusFragment.class.getSimpleName();
     private DatabaseReference mDatabaseReference  = FirebaseDatabase.getInstance().getReference("status");
     private DatabaseReference mUserReference  = FirebaseDatabase.getInstance().getReference();
@@ -150,14 +150,26 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
     }
 
     private void cleanUpOlderStatus(DataSnapshot snapshot) {
+        Toast.makeText(requireActivity(), "start", Toast.LENGTH_SHORT).show();
+        int outDatedStatusCount = 0;
         String userId = MessagesPreference.getUserId(requireContext());
         Iterable<DataSnapshot> iterable = snapshot.getChildren();
         for (DataSnapshot dataSnapshot : iterable) {
             if (userId.equals(dataSnapshot.getKey())){
                 Log.d(TAG, "cleanUpOlderStatus: yes I found your user id here and you can delete their out dated status");
+                Iterable<DataSnapshot> childIterable = dataSnapshot.getChildren();
+                for (DataSnapshot singleStatusSnapshot : childIterable) {
+                    Status status = singleStatusSnapshot.getValue(Status.class);
+                    long statusTime = status.getTimestamp();
+                    long currentTime = System.currentTimeMillis();
+                    if (currentTime - statusTime >= MAX_STATUS_DURATION){
+                        outDatedStatusCount++;
+                    }
+                }
             }
-            Log.d(TAG, "cleanUpOlderStatus: keys (should be my users ids): " + dataSnapshot.getKey());
-            Log.d(TAG, "cleanUpOlderStatus: -------------------------------");
+            Toast.makeText(requireActivity(), "end analysis there are " + outDatedStatusCount + "out dated statuses", Toast.LENGTH_SHORT).show();
+            Log.d(TAG, "cleanUpOlderStatus: number of outdated status are " + outDatedStatusCount + dataSnapshot.getKey());
+
         }
     }
 
