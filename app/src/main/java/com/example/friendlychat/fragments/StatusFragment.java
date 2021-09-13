@@ -29,6 +29,7 @@ import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.Status;
 import com.example.friendlychat.Module.StatusLists;
 import com.example.friendlychat.R;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -128,10 +129,10 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
                 Iterable<DataSnapshot> iterable = snapshot.getChildren();
                 List<List<Status>> allUsersStatues = new ArrayList<>();
                 for (DataSnapshot dataSnapshot : iterable) {
-                    Iterator<DataSnapshot> childInterator = dataSnapshot.getChildren().iterator();
+                    Iterator<DataSnapshot> childIterator = dataSnapshot.getChildren().iterator();
                     List<Status> oneUserStatuses = new ArrayList<>();
-                    while (childInterator.hasNext()) {
-                        oneUserStatuses.add(childInterator.next().getValue(Status.class));
+                    while (childIterator.hasNext()) {
+                        oneUserStatuses.add(childIterator.next().getValue(Status.class));
                     }
                     allUsersStatues.add(oneUserStatuses);
                 }
@@ -159,11 +160,16 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
                 Log.d(TAG, "cleanUpOlderStatus: yes I found your user id here and you can delete their out dated status");
                 Iterable<DataSnapshot> childIterable = dataSnapshot.getChildren();
                 for (DataSnapshot singleStatusSnapshot : childIterable) {
-                    Status status = singleStatusSnapshot.getValue(Status.class);
-                    long statusTime = status.getTimestamp();
+                    Status outDatedStatus = singleStatusSnapshot.getValue(Status.class);
+                    long statusTime = outDatedStatus.getTimestamp();
                     long currentTime = System.currentTimeMillis();
                     if (currentTime - statusTime >= MAX_STATUS_DURATION){
                         outDatedStatusCount++;
+                        String statusImageUrl = outDatedStatus.getStatusImage();
+                        if (!statusImageUrl.equals("")){
+                            removeOutDatedStatusWithImage(statusImageUrl, singleStatusSnapshot );
+                        }else
+                            removeOutDatedStatusWithText(singleStatusSnapshot);
                     }
                 }
             }
@@ -171,6 +177,26 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
             Log.d(TAG, "cleanUpOlderStatus: number of outdated status are " + outDatedStatusCount + dataSnapshot.getKey());
 
         }
+    }
+
+    private void removeOutDatedStatusWithImage(String statusImageUrl, DataSnapshot singleStatusSnapshot) {
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        String path = storage.getReferenceFromUrl(statusImageUrl).getName();
+        Log.d(TAG, "removeImageFromStorage: out dated status path to delete " + path);
+        storage.getReference(path).delete().addOnSuccessListener(aVoid -> {
+            // after successfully removing the image we remove the status it self
+            removeOutDatedStatusWithText(singleStatusSnapshot);
+        }).addOnFailureListener(exception -> {
+            Toast.makeText(requireActivity(), "exception deleting image " + exception.getMessage(), Toast.LENGTH_SHORT).show();
+            Log.d(TAG, "removeOutDatedStatusWithImage: exception" + exception.getMessage());
+        });
+    }
+
+    private void removeOutDatedStatusWithText(DataSnapshot singleStatusSnapshot) {
+        singleStatusSnapshot.getRef().removeValue().addOnFailureListener(exception -> {
+            Toast.makeText(requireActivity(), "exception deleting text " + exception.getMessage(), Toast.LENGTH_SHORT).show();
+            Log.d(TAG, "removeOutDatedStatusWithText: exception" + exception.getMessage());
+        });
     }
 
     @Override
