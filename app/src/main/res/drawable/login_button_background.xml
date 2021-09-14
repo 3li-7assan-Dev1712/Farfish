@@ -5,7 +5,8 @@
         />
     <corners android:radius="8dp"/>
     <gradient android:type="linear"
-        android:startColor="@color/sign_in_color"
-        android:endColor="@color/design_default_color_primary_dark" />
+        android:startColor="@color/colorPrimaryDark"
+        android:endColor="@color/primaryLightColor" />
 
+    <!--  android:endColor="@color/design_default_color_primary_dark"  -->
 </shape>
