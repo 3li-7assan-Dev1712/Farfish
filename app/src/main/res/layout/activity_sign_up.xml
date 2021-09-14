@@ -5,13 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingBottom="16dp"
-    tools:context=".SignUpActivity">
+    tools:context=".Activities.SignUpActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
 
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:context=".SignUpActivity">
+        tools:context=".Activities.SignUpActivity">
 
         <EditText
             android:id="@+id/edit_text_password"
