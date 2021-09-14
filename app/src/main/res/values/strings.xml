@@ -42,6 +42,8 @@
     <string name="status_cap">Status</string>
     <string name="type_a_status">Type a status</string>
     <string name="sign_up">Sign up</string>
+    <string name="sign_in_customUI">Sign in with custom UI</string>
+    <string name="sign_in_firebaseUI">Sign in with firebase UI</string>
 
 
 </resources>
