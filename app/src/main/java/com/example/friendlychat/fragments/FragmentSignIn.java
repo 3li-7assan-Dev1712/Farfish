@@ -40,6 +40,7 @@ public class FragmentSignIn extends Fragment {
                 displayRequiredFieldToast("Please enter you password to sign in");
             else{
                 // sign in functionality
+                Toast.makeText(requireContext(), "You are ready to sign in", Toast.LENGTH_SHORT).show();
             }
         });
         TextView register = view.findViewById(R.id.register_sign_in);
@@ -52,4 +53,5 @@ public class FragmentSignIn extends Fragment {
     private void displayRequiredFieldToast(String message) {
         Toast.makeText(requireActivity(), message, Toast.LENGTH_SHORT).show();
     }
+
 }
