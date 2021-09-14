@@ -4,10 +4,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context="com.example.friendlychat.Activities.ChatsActivity"
+    tools:context=".fragments.ChatsFragment"
     android:fitsSystemWindows="true"
-    android:paddingBottom="8dp" >
-  <!--  android:background="@drawable/wallpaper_1"-->
+    android:paddingBottom="8dp"
+    android:background="@drawable/wallpaper_1">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar"
@@ -16,8 +16,9 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
+        <!--  app:popupTheme="@style/ThemeOverlay.AppCompat.Light" -->
         <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
+            android:id="@+id/toolbar_frag"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
@@ -28,24 +29,13 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/nav_host_chats_fragment"
-        android:name="androidx.navigation.fragment.NavHostFragment"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:defaultNavHost="true"
-         />
-  <!--  <androidx.recyclerview.widget.RecyclerView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/messageRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_above="@id/linearLayout"
         android:divider="@android:color/transparent"
-        android:stackFromBottom="true"
+        android:stackFromBottom="false"
         android:transcriptMode="alwaysScroll"
         app:layout_constraintBottom_toTopOf="@+id/linearLayout"
         app:layout_constraintEnd_toEndOf="parent"
@@ -126,6 +116,6 @@
         app:layout_constraintBottom_toBottomOf="@id/linearLayout"
         app:layout_constraintTop_toTopOf="@id/linearLayout"
         android:layout_marginEnd="4dp"
-        app:layout_constraintEnd_toEndOf="parent"/>-->
+        app:layout_constraintEnd_toEndOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

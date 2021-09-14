@@ -15,11 +15,8 @@
         android:theme="@style/AppTheme">
         <activity android:name=".SignUpActivity" />
         <activity android:name=".SignInActivity" />
-        <activity
-            android:name=".Activities.ContactsActivity"
-            android:parentActivityName=".Activities.UserContactsActivity"/>
-        <activity android:name=".Activities.UserContactsActivity"
-            >
+        <activity android:name=".Activities.MainActivity"
+            android:theme="@style/ChatsTheme" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -27,16 +24,6 @@
             </intent-filter>
         </activity>
 
-        <provider
-            android:name=".DB.MessagesProvider"
-            android:authorities="com.example.friendlychat"
-            android:enabled="true"
-            android:exported="false" />
-
-        <activity
-            android:name=".Activities.ChatsActivity"
-            android:theme="@style/ChatsTheme"
-            android:parentActivityName=".Activities.UserContactsActivity"/>
     </application>
 
 </manifest>

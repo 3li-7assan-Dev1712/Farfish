@@ -1,17 +1,23 @@
-package com.example.friendlychat.Activities;
+package com.example.friendlychat.fragments;
 
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -23,15 +29,21 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.fragment.FragmentNavigator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.friendlychat.Adapters.MessagesAdapter;
 import com.example.friendlychat.Module.DateUtils;
 import com.example.friendlychat.Module.FileUtil;
+import com.example.friendlychat.Module.FullImageData;
 import com.example.friendlychat.Module.FullMessage;
 import com.example.friendlychat.Module.Message;
 import com.example.friendlychat.Module.MessagesPreference;
@@ -62,7 +74,7 @@ import java.util.Objects;
 
 import id.zelory.compressor.Compressor;
 
-public class ChatsActivity extends AppCompatActivity {
+public class ChatsFragment extends Fragment implements MessagesAdapter.MessageClick{
     /*real time permission*/
     private ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
@@ -71,13 +83,13 @@ public class ChatsActivity extends AppCompatActivity {
                     // app.
                     pickImageFromGallery();
                 } else {
-                    Toast.makeText(this, "Ok, if you need to send images please grant the requested permission", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), "Ok, if you need to send images please grant the requested permission", Toast.LENGTH_SHORT).show();
                 }
             });
     /*TAG for logging*/
-    private static final String TAG = ChatsActivity.class.getSimpleName();
+    private static final String TAG = ChatsFragment.class.getSimpleName();
     public static final String ANONYMOUS = "anonymous";
-    public static final int DEFAULT_MSG_LENGTH_LIMIT = 1000;
+    public static final int DEFAULT_MSG_LENGTH_LIMIT = 1000; // max number of characters with a single message.
     private RecyclerView mMessageRecyclerView;
     private EditText mMessageEditText;
     private FloatingActionButton mSendButton;
@@ -85,7 +97,7 @@ public class ChatsActivity extends AppCompatActivity {
     private List<Message> messages;
     private MessagesAdapter messagesAdapter;
     private String mUsername;
-    private boolean isGroup;
+    private boolean isGroup; // at the moment this field will be false, then we'll change it.
     private FirebaseFirestore mFirebasestore;
     private CollectionReference messageSingleRef;
     private CollectionReference messageSingleRefTarget;
@@ -96,6 +108,7 @@ public class ChatsActivity extends AppCompatActivity {
     private TextView chat_last_seen;
     private int tracker = 0;
 
+    private NavController navController;
     /*info for FullMessage class*/
     private String targetUserId;
     private Message lastMessage;
@@ -107,59 +120,23 @@ public class ChatsActivity extends AppCompatActivity {
     private boolean isActive;
     private long lastTimeSeen;
     /*---------------------*/
+    /* progress bar to show loading of messages*/
+    private ProgressBar mProgressBar;
     /*pick picture via calling picPic.launch() method*/
     private ActivityResultLauncher<String> pickPic = registerForActivityResult(
             new ActivityResultContracts.GetContent(){
                 @NonNull
                 @Override
                 public Intent createIntent(@NonNull Context context, @NonNull String input) {
-                    return super.createIntent(context, "image/*");
+                    return super.createIntent(context, "image/*");// filter the gallery output, so the user can send a photo as they expects
                 }
             },
             this::putIntoImage);
-
     @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {// This is called when the Home (Up) button is pressed
-            // in the Action Bar.
-            Intent ContactsActivity = new Intent(this, ContactsActivity.class);
-            ContactsActivity.addFlags(
-                    Intent.FLAG_ACTIVITY_CLEAR_TOP |
-                            Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(ContactsActivity);
-            finish();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.chats_menu, menu);
-        return true;
-    }
-
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chats);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        chat_image = findViewById(R.id.chat_conversation_profile);
-        chat_title = findViewById(R.id.chat_title);
-        chat_last_seen = findViewById(R.id.chat_last_seen);
-        LinearLayout layout = findViewById(R.id.go_back);
-        layout.setOnClickListener(v-> {
-            Intent ContactsActivity = new Intent(this, UserContactsActivity.class);
-            ContactsActivity.addFlags(
-                    Intent.FLAG_ACTIVITY_CLEAR_TOP |
-                            Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(ContactsActivity);
-            finish();
-        });
-
+        setHasOptionsMenu(true);
+        Log.d(TAG, "onCreate: CALLLLLLED");
         /*firebase storage and its references*/
         FirebaseStorage mStorage = FirebaseStorage.getInstance();
         // Create a storage reference from our app
@@ -168,21 +145,60 @@ public class ChatsActivity extends AppCompatActivity {
         mFirebasestore = FirebaseFirestore.getInstance();
         /*app UI functionality*/
         mUsername = ANONYMOUS;
-        mMessageRecyclerView = findViewById(R.id.messageRecyclerView);
-        ProgressBar mProgressBar = findViewById(R.id.progressBar);
-        ImageButton mPhotoPickerButton = findViewById(R.id.photoPickerButton);
-        mMessageEditText = findViewById(R.id.messageEditText);
-        mSendButton = findViewById(R.id.sendButton);
-        mProgressBar.setVisibility(ProgressBar.INVISIBLE);
         messages = new ArrayList<>();
+        Bundle data = getArguments();
+       if (data != null) {
+           targetUserName = data.getString("chat_title", "Chat title");
+           targetUserPhotoUrl = data.getString("photo_url", "photo");
+           targetUserId = data.getString("target_user_id", "id for target user");
+           isGroup = data.getBoolean("isGroup");
+
+       }else{
+           Toast.makeText(requireContext(), "Data is null", Toast.LENGTH_SHORT).show();
+       }
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        // hide the bottom navigation view user user navigates to this destination.
+         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
+
+        Log.d(TAG, "onAttach: CALLLLLLLED");
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.chats_fragment, container, false);
+         navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+        Toolbar tb = view.findViewById(R.id.toolbar_frag);
+        ((AppCompatActivity) requireActivity()).setSupportActionBar(tb);
+        
+        chat_image = view.findViewById(R.id.chat_conversation_profile);
+        chat_title = view.findViewById(R.id.chat_title);
+        chat_last_seen = view.findViewById(R.id.chat_last_seen);
+        LinearLayout layout = view.findViewById(R.id.go_back);
+        layout.setOnClickListener( v -> {
+            Log.d(TAG, "onCreateView: navigate to the back stack through the navigation components");
+            navController.navigateUp();
+        });
+        setChatInfo();
+        mMessageRecyclerView = view.findViewById(R.id.messageRecyclerView);
+        mProgressBar = view.findViewById(R.id.progressBar);
+        ImageButton mPhotoPickerButton = view.findViewById(R.id.photoPickerButton);
+        mMessageEditText = view.findViewById(R.id.messageEditText);
+        mSendButton = view.findViewById(R.id.sendButton);
+        mProgressBar.setVisibility(ProgressBar.VISIBLE);
+
         /*implementing Messages Adapter for the RecyclerView*/
-        messagesAdapter = new MessagesAdapter(this, messages);
+        messagesAdapter = new MessagesAdapter(requireContext(), messages, this);
         mMessageRecyclerView.setAdapter(messagesAdapter);
-        mMessageRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mMessageRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         // ImagePickerButton shows an image picker to upload a image for a message
         mPhotoPickerButton.setOnClickListener(v -> {
             if (ContextCompat.checkSelfPermission(
-                    this, Manifest.permission.READ_EXTERNAL_STORAGE) ==
+                    requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) ==
                     PackageManager.PERMISSION_GRANTED) {
                 // You can use the API that requires the permission.
                 pickImageFromGallery();
@@ -195,12 +211,15 @@ public class ChatsActivity extends AppCompatActivity {
 
         });
 
+        // using the navigation component You should share data between fragment using actions
+/*
 
         Intent mIntent = getIntent();
         if (mIntent != null){
             setTitle(mIntent.getStringExtra(getResources().getString(R.string.chat_title)));
             isGroup = !mIntent.hasExtra(getResources().getString(R.string.targetUidKey));
         }
+*/
 
         // Enable Send button when there's text to send
         mMessageEditText.addTextChangedListener(new TextWatcher() {
@@ -244,17 +263,14 @@ public class ChatsActivity extends AppCompatActivity {
             Log.d(TAG, "Date in UTC" + sdf.format(dateInUTC));
             Log.d(TAG, "Date in Local (System.currentTimeMillis() ) " + sdf.format(dateInLocalTime));
             Log.d(TAG, "Date in Local (Date().getTime()) " + sdf.format(dateFromDateClass));
-            Message message = new Message(mMessageEditText.getText().toString(), mUsername, "", MessagesPreference.getUserId(this), dateFromDateClass);
+            Message message = new Message(mMessageEditText.getText().toString(), mUsername, "", MessagesPreference.getUserId(requireContext()), dateFromDateClass);
             sendMessage(message);
         });
 
 
+
         if (!isGroup) {
-            assert mIntent != null;
-            /*target user Id*/
-            targetUserId = mIntent.getStringExtra(getResources().getString(R.string.targetUidKey));
-            targetUserName = mIntent.getStringExtra(getResources().getString(R.string.chat_title));
-            targetUserPhotoUrl = mIntent.getStringExtra(getResources().getString(R.string.photoUrl));
+
             FirebaseAuth auth = FirebaseAuth.getInstance();
             messageSingleRef = mFirebasestore.collection("rooms").document(Objects.requireNonNull(auth.getUid()))
                     .collection("chats")
@@ -269,13 +285,16 @@ public class ChatsActivity extends AppCompatActivity {
                     .collection("chats").document(targetUserId + auth.getUid())
                     .collection("messages");
             messageSingleRefTarget.document("isWriting").set(data);
-            setChatInfo(targetUserId);
+
 
         }else{
             messagesRef = mFirebasestore.collection("rooms").document("people use the app")
                     .collection("messages");
         }
+
         initializeUserAndData();
+
+        return view;
     }
 
     private void setUserIsNotWriting() {
@@ -299,22 +318,32 @@ public class ChatsActivity extends AppCompatActivity {
         }
     }
 
-    private void setChatInfo(String targetUserId) {
-        /*in the next commit I'll be setting the chat's info*/
-        mFirebasestore.collection("rooms").document(targetUserId)
-                .get().addOnSuccessListener(documentSnapshot -> {
-                    User user = documentSnapshot.toObject(User.class);
-                    if (user != null) {
-                        targetUserPhotoUrl = user.getPhotoUrl();
-                        targetUserName = user.getUserName();
-                        chat_title.setText(targetUserName);
-                        Picasso.get().load(targetUserPhotoUrl).placeholder(R.drawable.ic_baseline_emoji_emotions_24).into(chat_image);
-                        isActive = user.getIsActive();
-                        lastTimeSeen = user.getLastTimeSeen();
-                        updateChatInfo();
-                    }
-                });
-        listenToChange(targetUserId);
+    private void setChatInfo() {
+        if (!isGroup) {
+            mFirebasestore.collection("rooms").document(targetUserId)
+                    .get().addOnSuccessListener(documentSnapshot -> {
+                User user = documentSnapshot.toObject(User.class);
+                if (user != null) {
+                    targetUserPhotoUrl = user.getPhotoUrl();
+                    targetUserName = user.getUserName();
+                    chat_title.setText(targetUserName);
+                    Picasso.get().load(targetUserPhotoUrl).placeholder(R.drawable.ic_baseline_emoji_emotions_24).into(chat_image);
+                    isActive = user.getIsActive();
+                    lastTimeSeen = user.getLastTimeSeen();
+                    updateChatInfo();
+                    listenToChange(targetUserId);
+                }
+            });
+
+        }else{
+            chat_title.setText(R.string.all_people);
+            chat_title.setTextSize(16f);
+            chat_last_seen.setVisibility(View.GONE);
+            chat_title.setLines(1);
+            chat_title.canScrollHorizontally(1);
+            /*Picasso.get().load(targetUserPhotoUrl).placeholder(R.drawable.ic_baseline_emoji_emotions_24).into(chat_image);*/
+            Picasso.get().load(R.drawable.group_icon).placeholder(R.drawable.group_icon).into(chat_image);
+        }
     }
 
     private void listenToChange(String targetUserId) {
@@ -362,29 +391,33 @@ public class ChatsActivity extends AppCompatActivity {
 
         if (uri != null) {
             try {
-                File galeryFile = FileUtil.from(this, uri);
+                File galleryFile = FileUtil.from(requireContext(), uri);
                 /*compress the file using a special library*/
-                File compressedImageFile = new Compressor(this).compressToFile(galeryFile);
+                File compressedImageFile = new Compressor(requireContext()).compressToFile(galleryFile);
                 /*take the file name as a unique identifier*/
                 StorageReference imageRef = mRootRef.child(compressedImageFile.getName());
                 // finally uploading the file to firebase storage.
                 UploadTask uploadTask = imageRef.putFile(Uri.fromFile(compressedImageFile));
-                Log.d(TAG, "Original file size is: " + galeryFile.length() / 1024 + "KB");
-                Log.d(TAG, "Compressed file size is: " + compressedImageFile.length() / 1024 + "KB");
+
+                // some logging to track the file size after compressing it with the library.
+                Log.d(TAG, "Original file size is: " + galleryFile.length() / 1024 + "KB");
+                Log.d(TAG, "Compressed file size is: " + compressedImageFile.length() / 1024 + "KB"); // after compressing the file
 
                 // Register observers to listen for when the download is done or if it fails
                 uploadTask.addOnFailureListener(exception -> {
                     // Handle unsuccessful uploads
-                    Toast.makeText(ChatsActivity.this, "failed to set the image please try again later", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), "failed to set the image please try again later", Toast.LENGTH_SHORT).show();
                 }).addOnSuccessListener(taskSnapshot -> {
                     // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
                     // ...
-                    Toast.makeText(this, "Added image to Storage successfully", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Added image to Storage successfully", Toast.LENGTH_SHORT).show();
                     imageRef.getDownloadUrl().addOnSuccessListener(downloadUri -> {
                         Log.d(TAG, downloadUri.toString());
                         Log.d(TAG, String.valueOf(downloadUri));
                         String downloadUrl = downloadUri.toString();
                         long dateFromDateClass = new Date().getTime();
+                         /* if the image sent successfully to the firebase storage send its metadata as a message
+                         to the firebase firestore */
                         Message message = new Message("", mUsername, downloadUrl, dateFromDateClass);
                         sendMessage(message);
                     });
@@ -394,16 +427,27 @@ public class ChatsActivity extends AppCompatActivity {
             } catch (IOException e) {
                 e.printStackTrace();
                 Log.d(TAG, "Error compressing the file");
-                Toast.makeText(this, "Error occurs", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), "Error occurs", Toast.LENGTH_SHORT).show();
             }
+            // if the user hit the back button before choosing an image to send the code below will be executed.
         }else{
-            Toast.makeText(this, "Sending image operation canceled", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "Sending image operation canceled", Toast.LENGTH_SHORT).show();
         }
 
     }
 
+    // these overriding methods for debugging only and will be cleaned up in the future.
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        Log.d(TAG, "onDestroyView: ");
+    }
 
-
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy: ");
+    }
 
     private void sendMessage(Message message) {
 
@@ -422,29 +466,30 @@ public class ChatsActivity extends AppCompatActivity {
                     .add(message)
                     .addOnSuccessListener(
                             documentReference -> {
-                        Toast.makeText(ChatsActivity.this, "Added new message", Toast.LENGTH_SHORT).show();
-                        messageSingleRefTarget.add(message);
-                        lastMessage = message;
-                        FullMessage fullMessage = new FullMessage(lastMessage, targetUserName, targetUserPhotoUrl, targetUserId);
-                        Objects.requireNonNull(messageSingleRef.getParent()).set(fullMessage);
-                        String currentUserName = MessagesPreference.getUserName(this);
-                        String currentPhotoUrl = MessagesPreference.getUsePhoto(this);
-                        String currentUserId = MessagesPreference.getUserId(this);
-                        FullMessage targetFullMessage = new FullMessage(lastMessage, currentUserName, currentPhotoUrl, currentUserId);
-                        Objects.requireNonNull(messageSingleRefTarget.getParent()).set(targetFullMessage);
-                    }).addOnFailureListener(e ->
-                    Toast.makeText(ChatsActivity.this, "Error" + e.toString(), Toast.LENGTH_SHORT).show());
+                                Toast.makeText(requireContext(), "Added new message", Toast.LENGTH_SHORT).show();
+                                messageSingleRefTarget.add(message);
+                                lastMessage = message;
+                                FullMessage fullMessage = new FullMessage(lastMessage, targetUserName, targetUserPhotoUrl, targetUserId);
+                                Objects.requireNonNull(messageSingleRef.getParent()).set(fullMessage);
+                                String currentUserName = MessagesPreference.getUserName(requireContext());
+                                String currentPhotoUrl = MessagesPreference.getUsePhoto(requireContext());
+                                String currentUserId = MessagesPreference.getUserId(requireContext());
+                                FullMessage targetFullMessage = new FullMessage(lastMessage, currentUserName, currentPhotoUrl, currentUserId);
+                                Objects.requireNonNull(messageSingleRefTarget.getParent()).set(targetFullMessage);
+                            }).addOnFailureListener(e ->
+                    Toast.makeText(requireContext(), "Error" + e.toString(), Toast.LENGTH_SHORT).show());
         }
+        // clean up the the edit text field after sending the message.
         mMessageEditText.setText("");
 
     }
 
     private void sendNotification(Message message) {
-        String currentUserId = MessagesPreference.getUserId(this);
+        String currentUserId = MessagesPreference.getUserId(requireContext());
         String senderId = message.getSenderId();
         if (senderId != null) {
             if (!senderId.equals(currentUserId))
-                NotificationUtils.notifyUserOfNewMessage(this, message);
+                NotificationUtils.notifyUserOfNewMessage(requireContext(), message);
         }
     }
 
@@ -456,42 +501,45 @@ public class ChatsActivity extends AppCompatActivity {
     private void initializeUserAndData() {
 
         /*read all messages form the database and add any new messages with notifying the Adapter after that*/
-        String userName = MessagesPreference.getUserName(this);
+        String userName = MessagesPreference.getUserName(requireContext());
         mUsername = userName;
-        Toast.makeText(this, "Welcome " + userName + "!", Toast.LENGTH_SHORT).show();
+        Toast.makeText(requireContext(), "Welcome " + userName + "!", Toast.LENGTH_SHORT).show();
 
         Log.d(TAG, "initialize user and data");
         if (isGroup) {
-           /*listen to any new new data*/
+            /*listen to any new new data*/
             messagesRef.orderBy("timestamp").addSnapshotListener((value, error) -> {
                 if (error != null) {
-                    Toast.makeText(ChatsActivity.this, "fail", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), "fail", Toast.LENGTH_SHORT).show();
                 } else {
                     Log.d(TAG, "no error should read data properly");
                     String source = value != null && value.getMetadata().hasPendingWrites()
                             ? "Local" : "Server";
                     Log.d(TAG, source);
-                    Toast.makeText(ChatsActivity.this, source, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), source, Toast.LENGTH_SHORT).show();
                     addNewMessage(value);
                 }
             });
         }else{
-         /*get all the messages, and listen to any up coming one*/
+            /*get all the messages, and listen to any up coming one*/
             messageSingleRef.orderBy("timestamp").addSnapshotListener((value, error) -> {
                 if (error != null){
-                    Toast.makeText(this, "Error reading message", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), "Error reading message", Toast.LENGTH_SHORT).show();
                 }else{
                     String source = value != null && value.getMetadata().hasPendingWrites()
                             ? "Local" : "Server";
                     Log.d(TAG, source);
-                    Toast.makeText(ChatsActivity.this, source, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), source, Toast.LENGTH_SHORT).show();
                     addNewMessage(value);
                 }
             });
         }
     }
 
+    /* this method is used in two functionality, for getting all the messages from a special room
+    * and for adding new messages as the user sends. */
     private void addNewMessage(QuerySnapshot value) {
+        mProgressBar.setVisibility(View.INVISIBLE);
         if (value != null) {
 
             for (DocumentChange dc : value.getDocumentChanges()) {
@@ -502,33 +550,64 @@ public class ChatsActivity extends AppCompatActivity {
             }
             Log.d(TAG, "the number of messages in this chat is: " + value.getDocumentChanges().size());
             messagesAdapter.notifyDataSetChanged();
-            sendNotification(messages.get(messages.size() -1));
-            mMessageRecyclerView.smoothScrollToPosition(messages.size() - 1);
+            /*sendNotification(messages.get(messages.size() -1));*/
+            if (messages.size() > 0)
+                mMessageRecyclerView.scrollToPosition(messages.size() - 1);
 
         }
     }
 
-    /*in order to reduce the number of calling firestore API this method
-    * will not be used any more, instead send message will handle its operation, as well as
-    * listen and adding any new message*/
-/*
-    private void insertData(Task<QuerySnapshot> task) {
-        Log.d(TAG, "insertData");
-        messages.clear();
-        for (DocumentSnapshot document : Objects.requireNonNull(task.getResult()).getDocuments()) {
-            Message message = document.toObject(Message.class);
-            messages.add(message);
-        }
-        messagesAdapter.notifyDataSetChanged();
-        mMessageRecyclerView.smoothScrollToPosition(messages.size() - 1);
-    }*/
-
-    /*when the user navigate out from the activity (closing the app or navigate to other chat) while is writing. The server
-    * should be notified*/
     @Override
-    protected void onPause() {
-        super.onPause();
-        setUserIsNotWriting();
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+        switch (id) {
+            case R.id.profile:
+                Toast.makeText(requireContext(), "Go to Profile", Toast.LENGTH_SHORT).show(); // will be implemented in the future
+                break;
+            case R.id.make_video_call:
+            case R.id.make_normal_call:
+                displayFutureFeature();
+                break;
+        }
+        return true;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.chats_menu, menu);
+    }
+    private void displayFutureFeature(){
+        Toast.makeText(requireContext(), "This feature wil be added the next next version of the app", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onMessageClick(View view, int position) {
+        Toast.makeText(requireContext(), "You click a view", Toast.LENGTH_SHORT).show();
+        Message message = messages.get(position);
+        String senderName = message.getName();
+        SimpleDateFormat d = new SimpleDateFormat("EEE, MMM d", Locale.getDefault());
+        String formattedDate = d.format(message.getTimestamp());
+        ImageView imageView = (ImageView) view;
+        /* enable the drawing cache for the image view to derive a bitmap from it*/
+        /*imageView.setDrawingCacheEnabled(true);*/
+        BitmapDrawable bitmapDrawable = (BitmapDrawable) imageView.getDrawable();
+        Bitmap bitmap = bitmapDrawable.getBitmap();
+        // checking if the bitmap is correct first by the following code:
+        chat_image.setImageBitmap(bitmap); // i loved this line of code so I will let it for a few commits *_*
+
+        /* after initializing these 3 arguments, let's use them*/
+        FullImageData imageData = new FullImageData(senderName, formattedDate, bitmap);
+        ChatsFragmentDirections.ActionChatsFragmentToFullImageFragment actionToFullImageFragment =
+                ChatsFragmentDirections.actionChatsFragmentToFullImageFragment(imageData);
+        FragmentNavigator.Extras extras = new FragmentNavigator.Extras.Builder()
+                .addSharedElement(view, "root_view_full_image_fragment")
+                .build();
+
+
+        /*NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);*/
+        navController.navigate(actionToFullImageFragment, extras);
+
+
 
     }
 }

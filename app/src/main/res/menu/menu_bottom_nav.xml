@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/userChatsFragment"
+        android:icon="@drawable/ic_message"
+        android:title="@string/chats"
+        />
+    <item
+        android:id="@+id/statusFragment"
+        android:icon="@drawable/ic_nfc"
+        android:title="@string/status" />
+    <item
+        android:id="@+id/usersFragment"
+        android:icon="@drawable/ic_people"
+        android:title="@string/users" />
+</menu>

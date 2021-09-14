@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/userChatsFragment">
+
+    <fragment
+        android:id="@+id/userChatsFragment"
+        android:name="com.example.friendlychat.fragments.UserChatsFragment"
+        android:label="fragment_user_chats"
+        tools:layout="@layout/fragment_user_chats">
+        <action
+            android:id="@+id/action_userChatsFragment_to_chatsFragment"
+            app:destination="@id/chatsFragment" />
+
+
+    </fragment>
+    <fragment
+        android:id="@+id/chatsFragment"
+        android:name="com.example.friendlychat.fragments.ChatsFragment"
+        android:label="chats_fragment"
+        tools:layout="@layout/chats_fragment">
+        <argument
+            android:name="data"
+            android:defaultValue="data"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_chatsFragment_to_fullImageFragment"
+            app:destination="@id/fullImageFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/usersFragment"
+        android:name="com.example.friendlychat.fragments.UsersFragment"
+        android:label="users_fragment"
+        tools:layout="@layout/users_fragment" >
+        <action
+            android:id="@+id/action_usersFragment_to_chatsFragment"
+            app:destination="@id/chatsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/fullImageFragment"
+        android:name="com.example.friendlychat.fragments.FullImageFragment"
+        android:label="full_image_fragment"
+        tools:layout="@layout/full_image_fragment" >
+        <argument
+            android:name="image_info"
+            app:argType="com.example.friendlychat.Module.FullImageData" />
+    </fragment>
+    <fragment
+        android:id="@+id/statusFragment"
+        android:name="com.example.friendlychat.fragments.StatusFragment"
+        android:label="status_fragment"
+        tools:layout="@layout/status_fragment" >
+        <action
+            android:id="@+id/action_statusFragment_to_uploadTextStatusFragment"
+            app:destination="@id/uploadTextStatusFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/uploadTextStatusFragment"
+        android:name="com.example.friendlychat.fragments.UploadTextStatusFragment"
+        android:label="upload_text_status_fragment"
+        tools:layout="@layout/upload_text_status_fragment" />
+
+</navigation>

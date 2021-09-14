@@ -1,5 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
+apply plugin: "androidx.navigation.safeargs"
+
 android {
     compileSdkVersion 29
     buildToolsVersion "30.0.1"
@@ -39,6 +41,7 @@ android {
 }
 
 dependencies {
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     def lifecycle_version = "2.4.0-alpha03"
     def nav_version = "2.3.5"
 
@@ -71,6 +74,12 @@ dependencies {
     implementation 'com.firebaseui:firebase-ui-auth:7.2.0'
     implementation 'com.google.firebase:firebase-firestore'
     /*--------------------------------------------------------------*/
+
+    /*Circle status view & story view & circle image view*/
+    implementation 'com.github.3llomi:CircularStatusView:V1.0.2'
+    implementation 'com.github.OMARIHAMZA:StoryView:1.0.2-alpha'
+    implementation 'de.hdodenhof:circleimageview:3.1.0'
+
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'

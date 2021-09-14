@@ -20,4 +20,9 @@
         <item name="background">@drawable/edit_text_sign_in_background</item>
         <item name="android:padding">8dp</item>
     </style>
+
+    <style name="custom_toolbar_style"
+        parent="Theme.AppCompat.Light.NoActionBar">
+
+    </style>
 </resources>

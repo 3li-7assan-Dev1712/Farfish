@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.friendlychat.Module.Message;
@@ -22,6 +23,11 @@ import java.util.Locale;
 
 public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.MessageViewHolder> {
 
+    /* interface for listening to touching*/
+    public interface MessageClick{
+        void onMessageClick(View view, int position);
+    }
+    static MessageClick mMessageInterface;
     private static final String TAG = MessagesAdapter.class.getSimpleName();
     private Context mContext;
     private List<Message> messages;
@@ -35,6 +41,12 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
     public MessagesAdapter(Context mContext, List<Message> messages) {
         this.mContext = mContext;
         this.messages = messages;
+    }
+
+    public MessagesAdapter(Context mContext, List<Message> messages, MessageClick messageInterface) {
+        this.mContext = mContext;
+        this.messages = messages;
+        mMessageInterface = messageInterface;
     }
 
     @Override
@@ -95,9 +107,12 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
             String name =message.getName();
             String messageText = message.getText();
             String photoUrl = message.getPhotoUrl();
+            long dateFromServer = message.getTimestamp();
             if (photoUrl != null && !photoUrl.equals("")){
                 Log.d(TAG, "photoUrl is: "+photoUrl);
                 Picasso.get().load(photoUrl).placeholder(R.drawable.ic_baseline_emoji_emotions_24).into(holder.imageView);
+                ViewCompat.setTransitionName(holder.imageView, String.valueOf(dateFromServer));
+
             }else {
                 holder.messageTextView.setText(messageText);
             }/*
@@ -107,7 +122,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
                 holder.authorName.setText("null");
             else
                 holder.authorName.setText(name);
-            long dateFromServer = message.getTimestamp();
+
             long currentTime = System.currentTimeMillis();
             if (dateFromServer == currentTime)
                 Log.d(TAG, "There are the same");
@@ -139,7 +154,9 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
             imageView = itemView.findViewById(R.id.photoImageView);
             authorName = itemView.findViewById(R.id.nameTextView);
             timeMessageTextView = itemView.findViewById(R.id.timeMessage);
-
+            imageView.setOnClickListener(view -> {
+                mMessageInterface.onMessageClick(view, getBindingAdapterPosition());
+            });
         }
 
     }
