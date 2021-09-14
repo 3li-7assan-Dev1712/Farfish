@@ -33,7 +33,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
-import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -41,8 +40,6 @@ import androidx.navigation.fragment.FragmentNavigator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.friendlychat.Activities.ChatsActivity;
-import com.example.friendlychat.Activities.UserContactsActivity;
 import com.example.friendlychat.Adapters.MessagesAdapter;
 import com.example.friendlychat.Module.DateUtils;
 import com.example.friendlychat.Module.FileUtil;
@@ -90,7 +87,7 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
                 }
             });
     /*TAG for logging*/
-    private static final String TAG = ChatsActivity.class.getSimpleName();
+    private static final String TAG = ChatsFragment.class.getSimpleName();
     public static final String ANONYMOUS = "anonymous";
     public static final int DEFAULT_MSG_LENGTH_LIMIT = 1000; // max number of characters with a single message.
     private RecyclerView mMessageRecyclerView;

@@ -53,20 +53,8 @@
         android:label="status_fragment"
         tools:layout="@layout/status_fragment" >
         <action
-            android:id="@+id/action_statusFragment_to_statusDetailFragment2"
-            app:destination="@id/statusDetailFragment2" />
-        <action
             android:id="@+id/action_statusFragment_to_uploadTextStatusFragment"
             app:destination="@id/uploadTextStatusFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/statusDetailFragment2"
-        android:name="com.example.friendlychat.fragments.StatusDetailFragment"
-        android:label="status_detail_fragment"
-        tools:layout="@layout/status_detail_fragment" >
-        <argument
-            android:name="one_user_statuses"
-            app:argType="com.example.friendlychat.Module.Status[]" />
     </fragment>
     <fragment
         android:id="@+id/uploadTextStatusFragment"
