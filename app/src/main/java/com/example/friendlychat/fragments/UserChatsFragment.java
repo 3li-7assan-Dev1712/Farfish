@@ -135,10 +135,12 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
         int id = item.getItemId();
         switch (id) {
             case R.id.sign_out:
-                mAuth.signOut();
+               /* mAuth.signOut();
                 Toast.makeText(requireContext(), "Signed out successfully", Toast.LENGTH_SHORT).show();
                 SharedPreferenceUtils.saveUserSignOut(requireContext());
-                launchFirebaseUI();
+                launchFirebaseUI();*/
+               NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+               navController.navigate(R.id.fragmentSignIn);
                 break;
         }
         return true;

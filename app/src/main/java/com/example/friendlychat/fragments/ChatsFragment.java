@@ -370,7 +370,7 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
 
         if (isWriting){
             chat_last_seen.setText(getResources().getString(R.string.isWriting));
-            chat_last_seen.setTextColor(getResources().getColor(R.color.colorAccentLight));
+            chat_last_seen.setTextColor(getResources().getColor(R.color.colorAccent));
         }
         else if (isActive) {
             chat_last_seen.setText(getResources().getString(R.string.online));

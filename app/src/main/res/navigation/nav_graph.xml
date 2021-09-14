@@ -61,5 +61,19 @@
         android:name="com.example.friendlychat.fragments.UploadTextStatusFragment"
         android:label="upload_text_status_fragment"
         tools:layout="@layout/upload_text_status_fragment" />
+    <fragment
+        android:id="@+id/fragmentSignIn"
+        android:name="com.example.friendlychat.fragments.FragmentSignIn"
+        android:label="fragment_sign_in"
+        tools:layout="@layout/fragment_sign_in" >
+        <action
+            android:id="@+id/action_fragmentSignIn_to_fragmentSignUp"
+            app:destination="@id/fragmentSignUp" />
+    </fragment>
+    <fragment
+        android:id="@+id/fragmentSignUp"
+        android:name="com.example.friendlychat.fragments.FragmentSignUp"
+        android:label="fragment_sign_up"
+        tools:layout="@layout/fragment_sign_up" />
 
 </navigation>

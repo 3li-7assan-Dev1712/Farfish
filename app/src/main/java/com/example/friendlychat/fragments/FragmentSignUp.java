@@ -7,7 +7,9 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 
 import com.example.friendlychat.R;
 
@@ -22,6 +24,10 @@ public class FragmentSignUp extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_sign_up, container, false);
+        Toolbar toolbar = view.findViewById(R.id.toolbar_sign_up);
+        toolbar.setNavigationOnClickListener( navigationIcon -> {
+            Navigation.findNavController(view).navigateUp(); // navigate back using the navigation icon
+        });
         return view;
     }
 }
