@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingBottom="16dp"
-    tools:context=".Activities.SignUpActivity">
+    tools:context=".fragments.FragmentSignUp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
 

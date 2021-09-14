@@ -13,8 +13,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Activities.SignUpActivity" />
-        <activity android:name=".Activities.SignInActivity" />
         <activity android:name=".Activities.MainActivity"
             android:theme="@style/ChatsTheme" >
             <intent-filter>
