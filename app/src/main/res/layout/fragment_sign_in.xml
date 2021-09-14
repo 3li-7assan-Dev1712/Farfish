@@ -128,7 +128,7 @@
             app:layout_constraintBottom_toBottomOf="@+id/icon_container_view"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/icon_container_view"
-            app:srcCompat="@drawable/farfish_sign_icon" />
+            app:srcCompat="@drawable/ic_icon_round" />
 
         <TextView
             android:id="@+id/farfish_title"

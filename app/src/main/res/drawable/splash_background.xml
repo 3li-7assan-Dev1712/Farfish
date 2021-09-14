@@ -2,16 +2,12 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:drawable="@drawable/sc_grandient"/>
-
-    
-    <!--
-<item>
-       <bitmap
+        android:drawable="#fff"/>
+    <item>
+        <bitmap
             android:gravity="center"
-            android:src="@drawable/farfish_sign_icon"
+            android:src="@drawable/ic_icon_round"
             />
     </item>
 
-    -->
 </layer-list>
