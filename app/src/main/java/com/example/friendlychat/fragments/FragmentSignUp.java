@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -27,8 +28,16 @@ public class FragmentSignUp extends Fragment {
         View view = inflater.inflate(R.layout.fragment_sign_up, container, false);
         Toolbar toolbar = view.findViewById(R.id.toolbar_sign_up);
         toolbar.setNavigationOnClickListener( navigationIcon -> {
-            Navigation.findNavController(view).navigateUp(); // navigate back using the navigation icon
+            navigateUp(view); // navigate back using the navigation icon
+        });
+        TextView loginTextView = view.findViewById(R.id.text_view_login);
+        loginTextView.setOnClickListener(login -> {
+            navigateUp(view);
         });
         return view;
+    }
+
+    private void navigateUp(View view) {
+        Navigation.findNavController(view).navigateUp();
     }
 }
