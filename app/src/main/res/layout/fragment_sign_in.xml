@@ -115,6 +115,7 @@
             android:layout_marginStart="8dp"
             android:text="@string/register"
             android:textSize="18sp"
+            android:textColor="#000"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="@+id/textView4"
             app:layout_constraintStart_toEndOf="@+id/textView4"
@@ -128,7 +129,7 @@
             app:layout_constraintBottom_toBottomOf="@+id/icon_container_view"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/icon_container_view"
-            app:srcCompat="@drawable/ic_icon_round" />
+            app:srcCompat="@drawable/ic_icon_foreground" />
 
         <TextView
             android:id="@+id/farfish_title"
