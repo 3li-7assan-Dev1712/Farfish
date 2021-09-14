@@ -140,7 +140,7 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
                 .createSignInIntentBuilder()
                 .setAvailableProviders(providers)
                 .setIsSmartLockEnabled(false)
-                .setLogo(R.drawable.ui_logo)
+                .setLogo(R.drawable.ic_icon_round)
                 .build();
         signInLauncher.launch(signInIntent);
     }
