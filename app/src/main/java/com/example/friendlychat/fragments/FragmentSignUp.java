@@ -14,17 +14,24 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
+import com.example.friendlychat.Module.MessagesPreference;
+import com.example.friendlychat.Module.SharedPreferenceUtils;
+import com.example.friendlychat.Module.User;
 import com.example.friendlychat.R;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.Date;
 import java.util.Objects;
 
 public class FragmentSignUp extends Fragment {
 
     private static final String TAG = FragmentSignUp.class.getSimpleName();
-
+    private NavController mNavController;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
@@ -36,13 +43,14 @@ public class FragmentSignUp extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_sign_up, container, false);
+        mNavController = Navigation.findNavController(view);
         Toolbar toolbar = view.findViewById(R.id.toolbar_sign_up);
         toolbar.setNavigationOnClickListener( navigationIcon -> {
-            navigateUp(view); // navigate back using the navigation icon
+            navigateUp(); // navigate back using the navigation icon
         });
         TextView loginTextView = view.findViewById(R.id.text_view_login);
         loginTextView.setOnClickListener(login -> {
-            navigateUp(view);
+            navigateUp();
         });
         EditText firstNameTextView = view.findViewById(R.id.edit_text_first_name);
         EditText lastNameTextView = view.findViewById(R.id.edit_text_last_name);
@@ -77,18 +85,40 @@ public class FragmentSignUp extends Fragment {
         FirebaseAuth auth = FirebaseAuth.getInstance();
         auth.createUserWithEmailAndPassword(email, password).addOnSuccessListener(authResult -> {
             Log.d(TAG, "signUp: " +  Objects.requireNonNull(authResult.getUser()).getUid());
-
+            saveUserInfoAndNavigateBack();
         }).addOnFailureListener(exception -> {
             Log.d(TAG, "signUp: exception message: " + exception.getMessage());
+            Toast.makeText(requireActivity(), "An error occurred, you can navigate back and try with another way", Toast.LENGTH_SHORT).show();
         });
     }
 
-    private void navigateUp(View view) {
-        Navigation.findNavController(view).navigateUp();
+    private void navigateUp() {
+        mNavController.navigateUp();
     }
 
     private void displayRequiredFieldToast(EditText requiredField, String message) {
         Toast.makeText(requireActivity(), message, Toast.LENGTH_SHORT).show();
         requiredField.requestFocus();
+    }
+    private void saveUserInfoAndNavigateBack() {
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
+        SharedPreferenceUtils.saveUserSignIn(requireContext());
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            /*after the user sign in/up saving their information in the firestore*/
+            String userName = currentUser.getDisplayName();
+            MessagesPreference.saveUserName(requireContext(), userName);
+            String phoneNumber = currentUser.getPhoneNumber();
+            String photoUrl = Objects.requireNonNull(currentUser.getPhotoUrl()).toString();
+            String userId = mAuth.getUid();
+            MessagesPreference.saveUserId(requireContext(), userId);
+            MessagesPreference.saveUserPhotoUrl(requireContext(), photoUrl);
+            long lastTimeSeen = new Date().getTime();
+            User newUser = new User(userName, phoneNumber, photoUrl, userId, true, false, lastTimeSeen);
+            assert userId != null;
+            mFirestore.collection("rooms").document(userId).set(newUser);
+        }
+        mNavController.popBackStack();
     }
 }
