@@ -51,10 +51,10 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
             new AuthUI.IdpConfig.EmailBuilder().build(),
             new AuthUI.IdpConfig.PhoneBuilder().build(),
             new AuthUI.IdpConfig.GoogleBuilder().build());
-    private ActivityResultLauncher<Intent> signInLauncher = registerForActivityResult(
+   /* private ActivityResultLauncher<Intent> signInLauncher = registerForActivityResult(
             new FirebaseAuthUIActivityResultContract(),
             this::onSignInResult
-    );
+    );*/
     private static final String TAG = UserChatsFragment.class.getSimpleName();
     private List<FullMessage> fullMessages;
     private ContactsAdapter contactsAdapter;
@@ -71,15 +71,19 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         mAuth = FirebaseAuth.getInstance();
-        if (mAuth.getCurrentUser() == null){
-            launchFirebaseUI();
-        }
+
         mFirestore = FirebaseFirestore.getInstance();
         fullMessages = new ArrayList<>();
         mAuth = FirebaseAuth.getInstance();
         contactsAdapter = new ContactsAdapter(getContext(), fullMessages, this, null);
     }
-    private void launchFirebaseUI() {
+
+    private void navigateToSignIn() {
+        NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+        navController.navigate(R.id.fragmentSignIn);
+    }
+
+    /*private void launchFirebaseUI() {
         Intent signInIntent = AuthUI.getInstance()
                 .createSignInIntentBuilder()
                 .setAvailableProviders(providers)
@@ -87,7 +91,7 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
                 .setLogo(R.drawable.ic_icon_round)
                 .build();
         signInLauncher.launch(signInIntent);
-    }
+    }*/
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -95,6 +99,9 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.VISIBLE);
         Log.d(TAG, "onCreateView: ");
         View view =inflater.inflate(R.layout.fragment_user_chats, container, false);
+        if (mAuth.getCurrentUser() == null){
+            navigateToSignIn();
+        }
         Toolbar tb = view.findViewById(R.id.mainToolbar_frag);
         ((AppCompatActivity) requireActivity())
                 .setSupportActionBar(tb);
@@ -137,13 +144,7 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
         switch (id) {
             case R.id.sign_out:
                 mAuth.signOut();
-                Toast.makeText(requireContext(), "Signed out successfully", Toast.LENGTH_SHORT).show();
-                SharedPreferenceUtils.saveUserSignOut(requireContext());
-                launchFirebaseUI();
-               break;
-            case R.id.sign_in_custom:
-                NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
-                navController.navigate(R.id.fragmentSignIn);
+                navigateToSignIn();
                 break;
         }
         return true;
@@ -190,9 +191,9 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
         navController.navigate(R.id.chatsFragment, primaryDataBundle);
 
     }
-
+/*
     private void onSignInResult(FirebaseAuthUIAuthenticationResult result) {
-        /*IdpResponse response = result.getIdpResponse();*/
+        *//*IdpResponse response = result.getIdpResponse();*//*
         Log.d(TAG, "result: " + result.getResultCode());
         Log.d(TAG, "onSignInResult");
         if (result.getResultCode() == Activity.RESULT_OK) {
@@ -202,7 +203,7 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
             SharedPreferenceUtils.saveUserSignIn(requireContext());
             FirebaseUser currentUser = mAuth.getCurrentUser();
             if (currentUser != null) {
-                /*after the user sign in/up saving their information in the firestore*/
+                *//*after the user sign in/up saving their information in the firestore*//*
                 String userName = currentUser.getDisplayName();
                 MessagesPreference.saveUserName(requireContext(), userName);
                 String phoneNumber = currentUser.getPhoneNumber();
@@ -228,5 +229,5 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
             Log.d(TAG, String.valueOf(result.getResultCode()));
             requireActivity().finish();
         }
-    }
+    }*/
 }

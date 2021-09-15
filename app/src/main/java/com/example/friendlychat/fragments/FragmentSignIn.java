@@ -57,7 +57,7 @@ public class FragmentSignIn extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_sign_in, container, false);
-        mNavController = Navigation.findNavController(view);
+        mNavController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         TextView emailSignInTextView = view.findViewById(R.id.editTextEmailSignIn);
         TextView passwordSignInTextView = view.findViewById(R.id.editTextPasswordSignIn);
         TextView forgotPassWord = view.findViewById(R.id.forgotPasswordSignIn);
@@ -119,7 +119,7 @@ public class FragmentSignIn extends Fragment {
             User newUser = new User(userName, phoneNumber, photoUrl, userId, true, false, lastTimeSeen);
             assert userId != null;
             mFirestore.collection("rooms").document(userId).set(newUser).addOnCompleteListener(task ->
-                    Toast.makeText(requireContext(), "saved new user successfully", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireActivity(), "saved new user successfully", Toast.LENGTH_SHORT).show()
             );
         }
         mNavController.navigateUp();
