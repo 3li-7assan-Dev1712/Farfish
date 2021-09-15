@@ -17,15 +17,10 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
-import com.example.friendlychat.Module.MessagesPreference;
-import com.example.friendlychat.Module.SharedPreferenceUtils;
-import com.example.friendlychat.Module.User;
 import com.example.friendlychat.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.Date;
 import java.util.Objects;
 
 public class FragmentSignUp extends Fragment {

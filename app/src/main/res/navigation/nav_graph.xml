@@ -74,6 +74,15 @@
         android:id="@+id/fragmentSignUp"
         android:name="com.example.friendlychat.fragments.FragmentSignUp"
         android:label="fragment_sign_up"
-        tools:layout="@layout/fragment_sign_up" />
+        tools:layout="@layout/fragment_sign_up" >
+        <action
+            android:id="@+id/action_fragmentSignUp_to_profileImageFragment"
+            app:destination="@id/profileImageFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/profileImageFragment"
+        android:name="com.example.friendlychat.fragments.ProfileImageFragment"
+        android:label="profile_image_fragment"
+        tools:layout="@layout/profile_image_fragment" />
 
 </navigation>

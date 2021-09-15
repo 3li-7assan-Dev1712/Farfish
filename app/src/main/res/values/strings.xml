@@ -44,6 +44,9 @@
     <string name="sign_up">Sign up</string>
     <string name="sign_in_customUI">Sign in with custom UI</string>
     <string name="sign_in_firebaseUI">Sign in with firebase UI</string>
+    <string name="phone_number_optional">phone number (optional)</string>
+    <string name="continue">continue</string>
+    <string name="continue_regestration">Continue</string>
 
 
 </resources>
