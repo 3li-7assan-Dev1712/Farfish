@@ -43,7 +43,7 @@ public class FragmentSignUp extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_sign_up, container, false);
-        mNavController = Navigation.findNavController(view);
+        mNavController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         Toolbar toolbar = view.findViewById(R.id.toolbar_sign_up);
         toolbar.setNavigationOnClickListener( navigationIcon -> {
             navigateUp(); // navigate back using the navigation icon
@@ -72,6 +72,7 @@ public class FragmentSignUp extends Fragment {
             else if (!confirmPasswordTextView.getText().toString().equals(passwordTextView.getText().toString()))
                 displayRequiredFieldToast(confirmPasswordTextView, "please confirm password is different from the password above");
             else{
+                /* ok the ecectiriy went out seccessfully while I'm using the ola's phone*/
                 Toast.makeText(requireContext(), "You are ready to register", Toast.LENGTH_SHORT).show();
                 String email = emailTextView.getText().toString();
                 String password = passwordTextView.getText().toString();
@@ -88,6 +89,8 @@ public class FragmentSignUp extends Fragment {
             saveUserInfoAndNavigateBack();
         }).addOnFailureListener(exception -> {
             Log.d(TAG, "signUp: exception message: " + exception.getMessage());
+            if (exception.getMessage().equals("The email address is already in use by another account"))
+                // you are already registered go a head and sign in directly
             Toast.makeText(requireActivity(), "An error occurred, you can navigate back and try with another way", Toast.LENGTH_SHORT).show();
         });
     }
