@@ -1,7 +1,6 @@
 package com.example.friendlychat.fragments;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,9 +14,6 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
 import com.example.friendlychat.R;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class FragmentSignIn extends Fragment {
@@ -62,24 +58,7 @@ public class FragmentSignIn extends Fragment {
 
     private void signIn(String email, String password) {
         FirebaseAuth auth = FirebaseAuth.getInstance();
-       /* auth.signOut();*/
-        AuthCredential credential = EmailAuthProvider.getCredential(email, password);
-        auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
-            if (task.isSuccessful()){
-                Toast.makeText(requireActivity(), "successfully sin in", Toast.LENGTH_SHORT).show();
 
-                Log.d(TAG, "signIn: sign in successfully " + auth.getUid());
-            }else if (task.getException() != null){
-                auth.signInWithCredential(credential).addOnCompleteListener( comleteTask ->{
-                    String id = comleteTask.getResult().getUser().getIdToken(true).toString();
-                    Log.d(TAG, "signIn: id : " + id);
-                }).addOnFailureListener(exc -> {
-                    Log.d(TAG, "signIn: exception me, esage : " + exc.getMessage());
-                });
-            }
-        }).addOnFailureListener(e -> {
-            Log.d(TAG, "signIn: " +e.getMessage());
-        });
     }
 
     private void displayRequiredFieldToast(String message) {
