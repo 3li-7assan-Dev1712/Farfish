@@ -1,7 +1,9 @@
 package com.example.friendlychat.fragments;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -31,6 +33,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -129,22 +132,46 @@ public class FragmentSignIn extends Fragment {
                 User user = result.toObject(User.class);
                 if (user != null){
                     String userName = user.getUserName();
-                    MessagesPreference.saveUserName(requireContext(), userName);
-                    String phoneNumber = user.getPhoneNumber();
                     String photoUrl = user.getPhotoUrl();
                     String userId = currentUser.getUid();
-                    MessagesPreference.saveUserId(requireContext(), userId);
-                    MessagesPreference.saveUserPhotoUrl(requireContext(), photoUrl);
-                    SharedPreferenceUtils.saveUserSignIn(requireContext());
+                    saveUserDataInSharedPreference(userName, photoUrl, userId);
                     mNavController.navigateUp();
                 }
 
             }).addOnFailureListener(exc -> {
                 Log.d(TAG, "updateUserInfoAndNavigateBack: exception: " + exc.getMessage());
                 Toast.makeText(requireActivity(), "Error sign in", Toast.LENGTH_SHORT).show();
+                // save default
+                FirebaseUser firebaseUser = mAuth.getCurrentUser();
+                String userId = firebaseUser.getUid();
+                Uri photoUri = firebaseUser.getPhotoUrl();
+                String photoUrl = "";
+                if (photoUri != null){
+                    photoUrl = photoUri.toString();
+                }
+                String userName = firebaseUser.getDisplayName();
+                String phoneNumber = firebaseUser.getPhoneNumber();
+                FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
+                User user = new User(userName, phoneNumber, photoUrl, userId, true, new Date().getTime());
+                String finalPhotoUrl = photoUrl;
+                firebaseFirestore.collection("rooms").document(userId).set(user).addOnSuccessListener(suc -> {
+                    saveUserDataInSharedPreference(userName, finalPhotoUrl, userId);
+                    mNavController.navigateUp();
+                }).addOnFailureListener(exception -> {
+                    Log.d(TAG, "updateUserInfoAndNavigateBack: exception: " + exception.getMessage());
+                });
+
             });
         }
 
+    }
+
+    private void saveUserDataInSharedPreference(String userName, String photoUrl, String userId) {
+        Context context = requireContext();
+        MessagesPreference.saveUserName(context, userName);
+        MessagesPreference.saveUserId(context, userId);
+        MessagesPreference.saveUserPhotoUrl(context, photoUrl);
+        SharedPreferenceUtils.saveUserSignIn(context);
     }
 
     private void displayRequiredFieldToast(String message) {
