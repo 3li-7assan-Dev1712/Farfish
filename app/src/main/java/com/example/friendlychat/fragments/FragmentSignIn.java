@@ -19,7 +19,6 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
-import com.example.friendlychat.Module.FullMessage;
 import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.SharedPreferenceUtils;
 import com.example.friendlychat.Module.User;
@@ -32,7 +31,6 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -137,6 +135,7 @@ public class FragmentSignIn extends Fragment {
                     String userId = currentUser.getUid();
                     MessagesPreference.saveUserId(requireContext(), userId);
                     MessagesPreference.saveUserPhotoUrl(requireContext(), photoUrl);
+                    SharedPreferenceUtils.saveUserSignIn(requireContext());
                     mNavController.navigateUp();
                 }
 

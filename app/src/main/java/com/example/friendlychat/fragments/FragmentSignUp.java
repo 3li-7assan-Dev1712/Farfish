@@ -111,8 +111,6 @@ public class FragmentSignUp extends Fragment {
             userData.putString("userId", userId);
             userData.putString("userName", mUserName);
             mNavController.navigate(R.id.profileImageFragment, userData);
-            // will be completed in the following commits
         }
-        mNavController.popBackStack();
     }
 }

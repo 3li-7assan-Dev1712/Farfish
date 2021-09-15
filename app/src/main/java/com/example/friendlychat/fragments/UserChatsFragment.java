@@ -1,8 +1,6 @@
 package com.example.friendlychat.fragments;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -24,22 +21,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.friendlychat.Adapters.ContactsAdapter;
 import com.example.friendlychat.Module.FullMessage;
-import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.SharedPreferenceUtils;
-import com.example.friendlychat.Module.User;
 import com.example.friendlychat.R;
 import com.firebase.ui.auth.AuthUI;
-import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
-import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -144,6 +135,7 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
         switch (id) {
             case R.id.sign_out:
                 mAuth.signOut();
+                SharedPreferenceUtils.saveUserSignOut(requireContext());
                 navigateToSignIn();
                 break;
             case R.id.sign_in_custom:
