@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -40,6 +41,7 @@ import id.zelory.compressor.Compressor;
 
 public class ProfileImageFragment extends Fragment {
     private Uri imageUriFromGallery;
+    private ProgressBar mProgressBar;
     private static final String TAG = ProfileImageFragment.class.getSimpleName();
     private ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
@@ -66,6 +68,7 @@ public class ProfileImageFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.profile_image_fragment, container, false);
+        mProgressBar = view.findViewById(R.id.progressBarProfileImage);
         Bundle userData = getArguments();
         if (userData != null) {
             userName = userData.getString("userName");
@@ -82,8 +85,10 @@ public class ProfileImageFragment extends Fragment {
             phoneNumber = phoneNumberEditText.getText().toString();
             if (imageUriFromGallery == null)
                 Toast.makeText(requireActivity(), "Please insert an image to continue", Toast.LENGTH_SHORT).show();
-            else
+            else {
+                mProgressBar.setVisibility(View.VISIBLE);
                 saveUserDataAndNavigateToHomeScreen();
+            }
         });
 
         return view;
@@ -95,22 +100,6 @@ public class ProfileImageFragment extends Fragment {
             auth.createUserWithEmailAndPassword(email, password).addOnSuccessListener(result -> {
                 userId = Objects.requireNonNull(auth.getCurrentUser()).getUid();
                 compressImageAndStoreInStorage(imageUriFromGallery);
-                if (photoUrl == null) photoUrl = "";
-                /*save user data to be used later*/
-                MessagesPreference.saveUserPhotoUrl(requireContext(), photoUrl);
-                MessagesPreference.saveUserId(requireContext(), userId);
-                MessagesPreference.saveUserName(requireContext(), userName);
-                /*create a new user*/
-                User newUser = new User(userName, phoneNumber, photoUrl, userId, true, new Date().getTime());
-                FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-                firestore.collection("rooms").document(userId).set(newUser).addOnSuccessListener(data -> {
-                    Log.d(TAG, "saveUserDataAndNavigateToHomeScreen: successfully register new user");
-                    SharedPreferenceUtils.saveUserSignIn(requireContext());
-                    Navigation.findNavController(requireActivity(), R.id.nav_host_fragment).popBackStack(); // return to home screen
-                }).addOnFailureListener(exc -> {
-                    Log.d(TAG, "saveUserDataAndNavigateToHomeScreen: exception: " + exc.getMessage());
-                    Log.d(TAG, "saveUserDataAndNavigateToHomeScreen: user authenticated successfully, the error in firestore");
-                });
             }).addOnFailureListener(exception -> {
                 Log.d(TAG, "saveUserDataAndNavigateToHomeScreen: exception: " + exception.getMessage());
                 Log.d(TAG, "saveUserDataAndNavigateToHomeScreen: Error in authenticating new user");
@@ -150,6 +139,7 @@ public class ProfileImageFragment extends Fragment {
                     Log.d(TAG, downloadUri.toString());
                     Log.d(TAG, String.valueOf(downloadUri));
                     photoUrl = downloadUri.toString();
+                    saveFinalData();
                 });
             });
 
@@ -164,5 +154,23 @@ public class ProfileImageFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
         super.onCreate(savedInstanceState);
+    }
+    private void saveFinalData() {
+        Log.d(TAG, "saveFinalData: photoUrl" + photoUrl);
+        /*save user data to be used later*/
+        MessagesPreference.saveUserPhotoUrl(requireContext(), photoUrl);
+        MessagesPreference.saveUserId(requireContext(), userId);
+        MessagesPreference.saveUserName(requireContext(), userName);
+        /*create a new user*/
+        User newUser = new User(userName, phoneNumber, photoUrl, userId, true, new Date().getTime());
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        firestore.collection("rooms").document(userId).set(newUser).addOnSuccessListener(data -> {
+            Log.d(TAG, "saveUserDataAndNavigateToHomeScreen: successfully register new user");
+            SharedPreferenceUtils.saveUserSignIn(requireContext());
+            Navigation.findNavController(requireActivity(), R.id.nav_host_fragment).popBackStack(R.id.userChatsFragment, false); // return to home screen
+        }).addOnFailureListener(exc -> {
+            Log.d(TAG, "saveUserDataAndNavigateToHomeScreen: exception: " + exc.getMessage());
+            Log.d(TAG, "saveUserDataAndNavigateToHomeScreen: user authenticated successfully, the error in firestore");
+        });
     }
 }

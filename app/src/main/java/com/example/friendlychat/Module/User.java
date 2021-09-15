@@ -10,14 +10,6 @@ public class User {
 
     }
 
-    public User(String userName, String phoneNumber, String photoUrl, String userId) {
-        this.userName = userName;
-        this.phoneNumber = phoneNumber;
-        this.photoUrl = photoUrl;
-        this.userId = userId;
-    }
-
-
 
     public User(String userName, String phoneNumber, String photoUrl, String userId, boolean isActive, long lastTimeSeen) {
         this.userName = userName;
