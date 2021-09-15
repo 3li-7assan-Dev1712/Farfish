@@ -99,6 +99,14 @@ public class FragmentSignIn extends Fragment {
 
     private void signIn(String email, String password) {
         FirebaseAuth auth = FirebaseAuth.getInstance();
+      /*  AuthCredential credential = EmailAuthProvider.getCredential(email, password);
+        auth.getCurrentUser().linkWithCredential(credential)
+                .addOnSuccessListener(result -> {
+                    updateUserInfoAndNavigateBack();
+                }).addOnFailureListener(exception -> {
+            Log.d(TAG, "signIn: exc meg: " + exception.getMessage());
+        });
+*/
         auth.signInWithEmailAndPassword(email, password).addOnSuccessListener(authResult -> {
             Log.d(TAG, "signIn: user id " + Objects.requireNonNull(authResult.getUser()).getIdToken(true));
             // after checking the user id will be saved the the app flow will be completed
@@ -126,9 +134,7 @@ public class FragmentSignIn extends Fragment {
             long lastTimeSeen = new Date().getTime();
             User newUser = new User(userName, phoneNumber, photoUrl, userId, true, false, lastTimeSeen);
             assert userId != null;
-            mFirestore.collection("rooms").document(userId).set(newUser).addOnCompleteListener(task ->
-                    Toast.makeText(requireActivity(), "saved new user successfully", Toast.LENGTH_SHORT).show()
-            );
+            mFirestore.collection("rooms").document(userId).set(newUser);
         }
         mNavController.navigateUp();
     }
@@ -156,7 +162,7 @@ public class FragmentSignIn extends Fragment {
         Intent signInIntent = AuthUI.getInstance()
                 .createSignInIntentBuilder()
                 .setAvailableProviders(providers)
-                .setIsSmartLockEnabled(false)
+                .setIsSmartLockEnabled(true)
                 .setLogo(R.drawable.ic_icon_round)
                 .build();
         signInLauncher.launch(signInIntent);
