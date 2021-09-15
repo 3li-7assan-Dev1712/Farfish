@@ -146,6 +146,9 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
                 mAuth.signOut();
                 navigateToSignIn();
                 break;
+            case R.id.sign_in_custom:
+                navigateToSignIn();
+                break;
         }
         return true;
     }

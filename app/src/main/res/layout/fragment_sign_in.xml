@@ -87,7 +87,6 @@
             android:text="Try another way"
             android:textColor="@color/colorAccent"
             android:textSize="18sp"
-            android:visibility="invisible"
             android:textStyle="bold"
             app:layout_constraintBottom_toTopOf="@id/buttonLogin"
             app:layout_constraintEnd_toEndOf="parent"
