@@ -1,6 +1,7 @@
 package com.example.friendlychat.fragments;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,8 +17,13 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
 import com.example.friendlychat.R;
+import com.google.firebase.auth.FirebaseAuth;
+
+import java.util.Objects;
 
 public class FragmentSignUp extends Fragment {
+
+    private static final String TAG = FragmentSignUp.class.getSimpleName();
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -55,11 +61,26 @@ public class FragmentSignUp extends Fragment {
                 displayRequiredFieldToast(passwordTextView, "please enter a password to register");
             else if (confirmPasswordTextView.getText().toString().equals(""))
                 displayRequiredFieldToast(lastNameTextView, "please confirm the password to register");
+            else if (!confirmPasswordTextView.getText().toString().equals(passwordTextView.getText().toString()))
+                displayRequiredFieldToast(confirmPasswordTextView, "please confirm password is different from the password above");
             else{
                 Toast.makeText(requireContext(), "You are ready to register", Toast.LENGTH_SHORT).show();
+                String email = emailTextView.getText().toString();
+                String password = passwordTextView.getText().toString();
+                signUp(email, password);
             }
         });
         return view;
+    }
+
+    private void signUp(String email, String password) {
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        auth.createUserWithEmailAndPassword(email, password).addOnSuccessListener(authResult -> {
+            Log.d(TAG, "signUp: " +  Objects.requireNonNull(authResult.getUser()).getUid());
+
+        }).addOnFailureListener(exception -> {
+            Log.d(TAG, "signUp: exception message: " + exception.getMessage());
+        });
     }
 
     private void navigateUp(View view) {

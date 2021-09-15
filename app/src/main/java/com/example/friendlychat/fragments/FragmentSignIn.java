@@ -1,6 +1,7 @@
 package com.example.friendlychat.fragments;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +15,12 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
 import com.example.friendlychat.R;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+
+import java.util.Objects;
 
 public class FragmentSignIn extends Fragment {
     private static final String TAG = FragmentSignIn.class.getSimpleName();
@@ -58,7 +64,12 @@ public class FragmentSignIn extends Fragment {
 
     private void signIn(String email, String password) {
         FirebaseAuth auth = FirebaseAuth.getInstance();
-
+        auth.signInWithEmailAndPassword(email, password).addOnSuccessListener(authResult -> {
+            Log.d(TAG, "signIn: user id " + Objects.requireNonNull(authResult.getUser()).getIdToken(true));
+            // after checking the user id will be saved the the app flow will be completed
+        }).addOnFailureListener(e -> {
+            Log.d(TAG, "signIn: exception message: " + e.getMessage());
+        });
     }
 
     private void displayRequiredFieldToast(String message) {
