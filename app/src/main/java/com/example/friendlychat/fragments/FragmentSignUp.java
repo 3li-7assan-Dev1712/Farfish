@@ -1,6 +1,7 @@
 package com.example.friendlychat.fragments;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +17,13 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
+import com.example.friendlychat.Module.MessagesPreference;
+import com.example.friendlychat.Module.User;
 import com.example.friendlychat.R;
+import com.google.firebase.auth.FirebaseAuth;
+
+import java.util.Date;
+import java.util.Objects;
 
 public class FragmentSignUp extends Fragment {
 
@@ -83,7 +90,6 @@ public class FragmentSignUp extends Fragment {
         userData.putString("email", email);
         userData.putString("password", password);
         mNavController.navigate(R.id.profileImageFragment, userData);
-
     }
 
     private void navigateUp() {

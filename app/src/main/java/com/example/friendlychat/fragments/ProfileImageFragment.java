@@ -39,6 +39,7 @@ import java.util.Objects;
 import id.zelory.compressor.Compressor;
 
 public class ProfileImageFragment extends Fragment {
+    private Uri imageUriFromGallery;
     private static final String TAG = ProfileImageFragment.class.getSimpleName();
     private ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
@@ -79,7 +80,7 @@ public class ProfileImageFragment extends Fragment {
         Button continueButton = view.findViewById(R.id.continueButton);
         continueButton.setOnClickListener(continueButtonListener -> {
             phoneNumber = phoneNumberEditText.getText().toString();
-            if (photoUrl == null || photoUrl.equals(""))
+            if (imageUriFromGallery == null)
                 Toast.makeText(requireActivity(), "Please insert an image to continue", Toast.LENGTH_SHORT).show();
             else
                 saveUserDataAndNavigateToHomeScreen();
@@ -89,10 +90,12 @@ public class ProfileImageFragment extends Fragment {
     }
 
     private void saveUserDataAndNavigateToHomeScreen() {
-        if (userId != null) {
+        if (email != null) {
             FirebaseAuth auth = FirebaseAuth.getInstance();
             auth.createUserWithEmailAndPassword(email, password).addOnSuccessListener(result -> {
                 userId = Objects.requireNonNull(auth.getCurrentUser()).getUid();
+                compressImageAndStoreInStorage(imageUriFromGallery);
+                if (photoUrl == null) photoUrl = "";
                 /*save user data to be used later*/
                 MessagesPreference.saveUserPhotoUrl(requireContext(), photoUrl);
                 MessagesPreference.saveUserId(requireContext(), userId);
@@ -104,7 +107,6 @@ public class ProfileImageFragment extends Fragment {
                     Log.d(TAG, "saveUserDataAndNavigateToHomeScreen: successfully register new user");
                     SharedPreferenceUtils.saveUserSignIn(requireContext());
                     Navigation.findNavController(requireActivity(), R.id.nav_host_fragment).popBackStack(); // return to home screen
-
                 }).addOnFailureListener(exc -> {
                     Log.d(TAG, "saveUserDataAndNavigateToHomeScreen: exception: " + exc.getMessage());
                     Log.d(TAG, "saveUserDataAndNavigateToHomeScreen: user authenticated successfully, the error in firestore");
@@ -113,9 +115,9 @@ public class ProfileImageFragment extends Fragment {
                 Log.d(TAG, "saveUserDataAndNavigateToHomeScreen: exception: " + exception.getMessage());
                 Log.d(TAG, "saveUserDataAndNavigateToHomeScreen: Error in authenticating new user");
             });
-        }else{
-            Toast.makeText(requireActivity(), "you user id is null", Toast.LENGTH_SHORT).show();
-        }
+        }else
+            Toast.makeText(requireActivity(), "you email is null", Toast.LENGTH_SHORT).show();
+
     }
 
     private void pickImageFromGallery() {
@@ -123,41 +125,38 @@ public class ProfileImageFragment extends Fragment {
     }
 
     private void putIntoImage(Uri uri) {
+        imageUriFromGallery = uri;
+        if (imageUriFromGallery != null)
+            mImageView.setImageURI(imageUriFromGallery);
+    }
 
-        if (uri != null) {
-            try {
-                mImageView.setImageURI(uri);
-                File galleryFile = FileUtil.from(requireContext(), uri);
-                /*compress the file using a special library*/
-                File compressedImageFile = new Compressor(requireContext()).compressToFile(galleryFile);
-                /*take the file name as a unique identifier*/
-                StorageReference profiles = FirebaseStorage.getInstance().getReference("profiles");
-                StorageReference imageRef = profiles.child(compressedImageFile.getName());
-                // finally uploading the file to firebase storage.
-                UploadTask uploadTask = imageRef.putFile(Uri.fromFile(compressedImageFile));
-                // Register observers to listen for when the download is done or if it fails
-                uploadTask.addOnFailureListener(exception -> {
-                    // Handle unsuccessful uploads
-                    Log.d(TAG, "putIntoImage: exc msg: " + exception.getMessage());
-                }).addOnSuccessListener(taskSnapshot -> {
-                    Log.d(TAG, "putIntoImage: Successfully upload image to firestore");
-                    imageRef.getDownloadUrl().addOnSuccessListener(downloadUri -> {
-                        Log.d(TAG, downloadUri.toString());
-                        Log.d(TAG, String.valueOf(downloadUri));
-                        photoUrl = downloadUri.toString();
-
-                    });
-
+    private void compressImageAndStoreInStorage(Uri uri) {
+        try {
+            File galleryFile = FileUtil.from(requireContext(), uri);
+            /*compress the file using a special library*/
+            File compressedImageFile = new Compressor(requireContext()).compressToFile(galleryFile);
+            /*take the file name as a unique identifier*/
+            StorageReference profiles = FirebaseStorage.getInstance().getReference("profiles");
+            StorageReference imageRef = profiles.child(compressedImageFile.getName());
+            // finally uploading the file to firebase storage.
+            UploadTask uploadTask = imageRef.putFile(Uri.fromFile(compressedImageFile));
+            // Register observers to listen for when the download is done or if it fails
+            uploadTask.addOnFailureListener(exception -> {
+                // Handle unsuccessful uploads
+                Log.d(TAG, "putIntoImage: exc msg: " + exception.getMessage());
+            }).addOnSuccessListener(taskSnapshot -> {
+                Log.d(TAG, "putIntoImage: Successfully upload image to firestore");
+                imageRef.getDownloadUrl().addOnSuccessListener(downloadUri -> {
+                    Log.d(TAG, downloadUri.toString());
+                    Log.d(TAG, String.valueOf(downloadUri));
+                    photoUrl = downloadUri.toString();
                 });
+            });
 
-            } catch (IOException e) {
-                e.printStackTrace();
-                Log.d(TAG, "Error compressing the file");
-                Toast.makeText(requireContext(), "Error occurs", Toast.LENGTH_SHORT).show();
-            }
-            // if the user hit the back button before choosing an image to send the code below will be executed.
-        } else {
-            Toast.makeText(requireContext(), "image operation canceled", Toast.LENGTH_SHORT).show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.d(TAG, "Error compressing the file");
+            Toast.makeText(requireContext(), "Error occurs", Toast.LENGTH_SHORT).show();
         }
     }
 
