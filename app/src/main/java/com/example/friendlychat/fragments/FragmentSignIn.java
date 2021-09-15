@@ -117,7 +117,7 @@ public class FragmentSignIn extends Fragment {
     }
 
     private void updateUserInfoAndNavigateBack() {
-        mNavController.navigateUp();
+
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         SharedPreferenceUtils.saveUserSignIn(requireContext());
@@ -157,6 +157,7 @@ public class FragmentSignIn extends Fragment {
             // Successfully signed in
             Toast.makeText(requireContext(), "You've signed in successfully", Toast.LENGTH_SHORT).show();
             Log.d(TAG, "sign in successfully");
+
             updateUserInfoAndNavigateBack();
             // ...
         } else {

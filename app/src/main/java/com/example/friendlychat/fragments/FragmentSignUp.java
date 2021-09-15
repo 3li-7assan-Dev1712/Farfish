@@ -1,7 +1,6 @@
 package com.example.friendlychat.fragments;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,10 +17,6 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import com.example.friendlychat.R;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-
-import java.util.Objects;
 
 public class FragmentSignUp extends Fragment {
 
@@ -82,16 +77,13 @@ public class FragmentSignUp extends Fragment {
     }
 
     private void signUp(String email, String password) {
-        FirebaseAuth auth = FirebaseAuth.getInstance();
-        auth.createUserWithEmailAndPassword(email, password).addOnSuccessListener(authResult -> {
-            Log.d(TAG, "signUp: " +  Objects.requireNonNull(authResult.getUser()).getUid());
-            saveUserInfoAndNavigateBack();
-        }).addOnFailureListener(exception -> {
-            Log.d(TAG, "signUp: exception message: " + exception.getMessage());
-            if (exception.getMessage().equals("The email address is already in use by another account"))
-                // you are already registered go a head and sign in directly
-            Toast.makeText(requireActivity(), "An error occurred, you can navigate back and try with another way", Toast.LENGTH_SHORT).show();
-        });
+
+        Bundle userData = new Bundle();
+        userData.putString("userName", mUserName);
+        userData.putString("email", email);
+        userData.putString("password", password);
+        mNavController.navigate(R.id.profileImageFragment, userData);
+
     }
 
     private void navigateUp() {
@@ -101,16 +93,5 @@ public class FragmentSignUp extends Fragment {
     private void displayRequiredFieldToast(EditText requiredField, String message) {
         Toast.makeText(requireActivity(), message, Toast.LENGTH_SHORT).show();
         requiredField.requestFocus();
-    }
-    private void saveUserInfoAndNavigateBack() {
-        FirebaseAuth mAuth = FirebaseAuth.getInstance();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser != null) {
-            String userId = currentUser.getUid();
-            Bundle userData = new Bundle();
-            userData.putString("userId", userId);
-            userData.putString("userName", mUserName);
-            mNavController.navigate(R.id.profileImageFragment, userData);
-        }
     }
 }

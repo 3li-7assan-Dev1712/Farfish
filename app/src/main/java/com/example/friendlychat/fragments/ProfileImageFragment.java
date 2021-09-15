@@ -18,7 +18,6 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import com.example.friendlychat.Module.FileUtil;
@@ -26,6 +25,7 @@ import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.SharedPreferenceUtils;
 import com.example.friendlychat.Module.User;
 import com.example.friendlychat.R;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -34,6 +34,7 @@ import com.google.firebase.storage.UploadTask;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.Objects;
 
 import id.zelory.compressor.Compressor;
 
@@ -58,21 +59,21 @@ public class ProfileImageFragment extends Fragment {
                 }
             },
             this::putIntoImage);
-    private String userId, userName, photoUrl, phoneNumber;
-    private NavController controller;
+    private ImageView mImageView;
+    private String userId, userName, photoUrl, phoneNumber, email, password;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.profile_image_fragment, container, false);
-        controller = Navigation.findNavController(view);
         Bundle userData = getArguments();
         if (userData != null) {
-            userId = userData.getString("userId");
             userName = userData.getString("userName");
+            email = userData.getString("email");
+            password = userData.getString("password");
         }
-        ImageView image = view.findViewById(R.id.registerImage);
-        image.setOnClickListener( imageListener -> {
-
+        mImageView = view.findViewById(R.id.registerImage);
+        mImageView.setOnClickListener( imageListener -> {
+            pickImageFromGallery();
         });
         EditText phoneNumberEditText = view.findViewById(R.id.profileImagePhoneNumber);
         Button continueButton = view.findViewById(R.id.continueButton);
@@ -88,22 +89,33 @@ public class ProfileImageFragment extends Fragment {
     }
 
     private void saveUserDataAndNavigateToHomeScreen() {
-        /*save user data to be used later*/
-        MessagesPreference.saveUserPhotoUrl(requireContext(), photoUrl);
-        MessagesPreference.saveUserId(requireContext(), userId);
-        MessagesPreference.saveUserName(requireContext(), userName);
-        /*create a new user*/
-        User newUser = new User(userName, phoneNumber, photoUrl, userId, true, new Date().getTime());
-        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-        firestore.collection("rooms").document(userId).set(newUser).addOnSuccessListener( result -> {
-            Log.d(TAG, "saveUserDataAndNavigateToHomeScreen: successfully register new user");
-            SharedPreferenceUtils.saveUserSignIn(requireContext());
-            controller.popBackStack(); // return to home screen
+        if (userId != null) {
+            FirebaseAuth auth = FirebaseAuth.getInstance();
+            auth.createUserWithEmailAndPassword(email, password).addOnSuccessListener(result -> {
+                userId = Objects.requireNonNull(auth.getCurrentUser()).getUid();
+                /*save user data to be used later*/
+                MessagesPreference.saveUserPhotoUrl(requireContext(), photoUrl);
+                MessagesPreference.saveUserId(requireContext(), userId);
+                MessagesPreference.saveUserName(requireContext(), userName);
+                /*create a new user*/
+                User newUser = new User(userName, phoneNumber, photoUrl, userId, true, new Date().getTime());
+                FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+                firestore.collection("rooms").document(userId).set(newUser).addOnSuccessListener(data -> {
+                    Log.d(TAG, "saveUserDataAndNavigateToHomeScreen: successfully register new user");
+                    SharedPreferenceUtils.saveUserSignIn(requireContext());
+                    Navigation.findNavController(requireActivity(), R.id.nav_host_fragment).popBackStack(); // return to home screen
 
-        }).addOnFailureListener(exc -> {
-            Log.d(TAG, "saveUserDataAndNavigateToHomeScreen: exception: " + exc.getMessage());
-        });
-
+                }).addOnFailureListener(exc -> {
+                    Log.d(TAG, "saveUserDataAndNavigateToHomeScreen: exception: " + exc.getMessage());
+                    Log.d(TAG, "saveUserDataAndNavigateToHomeScreen: user authenticated successfully, the error in firestore");
+                });
+            }).addOnFailureListener(exception -> {
+                Log.d(TAG, "saveUserDataAndNavigateToHomeScreen: exception: " + exception.getMessage());
+                Log.d(TAG, "saveUserDataAndNavigateToHomeScreen: Error in authenticating new user");
+            });
+        }else{
+            Toast.makeText(requireActivity(), "you user id is null", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void pickImageFromGallery() {
@@ -114,6 +126,7 @@ public class ProfileImageFragment extends Fragment {
 
         if (uri != null) {
             try {
+                mImageView.setImageURI(uri);
                 File galleryFile = FileUtil.from(requireContext(), uri);
                 /*compress the file using a special library*/
                 File compressedImageFile = new Compressor(requireContext()).compressToFile(galleryFile);
@@ -146,5 +159,11 @@ public class ProfileImageFragment extends Fragment {
         } else {
             Toast.makeText(requireContext(), "image operation canceled", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
+        super.onCreate(savedInstanceState);
     }
 }
