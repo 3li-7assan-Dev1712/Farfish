@@ -1,5 +1,7 @@
 package com.example.friendlychat.fragments;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,22 +11,42 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
+import com.example.friendlychat.Module.MessagesPreference;
+import com.example.friendlychat.Module.SharedPreferenceUtils;
+import com.example.friendlychat.Module.User;
 import com.example.friendlychat.R;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.AuthResult;
+import com.firebase.ui.auth.AuthUI;
+import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
+import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 public class FragmentSignIn extends Fragment {
     private static final String TAG = FragmentSignIn.class.getSimpleName();
-
+    /*FirebaseUI*/
+    private List<AuthUI.IdpConfig> providers = Arrays.asList(
+            new AuthUI.IdpConfig.EmailBuilder().build(),
+            new AuthUI.IdpConfig.GoogleBuilder().build());
+    private ActivityResultLauncher<Intent> signInLauncher = registerForActivityResult(
+            new FirebaseAuthUIActivityResultContract(),
+            this::onSignInResult
+    );
+    private  TextView tryAnotherWay;
+    /*Navigation*/
+    private NavController mNavController;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
@@ -35,11 +57,16 @@ public class FragmentSignIn extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_sign_in, container, false);
+        mNavController = Navigation.findNavController(view);
         TextView emailSignInTextView = view.findViewById(R.id.editTextEmailSignIn);
         TextView passwordSignInTextView = view.findViewById(R.id.editTextPasswordSignIn);
         TextView forgotPassWord = view.findViewById(R.id.forgotPasswordSignIn);
         forgotPassWord.setOnClickListener( forgotPassWordListener -> {
             // forgot password functionality
+        });
+        tryAnotherWay = view.findViewById(R.id.tryAnotherWay);
+        tryAnotherWay.setOnClickListener(tryAnotherWayListener -> {
+            launchFirebaseUI();
         });
         Button loginButton = view.findViewById(R.id.buttonLogin);
         loginButton.setOnClickListener( loginButtonListener -> {
@@ -57,7 +84,7 @@ public class FragmentSignIn extends Fragment {
         });
         TextView register = view.findViewById(R.id.register_sign_in);
         register.setOnClickListener( registerTextView -> {
-            Navigation.findNavController(view).navigate(FragmentSignInDirections.actionFragmentSignInToFragmentSignUp());
+            mNavController.navigate(FragmentSignInDirections.actionFragmentSignInToFragmentSignUp());
         });
         return view;
     }
@@ -67,13 +94,63 @@ public class FragmentSignIn extends Fragment {
         auth.signInWithEmailAndPassword(email, password).addOnSuccessListener(authResult -> {
             Log.d(TAG, "signIn: user id " + Objects.requireNonNull(authResult.getUser()).getIdToken(true));
             // after checking the user id will be saved the the app flow will be completed
+            updateUserInfoAndNavigateBack();
         }).addOnFailureListener(e -> {
             Log.d(TAG, "signIn: exception message: " + e.getMessage());
+            tryAnotherWay.setVisibility(View.VISIBLE);
         });
+    }
+
+    private void updateUserInfoAndNavigateBack() {
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
+        SharedPreferenceUtils.saveUserSignIn(requireContext());
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            /*after the user sign in/up saving their information in the firestore*/
+            String userName = currentUser.getDisplayName();
+            MessagesPreference.saveUserName(requireContext(), userName);
+            String phoneNumber = currentUser.getPhoneNumber();
+            String photoUrl = Objects.requireNonNull(currentUser.getPhotoUrl()).toString();
+            String userId = mAuth.getUid();
+            MessagesPreference.saveUserId(requireContext(), userId);
+            MessagesPreference.saveUserPhotoUrl(requireContext(), photoUrl);
+            long lastTimeSeen = new Date().getTime();
+            User newUser = new User(userName, phoneNumber, photoUrl, userId, true, false, lastTimeSeen);
+            assert userId != null;
+            mFirestore.collection("rooms").document(userId).set(newUser).addOnCompleteListener(task ->
+                    Toast.makeText(requireContext(), "saved new user successfully", Toast.LENGTH_SHORT).show()
+            );
+        }
+        mNavController.navigateUp();
     }
 
     private void displayRequiredFieldToast(String message) {
         Toast.makeText(requireActivity(), message, Toast.LENGTH_SHORT).show();
     }
 
+    private void onSignInResult(FirebaseAuthUIAuthenticationResult result) {
+
+        if (result.getResultCode() == Activity.RESULT_OK) {
+            // Successfully signed in
+            Toast.makeText(requireContext(), "You've signed in successfully", Toast.LENGTH_SHORT).show();
+            Log.d(TAG, "sign in successfully");
+            updateUserInfoAndNavigateBack();
+            // ...
+        } else {
+            Log.d(TAG, "onSignInResult" + " should finish the Activity");
+            Log.d(TAG, String.valueOf(result.getResultCode()));
+            requireActivity().finish();
+        }
+    }
+
+    private void launchFirebaseUI() {
+        Intent signInIntent = AuthUI.getInstance()
+                .createSignInIntentBuilder()
+                .setAvailableProviders(providers)
+                .setIsSmartLockEnabled(false)
+                .setLogo(R.drawable.ic_icon_round)
+                .build();
+        signInLauncher.launch(signInIntent);
+    }
 }
