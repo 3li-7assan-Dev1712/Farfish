@@ -367,23 +367,25 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
 
     /*this method will update the chat info int the toolbar in real time!*/
     private void updateChatInfo() {
+        if (getContext() != null){
+            if (isWriting){
+                chat_last_seen.setText(getResources().getString(R.string.isWriting));
+                chat_last_seen.setTextColor(getResources().getColor(R.color.colorAccent));
+            }
+            else if (isActive) {
 
-        if (isWriting){
-            chat_last_seen.setText(getResources().getString(R.string.isWriting));
-            chat_last_seen.setTextColor(getResources().getColor(R.color.colorAccent));
-        }
-        else if (isActive) {
-            chat_last_seen.setText(getResources().getString(R.string.online));
-            chat_last_seen.setTextColor(getResources().getColor(R.color.colorTitle));
-        }
-        else {
+                chat_last_seen.setText(getResources().getString(R.string.online));
+                chat_last_seen.setTextColor(getResources().getColor(R.color.colorTitle));
+            }
+            else {
 
-            SimpleDateFormat df = new SimpleDateFormat("EEE, MMM d", Locale.getDefault());
-            String lastTimeSeenText = df.format(lastTimeSeen);
-            SimpleDateFormat df2 = new SimpleDateFormat("h:mm a", Locale.getDefault());
-            String text2 = df2.format(lastTimeSeen);
-            String lastTimeSeenToDisplay = lastTimeSeenText +", "+ text2;
-            chat_last_seen.setText(lastTimeSeenToDisplay);
+                SimpleDateFormat df = new SimpleDateFormat("EEE, MMM d", Locale.getDefault());
+                String lastTimeSeenText = df.format(lastTimeSeen);
+                SimpleDateFormat df2 = new SimpleDateFormat("h:mm a", Locale.getDefault());
+                String text2 = df2.format(lastTimeSeen);
+                String lastTimeSeenToDisplay = lastTimeSeenText +", "+ text2;
+                chat_last_seen.setText(lastTimeSeenToDisplay);
+            }
         }
     }
 

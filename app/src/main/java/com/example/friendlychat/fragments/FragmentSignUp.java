@@ -32,6 +32,7 @@ public class FragmentSignUp extends Fragment {
 
     private static final String TAG = FragmentSignUp.class.getSimpleName();
     private NavController mNavController;
+    private String mUserName;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
@@ -76,6 +77,9 @@ public class FragmentSignUp extends Fragment {
                 Toast.makeText(requireContext(), "You are ready to register", Toast.LENGTH_SHORT).show();
                 String email = emailTextView.getText().toString();
                 String password = passwordTextView.getText().toString();
+                String firstName = firstNameTextView.getText().toString();
+                String lastName = lastNameTextView.getText().toString();
+                mUserName = firstName + lastName;
                 signUp(email, password);
             }
         });
@@ -105,22 +109,10 @@ public class FragmentSignUp extends Fragment {
     }
     private void saveUserInfoAndNavigateBack() {
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
-        FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
-        SharedPreferenceUtils.saveUserSignIn(requireContext());
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
-            /*after the user sign in/up saving their information in the firestore*/
-            String userName = currentUser.getDisplayName();
-            MessagesPreference.saveUserName(requireContext(), userName);
-            String phoneNumber = currentUser.getPhoneNumber();
-            String photoUrl = Objects.requireNonNull(currentUser.getPhotoUrl()).toString();
-            String userId = mAuth.getUid();
-            MessagesPreference.saveUserId(requireContext(), userId);
-            MessagesPreference.saveUserPhotoUrl(requireContext(), photoUrl);
-            long lastTimeSeen = new Date().getTime();
-            User newUser = new User(userName, phoneNumber, photoUrl, userId, true, false, lastTimeSeen);
-            assert userId != null;
-            mFirestore.collection("rooms").document(userId).set(newUser);
+            String userId = currentUser.getUid();
+            // will be completed in the following commits
         }
         mNavController.popBackStack();
     }

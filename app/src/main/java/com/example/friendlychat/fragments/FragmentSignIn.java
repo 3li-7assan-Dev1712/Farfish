@@ -19,6 +19,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
+import com.example.friendlychat.Module.FullMessage;
 import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.SharedPreferenceUtils;
 import com.example.friendlychat.Module.User;
@@ -118,25 +119,33 @@ public class FragmentSignIn extends Fragment {
     }
 
     private void updateUserInfoAndNavigateBack() {
+        mNavController.navigateUp();
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
-        FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         SharedPreferenceUtils.saveUserSignIn(requireContext());
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
-            /*after the user sign in/up saving their information in the firestore*/
-            String userName = currentUser.getDisplayName();
-            MessagesPreference.saveUserName(requireContext(), userName);
-            String phoneNumber = currentUser.getPhoneNumber();
-            String photoUrl = Objects.requireNonNull(currentUser.getPhotoUrl()).toString();
-            String userId = mAuth.getUid();
-            MessagesPreference.saveUserId(requireContext(), userId);
-            MessagesPreference.saveUserPhotoUrl(requireContext(), photoUrl);
-            long lastTimeSeen = new Date().getTime();
-            User newUser = new User(userName, phoneNumber, photoUrl, userId, true, false, lastTimeSeen);
-            assert userId != null;
-            mFirestore.collection("rooms").document(userId).set(newUser);
+           // after the user sign in/up saving their information in the firestore
+            firestore.collection("rooms").document(currentUser.getUid())
+                    .get().addOnSuccessListener( result -> {
+                User user = result.toObject(User.class);
+                if (user != null){
+                    String userName = user.getUserName();
+                    MessagesPreference.saveUserName(requireContext(), userName);
+                    String phoneNumber = user.getPhoneNumber();
+                    String photoUrl = user.getPhotoUrl();
+                    String userId = currentUser.getUid();
+                    MessagesPreference.saveUserId(requireContext(), userId);
+                    MessagesPreference.saveUserPhotoUrl(requireContext(), photoUrl);
+                    mNavController.navigateUp();
+                }
+
+            }).addOnFailureListener(exc -> {
+                Log.d(TAG, "updateUserInfoAndNavigateBack: exception: " + exc.getMessage());
+                Toast.makeText(requireActivity(), "Error sign in", Toast.LENGTH_SHORT).show();
+            });
         }
-        mNavController.navigateUp();
+
     }
 
     private void displayRequiredFieldToast(String message) {
