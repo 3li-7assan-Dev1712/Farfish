@@ -16,13 +16,25 @@ import com.example.friendlychat.R;
 
 public class ProfileImageFragment extends Fragment {
 
+    private String userId, userName, photoUrl, phoneNumber;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.profile_image_fragment, container, false);
+        Bundle userData = getArguments();
+        if (userData != null) {
+            userId = userData.getString("userId");
+            userName = userData.getString("userName");
+        }
         ImageView image = view.findViewById(R.id.registerImage);
+        image.setOnClickListener( imageListener -> {
+
+        });
         EditText phoneNumberEditText = view.findViewById(R.id.profileImagePhoneNumber);
         Button continueButton = view.findViewById(R.id.continueButton);
+        continueButton.setOnClickListener(continueButtonListener -> {
+
+        });
 
         return view;
     }

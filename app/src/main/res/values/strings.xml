@@ -33,7 +33,6 @@
     <string name="confirm_password">Confirm password</string>
     <string name="i_agree_to_the_terms_conditions"><![CDATA[I Agree To The Terms & Conditions]]></string>
     <string name="already_have_an_account">already have an account?</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="chats">chats</string>
     <string name="status">status</string>
@@ -45,7 +44,6 @@
     <string name="sign_in_customUI">Sign in with custom UI</string>
     <string name="sign_in_firebaseUI">Sign in with firebase UI</string>
     <string name="phone_number_optional">phone number (optional)</string>
-    <string name="continue">continue</string>
     <string name="continue_regestration">Continue</string>
 
 

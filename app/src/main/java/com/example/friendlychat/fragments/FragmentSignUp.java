@@ -107,6 +107,10 @@ public class FragmentSignUp extends Fragment {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
             String userId = currentUser.getUid();
+            Bundle userData = new Bundle();
+            userData.putString("userId", userId);
+            userData.putString("userName", mUserName);
+            mNavController.navigate(R.id.profileImageFragment, userData);
             // will be completed in the following commits
         }
         mNavController.popBackStack();
