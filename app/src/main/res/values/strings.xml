@@ -46,6 +46,10 @@
     <string name="phone_number_optional">phone number (optional)</string>
     <string name="continue_regestration">Continue</string>
     <string name="try_another_way">Try another way</string>
+    <string name="notRegsitered">You\'re not registered, go and register</string>
+    <string name="wrong_email">This email is invalid</string>
+    <string name="modify">Modify</string>
+    <string name="wrong_password">Wrong password</string>
 
 
 </resources>

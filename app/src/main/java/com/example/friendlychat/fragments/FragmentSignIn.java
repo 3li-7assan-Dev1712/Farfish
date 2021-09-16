@@ -9,7 +9,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,9 +30,14 @@ import com.example.friendlychat.R;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthEmailException;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.internal.api.FirebaseNoSignedInUserException;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -52,6 +59,11 @@ public class FragmentSignIn extends Fragment {
     private  TextView tryAnotherWay;
     /*Navigation*/
     private NavController mNavController;
+    // snackbar view
+    private View snackBarView;
+    // email - password edit texts
+    private EditText mEmailEditText;
+    private EditText mPasswordEditText;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
@@ -70,9 +82,10 @@ public class FragmentSignIn extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_sign_in, container, false);
+        snackBarView = view;
         mNavController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
-        TextView emailSignInTextView = view.findViewById(R.id.editTextEmailSignIn);
-        TextView passwordSignInTextView = view.findViewById(R.id.editTextPasswordSignIn);
+        mEmailEditText = view.findViewById(R.id.editTextEmailSignIn);
+        mPasswordEditText = view.findViewById(R.id.editTextPasswordSignIn);
         TextView forgotPassWord = view.findViewById(R.id.forgotPasswordSignIn);
         forgotPassWord.setOnClickListener( forgotPassWordListener -> {
             // forgot password functionality
@@ -83,8 +96,8 @@ public class FragmentSignIn extends Fragment {
         });
         Button loginButton = view.findViewById(R.id.buttonLogin);
         loginButton.setOnClickListener( loginButtonListener -> {
-            String email = emailSignInTextView.getText().toString();
-            String password = passwordSignInTextView.getText().toString();
+            String email = mEmailEditText.getText().toString();
+            String password = mPasswordEditText.getText().toString();
             if (email.equals(""))
                 displayRequiredFieldToast("Please enter you e-mail address to sign in");
             else if (password.equals(""))
@@ -109,7 +122,44 @@ public class FragmentSignIn extends Fragment {
             updateUserInfoAndNavigateBack();
         }).addOnFailureListener(e -> {
             Log.d(TAG, "signIn: exception message: " + e.getMessage());
-            tryAnotherWay.setVisibility(View.VISIBLE);
+            try {
+                throw e;
+            } catch (FirebaseAuthInvalidCredentialsException invalidCredentialException) {
+                Log.d(TAG, "signIn: invalid credential exception " + invalidCredentialException.getMessage());
+                /* Snackbar.make(snackBarView, R.string.wrong_password, Snackbar.LENGTH_LONG).setAction(
+                        R.string.modify,
+                        snackBarListener -> {
+                           mPasswordEditText.requestFocus();
+                           showKeyboardOnEditText(mPasswordEditText);
+                        }).show();*/
+                showSnackBarWithAction( R.string.wrong_password,  R.string.modify, invalidCredentialException);
+            }catch (FirebaseAuthUserCollisionException collisionException) {
+                Log.d(TAG, "signIn: Collision Exception: " + collisionException.getMessage() );
+            }catch (FirebaseNoSignedInUserException signInException) {
+                Log.d(TAG, "signIn: user should register " + signInException.getMessage());
+                /*Snackbar.make(snackBarView, R.string.notRegsitered, Snackbar.LENGTH_LONG).setAction(
+                        R.string.register,
+                        snackBarListener -> {
+                            mNavController.navigate(R.id.action_fragmentSignIn_to_fragmentSignUp);
+                        }
+                ).show();*/
+                showSnackBarWithAction(R.string.notRegsitered, R.string.register, signInException);
+            }catch (FirebaseAuthEmailException emailException){
+                Log.d(TAG, "signIn: email exception " + emailException.getMessage());
+               /*
+                Snackbar.make(snackBarView, R.string.wrong_email, Snackbar.LENGTH_LONG).setAction(
+                        R.string.modify,
+                        snackBarListener -> {
+                            mEmailEditText.requestFocus();
+                            showKeyboardOnEditText(mEmailEditText);
+                        }
+                ).show();*/
+               showSnackBarWithAction(R.string.wrong_email, R.string.modify, emailException);
+            }
+            catch (Exception ex) {
+                ex.printStackTrace();
+                Log.d(TAG, "signIn: general exception: " +ex.getMessage());
+            }
         });
     }
 
@@ -193,5 +243,31 @@ public class FragmentSignIn extends Fragment {
                 .setLogo(R.drawable.ic_icon_round)
                 .build();
         signInLauncher.launch(signInIntent);
+    }
+
+    private void showKeyboardOnEditText (EditText editText){
+        InputMethodManager manager = (InputMethodManager) requireActivity().
+                getSystemService(Context.INPUT_METHOD_SERVICE);
+        manager.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
+    }
+
+    private void showSnackBarWithAction(int label, int action, Exception exception){
+        Snackbar snackbar = Snackbar.make(snackBarView, label, Snackbar.LENGTH_LONG);
+        if (exception instanceof FirebaseAuthInvalidCredentialsException){
+            snackbar.setAction(action, snackbarListener -> {
+                mPasswordEditText.requestFocus();
+                showKeyboardOnEditText(mPasswordEditText);
+            });
+        }else if (exception instanceof FirebaseAuthEmailException){
+            snackbar.setAction(action, snackbarListener -> {
+                mEmailEditText.requestFocus();
+                showKeyboardOnEditText(mEmailEditText);
+            });
+        }else if (exception instanceof FirebaseNoSignedInUserException){
+            snackbar.setAction(action, snackbarListener -> {
+                mNavController.navigate(R.id.action_fragmentSignIn_to_fragmentSignUp);
+            });
+        }
+        snackbar.show();
     }
 }
