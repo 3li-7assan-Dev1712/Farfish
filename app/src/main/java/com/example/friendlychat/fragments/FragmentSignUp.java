@@ -1,7 +1,6 @@
 package com.example.friendlychat.fragments;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,13 +16,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
-import com.example.friendlychat.Module.MessagesPreference;
-import com.example.friendlychat.Module.User;
 import com.example.friendlychat.R;
-import com.google.firebase.auth.FirebaseAuth;
-
-import java.util.Date;
-import java.util.Objects;
 
 public class FragmentSignUp extends Fragment {
 
@@ -47,9 +40,7 @@ public class FragmentSignUp extends Fragment {
             navigateUp(); // navigate back using the navigation icon
         });
         TextView loginTextView = view.findViewById(R.id.text_view_login);
-        loginTextView.setOnClickListener(login -> {
-            navigateUp();
-        });
+        loginTextView.setOnClickListener(login -> navigateUp());
         EditText firstNameTextView = view.findViewById(R.id.edit_text_first_name);
         EditText lastNameTextView = view.findViewById(R.id.edit_text_last_name);
         EditText emailTextView = view.findViewById(R.id.edit_text_email_address_sign_up);
@@ -70,13 +61,12 @@ public class FragmentSignUp extends Fragment {
             else if (!confirmPasswordTextView.getText().toString().equals(passwordTextView.getText().toString()))
                 displayRequiredFieldToast(confirmPasswordTextView, "please confirm password is different from the password above");
             else{
-                /* ok the ecectiriy went out seccessfully while I'm using the ola's phone*/
                 Toast.makeText(requireContext(), "You are ready to register", Toast.LENGTH_SHORT).show();
                 String email = emailTextView.getText().toString();
                 String password = passwordTextView.getText().toString();
                 String firstName = firstNameTextView.getText().toString();
                 String lastName = lastNameTextView.getText().toString();
-                mUserName = firstName + lastName;
+                mUserName = firstName +" "+ lastName;
                 signUp(email, password);
             }
         });

@@ -47,6 +47,8 @@ public class FragmentSignIn extends Fragment {
             new FirebaseAuthUIActivityResultContract(),
             this::onSignInResult
     );
+    // firebase auth
+    private FirebaseAuth mAuth;
     private  TextView tryAnotherWay;
     /*Navigation*/
     private NavController mNavController;
@@ -61,6 +63,7 @@ public class FragmentSignIn extends Fragment {
         };
         requireActivity().getOnBackPressedDispatcher().addCallback(this, callback);
         super.onCreate(savedInstanceState);
+        mAuth = FirebaseAuth.getInstance();
     }
 
     @Nullable
@@ -100,16 +103,7 @@ public class FragmentSignIn extends Fragment {
     }
 
     private void signIn(String email, String password) {
-        FirebaseAuth auth = FirebaseAuth.getInstance();
-      /*  AuthCredential credential = EmailAuthProvider.getCredential(email, password);
-        auth.getCurrentUser().linkWithCredential(credential)
-                .addOnSuccessListener(result -> {
-                    updateUserInfoAndNavigateBack();
-                }).addOnFailureListener(exception -> {
-            Log.d(TAG, "signIn: exc meg: " + exception.getMessage());
-        });
-*/
-        auth.signInWithEmailAndPassword(email, password).addOnSuccessListener(authResult -> {
+        mAuth.signInWithEmailAndPassword(email, password).addOnSuccessListener(authResult -> {
             Log.d(TAG, "signIn: user id " + Objects.requireNonNull(authResult.getUser()).getIdToken(true));
             // after checking the user id will be saved the the app flow will be completed
             updateUserInfoAndNavigateBack();
@@ -121,7 +115,6 @@ public class FragmentSignIn extends Fragment {
 
     private void updateUserInfoAndNavigateBack() {
 
-        FirebaseAuth mAuth = FirebaseAuth.getInstance();
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         SharedPreferenceUtils.saveUserSignIn(requireContext());
         FirebaseUser currentUser = mAuth.getCurrentUser();
@@ -137,7 +130,6 @@ public class FragmentSignIn extends Fragment {
                     saveUserDataInSharedPreference(userName, photoUrl, userId);
                     mNavController.navigateUp();
                 }
-
             }).addOnFailureListener(exc -> {
                 Log.d(TAG, "updateUserInfoAndNavigateBack: exception: " + exc.getMessage());
                 Toast.makeText(requireActivity(), "Error sign in", Toast.LENGTH_SHORT).show();
@@ -151,10 +143,9 @@ public class FragmentSignIn extends Fragment {
                 }
                 String userName = firebaseUser.getDisplayName();
                 String phoneNumber = firebaseUser.getPhoneNumber();
-                FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
                 User user = new User(userName, phoneNumber, photoUrl, userId, true, new Date().getTime());
                 String finalPhotoUrl = photoUrl;
-                firebaseFirestore.collection("rooms").document(userId).set(user).addOnSuccessListener(suc -> {
+                firestore.collection("rooms").document(userId).set(user).addOnSuccessListener(suc -> {
                     saveUserDataInSharedPreference(userName, finalPhotoUrl, userId);
                     mNavController.navigateUp();
                 }).addOnFailureListener(exception -> {

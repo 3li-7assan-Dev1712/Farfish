@@ -1,7 +1,9 @@
 package com.example.friendlychat.fragments;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,6 +20,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
@@ -46,8 +49,6 @@ public class ProfileImageFragment extends Fragment {
     private ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
-                    // Permission is granted. Continue the action or workflow in your
-                    // app.
                     pickImageFromGallery();
                 } else {
                     Toast.makeText(requireContext(), "Ok, if you need to send images please grant the requested permission", Toast.LENGTH_SHORT).show();
@@ -77,7 +78,14 @@ public class ProfileImageFragment extends Fragment {
         }
         mImageView = view.findViewById(R.id.registerImage);
         mImageView.setOnClickListener( imageListener -> {
-            pickImageFromGallery();
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) ==
+                    PackageManager.PERMISSION_GRANTED) {
+                pickImageFromGallery();
+            } else {
+                requestPermissionLauncher.launch(
+                        Manifest.permission.READ_EXTERNAL_STORAGE);
+            }
         });
         EditText phoneNumberEditText = view.findViewById(R.id.profileImagePhoneNumber);
         Button continueButton = view.findViewById(R.id.continueButton);

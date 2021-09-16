@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
     tools:context=".fragments.ProfileImageFragment">
 
     <de.hdodenhof.circleimageview.CircleImageView
@@ -21,7 +21,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:background="@drawable/login_button_background"
         android:text="@string/continue_regestration"
@@ -29,32 +29,35 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias=".5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/profileImagePhoneNumber" />
+        app:layout_constraintTop_toBottomOf="@+id/progressBarProfileImage" />
 
     <EditText
         android:id="@+id/profileImagePhoneNumber"
+        style="@style/edit_text_sign_up_style"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="16dp"
-        android:ems="10"
-        style="@style/edit_text_sign_up_style"
+        android:autofillHints=""
         android:background="@drawable/edit_text_sign_in_background"
+        android:ems="10"
         android:hint="@string/phone_number_optional"
         android:inputType="phone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/registerImage"
-        android:autofillHints="" />
+        app:layout_constraintTop_toBottomOf="@+id/registerImage" />
 
     <ProgressBar
         android:id="@+id/progressBarProfileImage"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="0dp"
-        android:visibility="invisible"
+        style="@style/Widget.AppCompat.ProgressBar"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:visibility="gone"
+        android:layout_marginBottom="16dp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias=".5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/profileImagePhoneNumber" />
 </androidx.constraintlayout.widget.ConstraintLayout>
