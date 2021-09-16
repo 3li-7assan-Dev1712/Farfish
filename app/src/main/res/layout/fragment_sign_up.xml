@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingBottom="16dp"
-    tools:context=".Activities.SignUpActivity">
+    tools:context=".fragments.FragmentSignUp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
 
@@ -24,6 +24,7 @@
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar_sign_up"
                 android:layout_width="match_parent"
+                app:contentInsetStart="0dp"
                 android:layout_height="?attr/actionBarSize"
                 android:background="@color/colorPrimary"
                 android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
@@ -36,7 +37,7 @@
         </com.google.android.material.appbar.AppBarLayout>
 
         <EditText
-            android:id="@+id/edit_text_password"
+            android:id="@+id/edit_text_password_sign_up"
             style="@style/edit_text_sign_up_style"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -48,14 +49,13 @@
             android:ems="10"
             android:hint="@string/password_sign_in"
             android:inputType="textPassword"
-            android:textColorHint="@android:color/black"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/edit_text_email_address" />
+            app:layout_constraintTop_toBottomOf="@+id/edit_text_email_address_sign_up" />
 
         <EditText
-            android:id="@+id/edit_text_email_address"
+            android:id="@+id/edit_text_email_address_sign_up"
             style="@style/edit_text_sign_up_style"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -67,7 +67,6 @@
             android:ems="10"
             android:hint="@string/e_mail"
             android:inputType="textEmailAddress"
-            android:textColorHint="@android:color/black"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
@@ -86,11 +85,10 @@
             android:ems="10"
             android:hint="@string/confirm_password"
             android:inputType="textPassword"
-            android:textColorHint="@android:color/black"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/edit_text_password" />
+            app:layout_constraintTop_toBottomOf="@+id/edit_text_password_sign_up" />
 
         <EditText
             android:id="@+id/edit_text_last_name"
@@ -105,7 +103,6 @@
             android:hint="@string/last_name"
             android:importantForAutofill="no"
             android:inputType="textPersonName|text"
-            android:textColorHint="@android:color/black"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
@@ -124,7 +121,6 @@
             android:ems="10"
             android:hint="@string/first_name"
             android:inputType="textPersonName|text"
-            android:textColorHint="@android:color/black"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/appbar" />

@@ -18,12 +18,20 @@
     <!-- edit text style -->
     <style name="edit_text_sign_up_style">
         <item name="background">@drawable/edit_text_sign_in_background</item>
-        <item name="android:padding">8dp</item>
+        <item name="android:padding">16dp</item>
         <item name="hintTextColor">@android:color/black</item>
     </style>
 
     <style name="custom_toolbar_style"
         parent="Theme.AppCompat.Light.NoActionBar">
 
+    </style>
+
+    <!-- Splash Screen -->
+    <style name="SplashScreen" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowBackground">@drawable/splash_background</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
     </style>
 </resources>

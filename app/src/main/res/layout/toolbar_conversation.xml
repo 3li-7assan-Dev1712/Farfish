@@ -54,7 +54,7 @@
             android:clickable="false"
             android:contentDescription="@string/app_name"/>
 
-        <com.example.friendlychat.CustomViews.CustomCircleImageView
+        <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/chat_conversation_profile"
             android:layout_width="40dp"
             android:layout_height="40dp"

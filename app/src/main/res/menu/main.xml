@@ -6,5 +6,13 @@
         android:title="@string/sign_out"
         app:showAsAction="never" />
 
+    <item android:id="@+id/sign_in_custom"
+        android:title="@string/sign_in_customUI"
+        app:showAsAction="never" />
+
+    <item android:id="@+id/sign_in_firebase_ui"
+        android:title="@string/sign_in_firebaseUI"
+        app:showAsAction="never" />
+
 
 </menu>

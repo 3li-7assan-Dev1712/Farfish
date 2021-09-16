@@ -140,7 +140,7 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
                 .createSignInIntentBuilder()
                 .setAvailableProviders(providers)
                 .setIsSmartLockEnabled(false)
-                .setLogo(R.drawable.ui_logo)
+                .setLogo(R.drawable.ic_icon_round)
                 .build();
         signInLauncher.launch(signInIntent);
     }
@@ -162,7 +162,7 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
                 MessagesPreference.saveUserId(requireContext(), userId);
                 MessagesPreference.saveUserPhotoUrl(requireContext(), photoUrl);
                 long lastTimeSeen = new Date().getTime();
-                User newUser = new User(userName, phoneNumber, photoUrl, userId, true, false, lastTimeSeen);
+                User newUser = new User(userName, phoneNumber, photoUrl, userId, true, lastTimeSeen);
                 assert userId != null;
                 mFirestore.collection("rooms").document(userId).set(newUser).addOnCompleteListener(task ->
                         Toast.makeText(requireContext(), "saved new user successfully", Toast.LENGTH_SHORT).show()

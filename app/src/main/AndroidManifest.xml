@@ -4,7 +4,6 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-
     <application
         android:name=".Module.AppStateDetector"
         android:allowBackup="true"
@@ -13,16 +12,17 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Activities.SignUpActivity" />
-        <activity android:name=".Activities.SignInActivity" />
-        <activity android:name=".Activities.MainActivity"
-            android:theme="@style/ChatsTheme" >
+        <activity android:name=".Activities.SplashScreen"
+            android:theme="@style/SplashScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".Activities.MainActivity"
+            android:theme="@style/ChatsTheme" />
 
     </application>
 

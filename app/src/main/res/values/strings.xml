@@ -13,7 +13,7 @@
     <string name="last_time_seen">last time seen</string>
     <string name="targetUidKey">targetId</string>
     <string name="chat_title">chatTitle</string>
-    <string name="isWriting">is writing...</string>
+    <string name="isWriting">is writing…</string>
     <string name="go_to_contacts">See all users</string>
     <string name="photoUrl">photoUrl</string>
     <string name="new_photo_view_holder">new photo</string>
@@ -33,7 +33,6 @@
     <string name="confirm_password">Confirm password</string>
     <string name="i_agree_to_the_terms_conditions"><![CDATA[I Agree To The Terms & Conditions]]></string>
     <string name="already_have_an_account">already have an account?</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="chats">chats</string>
     <string name="status">status</string>
@@ -42,6 +41,21 @@
     <string name="status_cap">Status</string>
     <string name="type_a_status">Type a status</string>
     <string name="sign_up">Sign up</string>
+    <string name="sign_in_customUI">Sign in with custom UI</string>
+    <string name="sign_in_firebaseUI">Sign in with firebase UI</string>
+    <string name="phone_number_optional">phone number (optional)</string>
+    <string name="continue_regestration">Continue</string>
+    <string name="try_another_way">Try another way</string>
+    <string name="notRegsitered">You\'re not registered, go and register</string>
+    <string name="wrong_email">This email is invalid</string>
+    <string name="modify">Modify</string>
+    <string name="wrong_password">Wrong password</string>
+    <string name="return_fix">Return to fix</string>
+    <string name="sign_in">Sign in</string>
+    <string name="weak_password">"You password is weak "</string>
+    <string name="already_registered">You aleady registered</string>
+    <string name="enter_email">Insert email first</string>
+    <string name="insert_email">insert email</string>
 
 
 </resources>

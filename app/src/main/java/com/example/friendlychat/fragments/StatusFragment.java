@@ -121,7 +121,7 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Log.d(TAG, "onDataChange: generally");
-                Toast.makeText(getContext(), "onDataChanged generally", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireActivity(), "onDataChanged generally", Toast.LENGTH_SHORT).show();
               /*  List<Status> statuses = snapshot.child(FirebaseAuth.getInstance().getUid()).getValue(StatusLists.class).getStatusLists();
                 mStatusLists.add(statuses);*/
                 Iterable<DataSnapshot> iterable = snapshot.getChildren();

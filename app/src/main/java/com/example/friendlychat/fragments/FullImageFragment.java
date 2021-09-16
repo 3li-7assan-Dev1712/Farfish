@@ -42,9 +42,7 @@ public class FullImageFragment extends Fragment {
         }
         Toolbar toolbar = view.findViewById(R.id.toolbar_full_image);
         ImageView fullImage = view.findViewById(R.id.full_bleed_image);
-        fullImage.setOnClickListener( v -> {
-            Navigation.findNavController(v).navigateUp();
-        });
+        fullImage.setOnClickListener( v -> Navigation.findNavController(v).navigateUp());
         if (mFullImageData != null) {
             toolbar.setTitle(mFullImageData.getSenderName());
             toolbar.setSubtitle(mFullImageData.getFormattedTime());
