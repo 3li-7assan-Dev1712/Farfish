@@ -56,7 +56,6 @@ public class FragmentSignIn extends Fragment {
     );
     // firebase auth
     private FirebaseAuth mAuth;
-    private  TextView tryAnotherWay;
     /*Navigation*/
     private NavController mNavController;
     // snackbar view
@@ -90,10 +89,8 @@ public class FragmentSignIn extends Fragment {
         forgotPassWord.setOnClickListener( forgotPassWordListener -> {
             // forgot password functionality
         });
-        tryAnotherWay = view.findViewById(R.id.tryAnotherWay);
-        tryAnotherWay.setOnClickListener(tryAnotherWayListener -> {
-            launchFirebaseUI();
-        });
+        TextView tryAnotherWay = view.findViewById(R.id.tryAnotherWay);
+        tryAnotherWay.setOnClickListener(tryAnotherWayListener -> launchFirebaseUI());
         Button loginButton = view.findViewById(R.id.buttonLogin);
         loginButton.setOnClickListener( loginButtonListener -> {
             String email = mEmailEditText.getText().toString();
@@ -109,9 +106,7 @@ public class FragmentSignIn extends Fragment {
             }
         });
         TextView register = view.findViewById(R.id.register_sign_in);
-        register.setOnClickListener( registerTextView -> {
-            mNavController.navigate(FragmentSignInDirections.actionFragmentSignInToFragmentSignUp());
-        });
+        register.setOnClickListener( registerTextView -> mNavController.navigate(FragmentSignInDirections.actionFragmentSignInToFragmentSignUp()));
         return view;
     }
 
@@ -180,9 +175,7 @@ public class FragmentSignIn extends Fragment {
                 firestore.collection("rooms").document(userId).set(user).addOnSuccessListener(suc -> {
                     saveUserDataInSharedPreference(userName, finalPhotoUrl, userId);
                     mNavController.navigateUp();
-                }).addOnFailureListener(exception -> {
-                    Log.d(TAG, "updateUserInfoAndNavigateBack: exception: " + exception.getMessage());
-                });
+                }).addOnFailureListener(exception -> Log.d(TAG, "updateUserInfoAndNavigateBack: exception: " + exception.getMessage()));
 
             });
         }
@@ -234,7 +227,7 @@ public class FragmentSignIn extends Fragment {
     }
 
     private void showSnackBarWithAction(int label, int action, Exception exception){
-        Snackbar snackbar = Snackbar.make(snackBarView, label, Snackbar.LENGTH_LONG);
+        Snackbar snackbar = Snackbar.make(snackBarView, label, Snackbar.LENGTH_INDEFINITE);
         if (exception != null) {
             if (exception instanceof FirebaseAuthInvalidCredentialsException) {
                 snackbar.setAction(action, snackbarListener -> {
@@ -247,14 +240,10 @@ public class FragmentSignIn extends Fragment {
                     showKeyboardOnEditText(mEmailEditText);
                 });
             } else if (exception instanceof FirebaseNoSignedInUserException) {
-                snackbar.setAction(action, snackbarListener -> {
-                    mNavController.navigate(R.id.action_fragmentSignIn_to_fragmentSignUp);
-                });
+                snackbar.setAction(action, snackbarListener -> mNavController.navigate(R.id.action_fragmentSignIn_to_fragmentSignUp));
             }
         }else{
-            snackbar.setAction(action, snackBarAction -> {
-                mNavController.navigate(R.id.action_fragmentSignIn_to_fragmentSignUp);
-            });
+            snackbar.setAction(action, snackBarAction -> mNavController.navigate(R.id.action_fragmentSignIn_to_fragmentSignUp));
         }
         snackbar.show();
     }

@@ -50,6 +50,10 @@
     <string name="wrong_email">This email is invalid</string>
     <string name="modify">Modify</string>
     <string name="wrong_password">Wrong password</string>
+    <string name="return_fix">Return to fix</string>
+    <string name="sign_in">Sign in</string>
+    <string name="weak_password">"You password is weak "</string>
+    <string name="already_registered">You aleady registered</string>
 
 
 </resources>
