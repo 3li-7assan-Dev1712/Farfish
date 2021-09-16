@@ -86,9 +86,6 @@ public class FragmentSignIn extends Fragment {
         mEmailEditText = view.findViewById(R.id.editTextEmailSignIn);
         mPasswordEditText = view.findViewById(R.id.editTextPasswordSignIn);
         TextView forgotPassWord = view.findViewById(R.id.forgotPasswordSignIn);
-        forgotPassWord.setOnClickListener( forgotPassWordListener -> {
-            // forgot password functionality
-        });
         TextView tryAnotherWay = view.findViewById(R.id.tryAnotherWay);
         tryAnotherWay.setOnClickListener(tryAnotherWayListener -> launchFirebaseUI());
         Button loginButton = view.findViewById(R.id.buttonLogin);
@@ -104,6 +101,23 @@ public class FragmentSignIn extends Fragment {
                 Toast.makeText(requireContext(), "You are ready to sign in", Toast.LENGTH_SHORT).show();
                 signIn(email, password);
             }
+        });
+        // when user forgot their password
+        forgotPassWord.setOnClickListener( forgotPassWordListener -> {
+            // forgot password functionality
+            String email = mEmailEditText.getText().toString();
+            if (email.equals("")){
+                Snackbar.make(snackBarView, R.string.enter_email, Snackbar.LENGTH_INDEFINITE)
+                        .setAction(R.string.insert_email, actionFocus -> showKeyboardOnEditText(mEmailEditText)).show();
+            }else{
+
+                mAuth.sendPasswordResetEmail(email)
+                        .addOnSuccessListener(message -> {
+                            Log.d(TAG, "onCreateView: " + message);
+                            Toast.makeText(requireActivity(), "Send email successfully, now check you email", Toast.LENGTH_SHORT).show();
+                        }).addOnFailureListener(exc -> Log.d(TAG, "onCreateView: forgot password exception: " + exc.getMessage()));
+            }
+
         });
         TextView register = view.findViewById(R.id.register_sign_in);
         register.setOnClickListener( registerTextView -> mNavController.navigate(FragmentSignInDirections.actionFragmentSignInToFragmentSignUp()));
@@ -221,6 +235,7 @@ public class FragmentSignIn extends Fragment {
     }
 
     private void showKeyboardOnEditText (EditText editText){
+        editText.requestFocus();
         InputMethodManager manager = (InputMethodManager) requireActivity().
                 getSystemService(Context.INPUT_METHOD_SERVICE);
         manager.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
@@ -230,13 +245,9 @@ public class FragmentSignIn extends Fragment {
         Snackbar snackbar = Snackbar.make(snackBarView, label, Snackbar.LENGTH_INDEFINITE);
         if (exception != null) {
             if (exception instanceof FirebaseAuthInvalidCredentialsException) {
-                snackbar.setAction(action, snackbarListener -> {
-                    mPasswordEditText.requestFocus();
-                    showKeyboardOnEditText(mPasswordEditText);
-                });
+                snackbar.setAction(action, snackbarListener -> showKeyboardOnEditText(mPasswordEditText));
             } else if (exception instanceof FirebaseAuthEmailException) {
                 snackbar.setAction(action, snackbarListener -> {
-                    mEmailEditText.requestFocus();
                     showKeyboardOnEditText(mEmailEditText);
                 });
             } else if (exception instanceof FirebaseNoSignedInUserException) {

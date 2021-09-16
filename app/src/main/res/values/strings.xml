@@ -54,6 +54,8 @@
     <string name="sign_in">Sign in</string>
     <string name="weak_password">"You password is weak "</string>
     <string name="already_registered">You aleady registered</string>
+    <string name="enter_email">Insert email first</string>
+    <string name="insert_email">insert email</string>
 
 
 </resources>
