@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -52,6 +53,7 @@ import id.zelory.compressor.Compressor;
 public class ProfileImageFragment extends Fragment {
     private Uri imageUriFromGallery;
     private ProgressBar mProgressBar;
+    private FrameLayout mBorder;
     private static final String TAG = ProfileImageFragment.class.getSimpleName();
     private ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
@@ -78,6 +80,7 @@ public class ProfileImageFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.profile_image_fragment, container, false);
         snackBarView = view;
+        mBorder = view.findViewById(R.id.profileImageFrameLayout);
         mProgressBar = view.findViewById(R.id.progressBarProfileImage);
         Bundle userData = getArguments();
         if (userData != null) {
@@ -145,8 +148,10 @@ public class ProfileImageFragment extends Fragment {
 
     private void putIntoImage(Uri uri) {
         imageUriFromGallery = uri;
-        if (imageUriFromGallery != null)
+        if (imageUriFromGallery != null) {
+            mBorder.setBackground(requireContext().getResources().getDrawable(R.drawable.circle_background));
             mImageView.setImageURI(imageUriFromGallery);
+        }
     }
 
     private void compressImageAndStoreInStorage(Uri uri) {
