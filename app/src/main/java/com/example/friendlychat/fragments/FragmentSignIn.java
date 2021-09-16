@@ -122,41 +122,23 @@ public class FragmentSignIn extends Fragment {
             updateUserInfoAndNavigateBack();
         }).addOnFailureListener(e -> {
             Log.d(TAG, "signIn: exception message: " + e.getMessage());
+            if (e.getMessage().equals("There is no user record corresponding to this identifier. The user may have been deleted."))
+                showSnackBarWithAction(R.string.notRegsitered, R.id.register_button, null);
             try {
                 throw e;
+            }catch (FirebaseAuthEmailException emailException){
+                Log.d(TAG, "signIn: email exception " + emailException.getMessage());
+                showSnackBarWithAction(R.string.wrong_email, R.string.modify, emailException);
             } catch (FirebaseAuthInvalidCredentialsException invalidCredentialException) {
                 Log.d(TAG, "signIn: invalid credential exception " + invalidCredentialException.getMessage());
-                /* Snackbar.make(snackBarView, R.string.wrong_password, Snackbar.LENGTH_LONG).setAction(
-                        R.string.modify,
-                        snackBarListener -> {
-                           mPasswordEditText.requestFocus();
-                           showKeyboardOnEditText(mPasswordEditText);
-                        }).show();*/
                 showSnackBarWithAction( R.string.wrong_password,  R.string.modify, invalidCredentialException);
-            }catch (FirebaseAuthUserCollisionException collisionException) {
+            }
+            catch (FirebaseAuthUserCollisionException collisionException) {
                 Log.d(TAG, "signIn: Collision Exception: " + collisionException.getMessage() );
             }catch (FirebaseNoSignedInUserException signInException) {
                 Log.d(TAG, "signIn: user should register " + signInException.getMessage());
-                /*Snackbar.make(snackBarView, R.string.notRegsitered, Snackbar.LENGTH_LONG).setAction(
-                        R.string.register,
-                        snackBarListener -> {
-                            mNavController.navigate(R.id.action_fragmentSignIn_to_fragmentSignUp);
-                        }
-                ).show();*/
                 showSnackBarWithAction(R.string.notRegsitered, R.string.register, signInException);
-            }catch (FirebaseAuthEmailException emailException){
-                Log.d(TAG, "signIn: email exception " + emailException.getMessage());
-               /*
-                Snackbar.make(snackBarView, R.string.wrong_email, Snackbar.LENGTH_LONG).setAction(
-                        R.string.modify,
-                        snackBarListener -> {
-                            mEmailEditText.requestFocus();
-                            showKeyboardOnEditText(mEmailEditText);
-                        }
-                ).show();*/
-               showSnackBarWithAction(R.string.wrong_email, R.string.modify, emailException);
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 ex.printStackTrace();
                 Log.d(TAG, "signIn: general exception: " +ex.getMessage());
             }
@@ -253,18 +235,24 @@ public class FragmentSignIn extends Fragment {
 
     private void showSnackBarWithAction(int label, int action, Exception exception){
         Snackbar snackbar = Snackbar.make(snackBarView, label, Snackbar.LENGTH_LONG);
-        if (exception instanceof FirebaseAuthInvalidCredentialsException){
-            snackbar.setAction(action, snackbarListener -> {
-                mPasswordEditText.requestFocus();
-                showKeyboardOnEditText(mPasswordEditText);
-            });
-        }else if (exception instanceof FirebaseAuthEmailException){
-            snackbar.setAction(action, snackbarListener -> {
-                mEmailEditText.requestFocus();
-                showKeyboardOnEditText(mEmailEditText);
-            });
-        }else if (exception instanceof FirebaseNoSignedInUserException){
-            snackbar.setAction(action, snackbarListener -> {
+        if (exception != null) {
+            if (exception instanceof FirebaseAuthInvalidCredentialsException) {
+                snackbar.setAction(action, snackbarListener -> {
+                    mPasswordEditText.requestFocus();
+                    showKeyboardOnEditText(mPasswordEditText);
+                });
+            } else if (exception instanceof FirebaseAuthEmailException) {
+                snackbar.setAction(action, snackbarListener -> {
+                    mEmailEditText.requestFocus();
+                    showKeyboardOnEditText(mEmailEditText);
+                });
+            } else if (exception instanceof FirebaseNoSignedInUserException) {
+                snackbar.setAction(action, snackbarListener -> {
+                    mNavController.navigate(R.id.action_fragmentSignIn_to_fragmentSignUp);
+                });
+            }
+        }else{
+            snackbar.setAction(action, snackBarAction -> {
                 mNavController.navigate(R.id.action_fragmentSignIn_to_fragmentSignUp);
             });
         }
