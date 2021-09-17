@@ -1,7 +1,7 @@
 package com.example.friendlychat.Module;
 
 public class User {
-    private String userName, phoneNumber, photoUrl, userId;
+    private String userName, phoneNumber, photoUrl, userId, status;
     private boolean isActive;
     private long lastTimeSeen;
 
@@ -10,6 +10,19 @@ public class User {
 
     }
 
+    public User(String userName, String phoneNumber, String photoUrl, String userId, String status, boolean isActive, long lastTimeSeen) {
+        this.userName = userName;
+        this.phoneNumber = phoneNumber;
+        this.photoUrl = photoUrl;
+        this.userId = userId;
+        this.status = status;
+        this.isActive = isActive;
+        this.lastTimeSeen = lastTimeSeen;
+    }
+
+    public String getStatus() {
+        return status;
+    }
 
     public User(String userName, String phoneNumber, String photoUrl, String userId, boolean isActive, long lastTimeSeen) {
         this.userName = userName;

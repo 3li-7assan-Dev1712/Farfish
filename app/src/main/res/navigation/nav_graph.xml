@@ -13,6 +13,9 @@
         <action
             android:id="@+id/action_userChatsFragment_to_chatsFragment"
             app:destination="@id/chatsFragment" />
+        <action
+            android:id="@+id/action_userChatsFragment_to_userProfileFragment"
+            app:destination="@id/userProfileFragment" />
 
 
     </fragment>
@@ -37,6 +40,9 @@
         <action
             android:id="@+id/action_usersFragment_to_chatsFragment"
             app:destination="@id/chatsFragment" />
+        <action
+            android:id="@+id/action_usersFragment_to_userProfileFragment"
+            app:destination="@id/userProfileFragment" />
     </fragment>
     <fragment
         android:id="@+id/fullImageFragment"
@@ -55,6 +61,9 @@
         <action
             android:id="@+id/action_statusFragment_to_uploadTextStatusFragment"
             app:destination="@id/uploadTextStatusFragment" />
+        <action
+            android:id="@+id/action_statusFragment_to_userProfileFragment"
+            app:destination="@id/userProfileFragment" />
     </fragment>
     <fragment
         android:id="@+id/uploadTextStatusFragment"
@@ -84,5 +93,10 @@
         android:name="com.example.friendlychat.fragments.ProfileImageFragment"
         android:label="profile_image_fragment"
         tools:layout="@layout/profile_image_fragment" />
+    <fragment
+        android:id="@+id/userProfileFragment"
+        android:name="com.example.friendlychat.fragments.UserProfileFragment"
+        android:label="user_profile_fragment"
+        tools:layout="@layout/user_profile_fragment" />
 
 </navigation>

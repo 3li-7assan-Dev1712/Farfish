@@ -8,7 +8,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="0dp">
 
         <Button
             android:id="@+id/editProfileButton"
@@ -38,7 +38,7 @@
             android:textSize="18sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/userEmailProfileTextView" />
+            app:layout_constraintTop_toBottomOf="@id/statusOfUserTextVIew" />
 
         <TextView
             android:id="@+id/userEmailProfileTextView"
@@ -47,7 +47,7 @@
             android:layout_marginTop="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/statusOfUserTextVIew"
+            app:layout_constraintTop_toBottomOf="@+id/userNameProfileTextView"
             tools:text="abduallhkaltoos@gmail.com" />
 
         <TextView
@@ -72,7 +72,7 @@
             android:textSize="14sp"
             app:layout_constraintEnd_toEndOf="@+id/userNameProfileTextView"
             app:layout_constraintStart_toStartOf="@+id/userNameProfileTextView"
-            app:layout_constraintTop_toBottomOf="@+id/userNameProfileTextView"
+            app:layout_constraintTop_toBottomOf="@+id/userEmailProfileTextView"
             tools:text="My Brother Abduallh, I will never forget you" />
 
         <TextView
