@@ -31,6 +31,15 @@ public class MessagesPreference {
         editor.apply();
     }
 
+    public static void saveUserPhoneNumber(Context context, String  phoneNumber){
+        SharedPreferences sharedPreferences = context.getSharedPreferences("messages", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("user-phone-number", phoneNumber);
+        editor.apply();
+    }
+    public static String getUsePhoneNumber(Context context){
+        return context.getSharedPreferences("messages", Context.MODE_PRIVATE).getString("user-phone-number", "----");
+    }
     public static String getUsePhoto(Context context){
         return context.getSharedPreferences("messages", Context.MODE_PRIVATE).getString("user-photo", "photo");
     }

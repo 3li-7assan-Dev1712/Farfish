@@ -61,6 +61,7 @@
     <string name="logout">logout</string>
     <string name="profile">Profile</string>
     <string name="report_issue">Report issue</string>
+    <string name="save">save</string>
 
 
 </resources>

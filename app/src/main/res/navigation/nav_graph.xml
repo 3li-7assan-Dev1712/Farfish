@@ -97,6 +97,15 @@
         android:id="@+id/userProfileFragment"
         android:name="com.example.friendlychat.fragments.UserProfileFragment"
         android:label="user_profile_fragment"
-        tools:layout="@layout/user_profile_fragment" />
+        tools:layout="@layout/user_profile_fragment" >
+        <action
+            android:id="@+id/action_userProfileFragment_to_editProfileFragment"
+            app:destination="@id/editProfileFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/editProfileFragment"
+        android:name="com.example.friendlychat.fragments.EditProfileFragment"
+        android:label="edit_profile_fragment"
+        tools:layout="@layout/edit_profile_fragment" />
 
 </navigation>

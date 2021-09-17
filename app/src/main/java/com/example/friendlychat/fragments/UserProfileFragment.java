@@ -53,6 +53,7 @@ public class UserProfileFragment extends Fragment {
         String userPhotoUrl = MessagesPreference.getUsePhoto(context);
         String userId = MessagesPreference.getUserId(context);
         String status = MessagesPreference.getUseStatus(context);
+        String phoneNumber = MessagesPreference.getUsePhoneNumber(context);
         String email = "";
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
@@ -83,8 +84,14 @@ public class UserProfileFragment extends Fragment {
         // invoke listeners
         Button edit = view.findViewById(R.id.editProfileButton);
         edit.setOnClickListener(editProfile -> {
-          /*  Navigation.findNavController(requireActivity(), R.id.nav_host_fragment)
-                    .navigate(R.);*/
+            // prepare data in bundle to send to the destination
+            Bundle userData = new Bundle();
+            userData.putString("photo_url", userPhotoUrl);
+            userData.putString("user_name", userName);
+            userData.putString("user_status", status);
+            userData.putString("phone_number", phoneNumber);
+            Navigation.findNavController(requireActivity(), R.id.nav_host_fragment)
+                    .navigate(R.id.action_userProfileFragment_to_editProfileFragment, userData);
         });
         return view;
     }
