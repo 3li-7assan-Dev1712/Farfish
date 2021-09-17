@@ -41,7 +41,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.friendlychat.Adapters.MessagesAdapter;
-import com.example.friendlychat.Module.DateUtils;
 import com.example.friendlychat.Module.FileUtil;
 import com.example.friendlychat.Module.FullImageData;
 import com.example.friendlychat.Module.FullMessage;
@@ -242,17 +241,17 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
         Log.d(TAG, "isGroup " + isGroup);
 
         mSendButton.setOnClickListener( v -> {
-            long dateInUTC = DateUtils.getNormalizedUtcDateForToday();
+
             long dateInLocalTime = System.currentTimeMillis();
             long dateFromDateClass = new Date().getTime();
-            Log.d(TAG, "Date in UTC" + dateInUTC);
+
             Log.d(TAG, "Date in Local (System.currentTimeMillis() ) " + dateInLocalTime);
             Log.d(TAG, "Date in Local (Date().getTime()) " + dateFromDateClass);
             if (dateInLocalTime == dateFromDateClass)
                 Log.d(TAG, "Date from System and Date from date are the same");
             SimpleDateFormat sdf = new SimpleDateFormat("EEEE, MMM dd. yyyy. -- H:mm aa zzzz" , Locale.getDefault());
             Log.d(TAG, "---------------------------------------------------------------------------");
-            Log.d(TAG, "Date in UTC" + sdf.format(dateInUTC));
+
             Log.d(TAG, "Date in Local (System.currentTimeMillis() ) " + sdf.format(dateInLocalTime));
             Log.d(TAG, "Date in Local (Date().getTime()) " + sdf.format(dateFromDateClass));
             Message message = new Message(mMessageEditText.getText().toString(), mUsername, "", MessagesPreference.getUserId(requireContext()), dateFromDateClass);

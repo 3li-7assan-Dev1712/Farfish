@@ -14,6 +14,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 
 import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.R;
@@ -82,8 +83,8 @@ public class UserProfileFragment extends Fragment {
         // invoke listeners
         Button edit = view.findViewById(R.id.editProfileButton);
         edit.setOnClickListener(editProfile -> {
-            // go to edit text destination
-            // will be completed in the next commits...
+          /*  Navigation.findNavController(requireActivity(), R.id.nav_host_fragment)
+                    .navigate(R.);*/
         });
         return view;
     }
