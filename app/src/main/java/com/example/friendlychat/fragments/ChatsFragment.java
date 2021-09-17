@@ -158,15 +158,6 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
        }
     }
 
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        // hide the bottom navigation view user user navigates to this destination.
-         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
-
-        Log.d(TAG, "onAttach: CALLLLLLLED");
-    }
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {

@@ -65,7 +65,7 @@ public class FragmentSignIn extends Fragment {
     private EditText mPasswordEditText;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
-        requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
+
         OnBackPressedCallback callback = new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {

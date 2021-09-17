@@ -187,7 +187,6 @@ public class ProfileImageFragment extends Fragment {
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
-        requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
         super.onCreate(savedInstanceState);
     }
     private void saveFinalData() {
