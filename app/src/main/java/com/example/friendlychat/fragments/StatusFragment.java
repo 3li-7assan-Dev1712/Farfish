@@ -8,6 +8,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -18,6 +21,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -26,6 +30,7 @@ import com.example.friendlychat.CustomViews.CustomStatusView;
 import com.example.friendlychat.Module.CustomStory;
 import com.example.friendlychat.Module.FileUtil;
 import com.example.friendlychat.Module.MessagesPreference;
+import com.example.friendlychat.Module.SharedPreferenceUtils;
 import com.example.friendlychat.Module.Status;
 import com.example.friendlychat.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -57,6 +62,7 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
     private DatabaseReference mDatabaseReference  = FirebaseDatabase.getInstance().getReference("status");
     private DatabaseReference mUserReference  = FirebaseDatabase.getInstance().getReference();
     private StorageReference mRootRef;
+    private NavController mNavController;
     /* request permission*/
     private ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
@@ -84,6 +90,7 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.status_fragment, container, false);
+        mNavController = Navigation.findNavController(view);
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.VISIBLE);
         RecyclerView statusRecycler = view.findViewById(R.id.statusRecycler);
         statusRecycler.setAdapter(mStatusAdapter);
@@ -300,4 +307,29 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
                 .show();
     }
 
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        switch (id){
+            case R.id.sign_out:
+                auth.signOut();
+                Toast.makeText(requireContext(), "Signed out successfully", Toast.LENGTH_SHORT).show();
+                SharedPreferenceUtils.saveUserSignOut(requireContext());
+                mNavController.navigate(R.id.fragmentSignIn);
+                break;
+            case R.id.go_to_profile:
+                mNavController.navigate(R.id.action_statusFragment_to_userProfileFragment);
+                break;
+            case R.id.report_issue:
+                // will be implemented...
+                break;
+        }
+        return true;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.main, menu);
+    }
 }

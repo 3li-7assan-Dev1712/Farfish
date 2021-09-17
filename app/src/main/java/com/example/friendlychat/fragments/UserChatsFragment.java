@@ -40,7 +40,7 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
     private List<FullMessage> fullMessages;
     private ContactsAdapter contactsAdapter;
     private FirebaseFirestore mFirestore;
-
+    private NavController mNavController;
 
 
     public UserChatsFragment() {
@@ -71,6 +71,7 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.VISIBLE);
         Log.d(TAG, "onCreateView: ");
         View view =inflater.inflate(R.layout.fragment_user_chats, container, false);
+        mNavController = Navigation.findNavController(view);
         if (mAuth.getCurrentUser() == null){
             navigateToSignIn();
         }
@@ -110,17 +111,22 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
 
     }
 
+
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
-        switch (id) {
+        switch (id){
             case R.id.sign_out:
                 mAuth.signOut();
+                Toast.makeText(requireContext(), "Signed out successfully", Toast.LENGTH_SHORT).show();
                 SharedPreferenceUtils.saveUserSignOut(requireContext());
-                navigateToSignIn();
+                mNavController.navigate(R.id.fragmentSignIn);
                 break;
-            case R.id.sign_in_custom:
-                navigateToSignIn();
+            case R.id.go_to_profile:
+                mNavController.navigate(R.id.action_userChatsFragment_to_userProfileFragment);
+                break;
+            case R.id.report_issue:
+                // will be implemented...
                 break;
         }
         return true;
@@ -163,8 +169,7 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
         primaryDataBundle.putString("photo_url", photoUrl);
         primaryDataBundle.putString("target_user_id", targetUserId);
         primaryDataBundle.putBoolean("isGroup", false);
-        NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
-        navController.navigate(R.id.chatsFragment, primaryDataBundle);
+        mNavController.navigate(R.id.chatsFragment, primaryDataBundle);
 
     }
 
