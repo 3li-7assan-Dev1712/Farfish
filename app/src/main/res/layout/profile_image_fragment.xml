@@ -6,6 +6,17 @@
     android:layout_height="match_parent"
     tools:context=".fragments.ProfileImageFragment">
 
+    <ProgressBar
+        android:id="@+id/userProfileProgressBar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@+id/profileImageFrameLayout"
+        app:layout_constraintEnd_toEndOf="@+id/profileImageFrameLayout"
+        app:layout_constraintStart_toStartOf="@+id/profileImageFrameLayout"
+        app:layout_constraintTop_toTopOf="@+id/profileImageFrameLayout" />
+
     <EditText
         android:id="@+id/editTextStatus"
         android:layout_width="0dp"
@@ -20,7 +31,8 @@
         android:padding="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/profileImagePhoneNumber" />
+        app:layout_constraintTop_toBottomOf="@+id/profileImagePhoneNumber"
+        android:autofillHints="" />
 
     <FrameLayout
         android:id="@+id/profileImageFrameLayout"

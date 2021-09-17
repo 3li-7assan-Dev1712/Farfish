@@ -1,29 +1,83 @@
 package com.example.friendlychat.fragments;
 
+import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.R;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.Picasso;
 
 public class UserProfileFragment extends Fragment {
+
+    private static final String TAG = UserProfileFragment.class.getSimpleName();
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.user_profile_fragment, container, false);
+        // init views
         ImageView profileImage = view.findViewById(R.id.profileImage);
-        TextView emailTextVIew = view.findViewById(R.id.userEmailProfileTextView);
+        ProgressBar progressBar = view.findViewById(R.id.progressBarProfileImage);
+        progressBar.setVisibility(View.VISIBLE);
+        TextView userNameTextView = view.findViewById(R.id.userNameProfileTextView);
+        TextView statusTextView = view.findViewById(R.id.statusOfUserTextVIew);
+        TextView emailTextView = view.findViewById(R.id.userEmailProfileTextView);
+        TextView userIdTextView = view.findViewById(R.id.userIdTextView);
+        /*------------------------------------------------------------------------------*/
+
+        // user information
+        Context context = requireContext();
+        String userName = MessagesPreference.getUserName(context);
+        String userPhotoUrl = MessagesPreference.getUsePhoto(context);
+        String userId = MessagesPreference.getUserId(context);
+        String status = MessagesPreference.getUseStatus(context);
+        String email = "";
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            email = currentUser.getEmail();
+
+        } else {
+            email = "no email";
+        }
+        // populate the UI with the data
+        Picasso.get().load(userPhotoUrl).placeholder(R.drawable.ic_round_person_24)
+                .into(profileImage, new Callback() {
+                    @Override
+                    public void onSuccess() {
+                        progressBar.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        Log.d(TAG, "onError: " + e.getMessage());
+                    }
+                });
+        userNameTextView.setText(userName);
+        emailTextView.setText(email);
+        statusTextView.setText(status);
+        userIdTextView.setText(userId);
+        /*------------------------------------------------------------------------------*/
+
+        // invoke listeners
         Button edit = view.findViewById(R.id.editProfileButton);
         edit.setOnClickListener(editProfile -> {
-
+            // go to edit text destination
+            // will be completed in the next commits...
         });
         return view;
     }
