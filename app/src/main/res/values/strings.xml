@@ -59,6 +59,8 @@
     <string name="user_profile_image_description">ImageView where the user can see and update their image</string>
     <string name="edit">edit</string>
     <string name="logout">logout</string>
+    <string name="profile">Profile</string>
+    <string name="report_issue">Report issue</string>
 
 
 </resources>

@@ -184,7 +184,7 @@ public class FragmentSignIn extends Fragment {
                 }
                 String userName = firebaseUser.getDisplayName();
                 String phoneNumber = firebaseUser.getPhoneNumber();
-                User user = new User(userName, phoneNumber, photoUrl, userId, true, new Date().getTime());
+                User user = new User(userName, phoneNumber, photoUrl, userId, "" ,true, new Date().getTime());
                 String finalPhotoUrl = photoUrl;
                 firestore.collection("rooms").document(userId).set(user).addOnSuccessListener(suc -> {
                     saveUserDataInSharedPreference(userName, finalPhotoUrl, userId);

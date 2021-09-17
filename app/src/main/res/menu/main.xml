@@ -2,17 +2,25 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item android:id="@+id/sign_out"
+    <item
+        android:id="@+id/sign_out"
+        android:orderInCategory="1"
         android:title="@string/sign_out"
         app:showAsAction="never" />
 
-    <item android:id="@+id/sign_in_custom"
-        android:title="@string/sign_in_customUI"
+    <item
+        android:id="@+id/go_to_profile"
+        android:icon="@drawable/ic_round_person_black"
+        android:orderInCategory="2"
+        android:title="@string/profile"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/report_issue"
+        android:orderInCategory="3"
+        android:title="@string/report_issue"
         app:showAsAction="never" />
 
-    <item android:id="@+id/sign_in_firebase_ui"
-        android:title="@string/sign_in_firebaseUI"
-        app:showAsAction="never" />
 
 
 </menu>
