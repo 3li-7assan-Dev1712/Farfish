@@ -75,10 +75,11 @@ dependencies {
     implementation 'com.google.firebase:firebase-firestore'
     /*--------------------------------------------------------------*/
 
-    /*Circle status view & story view & circle image view*/
+    /*Circle status view & story view & circle image view & rounded image view*/
     implementation 'com.github.3llomi:CircularStatusView:V1.0.2'
     implementation 'com.github.OMARIHAMZA:StoryView:1.0.2-alpha'
     implementation 'de.hdodenhof:circleimageview:3.1.0'
+    implementation 'com.makeramen:roundedimageview:2.3.0'
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
