@@ -136,6 +136,7 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
         Log.d(TAG, "onCreate: CALLLLLLED");
         /*firebase storage and its references*/
         FirebaseStorage mStorage = FirebaseStorage.getInstance();

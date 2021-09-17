@@ -28,6 +28,7 @@ public class UserProfileFragment extends Fragment {
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
+        requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
         super.onCreate(savedInstanceState);
     }
 
@@ -35,10 +36,10 @@ public class UserProfileFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.user_profile_fragment, container, false);
+        requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
         // init views
-        ImageView profileImage = view.findViewById(R.id.profileImage);
-        ProgressBar progressBar = view.findViewById(R.id.progressBarProfileImage);
-        progressBar.setVisibility(View.VISIBLE);
+        ImageView profileImage = view.findViewById(R.id.userProfileImageView);
+        ProgressBar progressBar = view.findViewById(R.id.userProfileProgressBar);
         TextView userNameTextView = view.findViewById(R.id.userNameProfileTextView);
         TextView statusTextView = view.findViewById(R.id.statusOfUserTextVIew);
         TextView emailTextView = view.findViewById(R.id.userEmailProfileTextView);

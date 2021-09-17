@@ -63,7 +63,7 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.VISIBLE);
         View view =  inflater.inflate(R.layout.users_fragment, container, false);
-        mNavController = Navigation.findNavController(view);
+        mNavController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         Toolbar tb = view.findViewById(R.id.mainToolbar_frag);
         ((AppCompatActivity) requireActivity())
                 .setSupportActionBar(tb);

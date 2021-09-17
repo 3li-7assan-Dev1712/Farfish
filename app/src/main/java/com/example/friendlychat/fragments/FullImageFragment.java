@@ -24,6 +24,7 @@ public class FullImageFragment extends Fragment {
     private FullImageData mFullImageData;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
+        requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
         if (getArguments() != null)
             mFullImageData = getArguments().getParcelable("image_info");
         super.onCreate(savedInstanceState);

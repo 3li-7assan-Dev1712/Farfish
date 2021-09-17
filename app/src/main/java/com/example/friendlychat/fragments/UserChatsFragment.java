@@ -71,7 +71,7 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.VISIBLE);
         Log.d(TAG, "onCreateView: ");
         View view =inflater.inflate(R.layout.fragment_user_chats, container, false);
-        mNavController = Navigation.findNavController(view);
+        mNavController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         if (mAuth.getCurrentUser() == null){
             navigateToSignIn();
         }

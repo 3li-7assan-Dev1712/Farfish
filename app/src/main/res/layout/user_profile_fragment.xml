@@ -4,22 +4,58 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:visibility="visible"
     tools:context=".fragments.UserProfileFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp">
+        android:layout_height="wrap_content">
+
+        <ProgressBar
+            android:id="@+id/userProfileProgressBar"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="visible"
+            app:layout_constraintBottom_toTopOf="@+id/userNameProfileTextView"
+            app:layout_constraintEnd_toEndOf="@+id/userProfileSquareFrameLayout"
+            app:layout_constraintStart_toStartOf="@+id/userProfileSquareFrameLayout"
+            app:layout_constraintTop_toTopOf="@+id/userProfileSquareFrameLayout" />
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/appbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:elevation="0dp"
+            android:background="@android:color/transparent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+<!--  android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+  android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+ -->
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar_user_profile"
+                android:layout_width="match_parent"
+                android:background="@android:color/transparent"
+                android:layout_height="?attr/actionBarSize"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+                app:title="@string/profile"
+                app:navigationIcon="@drawable/ic__navigate_before"
+                app:titleTextColor="#fff" />
+        </com.google.android.material.appbar.AppBarLayout>
 
         <Button
             android:id="@+id/editProfileButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/edit_button_background"
             android:minWidth="0dp"
             android:minHeight="0dp"
             android:padding="16dp"
-            android:layout_marginEnd="16dp"
-            android:background="@drawable/edit_button_background"
             android:text="@string/edit"
             android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -109,12 +145,12 @@
             app:layout_constraintTop_toBottomOf="@+id/user_profie_view_background">
 
             <ImageView
+                android:id="@+id/userProfileImageView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="#fff"
                 android:contentDescription="@string/user_profile_image_description"
-                android:src="@drawable/ic_round_person_24"
-                />
+                android:src="@drawable/ic_round_person_24" />
         </FrameLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

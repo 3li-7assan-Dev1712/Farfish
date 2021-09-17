@@ -90,7 +90,8 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.status_fragment, container, false);
-        mNavController = Navigation.findNavController(view);
+        setHasOptionsMenu(true);
+        mNavController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.VISIBLE);
         RecyclerView statusRecycler = view.findViewById(R.id.statusRecycler);
         statusRecycler.setAdapter(mStatusAdapter);
@@ -209,7 +210,6 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
         mRootRef = FirebaseStorage.getInstance().getReference("stories");
         mUserReference = mDatabaseReference.child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid()));
         mStatusAdapter = new StatusAdapter(requireContext(), mStatusLists, this);
-
         super.onCreate(savedInstanceState);
     }
 

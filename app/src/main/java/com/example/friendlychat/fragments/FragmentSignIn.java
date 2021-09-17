@@ -83,6 +83,7 @@ public class FragmentSignIn extends Fragment {
         View view = inflater.inflate(R.layout.fragment_sign_in, container, false);
         snackBarView = view;
         mNavController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+        requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
         mEmailEditText = view.findViewById(R.id.editTextEmailSignIn);
         mPasswordEditText = view.findViewById(R.id.editTextPasswordSignIn);
         TextView forgotPassWord = view.findViewById(R.id.forgotPasswordSignIn);
