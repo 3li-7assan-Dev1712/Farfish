@@ -24,7 +24,9 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.friendlychat.Module.FileUtil;
+import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.R;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -32,12 +34,17 @@ import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import id.zelory.compressor.Compressor;
 
 public class EditProfileFragment extends Fragment {
 
-    private FirebaseStorage mStorage;
+    private FirebaseStorage mStorage = FirebaseStorage.getInstance();
     private static final String TAG = EditProfileFragment.class.getSimpleName();
     private ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
@@ -66,21 +73,13 @@ public class EditProfileFragment extends Fragment {
 
     // to be updated
     private String photoUrlToBeUpdated = null;
-    private String userNameToBeUpdated = null;
-    private String userStatusToBeUpdated = null;
-    private String userPhoneNumberToBeUpdated = null;
 
     // value after click
-
-    private String photoUrlAfterClick;
     private String userNameAfterClick;
     private String userStatusAfterClick;
     private String userPhoneNumberAfterClick;
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        mStorage = FirebaseStorage.getInstance();
-        super.onCreate(savedInstanceState);
-    }
+
+    FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
 
     @Nullable
     @Override
@@ -119,25 +118,53 @@ public class EditProfileFragment extends Fragment {
         });
         save.setOnClickListener(saveListener -> {
             // firstly save the image if the user choose a new one
-            /*FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-            firestore.collection("rooms").document("id")
-                    .update("phone", "");*/
+            List<Map> fieldsToUpdate = new ArrayList<>();
+            userNameAfterClick = userNameEditText.getText().toString();
+            userStatusAfterClick = statusEditText.getText().toString();
+            userPhoneNumberAfterClick = phoneNumberEditText.getText().toString();
+            Log.d(TAG, "onCreateView: imageUrl: " + imageUri);
             if (imageUri != null){
                 checkIfUserSelectTheSameImageAndContinueIfNot();
-            }else if (!userName.equals(userNameEditText.getText().toString())){
-                userNameToBeUpdated = userNameEditText.getText().toString();
-            }else if (!userStatus.equals(statusEditText.getText().toString())){
-                userStatusToBeUpdated = statusEditText.getText().toString();
-            }else if (!userPhoneNumber.equals(phoneNumberEditText.getText().toString())){
-                userPhoneNumberToBeUpdated = phoneNumberEditText.getText().toString();
-            }else {
+            }
+            if (!userName.equals(userNameAfterClick)){
+                Map<String, String> field = new HashMap<>();
+                field.put("userName", userNameAfterClick);
+                fieldsToUpdate.add(field);
+            }
+            if (!userStatus.equals(statusEditText.getText().toString())){
+                Map<String, String> field = new HashMap<>();
+                field.put("status", userStatusAfterClick);
+                fieldsToUpdate.add(field);
+            }
+            if (!userPhoneNumber.equals(phoneNumberEditText.getText().toString())){
+                Map<String, String> field = new HashMap<>();
+                field.put("phoneNumber", userPhoneNumberAfterClick);
+                fieldsToUpdate.add(field);
+            }
+
+            if (fieldsToUpdate.size() == 0 && imageUri == null){
                 // there's no any change happened
                 Toast.makeText(requireActivity(), "There is no any change to be updated", Toast.LENGTH_SHORT).show();
+            }else {
+
+                String[] keys = {"userName", "status", "phoneNumber"};
+                List<String> strings = new ArrayList<>();
+                for (Map field : fieldsToUpdate)
+                {
+                    for (String key : keys){
+                        if (field.containsKey(key)){
+                            strings.add(key);
+                            strings.add(Objects.requireNonNull(field.get(key)).toString());
+                        }
+                    }
+                }
+                // test the out put
+                Log.d(TAG, "onCreateView: final out put:");
+                for (String string: strings){
+                    Log.d(TAG, "onCreateView: " + string);
+                }
+
             }
-            Log.d(TAG, "onCreateView: final check photoUrl: " + photoUrlToBeUpdated);
-            Log.d(TAG, "onCreateView: "+ " user name: " + userNameToBeUpdated);
-            Log.d(TAG, "onCreateView: user status: " + userStatusToBeUpdated);
-            Log.d(TAG, "onCreateView: phone number: " + userPhoneNumberToBeUpdated);
         });
         return view;
     }
@@ -177,16 +204,18 @@ public class EditProfileFragment extends Fragment {
                    saveDataInFirestore(newProfileUrl);
                     Log.d(TAG, "uploadImageToServer: " + photoUrlToBeUpdated);
                 });
-            }).addOnFailureListener(failureListener -> {
-                Log.d(TAG, "uploadImageToServer: " + failureListener.getMessage());
-            });
+            }).addOnFailureListener(failureListener -> Log.d(TAG, "uploadImageToServer: " + failureListener.getMessage()));
         }
 
     }
 
     private void saveDataInFirestore(String newProfileUrl) {
         Log.d(TAG, "saveDataInFirestore: " + newProfileUrl);
-        photoUrlToBeUpdated = newProfileUrl;
+        mFirestore.collection("rooms")
+                .document(MessagesPreference.getUserId(requireContext()))
+                .update("photoUrl", newProfileUrl)
+                .addOnSuccessListener(sListner -> Log.d(TAG, "saveDataInFirestore: update new profile image successfully")).
+                addOnFailureListener(fListener -> Log.d(TAG, "saveDataInFirestore: " + fListener.getMessage()));
     }
 
     private void pickImageFromGallery() {
