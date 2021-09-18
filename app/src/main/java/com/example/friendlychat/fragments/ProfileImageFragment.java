@@ -198,6 +198,7 @@ public class ProfileImageFragment extends Fragment {
         MessagesPreference.saveUserPhotoUrl(requireContext(), photoUrl);
         MessagesPreference.saveUserId(requireContext(), userId);
         MessagesPreference.saveUserName(requireContext(), userName);
+        MessagesPreference.saveUserPhoneNumber(requireContext(), phoneNumber);
         /*create a new user*/
         User newUser = new User(userName, phoneNumber, photoUrl, userId, status,true, new Date().getTime());
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
