@@ -26,6 +26,7 @@ import androidx.fragment.app.Fragment;
 import com.example.friendlychat.Module.FileUtil;
 import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.R;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -38,7 +39,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import id.zelory.compressor.Compressor;
 
@@ -118,6 +118,7 @@ public class EditProfileFragment extends Fragment {
         });
         save.setOnClickListener(saveListener -> {
             // firstly save the image if the user choose a new one
+
             List<Map> fieldsToUpdate = new ArrayList<>();
             userNameAfterClick = userNameEditText.getText().toString();
             userStatusAfterClick = statusEditText.getText().toString();
@@ -147,23 +148,17 @@ public class EditProfileFragment extends Fragment {
                 Toast.makeText(requireActivity(), "There is no any change to be updated", Toast.LENGTH_SHORT).show();
             }else {
 
+                DocumentReference documentReference =
+                        mFirestore.collection("rooms").document(MessagesPreference.getUserId(requireContext()));
                 String[] keys = {"userName", "status", "phoneNumber"};
-                List<String> strings = new ArrayList<>();
                 for (Map field : fieldsToUpdate)
                 {
                     for (String key : keys){
                         if (field.containsKey(key)){
-                            strings.add(key);
-                            strings.add(Objects.requireNonNull(field.get(key)).toString());
+                           documentReference.update(key, field.get(key));
                         }
                     }
                 }
-                // test the out put
-                Log.d(TAG, "onCreateView: final out put:");
-                for (String string: strings){
-                    Log.d(TAG, "onCreateView: " + string);
-                }
-
             }
         });
         return view;
@@ -188,9 +183,18 @@ public class EditProfileFragment extends Fragment {
         // if there are not the same prepare the downloadable url
         if (!imageFromGalleryName.equals(imageNameInTheServer)){
             uploadImageToServer(compressedFile);
+
+            // delete the old profile
+            assert compressedFile != null;
+            deleteOldProfile(compressedFile.getName());
             Log.d(TAG, "checkIfUserSelectTheSameImageAndContinueIfNot: photo to be updated" + photoUrlToBeUpdated);
         }
 
+    }
+
+    private void deleteOldProfile(String profileRefToBeDeleted) {
+        mStorage.getReference("profiles")
+                .child(profileRefToBeDeleted).delete().addOnSuccessListener(deleteListener -> Log.d(TAG, "deleteOldProfile: deleted old password successfully")).addOnFailureListener(faliureListener -> Log.d(TAG, "deleteOldProfile: " + faliureListener.getMessage()));
     }
 
     private void uploadImageToServer(File compressedFile) {
@@ -198,13 +202,11 @@ public class EditProfileFragment extends Fragment {
             StorageReference profiles = mStorage.getReference("profiles");
             StorageReference imageReference = profiles.child(compressedFile.toString());
             UploadTask uploadTask = imageReference.putFile(Uri.fromFile(compressedFile));
-            uploadTask.addOnSuccessListener(successListener -> {
-                imageReference.getDownloadUrl().addOnSuccessListener(downloadUrlSuccessListener -> {
-                   String newProfileUrl  = downloadUrlSuccessListener.toString();
-                   saveDataInFirestore(newProfileUrl);
-                    Log.d(TAG, "uploadImageToServer: " + photoUrlToBeUpdated);
-                });
-            }).addOnFailureListener(failureListener -> Log.d(TAG, "uploadImageToServer: " + failureListener.getMessage()));
+            uploadTask.addOnSuccessListener(successListener -> imageReference.getDownloadUrl().addOnSuccessListener(downloadUrlSuccessListener -> {
+               String newProfileUrl  = downloadUrlSuccessListener.toString();
+               saveDataInFirestore(newProfileUrl);
+                Log.d(TAG, "uploadImageToServer: " + photoUrlToBeUpdated);
+            })).addOnFailureListener(failureListener -> Log.d(TAG, "uploadImageToServer: " + failureListener.getMessage()));
         }
 
     }
