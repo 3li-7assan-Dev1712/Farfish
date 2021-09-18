@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import id.zelory.compressor.Compressor;
 
@@ -156,12 +157,31 @@ public class EditProfileFragment extends Fragment {
                     for (String key : keys){
                         if (field.containsKey(key)){
                            documentReference.update(key, field.get(key));
+                           updateLocalUserData(key, Objects.requireNonNull(field.get(key)).toString());
                         }
                     }
                 }
             }
         });
         return view;
+    }
+
+    private void updateLocalUserData(String key, String data) {
+        Context context = requireContext();
+        switch (key) {
+            case "userName":
+                MessagesPreference.saveUserName(context, data);
+                break;
+            case "status":
+                MessagesPreference.saveUserStatus(context, data);
+                break;
+            case "phoneNumber":
+                MessagesPreference.saveUserPhoneNumber(context, data);
+                break;
+            case "photoUrl":
+                MessagesPreference.saveUserPhotoUrl(context, data);
+                break;
+        }
     }
 
     private void checkIfUserSelectTheSameImageAndContinueIfNot() {
@@ -212,6 +232,7 @@ public class EditProfileFragment extends Fragment {
     }
 
     private void saveDataInFirestore(String newProfileUrl) {
+        updateLocalUserData("photoUrl", newProfileUrl);
         Log.d(TAG, "saveDataInFirestore: " + newProfileUrl);
         mFirestore.collection("rooms")
                 .document(MessagesPreference.getUserId(requireContext()))
