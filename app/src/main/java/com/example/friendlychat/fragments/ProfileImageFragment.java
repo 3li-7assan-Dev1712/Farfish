@@ -71,6 +71,7 @@ public class ProfileImageFragment extends Fragment {
                 }
             },
             this::putIntoImage);
+
     private ImageView mImageView;
     private String userId, userName, photoUrl, phoneNumber, email, password;
     private View snackBarView;
