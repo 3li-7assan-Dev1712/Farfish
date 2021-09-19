@@ -200,7 +200,7 @@ public class ProfileImageFragment extends Fragment {
         MessagesPreference.saveUserName(requireContext(), userName);
         MessagesPreference.saveUserPhoneNumber(requireContext(), phoneNumber);
         /*create a new user*/
-        User newUser = new User(userName, phoneNumber, photoUrl, userId, status,true, new Date().getTime());
+        User newUser = new User(userName, email, phoneNumber, photoUrl, userId, status,true, new Date().getTime());
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         firestore.collection("rooms").document(userId).set(newUser).addOnSuccessListener(data -> {
             Log.d(TAG, "saveUserDataAndNavigateToHomeScreen: successfully register new user");

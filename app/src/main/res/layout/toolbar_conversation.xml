@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    xmlns:android="http://schemas.android.com/apk/res/android" >
+    android:layout_height="wrap_content">
 
     <LinearLayout
+        android:id="@+id/conversationToolbarUserInfo"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
@@ -13,22 +14,23 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/go_back"
-        app:layout_constraintTop_toTopOf="parent"
-       >
+        app:layout_constraintTop_toTopOf="parent">
 
         <TextView
             android:id="@+id/chat_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:text="Sample name"
-            android:textSize="18sp" />
+            android:ellipsize="end"
+            android:lines="1"
+            android:textSize="18sp"
+            tools:text="Sample name" />
 
         <TextView
             android:id="@+id/chat_last_seen"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:text="last seen 1 hour ago"
-            android:textSize="14sp" />
+            android:textSize="14sp"
+            tools:text="last seen 1 hour ago" />
 
     </LinearLayout>
 
@@ -36,31 +38,30 @@
         android:id="@+id/go_back"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:clickable="true"
+        android:focusable="true"
         android:orientation="horizontal"
         android:padding="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:clickable="true"
-        android:focusable="true"
-      >
+        app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
             android:id="@+id/back_arrow"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            app:srcCompat="?attr/homeAsUpIndicator"
             android:clickable="false"
-            android:contentDescription="@string/app_name"/>
+            android:contentDescription="@string/app_name"
+            app:srcCompat="?attr/homeAsUpIndicator" />
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/chat_conversation_profile"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_gravity="center_vertical"
-            tools:srcCompat="@tools:sample/avatars"
-            android:clickable="false"/>
+            android:clickable="false"
+            tools:srcCompat="@tools:sample/avatars" />
 
     </LinearLayout>
 

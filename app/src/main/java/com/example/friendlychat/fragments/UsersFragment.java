@@ -95,12 +95,18 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
 
         String chatTitle = users.get(position).getUserName();
         String photoUrl = users.get(position).getPhotoUrl();
+        String targetUserEmail = users.get(position).getEmail();
+        String userStatus = users.get(position).getStatus();
+        long lastTimeSeen = users.get(position).getLastTimeSeen();
         Bundle primaryDataBundle = new Bundle();
-        primaryDataBundle.putString("chat_title", chatTitle);
-        primaryDataBundle.putString("photo_url", photoUrl);
+        primaryDataBundle.putString("target_user_name", chatTitle);
+        primaryDataBundle.putString("target_user_photo_url", photoUrl);
         if (!chatTitle.equals("All people use the app")) {
             String targetUserId = users.get(position).getUserId();
             primaryDataBundle.putString("target_user_id", targetUserId);
+            primaryDataBundle.putString("target_user_email", targetUserEmail);
+            primaryDataBundle.putString("target_user_status", userStatus);
+            primaryDataBundle.putLong("target_user_last_time_seen", lastTimeSeen);
             primaryDataBundle.putBoolean("isGroup", false);
 
         }else

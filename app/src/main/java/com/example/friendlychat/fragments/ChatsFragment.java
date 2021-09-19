@@ -114,6 +114,9 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
     private String targetUserName;
     private String targetUserPhotoUrl;
 
+
+    private Bundle targetUserData;
+
     /*chat info in upper toolbar*/
     private boolean isWriting;
     private boolean isActive;
@@ -146,12 +149,12 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
         /*app UI functionality*/
         mUsername = ANONYMOUS;
         messages = new ArrayList<>();
-        Bundle data = getArguments();
-       if (data != null) {
-           targetUserName = data.getString("chat_title", "Chat title");
-           targetUserPhotoUrl = data.getString("photo_url", "photo");
-           targetUserId = data.getString("target_user_id", "id for target user");
-           isGroup = data.getBoolean("isGroup");
+        targetUserData = getArguments();
+       if (targetUserData != null) {
+           targetUserName = targetUserData.getString("target_user_name", "Chat title");
+           targetUserPhotoUrl = targetUserData.getString("target_user_photo_url", "photo");
+           targetUserId = targetUserData.getString("target_user_id", "id for target user");
+           isGroup = targetUserData.getBoolean("isGroup");
 
        }else{
            Toast.makeText(requireContext(), "Data is null", Toast.LENGTH_SHORT).show();
@@ -173,6 +176,12 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
         layout.setOnClickListener( v -> {
             Log.d(TAG, "onCreateView: navigate to the back stack through the navigation components");
             navController.navigateUp();
+        });
+        LinearLayout targetUserLayout = view.findViewById(R.id.conversationToolbarUserInfo);
+        targetUserLayout.setOnClickListener(targetUserLayoutListener ->{
+
+            navController.navigate(R.id.action_userChatsFragment_to_userProfileFragment,
+                    targetUserData);
         });
         setChatInfo();
         mMessageRecyclerView = view.findViewById(R.id.messageRecyclerView);
@@ -201,16 +210,6 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
             }
 
         });
-
-        // using the navigation component You should share data between fragment using actions
-/*
-
-        Intent mIntent = getIntent();
-        if (mIntent != null){
-            setTitle(mIntent.getStringExtra(getResources().getString(R.string.chat_title)));
-            isGroup = !mIntent.hasExtra(getResources().getString(R.string.targetUidKey));
-        }
-*/
 
         // Enable Send button when there's text to send
         mMessageEditText.addTextChangedListener(new TextWatcher() {

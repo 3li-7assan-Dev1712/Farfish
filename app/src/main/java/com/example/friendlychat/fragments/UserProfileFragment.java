@@ -28,7 +28,7 @@ import com.squareup.picasso.Picasso;
 public class UserProfileFragment extends Fragment {
 
     private static final String TAG = UserProfileFragment.class.getSimpleName();
-
+    private String phoneNumber;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
@@ -54,21 +54,39 @@ public class UserProfileFragment extends Fragment {
         TextView userIdTextView = view.findViewById(R.id.userIdTextView);
         /*------------------------------------------------------------------------------*/
 
-        // user information
-        Context context = requireContext();
-        String userName = MessagesPreference.getUserName(context);
-        String userPhotoUrl = MessagesPreference.getUsePhoto(context);
-        String userId = MessagesPreference.getUserId(context);
-        String status = MessagesPreference.getUseStatus(context);
-        String phoneNumber = MessagesPreference.getUsePhoneNumber(context);
-        String email = "";
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (currentUser != null) {
-            email = currentUser.getEmail();
 
-        } else {
-            email = "no email";
+        // user information
+
+        String userName ;
+        String userPhotoUrl ;
+        String userId ;
+        String status ;
+        String email;
+        Bundle userInfo = getArguments();
+        if (userInfo != null){
+            userPhotoUrl = userInfo.getString("target_user_photo_url");
+            userName = userInfo.getString("target_user_name");
+            status = userInfo.getString("target_user_status");
+            email = userInfo.getString("target_user_email");
+            userId = userInfo.getString("target_user_id");
+
+            /* status = userInfo.getString("user_status");*/
+        }else{
+            Context context = requireContext();
+            userName = MessagesPreference.getUserName(context);
+            userPhotoUrl = MessagesPreference.getUsePhoto(context);
+            userId = MessagesPreference.getUserId(context);
+            status = MessagesPreference.getUseStatus(context);
+            phoneNumber = MessagesPreference.getUsePhoneNumber(context);
+            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+            if (currentUser != null) {
+                email = currentUser.getEmail();
+
+            } else {
+                email = "no email";
+            }
         }
+
         // populate the UI with the data
         Picasso.get().load(userPhotoUrl).placeholder(R.drawable.ic_round_person_24)
                 .into(profileImage, new Callback() {
@@ -82,6 +100,8 @@ public class UserProfileFragment extends Fragment {
                         Log.d(TAG, "onError: " + e.getMessage());
                     }
                 });
+        // user info from bundle, this will override the above fields if it's not null
+
         userNameTextView.setText(userName);
         emailTextView.setText(email);
         statusTextView.setText(status);
