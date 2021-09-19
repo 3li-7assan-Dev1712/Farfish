@@ -19,6 +19,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import com.example.friendlychat.Module.MessagesPreference;
+import com.example.friendlychat.Module.SharedPreferenceUtils;
 import com.example.friendlychat.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -136,6 +137,7 @@ public class UserProfileFragment extends Fragment {
         logout.setVisibility(View.VISIBLE);
         logout.setOnClickListener(logoutOnClickListener -> {
             FirebaseAuth.getInstance().signOut();
+            SharedPreferenceUtils.saveUserSignOut(requireContext());
             controller.navigate(R.id.action_userProfileFragment_to_fragmentSignIn);
         });
         /*----------------------------------------------------------------------------*/
