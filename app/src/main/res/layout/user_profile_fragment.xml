@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".fragments.UserProfileFragment">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+
+        <Button
+            android:id="@+id/editProfileButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/edit_button_background"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:padding="16dp"
+            android:text="@string/edit"
+            android:textSize="12sp"
+            android:visibility="invisible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/user_profie_view_background"
+            tools:visibility="visible" />
+
+        <Button
+            android:id="@+id/layoutButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="128dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/user_profie_gradient_background"
+            android:text="@string/logout"
+            android:textColor="@color/colorTitle"
+            android:textSize="18sp"
+            android:visibility="invisible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/statusOfUserTextVIew"
+            tools:visibility="visible" />
+
+        <TextView
+            android:id="@+id/userProfileLastTimeSeen"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorPrimaryDark"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/userNameProfileTextView"
+            tools:text="@string/online" />
+
+        <TextView
+            android:id="@+id/userEmailProfileTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/userProfileLastTimeSeen"
+            tools:text="abduallhkaltoos@gmail.com" />
+
+        <TextView
+            android:id="@+id/userIdTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="32dp"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/layoutButton"
+            tools:text="83ldkf839038j3832k" />
+
+        <TextView
+            android:id="@+id/statusOfUserTextVIew"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:maxLength="300"
+            android:maxLines="3"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="@+id/userNameProfileTextView"
+            app:layout_constraintStart_toStartOf="@+id/userNameProfileTextView"
+            app:layout_constraintTop_toBottomOf="@+id/userEmailProfileTextView"
+            tools:text="My Brother Abduallh, I will never forget you" />
+
+        <TextView
+            android:id="@+id/userNameProfileTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:textColor="@color/primaryTextColor"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/userProfileImageView"
+            tools:text="Abduall Abd Algalil" />
+
+        <View
+            android:id="@+id/user_profie_view_background"
+            android:layout_width="0dp"
+            android:layout_height="200dp"
+            android:background="@drawable/user_profie_gradient_background"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ProgressBar
+            android:id="@+id/userProfileProgressBar"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="@+id/userProfileImageView"
+            app:layout_constraintEnd_toEndOf="@+id/userProfileImageView"
+            app:layout_constraintStart_toStartOf="@+id/userProfileImageView"
+            app:layout_constraintTop_toTopOf="@+id/userProfileImageView"
+            tools:visibility="invisible" />
+
+        <com.makeramen.roundedimageview.RoundedImageView
+            android:id="@+id/userProfileImageView"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:contentDescription="@string/user_profile_image_description"
+            android:scaleType="centerCrop"
+            app:layout_constraintBottom_toBottomOf="@+id/user_profie_view_background"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/user_profie_view_background"
+            app:riv_border_color="#000"
+            app:riv_border_width="4dp"
+            app:riv_corner_radius="16dp"
+            app:riv_mutate_background="true"
+            tools:src="@tools:sample/backgrounds/scenic" />
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/appbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/fui_transparent"
+            app:elevation="0dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar_user_profile"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:navigationIcon="@drawable/ic__navigate_before"
+                app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+                app:title="@string/profile"
+                app:titleTextColor="#fff" />
+        </com.google.android.material.appbar.AppBarLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

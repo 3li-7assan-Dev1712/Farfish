@@ -34,11 +34,9 @@ import com.example.friendlychat.R;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthEmailException;
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.internal.api.FirebaseNoSignedInUserException;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -54,6 +52,7 @@ public class ProfileImageFragment extends Fragment {
     private Uri imageUriFromGallery;
     private ProgressBar mProgressBar;
     private FrameLayout mBorder;
+    private EditText mStatusEditText;
     private static final String TAG = ProfileImageFragment.class.getSimpleName();
     private ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
@@ -72,6 +71,7 @@ public class ProfileImageFragment extends Fragment {
                 }
             },
             this::putIntoImage);
+
     private ImageView mImageView;
     private String userId, userName, photoUrl, phoneNumber, email, password;
     private View snackBarView;
@@ -82,6 +82,7 @@ public class ProfileImageFragment extends Fragment {
         snackBarView = view;
         mBorder = view.findViewById(R.id.profileImageFrameLayout);
         mProgressBar = view.findViewById(R.id.progressBarProfileImage);
+        mStatusEditText = view.findViewById(R.id.editTextStatus);
         Bundle userData = getArguments();
         if (userData != null) {
             userName = userData.getString("userName");
@@ -187,17 +188,19 @@ public class ProfileImageFragment extends Fragment {
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
-        requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
         super.onCreate(savedInstanceState);
     }
     private void saveFinalData() {
         Log.d(TAG, "saveFinalData: photoUrl" + photoUrl);
+        String status = mStatusEditText.getText().toString();
         /*save user data to be used later*/
+        MessagesPreference.saveUserStatus(requireContext(), status);
         MessagesPreference.saveUserPhotoUrl(requireContext(), photoUrl);
         MessagesPreference.saveUserId(requireContext(), userId);
         MessagesPreference.saveUserName(requireContext(), userName);
+        MessagesPreference.saveUserPhoneNumber(requireContext(), phoneNumber);
         /*create a new user*/
-        User newUser = new User(userName, phoneNumber, photoUrl, userId, true, new Date().getTime());
+        User newUser = new User(userName, email, phoneNumber, photoUrl, userId, status,true, new Date().getTime());
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         firestore.collection("rooms").document(userId).set(newUser).addOnSuccessListener(data -> {
             Log.d(TAG, "saveUserDataAndNavigateToHomeScreen: successfully register new user");

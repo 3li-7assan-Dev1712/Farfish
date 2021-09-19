@@ -48,6 +48,7 @@ public class UploadTextStatusFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
     }
 
     @Nullable

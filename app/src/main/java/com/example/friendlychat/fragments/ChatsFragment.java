@@ -41,7 +41,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.friendlychat.Adapters.MessagesAdapter;
-import com.example.friendlychat.Module.DateUtils;
 import com.example.friendlychat.Module.FileUtil;
 import com.example.friendlychat.Module.FullImageData;
 import com.example.friendlychat.Module.FullMessage;
@@ -115,6 +114,9 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
     private String targetUserName;
     private String targetUserPhotoUrl;
 
+
+    private Bundle targetUserData;
+
     /*chat info in upper toolbar*/
     private boolean isWriting;
     private boolean isActive;
@@ -136,6 +138,7 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
         Log.d(TAG, "onCreate: CALLLLLLED");
         /*firebase storage and its references*/
         FirebaseStorage mStorage = FirebaseStorage.getInstance();
@@ -146,25 +149,17 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
         /*app UI functionality*/
         mUsername = ANONYMOUS;
         messages = new ArrayList<>();
-        Bundle data = getArguments();
-       if (data != null) {
-           targetUserName = data.getString("chat_title", "Chat title");
-           targetUserPhotoUrl = data.getString("photo_url", "photo");
-           targetUserId = data.getString("target_user_id", "id for target user");
-           isGroup = data.getBoolean("isGroup");
+        targetUserData = getArguments();
+       if (targetUserData != null) {
+           targetUserName = targetUserData.getString("target_user_name", "Chat title");
+           targetUserPhotoUrl = targetUserData.getString("target_user_photo_url", "photo");
+           targetUserId = targetUserData.getString("target_user_id", "id for target user");
+           isGroup = targetUserData.getBoolean("isGroup");
+
 
        }else{
            Toast.makeText(requireContext(), "Data is null", Toast.LENGTH_SHORT).show();
        }
-    }
-
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        // hide the bottom navigation view user user navigates to this destination.
-         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
-
-        Log.d(TAG, "onAttach: CALLLLLLLED");
     }
 
     @Nullable
@@ -182,6 +177,17 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
         layout.setOnClickListener( v -> {
             Log.d(TAG, "onCreateView: navigate to the back stack through the navigation components");
             navController.navigateUp();
+        });
+        LinearLayout targetUserLayout = view.findViewById(R.id.conversationToolbarUserInfo);
+        targetUserLayout.setOnClickListener(targetUserLayoutListener ->{
+
+            if (!isGroup) {
+                navController.navigate(R.id.action_chatsFragment_to_userProfileFragment,
+                        targetUserData);
+            }else {
+                Toast.makeText(requireContext(), "Group info will be " +
+                        "support in the next versions of the app", Toast.LENGTH_SHORT).show();
+            }
         });
         setChatInfo();
         mMessageRecyclerView = view.findViewById(R.id.messageRecyclerView);
@@ -210,16 +216,6 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
             }
 
         });
-
-        // using the navigation component You should share data between fragment using actions
-/*
-
-        Intent mIntent = getIntent();
-        if (mIntent != null){
-            setTitle(mIntent.getStringExtra(getResources().getString(R.string.chat_title)));
-            isGroup = !mIntent.hasExtra(getResources().getString(R.string.targetUidKey));
-        }
-*/
 
         // Enable Send button when there's text to send
         mMessageEditText.addTextChangedListener(new TextWatcher() {
@@ -250,17 +246,17 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
         Log.d(TAG, "isGroup " + isGroup);
 
         mSendButton.setOnClickListener( v -> {
-            long dateInUTC = DateUtils.getNormalizedUtcDateForToday();
+
             long dateInLocalTime = System.currentTimeMillis();
             long dateFromDateClass = new Date().getTime();
-            Log.d(TAG, "Date in UTC" + dateInUTC);
+
             Log.d(TAG, "Date in Local (System.currentTimeMillis() ) " + dateInLocalTime);
             Log.d(TAG, "Date in Local (Date().getTime()) " + dateFromDateClass);
             if (dateInLocalTime == dateFromDateClass)
                 Log.d(TAG, "Date from System and Date from date are the same");
             SimpleDateFormat sdf = new SimpleDateFormat("EEEE, MMM dd. yyyy. -- H:mm aa zzzz" , Locale.getDefault());
             Log.d(TAG, "---------------------------------------------------------------------------");
-            Log.d(TAG, "Date in UTC" + sdf.format(dateInUTC));
+
             Log.d(TAG, "Date in Local (System.currentTimeMillis() ) " + sdf.format(dateInLocalTime));
             Log.d(TAG, "Date in Local (Date().getTime()) " + sdf.format(dateFromDateClass));
             Message message = new Message(mMessageEditText.getText().toString(), mUsername, "", MessagesPreference.getUserId(requireContext()), dateFromDateClass);
@@ -359,6 +355,7 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
                     User user = value.toObject(User.class);
                     assert user != null;
                     isActive = user.getIsActive();
+                    targetUserData.putBoolean("isActive", isActive);
                     lastTimeSeen = user.getLastTimeSeen();
                     updateChatInfo();
                 }));

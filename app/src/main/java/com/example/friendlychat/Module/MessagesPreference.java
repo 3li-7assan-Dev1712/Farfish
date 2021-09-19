@@ -24,9 +24,28 @@ public class MessagesPreference {
         editor.putString("user-photo", photoUrl);
         editor.apply();
     }
+    public static void saveUserStatus(Context context, String  status){
+        SharedPreferences sharedPreferences = context.getSharedPreferences("messages", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("user-status", status);
+        editor.apply();
+    }
 
+    public static void saveUserPhoneNumber(Context context, String  phoneNumber){
+        SharedPreferences sharedPreferences = context.getSharedPreferences("messages", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("user-phone-number", phoneNumber);
+        editor.apply();
+    }
+    public static String getUsePhoneNumber(Context context){
+        return context.getSharedPreferences("messages", Context.MODE_PRIVATE).getString("user-phone-number", "----");
+    }
     public static String getUsePhoto(Context context){
         return context.getSharedPreferences("messages", Context.MODE_PRIVATE).getString("user-photo", "photo");
+    }
+
+    public static String getUseStatus(Context context){
+        return context.getSharedPreferences("messages", Context.MODE_PRIVATE).getString("user-status", "اللهم صلي وسلم على محمد");
     }
     public static void saveUserId(Context context, String userId){
         SharedPreferences sp = context.getSharedPreferences("messages", Context.MODE_PRIVATE);

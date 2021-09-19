@@ -65,7 +65,7 @@ public class FragmentSignIn extends Fragment {
     private EditText mPasswordEditText;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
-        requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
+
         OnBackPressedCallback callback = new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
@@ -83,6 +83,7 @@ public class FragmentSignIn extends Fragment {
         View view = inflater.inflate(R.layout.fragment_sign_in, container, false);
         snackBarView = view;
         mNavController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+        requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
         mEmailEditText = view.findViewById(R.id.editTextEmailSignIn);
         mPasswordEditText = view.findViewById(R.id.editTextPasswordSignIn);
         TextView forgotPassWord = view.findViewById(R.id.forgotPasswordSignIn);
@@ -168,7 +169,9 @@ public class FragmentSignIn extends Fragment {
                     String userName = user.getUserName();
                     String photoUrl = user.getPhotoUrl();
                     String userId = currentUser.getUid();
-                    saveUserDataInSharedPreference(userName, photoUrl, userId);
+                    String phoneNumber = user.getPhoneNumber();
+                    String userStatus = user.getStatus();
+                    saveUserDataInSharedPreference(userName, photoUrl, userId, userStatus, phoneNumber);
                     mNavController.navigateUp();
                 }
             }).addOnFailureListener(exc -> {
@@ -178,16 +181,17 @@ public class FragmentSignIn extends Fragment {
                 FirebaseUser firebaseUser = mAuth.getCurrentUser();
                 String userId = firebaseUser.getUid();
                 Uri photoUri = firebaseUser.getPhotoUrl();
+                String email = firebaseUser.getEmail();
                 String photoUrl = "";
                 if (photoUri != null){
                     photoUrl = photoUri.toString();
                 }
                 String userName = firebaseUser.getDisplayName();
                 String phoneNumber = firebaseUser.getPhoneNumber();
-                User user = new User(userName, phoneNumber, photoUrl, userId, true, new Date().getTime());
+                User user = new User(userName, email, phoneNumber, photoUrl, userId, "اللهم صلي وسلم على محمد" ,true, new Date().getTime());
                 String finalPhotoUrl = photoUrl;
                 firestore.collection("rooms").document(userId).set(user).addOnSuccessListener(suc -> {
-                    saveUserDataInSharedPreference(userName, finalPhotoUrl, userId);
+                    saveUserDataInSharedPreference(userName, finalPhotoUrl, userId, "اللهم صلي وسلم على محمد", phoneNumber);
                     mNavController.navigateUp();
                 }).addOnFailureListener(exception -> Log.d(TAG, "updateUserInfoAndNavigateBack: exception: " + exception.getMessage()));
 
@@ -196,11 +200,14 @@ public class FragmentSignIn extends Fragment {
 
     }
 
-    private void saveUserDataInSharedPreference(String userName, String photoUrl, String userId) {
+    private void saveUserDataInSharedPreference(String userName, String photoUrl, String userId, String status, String phoneNumber) {
         Context context = requireContext();
         MessagesPreference.saveUserName(context, userName);
         MessagesPreference.saveUserId(context, userId);
         MessagesPreference.saveUserPhotoUrl(context, photoUrl);
+        MessagesPreference.saveUserStatus(context, status);
+        MessagesPreference.saveUserPhoneNumber(context, phoneNumber);
+
         SharedPreferenceUtils.saveUserSignIn(context);
     }
 

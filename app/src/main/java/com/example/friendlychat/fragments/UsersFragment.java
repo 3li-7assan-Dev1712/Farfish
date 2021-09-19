@@ -45,13 +45,7 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
     private List<User> users;
     private ContactsAdapter usersAdapter;
     private FirebaseFirestore mFirestore;
-    private List<AuthUI.IdpConfig> providers = Arrays.asList(
-            new AuthUI.IdpConfig.EmailBuilder().build(),
-            new AuthUI.IdpConfig.GoogleBuilder().build());
-    private ActivityResultLauncher<Intent> signInLauncher = registerForActivityResult(
-            new FirebaseAuthUIActivityResultContract(),
-            this::onSignInResult
-    );
+    private NavController mNavController;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         setHasOptionsMenu(true);
@@ -68,7 +62,8 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.VISIBLE);
-         View view =  inflater.inflate(R.layout.users_fragment, container, false);
+        View view =  inflater.inflate(R.layout.users_fragment, container, false);
+        mNavController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         Toolbar tb = view.findViewById(R.id.mainToolbar_frag);
         ((AppCompatActivity) requireActivity())
                 .setSupportActionBar(tb);
@@ -80,8 +75,6 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
 
 
     private void initializeUserAndData() {
-
-
         /*makeUserActive();*/
         mFirestore.collection("rooms").get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
@@ -94,9 +87,7 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
                     }
                     usersAdapter.notifyDataSetChanged();
                 });
-
     }
-
 
 
     @Override
@@ -104,12 +95,18 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
 
         String chatTitle = users.get(position).getUserName();
         String photoUrl = users.get(position).getPhotoUrl();
+        String targetUserEmail = users.get(position).getEmail();
+        String userStatus = users.get(position).getStatus();
+        long lastTimeSeen = users.get(position).getLastTimeSeen();
         Bundle primaryDataBundle = new Bundle();
-        primaryDataBundle.putString("chat_title", chatTitle);
-        primaryDataBundle.putString("photo_url", photoUrl);
+        primaryDataBundle.putString("target_user_name", chatTitle);
+        primaryDataBundle.putString("target_user_photo_url", photoUrl);
         if (!chatTitle.equals("All people use the app")) {
             String targetUserId = users.get(position).getUserId();
             primaryDataBundle.putString("target_user_id", targetUserId);
+            primaryDataBundle.putString("target_user_email", targetUserEmail);
+            primaryDataBundle.putString("target_user_status", userStatus);
+            primaryDataBundle.putLong("target_user_last_time_seen", lastTimeSeen);
             primaryDataBundle.putBoolean("isGroup", false);
 
         }else
@@ -122,11 +119,19 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.sign_out) {
-            mAuth.signOut();
-            Toast.makeText(requireContext(), "Signed out successfully", Toast.LENGTH_SHORT).show();
-            SharedPreferenceUtils.saveUserSignOut(requireContext());
-            launchFirebaseUI();
+        switch (id){
+            case R.id.sign_out:
+                mAuth.signOut();
+                Toast.makeText(requireContext(), "Signed out successfully", Toast.LENGTH_SHORT).show();
+                SharedPreferenceUtils.saveUserSignOut(requireContext());
+                mNavController.navigate(R.id.fragmentSignIn);
+                break;
+            case R.id.go_to_profile:
+                mNavController.navigate(R.id.action_usersFragment_to_userProfileFragment);
+                break;
+            case R.id.report_issue:
+                // will be implemented...
+                break;
         }
         return true;
     }
@@ -135,44 +140,5 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         inflater.inflate(R.menu.main, menu);
     }
-    private void launchFirebaseUI() {
-        Intent signInIntent = AuthUI.getInstance()
-                .createSignInIntentBuilder()
-                .setAvailableProviders(providers)
-                .setIsSmartLockEnabled(false)
-                .setLogo(R.drawable.ic_icon_round)
-                .build();
-        signInLauncher.launch(signInIntent);
-    }
 
-    private void onSignInResult(FirebaseAuthUIAuthenticationResult result) {
-        /*IdpResponse response = result.getIdpResponse();*/
-        if (result.getResultCode() == Activity.RESULT_OK) {
-            // Successfully signed in
-            Toast.makeText(requireContext(), "You've signed in successfully", Toast.LENGTH_SHORT).show();
-            SharedPreferenceUtils.saveUserSignIn(requireContext());
-            FirebaseUser currentUser = mAuth.getCurrentUser();
-            if (currentUser != null) {
-                /*after the user sign in/up saving their information in the firestore*/
-                String userName = currentUser.getDisplayName();
-                MessagesPreference.saveUserName(requireContext(), userName);
-                String phoneNumber = currentUser.getPhoneNumber();
-                String photoUrl = Objects.requireNonNull(currentUser.getPhotoUrl()).toString();
-                String userId = mAuth.getUid();
-                MessagesPreference.saveUserId(requireContext(), userId);
-                MessagesPreference.saveUserPhotoUrl(requireContext(), photoUrl);
-                long lastTimeSeen = new Date().getTime();
-                User newUser = new User(userName, phoneNumber, photoUrl, userId, true, lastTimeSeen);
-                assert userId != null;
-                mFirestore.collection("rooms").document(userId).set(newUser).addOnCompleteListener(task ->
-                        Toast.makeText(requireContext(), "saved new user successfully", Toast.LENGTH_SHORT).show()
-                );
-                initializeUserAndData();
-            }
-            // ...
-        } else{
-
-            requireActivity().finish();
-        }
-    }
 }

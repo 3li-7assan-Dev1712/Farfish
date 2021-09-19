@@ -17,6 +17,19 @@ public class SharedPreferenceUtils {
         SharedPreferences.Editor editor = sp.edit();
         editor.putBoolean("user_sign_in", false);
         editor.apply();
+        resetUserInfo(context);
+    }
+
+    private static void resetUserInfo(Context context) {
+        SharedPreferences sp = context.getSharedPreferences("messages", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putString("user-name", "none");
+        editor.putString("photo-url", "no photo");
+        editor.putString("user-status", "no status");
+        editor.putString("user_id", "0");
+        editor.putString("user-phone-number", "0");
+        editor.apply();
+
     }
 
     public static boolean getUserState(Context context){
