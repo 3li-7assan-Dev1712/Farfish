@@ -25,6 +25,8 @@ import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
+import java.util.Date;
+
 public class UserProfileFragment extends Fragment {
 
     private static final String TAG = UserProfileFragment.class.getSimpleName();
@@ -40,7 +42,7 @@ public class UserProfileFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.user_profile_fragment, container, false);
         Toolbar toolbar = view.findViewById(R.id.toolbar_user_profile);
-        NavController controller = Navigation.findNavController(view);
+        NavController controller = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         toolbar.setNavigationOnClickListener(clickListener -> {
             controller.navigateUp();
         });
@@ -52,6 +54,9 @@ public class UserProfileFragment extends Fragment {
         TextView statusTextView = view.findViewById(R.id.statusOfUserTextVIew);
         TextView emailTextView = view.findViewById(R.id.userEmailProfileTextView);
         TextView userIdTextView = view.findViewById(R.id.userIdTextView);
+        TextView lastTimeSeenTextView = view.findViewById(R.id.userProfileLastTimeSeen);
+        Button edit = view.findViewById(R.id.editProfileButton);
+        Button logout = view.findViewById(R.id.layoutButton);
         /*------------------------------------------------------------------------------*/
 
 
@@ -62,16 +67,20 @@ public class UserProfileFragment extends Fragment {
         String userId ;
         String status ;
         String email;
+        String lastTimeSeen = requireContext().getResources().getString(R.string.online);
         Bundle userInfo = getArguments();
         if (userInfo != null){
+            edit.setVisibility(View.INVISIBLE);
+            logout.setVisibility(View.INVISIBLE);
             userPhotoUrl = userInfo.getString("target_user_photo_url");
             userName = userInfo.getString("target_user_name");
             status = userInfo.getString("target_user_status");
             email = userInfo.getString("target_user_email");
             userId = userInfo.getString("target_user_id");
-
-            /* status = userInfo.getString("user_status");*/
+            lastTimeSeen = getReadableLastTimeSeen(userInfo.getLong("target_user_last_time_seen"));
         }else{
+            edit.setVisibility(View.VISIBLE);
+            logout.setVisibility(View.VISIBLE);
             Context context = requireContext();
             userName = MessagesPreference.getUserName(context);
             userPhotoUrl = MessagesPreference.getUsePhoto(context);
@@ -86,6 +95,7 @@ public class UserProfileFragment extends Fragment {
                 email = "no email";
             }
         }
+
 
         // populate the UI with the data
         Picasso.get().load(userPhotoUrl).placeholder(R.drawable.ic_round_person_24)
@@ -106,11 +116,10 @@ public class UserProfileFragment extends Fragment {
         emailTextView.setText(email);
         statusTextView.setText(status);
         userIdTextView.setText(userId);
+        lastTimeSeenTextView.setText(lastTimeSeen);
         /*------------------------------------------------------------------------------*/
 
         // invoke listeners
-        Button edit = view.findViewById(R.id.editProfileButton);
-        edit.setVisibility(View.VISIBLE);
         edit.setOnClickListener(editProfile -> {
             // prepare data in bundle to send to the destination
             Bundle userData = new Bundle();
@@ -122,12 +131,66 @@ public class UserProfileFragment extends Fragment {
                     .navigate(R.id.action_userProfileFragment_to_editProfileFragment, userData);
         });
 
-        Button logout = view.findViewById(R.id.layoutButton);
         logout.setVisibility(View.VISIBLE);
         logout.setOnClickListener(logoutOnClickListener -> {
             FirebaseAuth.getInstance().signOut();
             controller.navigate(R.id.action_userProfileFragment_to_fragmentSignIn);
         });
+        /*----------------------------------------------------------------------------*/
         return view;
     }
+
+    private String getReadableLastTimeSeen (long lastTimeUserWasActive) {
+        long diff = System.currentTimeMillis() - lastTimeUserWasActive;
+        long seconds = diff / 1000;
+        long minutes = seconds / 60;
+        long hours = minutes / 60;
+        long days = hours / 24;
+        Log.d(TAG, "getReadableLastTimeSeen: days: " + days);
+        Log.d(TAG, "getReadableLastTimeSeen: hours: " + hours);
+        Log.d(TAG, "getReadableLastTimeSeen: minutes: " + minutes);
+        Log.d(TAG, "getReadableLastTimeSeen: seconds: " + seconds);
+
+        Context context = requireContext();
+        StringBuilder formattedDiff = new StringBuilder();
+        String daysLabel = context.getResources().getString(R.string.days);
+        String hoursLabel = context.getString(R.string.hours_label);
+        String lastTimeSeenLabel = requireContext().getResources()
+                .getString(R.string.last_time_seen);
+        String and =  context.getResources().getString(R.string.and);
+
+        if (days > 1){
+            hours -= days * 24;
+            return formattedDiff.append(lastTimeSeenLabel).append(" ").append(days).append(" ")
+                    .append(daysLabel).append(" ").append(and).append(" ").append(hours).append(" ")
+                    .append(context.getResources().getString(R.string.hours_ago)).toString();
+        }
+        if (days == 1){
+            hours -= days * 24;
+            return formattedDiff.append(lastTimeSeenLabel).append(" ").append(context.getResources()
+                    .getString(R.string.one_day)).append(" ").append(and).append(" ").append(hours).append(" ")
+                    .append(context.getResources().getString(R.string.hours_ago)).toString();
+        }
+        if (hours > 1) {
+            minutes -= hours * 60;
+            return formattedDiff.append(lastTimeSeenLabel).append(" ").append(hours).append(" ").append(hoursLabel)
+                    .append(" ").append(and).append(" ").append(minutes)
+                    .append(" ").append(context.getResources().getString(R.string.minutes_ago)).toString();
+        }
+        if (hours == 1){
+            minutes -= hours * 60;
+            return formattedDiff.append(lastTimeSeenLabel).append(" ").append(context.getResources()
+                    .getString(R.string.one_hour)).append(and).append(" ").append(minutes).append(" ")
+                    .append(context.getResources().getString(R.string.minutes_ago)).toString();
+        }
+        if (minutes > 1) {
+            seconds -= minutes * 60;
+            return formattedDiff.append(lastTimeSeenLabel).append(" ").append(minutes).append(" ").
+                    append(context.getResources().getString(R.string.minutes_label)).append(" ").append(and)
+                    .append(" ").append(seconds).append(" ").append(context.getResources().getString(R.string.seconds_ago)
+                    ).toString();
+        }
+        return context.getResources().getString(R.string.last_time_seen_was_seconds_ago);
+    }
+
 }

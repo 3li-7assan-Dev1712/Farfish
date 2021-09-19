@@ -1,6 +1,7 @@
 package com.example.friendlychat.Adapters;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -54,7 +55,7 @@ public class CustomViewPagerAdapter extends ViewPagerAdapter {
         final View view = inflater.inflate(R.layout.custom_layout_story_item, collection, false);
 
         final ImageView mImageView = view.findViewById(R.id.mImageView);
-        final TextView mTextView = view.findViewById(R.id.mTextViewStatus); /* will be used soon */
+        final TextView mTextView = view.findViewById(R.id.mTextViewStatus);
 
         if (!TextUtils.isEmpty(currentStory.getDescription())) {
             TextView textView = view.findViewById(R.id.descriptionTextView);

@@ -180,7 +180,7 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
         LinearLayout targetUserLayout = view.findViewById(R.id.conversationToolbarUserInfo);
         targetUserLayout.setOnClickListener(targetUserLayoutListener ->{
 
-            navController.navigate(R.id.action_userChatsFragment_to_userProfileFragment,
+            navController.navigate(R.id.action_chatsFragment_to_userProfileFragment,
                     targetUserData);
         });
         setChatInfo();

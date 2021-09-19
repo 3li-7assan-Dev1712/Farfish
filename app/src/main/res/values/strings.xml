@@ -62,6 +62,17 @@
     <string name="profile">Profile</string>
     <string name="report_issue">Report issue</string>
     <string name="save">save</string>
+    <string name="days">days</string>
+    <string name="hours_label">hours</string>
+    <string name="hours_ago">hours ago</string>
+    <string name="minutes_label">minutes</string>
+    <string name="minutes_ago">minutes ago</string>
+    <string name="a_day_ago">one day ago</string>
+    <string name="one_hour">1 hour</string>
+    <string name="and">and</string>
+    <string name="seconds_ago">seconds ago</string>
+    <string name="last_time_seen_was_seconds_ago">last time seen was seconds ago</string>
+    <string name="one_day">1 day</string>
 
 
 </resources>
