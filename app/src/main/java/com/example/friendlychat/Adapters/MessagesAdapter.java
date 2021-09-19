@@ -51,20 +51,22 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
 
     @Override
     public int getItemViewType(int position) {
-        String userName = messages.get(position).getName();
+        String senderId = messages.get(position).getSenderId();
         String photoUrl = messages.get(position).getPhotoUrl();
         if (messages == null){
             throw new NullPointerException("From getItemViewType message is null");
         }
-        if (userName == null || photoUrl == null) {
+        if (senderId == null || photoUrl == null) {
             return USE_SENDER_BACKGROUND;
         }
 
-        if (useCurrentMessageBackground(userName) && !photoUrl.equals("")){
+        Log.d(TAG, "getItemViewType: senderId: " + senderId);
+        Log.d(TAG, "getItemViewType: photoUrl: " + photoUrl);
+        if (useCurrentMessageBackground(senderId) && !photoUrl.equals("")){
             return USE_LOCAL_BACKGROUND_IMG;
-        }else if (useCurrentMessageBackground(userName) && photoUrl.equals("")){
+        }else if (useCurrentMessageBackground(senderId) && photoUrl.equals("")){
             return USE_LOCAL_BACKGROUND;
-        }else if (!useCurrentMessageBackground(userName) && photoUrl.equals("")){
+        }else if (!useCurrentMessageBackground(senderId) && photoUrl.equals("")){
             return USE_SENDER_BACKGROUND;
         }else {
             return USE_SENDER_BACKGROUND_IMG;
@@ -93,9 +95,9 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
     }
 
 
-    public boolean useCurrentMessageBackground(String senderName) {
-        String userName = MessagesPreference.getUserName(mContext);
-        return userName.equals(senderName);
+    public boolean useCurrentMessageBackground(String senderId) {
+        String currentUserId = MessagesPreference.getUserId(mContext);
+        return currentUserId.equals(senderId);
     }
 
     @Override
