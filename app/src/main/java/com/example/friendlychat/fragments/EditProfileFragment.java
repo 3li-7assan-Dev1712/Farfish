@@ -20,8 +20,10 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 
 import com.example.friendlychat.Module.FileUtil;
 import com.example.friendlychat.Module.MessagesPreference;
@@ -87,6 +89,10 @@ public class EditProfileFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.edit_profile_fragment, container, false);
         profile = view.findViewById(R.id.editProfileImageVIew);
+        Toolbar toolbar = view.findViewById(R.id.toolbar_edit_profile);
+        toolbar.setNavigationOnClickListener(navigationClickListener -> {
+            Navigation.findNavController(view).navigateUp();
+        });
         EditText userNameEditText = view.findViewById(R.id.editProfileEditTextUserName);
         EditText statusEditText = view.findViewById(R.id.editProfileEditTextStatus);
         EditText phoneNumberEditText = view.findViewById(R.id.editProfilePhoneNumber);

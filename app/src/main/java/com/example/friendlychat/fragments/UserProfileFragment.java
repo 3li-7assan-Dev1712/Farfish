@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
@@ -38,6 +39,11 @@ public class UserProfileFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.user_profile_fragment, container, false);
+        Toolbar toolbar = view.findViewById(R.id.toolbar_user_profile);
+        toolbar.setNavigationOnClickListener(clickListener -> {
+            Navigation.findNavController(requireActivity(), R.id.nav_host_fragment)
+                    .navigateUp();
+        });
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
         // init views
         ImageView profileImage = view.findViewById(R.id.userProfileImageView);
