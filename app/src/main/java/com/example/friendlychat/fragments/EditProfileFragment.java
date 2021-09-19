@@ -193,7 +193,13 @@ public class EditProfileFragment extends Fragment {
     private void checkIfUserSelectTheSameImageAndContinueIfNot() {
         // check if the usr selected the same image
         FirebaseStorage storage = FirebaseStorage.getInstance();
-        String imageNameInTheServer = storage.getReferenceFromUrl(photoUrl).getName();
+
+        String imageNameInTheServer = "";
+        try {
+            imageNameInTheServer = storage.getReferenceFromUrl(photoUrl).getName();
+        }catch (Exception e){
+            Log.d(TAG, "checkIfUserSelectTheSameImageAndContinueIfNot: " + e.getMessage());
+        }
         String imageFromGalleryName = "";
         File compressedFile = null;
         // compress the image from the gallery to get its name
@@ -211,8 +217,8 @@ public class EditProfileFragment extends Fragment {
             uploadImageToServer(compressedFile);
 
             // delete the old profile
-            assert compressedFile != null;
-            deleteOldProfile(compressedFile.getName());
+            if (!imageNameInTheServer.equals(""))
+                deleteOldProfile(imageNameInTheServer);
             Log.d(TAG, "checkIfUserSelectTheSameImageAndContinueIfNot: photo to be updated" + photoUrlToBeUpdated);
         }
 
