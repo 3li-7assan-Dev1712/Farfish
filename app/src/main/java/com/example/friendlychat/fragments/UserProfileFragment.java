@@ -89,6 +89,7 @@ public class UserProfileFragment extends Fragment {
 
         // invoke listeners
         Button edit = view.findViewById(R.id.editProfileButton);
+        edit.setVisibility(View.VISIBLE);
         edit.setOnClickListener(editProfile -> {
             // prepare data in bundle to send to the destination
             Bundle userData = new Bundle();
@@ -99,6 +100,9 @@ public class UserProfileFragment extends Fragment {
             Navigation.findNavController(requireActivity(), R.id.nav_host_fragment)
                     .navigate(R.id.action_userProfileFragment_to_editProfileFragment, userData);
         });
+
+        Button logout = view.findViewById(R.id.layoutButton);
+        logout.setVisibility(View.VISIBLE);
         return view;
     }
 }
