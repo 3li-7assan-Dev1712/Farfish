@@ -156,6 +156,7 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
            targetUserId = targetUserData.getString("target_user_id", "id for target user");
            isGroup = targetUserData.getBoolean("isGroup");
 
+
        }else{
            Toast.makeText(requireContext(), "Data is null", Toast.LENGTH_SHORT).show();
        }
@@ -180,8 +181,13 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
         LinearLayout targetUserLayout = view.findViewById(R.id.conversationToolbarUserInfo);
         targetUserLayout.setOnClickListener(targetUserLayoutListener ->{
 
-            navController.navigate(R.id.action_chatsFragment_to_userProfileFragment,
-                    targetUserData);
+            if (!isGroup) {
+                navController.navigate(R.id.action_chatsFragment_to_userProfileFragment,
+                        targetUserData);
+            }else {
+                Toast.makeText(requireContext(), "Group info will be " +
+                        "support in the next versions of the app", Toast.LENGTH_SHORT).show();
+            }
         });
         setChatInfo();
         mMessageRecyclerView = view.findViewById(R.id.messageRecyclerView);
@@ -349,6 +355,7 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
                     User user = value.toObject(User.class);
                     assert user != null;
                     isActive = user.getIsActive();
+                    targetUserData.putBoolean("isActive", isActive);
                     lastTimeSeen = user.getLastTimeSeen();
                     updateChatInfo();
                 }));

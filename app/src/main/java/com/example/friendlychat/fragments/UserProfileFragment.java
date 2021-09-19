@@ -77,7 +77,9 @@ public class UserProfileFragment extends Fragment {
             status = userInfo.getString("target_user_status");
             email = userInfo.getString("target_user_email");
             userId = userInfo.getString("target_user_id");
-            lastTimeSeen = getReadableLastTimeSeen(userInfo.getLong("target_user_last_time_seen"));
+            boolean isActive = userInfo.getBoolean("isActive");
+            if (!isActive)
+                lastTimeSeen = getReadableLastTimeSeen(userInfo.getLong("target_user_last_time_seen"));
         }else{
             edit.setVisibility(View.VISIBLE);
             logout.setVisibility(View.VISIBLE);
