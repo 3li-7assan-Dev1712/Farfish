@@ -26,7 +26,8 @@
             android:textSize="12sp"
             android:visibility="invisible"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/user_profie_view_background" />
+            app:layout_constraintTop_toBottomOf="@+id/user_profie_view_background"
+            tools:visibility="visible" />
 
         <Button
             android:id="@+id/layoutButton"
@@ -42,7 +43,8 @@
             android:visibility="invisible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/statusOfUserTextVIew" />
+            app:layout_constraintTop_toBottomOf="@id/statusOfUserTextVIew"
+            tools:visibility="visible" />
 
         <TextView
             android:id="@+id/userProfileLastTimeSeen"

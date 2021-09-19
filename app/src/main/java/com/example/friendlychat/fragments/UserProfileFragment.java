@@ -15,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import com.example.friendlychat.Module.MessagesPreference;
@@ -39,9 +40,9 @@ public class UserProfileFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.user_profile_fragment, container, false);
         Toolbar toolbar = view.findViewById(R.id.toolbar_user_profile);
+        NavController controller = Navigation.findNavController(view);
         toolbar.setNavigationOnClickListener(clickListener -> {
-            Navigation.findNavController(requireActivity(), R.id.nav_host_fragment)
-                    .navigateUp();
+            controller.navigateUp();
         });
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
         // init views
@@ -103,6 +104,10 @@ public class UserProfileFragment extends Fragment {
 
         Button logout = view.findViewById(R.id.layoutButton);
         logout.setVisibility(View.VISIBLE);
+        logout.setOnClickListener(logoutOnClickListener -> {
+            FirebaseAuth.getInstance().signOut();
+            controller.navigate(R.id.action_userProfileFragment_to_fragmentSignIn);
+        });
         return view;
     }
 }

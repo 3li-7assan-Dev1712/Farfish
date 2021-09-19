@@ -101,6 +101,9 @@
         <action
             android:id="@+id/action_userProfileFragment_to_editProfileFragment"
             app:destination="@id/editProfileFragment" />
+        <action
+            android:id="@+id/action_userProfileFragment_to_fragmentSignIn"
+            app:destination="@id/fragmentSignIn" />
     </fragment>
     <fragment
         android:id="@+id/editProfileFragment"
