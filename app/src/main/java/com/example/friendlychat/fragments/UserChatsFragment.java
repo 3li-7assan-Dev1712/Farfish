@@ -1,7 +1,10 @@
 package com.example.friendlychat.fragments;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.provider.ContactsContract;
+import android.telephony.PhoneNumberUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -71,6 +74,31 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.VISIBLE);
         Log.d(TAG, "onCreateView: ");
         View view =inflater.inflate(R.layout.fragment_user_chats, container, false);
+        /*---------------------------*/
+        Cursor contactsCursor = requireContext().getContentResolver()
+                .query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                        new String[] {ContactsContract.CommonDataKinds.Phone.NUMBER },
+                        ContactsContract.CommonDataKinds.Phone.NUMBER + " != ?",
+                        new String[] {" "},null);
+        if (contactsCursor != null){
+            int number = contactsCursor.getCount();
+            String demoPhoneNumber = "0115735414";
+            String father = "0123749439";
+            String mother = "+249122155276";
+            int matchNumber =0;
+            Log.d(TAG, "updateUI: there are " + number + " contacts in this device");
+            while (contactsCursor.moveToNext()) {
+                String phoneNumber = contactsCursor.getString(contactsCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                if (PhoneNumberUtils.compare(phoneNumber, demoPhoneNumber) ||PhoneNumberUtils.compare(phoneNumber, father)
+                        || PhoneNumberUtils.compare(phoneNumber, mother) ){
+                    matchNumber++;
+                }
+
+            }
+            Log.d(TAG, "updateUI: match number is : " + matchNumber);
+            contactsCursor.close();
+        }
+        /*---------------------------*/
         mNavController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         if (mAuth.getCurrentUser() == null){
             navigateToSignIn();
@@ -105,12 +133,6 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
 
     }
 
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-
-    }
-
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
@@ -140,6 +162,7 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
     private void updateUI(QuerySnapshot value) {
         if (value != null) {
 
+
             for (DocumentChange dc : value.getDocumentChanges()) {
                 Toast.makeText(getContext(), "document has changed ", Toast.LENGTH_SHORT).show();
                 Log.d(TAG, "document change in User Contacts Activity");
@@ -149,7 +172,6 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
                     String toBeReplaceId = fullMessages.get(i).getTargetUserId();
                     if (toBeReplaceId.equals(upComingId)) fullMessages.remove(i);
                 }
-
 
                 fullMessages.add(fullMessage);
 
@@ -165,8 +187,8 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
         String photoUrl= fullMessages.get(position).getTargetUserPhotoUrl();
         String targetUserId = fullMessages.get(position).getTargetUserId();
         Bundle primaryDataBundle = new Bundle();
-        primaryDataBundle.putString("chat_title", chatTitle);
-        primaryDataBundle.putString("photo_url", photoUrl);
+        primaryDataBundle.putString("target_user_name", chatTitle);
+        primaryDataBundle.putString("target_user_photo", photoUrl);
         primaryDataBundle.putString("target_user_id", targetUserId);
         primaryDataBundle.putBoolean("isGroup", false);
         mNavController.navigate(R.id.chatsFragment, primaryDataBundle);
