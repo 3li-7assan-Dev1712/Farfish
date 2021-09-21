@@ -41,6 +41,7 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
     private static final String TAG = UsersFragment.class.getSimpleName();
     private FirebaseAuth mAuth;
     private List<User> users;
+    private List<User> usersUserKnow;
     private ContactsAdapter usersAdapter;
     private FirebaseFirestore mFirestore;
     private NavController mNavController;
@@ -52,6 +53,7 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
         setHasOptionsMenu(true);
         mFirestore = FirebaseFirestore.getInstance();
         users = new ArrayList<>();
+        usersUserKnow = new ArrayList<>();
         usersAdapter = new ContactsAdapter(requireContext(), users, this);
         /*firebase database & auth*/
         mAuth = FirebaseAuth.getInstance();
@@ -127,11 +129,16 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
                             CustomPhoneNumberUtils.getCommonPhoneNumbers(mPhonNumbersFromServer, mPhoneNumbersFromContacts);
                     Log.d(TAG, "initializeUserAndData: common number size " + data.size());
                     Log.d(TAG, "initializeUserAndData: fianl common : " + data.toString());
-                    Iterator i = data.iterator();
-                    while ( i.hasNext() ) {
+                    for (CustomPhoneNumberUtils datum : data) {
+                        String commonPhoneNumber = datum.getVal();
                         Log.d(TAG, "initializeUserAndData: common phone number is: " +
-                                ( (CustomPhoneNumberUtils) i.next() ).getVal() );
-
+                                commonPhoneNumber);
+                        for (User userUserKnow : users){
+                            String localUserPhoneNumber = userUserKnow.getPhoneNumber();
+                            if (PhoneNumberUtils.compare(commonPhoneNumber, localUserPhoneNumber)) {
+                                usersUserKnow.add(userUserKnow);
+                            }
+                        }
                     }
                     usersAdapter.notifyDataSetChanged();
                 }).addOnFailureListener(exception -> {
