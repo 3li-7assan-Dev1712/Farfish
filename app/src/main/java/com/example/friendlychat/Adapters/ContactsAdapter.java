@@ -136,4 +136,10 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
         }
     }
 
+    public void setUsers(List<User> users) {
+        if (users != null) {
+            this.users = users;
+            notifyDataSetChanged();
+        }
+    }
 }

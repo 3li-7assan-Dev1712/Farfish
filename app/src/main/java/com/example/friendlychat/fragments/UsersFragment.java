@@ -140,7 +140,7 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
                             }
                         }
                     }
-                    usersAdapter.notifyDataSetChanged();
+                    usersAdapter.setUsers(usersUserKnow);
                 }).addOnFailureListener(exception -> {
             Log.d(TAG, "initializeUserAndData: the exception in the new query caused by" +
                     exception.getMessage());
