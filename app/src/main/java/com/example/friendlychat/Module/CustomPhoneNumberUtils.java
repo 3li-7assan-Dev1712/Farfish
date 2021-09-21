@@ -12,7 +12,7 @@ import java.util.Set;
 public class CustomPhoneNumberUtils {
     private static Set<String> mContactsPhoneNumbers = new HashSet<>();
     private  String val;
-    private static Context mContext;
+
     public CustomPhoneNumberUtils (String val){
         this.val = val;
     }
@@ -42,7 +42,6 @@ public class CustomPhoneNumberUtils {
     public static Set<CustomPhoneNumberUtils> getCommonPhoneNumbers (List<String> phoneNumbersFromServer,
                                                                List<String> phoneNumberFromContactContactProvider,
                                                                      Context context) {
-        mContext = context;
         Set<CustomPhoneNumberUtils> common = new HashSet<>();
         Set<CustomPhoneNumberUtils> phoneNumbers = new HashSet<>();
         for (String s: phoneNumbersFromServer){

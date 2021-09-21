@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.telephony.PhoneNumberUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -63,6 +64,7 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
     private DatabaseReference mUserReference  = FirebaseDatabase.getInstance().getReference();
     private StorageReference mRootRef;
     private NavController mNavController;
+    private Context mContext;
     /* request permission*/
     private ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
@@ -91,6 +93,7 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.status_fragment, container, false);
         setHasOptionsMenu(true);
+        mContext = requireContext();
         mNavController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.VISIBLE);
         RecyclerView statusRecycler = view.findViewById(R.id.statusRecycler);
@@ -129,19 +132,32 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Log.d(TAG, "onDataChange: generally");
-                Toast.makeText(requireActivity(), "onDataChanged generally", Toast.LENGTH_SHORT).show();
               /*  List<Status> statuses = snapshot.child(FirebaseAuth.getInstance().getUid()).getValue(StatusLists.class).getStatusLists();
                 mStatusLists.add(statuses);*/
                 Iterable<DataSnapshot> iterable = snapshot.getChildren();
                 List<List<Status>> allUsersStatues = new ArrayList<>();
                 for (DataSnapshot dataSnapshot : iterable) {
-
+                    String rootUserStatusPhoneNumber = "";
                     Iterator<DataSnapshot> childIterator = dataSnapshot.getChildren().iterator();
                     List<Status> oneUserStatuses = new ArrayList<>();
                     while (childIterator.hasNext()) {
-                        oneUserStatuses.add(childIterator.next().getValue(Status.class));
+                        Status status = childIterator.next().getValue(Status.class);
+                        assert status != null;
+                        String phoneNum = status.getUploaderPhoneNumber();
+                        if (rootUserStatusPhoneNumber.equals(""))
+                            rootUserStatusPhoneNumber = phoneNum;
+                        oneUserStatuses.add(status);
                     }
-                    allUsersStatues.add(oneUserStatuses);
+                    // just display contacts status
+
+                    if (mContext != null){
+                        for (String contact: MessagesPreference.getUserContacts(mContext) ){
+                            if (PhoneNumberUtils.compare(contact, rootUserStatusPhoneNumber))
+                                allUsersStatues.add(oneUserStatuses);
+                        }
+                    }
+
+
                 }
                 mStatusLists.clear();
                 mStatusLists.addAll(allUsersStatues);
@@ -240,7 +256,8 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
                          /* if the image sent successfully to the firebase storage send its metadata as a message
                          to the firebase firestore */
                          String uploaderName = MessagesPreference.getUserName(requireContext());
-                        Status newStatus = new Status(uploaderName, downloadUrl, "", dateFromDateClass, 0);
+                         String uploaderPhoneNumber = MessagesPreference.getUsePhoneNumber(requireContext());
+                        Status newStatus = new Status(uploaderName, uploaderPhoneNumber, downloadUrl, "", dateFromDateClass, 0);
                         uploadNewStatus(newStatus);
                     });
 

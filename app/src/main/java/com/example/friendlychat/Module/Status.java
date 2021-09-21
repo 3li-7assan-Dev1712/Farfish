@@ -4,11 +4,20 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class Status implements Parcelable {
-    private String uploaderName, statusImage, statusText;
+    private String uploaderName, uploaderPhoneNumber, statusImage, statusText;
     private long timestamp;
     private int seenBy;
 
     public Status() {
+    }
+
+    public Status(String uploaderName, String uploaderPhoneNumber, String statusImage, String statusText, long timestamp, int seenBy) {
+        this.uploaderName = uploaderName;
+        this.uploaderPhoneNumber = uploaderPhoneNumber;
+        this.statusImage = statusImage;
+        this.statusText = statusText;
+        this.timestamp = timestamp;
+        this.seenBy = seenBy;
     }
 
     public Status(String uploaderName, String statusImage, long timestamp, int seenBy) {
@@ -28,6 +37,7 @@ public class Status implements Parcelable {
 
     protected Status(Parcel in) {
         uploaderName = in.readString();
+        uploaderPhoneNumber = in.readString();
         statusImage = in.readString();
         statusText = in.readString();
         timestamp = in.readLong();
@@ -62,6 +72,10 @@ public class Status implements Parcelable {
         return timestamp;
     }
 
+    public String getUploaderPhoneNumber() {
+        return uploaderPhoneNumber;
+    }
+
     public int getSeenBy() {
         return seenBy;
     }
@@ -73,6 +87,7 @@ public class Status implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(uploaderName);
         dest.writeString(uploaderName);
         dest.writeString(statusImage);
         dest.writeString(statusText);

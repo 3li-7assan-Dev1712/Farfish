@@ -62,33 +62,10 @@ public class UploadTextStatusFragment extends Fragment {
         mUploadFab.setOnClickListener( uploadFab -> {
             Toast.makeText(requireActivity(), "Upload Text", Toast.LENGTH_SHORT).show();
             Status textStatus = new Status(MessagesPreference.getUserName(requireContext()),
+                    MessagesPreference.getUsePhoneNumber(requireContext()),
                     "", statusEditText.getText().toString(),
                     new Date().getTime(),
                     0);
-            /* create a bitmap from the text of the editText*/
-            String text = statusEditText.getText().toString();
-            final Paint textPaint = new Paint() {
-                @Override
-                public void setColor(int color) {
-                    super.setColor(Color.WHITE);
-                }
-
-                @Override
-                public void setTextAlign(Align align) {
-                    super.setTextAlign(Align.CENTER);
-                }
-
-                @Override
-                public void setTextSize(float textSize) {
-                    super.setTextSize(20f);
-                }
-
-                @Override
-                public void setAntiAlias(boolean aa) {
-                    super.setAntiAlias(true);
-                }
-            };
-
 
             //
             userRef.push().setValue(textStatus).addOnCompleteListener(task -> {
