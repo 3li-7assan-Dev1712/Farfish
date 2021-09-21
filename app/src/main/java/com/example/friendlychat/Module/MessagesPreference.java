@@ -58,4 +58,24 @@ public class MessagesPreference {
         SharedPreferences sp = context.getSharedPreferences("messages", Context.MODE_PRIVATE);
         return sp.getString("user_id", "id");
     }
+
+    public static void enableUsersFilter(Context context){
+        SharedPreferences sp = context.getSharedPreferences("messages", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putBoolean("filter", true);
+        editor.apply();
+    }
+
+    public static void disableUsersFilter(Context context){
+        SharedPreferences sp = context.getSharedPreferences("messages", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putBoolean("filter", false);
+        editor.apply();
+    }
+
+    public static boolean isFilterActive(Context context){
+        SharedPreferences sp = context.getSharedPreferences("messages", Context.MODE_PRIVATE);
+        return sp.getBoolean("filter", true);
+    }
+
 }

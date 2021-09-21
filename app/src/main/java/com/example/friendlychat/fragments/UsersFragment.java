@@ -12,6 +12,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -25,6 +26,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.friendlychat.Adapters.ContactsAdapter;
 import com.example.friendlychat.Module.CustomPhoneNumberUtils;
+import com.example.friendlychat.Module.Message;
+import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.SharedPreferenceUtils;
 import com.example.friendlychat.Module.User;
 import com.example.friendlychat.R;
@@ -46,6 +49,7 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
     private FirebaseFirestore mFirestore;
     private NavController mNavController;
 
+    private ImageView mFilterImageView;
     private List<String> mPhoneNumbersFromContacts = new ArrayList<>();
     private List<String> mPhonNumbersFromServer = new ArrayList<>();
     @Override
@@ -66,6 +70,33 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.VISIBLE);
         View view =  inflater.inflate(R.layout.users_fragment, container, false);
+        insertUserContacts();
+        mNavController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+        Toolbar tb = view.findViewById(R.id.mainToolbar_frag);
+        ((AppCompatActivity) requireActivity())
+                .setSupportActionBar(tb);
+        mFilterImageView = tb.findViewById(R.id.filterImageView);
+        updateFilterImageResoucre();
+        mFilterImageView.setOnClickListener(filterListener -> {
+            if (MessagesPreference.isFilterActive(requireContext()))
+                MessagesPreference.disableUsersFilter(requireContext());
+            else
+                MessagesPreference.enableUsersFilter(requireContext());
+            updateFilterImageResoucre();
+        });
+        RecyclerView usersRecycler = view.findViewById(R.id.usersRecyclerView);
+        usersRecycler.setAdapter(usersAdapter);
+         return view;
+    }
+
+    private void updateFilterImageResoucre() {
+        if (MessagesPreference.isFilterActive(requireContext()))
+            mFilterImageView.setImageResource(R.drawable.ic_filter_list_yellow_24);
+        else
+            mFilterImageView.setImageResource(R.drawable.ic_filter_list_24);
+    }
+
+    private void insertUserContacts() {
         /*---------------------------*/
         Cursor contactsCursor = requireContext().getContentResolver()
                 .query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
@@ -93,15 +124,7 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
             contactsCursor.close();
         }
         /*---------------------------*/
-        mNavController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
-        Toolbar tb = view.findViewById(R.id.mainToolbar_frag);
-        ((AppCompatActivity) requireActivity())
-                .setSupportActionBar(tb);
-        RecyclerView usersRecycler = view.findViewById(R.id.usersRecyclerView);
-        usersRecycler.setAdapter(usersAdapter);
-         return view;
     }
-
 
 
     private void initializeUserAndData() {
