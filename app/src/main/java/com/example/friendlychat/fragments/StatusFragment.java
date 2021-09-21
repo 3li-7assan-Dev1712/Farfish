@@ -30,6 +30,7 @@ import com.example.friendlychat.Adapters.StatusAdapter;
 import com.example.friendlychat.CustomViews.CustomStatusView;
 import com.example.friendlychat.Module.CustomStory;
 import com.example.friendlychat.Module.FileUtil;
+import com.example.friendlychat.Module.Message;
 import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.SharedPreferenceUtils;
 import com.example.friendlychat.Module.Status;
@@ -52,6 +53,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import id.zelory.compressor.Compressor;
 import omari.hamza.storyview.callback.StoryClickListeners;
@@ -64,7 +66,9 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
     private DatabaseReference mUserReference  = FirebaseDatabase.getInstance().getReference();
     private StorageReference mRootRef;
     private NavController mNavController;
-    private Context mContext;
+
+    private Set<String> mContact;
+
     /* request permission*/
     private ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
@@ -93,7 +97,7 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.status_fragment, container, false);
         setHasOptionsMenu(true);
-        mContext = requireContext();
+        mContact = MessagesPreference.getUserContacts(requireContext());
         mNavController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.VISIBLE);
         RecyclerView statusRecycler = view.findViewById(R.id.statusRecycler);
@@ -149,13 +153,10 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
                         oneUserStatuses.add(status);
                     }
                     // just display contacts status
-
-                    if (mContext != null){
-                        for (String contact: MessagesPreference.getUserContacts(mContext) ){
+                        for (String contact: mContact){
                             if (PhoneNumberUtils.compare(contact, rootUserStatusPhoneNumber))
                                 allUsersStatues.add(oneUserStatuses);
                         }
-                    }
 
 
                 }
