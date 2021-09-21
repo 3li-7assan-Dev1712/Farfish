@@ -37,7 +37,7 @@ public class CustomPhoneNumberUtils {
         return PhoneNumberUtils.compare(this.getVal(), number.getVal());
     }
 
-    private Set<CustomPhoneNumberUtils> getCommonPhoneNumbers (List<String> phoneNumbersFromServer,
+    public static Set<CustomPhoneNumberUtils> getCommonPhoneNumbers (List<String> phoneNumbersFromServer,
                                                                List<String> phoneNumberFromContactContactProvider) {
         Set<CustomPhoneNumberUtils> common = new HashSet<>();
         Set<CustomPhoneNumberUtils> phoneNumbers = new HashSet<>();

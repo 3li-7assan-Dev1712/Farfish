@@ -74,31 +74,7 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.VISIBLE);
         Log.d(TAG, "onCreateView: ");
         View view =inflater.inflate(R.layout.fragment_user_chats, container, false);
-        /*---------------------------*/
-        Cursor contactsCursor = requireContext().getContentResolver()
-                .query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                        new String[] {ContactsContract.CommonDataKinds.Phone.NUMBER },
-                        ContactsContract.CommonDataKinds.Phone.NUMBER + " != ?",
-                        new String[] {" "},null);
-        if (contactsCursor != null){
-            int number = contactsCursor.getCount();
-            String demoPhoneNumber = "0115735414";
-            String father = "0123749439";
-            String mother = "+249122155276";
-            int matchNumber =0;
-            Log.d(TAG, "updateUI: there are " + number + " contacts in this device");
-            while (contactsCursor.moveToNext()) {
-                String phoneNumber = contactsCursor.getString(contactsCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                if (PhoneNumberUtils.compare(phoneNumber, demoPhoneNumber) ||PhoneNumberUtils.compare(phoneNumber, father)
-                        || PhoneNumberUtils.compare(phoneNumber, mother) ){
-                    matchNumber++;
-                }
 
-            }
-            Log.d(TAG, "updateUI: match number is : " + matchNumber);
-            contactsCursor.close();
-        }
-        /*---------------------------*/
         mNavController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         if (mAuth.getCurrentUser() == null){
             navigateToSignIn();

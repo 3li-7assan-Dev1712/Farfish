@@ -124,6 +124,7 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
     /*---------------------*/
     /* progress bar to show loading of messages*/
     private ProgressBar mProgressBar;
+    // ok this is a perfi
     /*pick picture via calling picPic.launch() method*/
     private ActivityResultLauncher<String> pickPic = registerForActivityResult(
             new ActivityResultContracts.GetContent(){

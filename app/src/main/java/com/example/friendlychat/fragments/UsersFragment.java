@@ -1,8 +1,11 @@
 package com.example.friendlychat.fragments;
 
-import android.app.Activity;
-import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.provider.ContactsContract;
+import android.service.voice.AlwaysOnHotwordDetector;
+import android.telephony.PhoneNumberUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -11,7 +14,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,30 +24,29 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.friendlychat.Adapters.ContactsAdapter;
-import com.example.friendlychat.Module.MessagesPreference;
+import com.example.friendlychat.Module.CustomPhoneNumberUtils;
 import com.example.friendlychat.Module.SharedPreferenceUtils;
 import com.example.friendlychat.Module.User;
 import com.example.friendlychat.R;
-import com.firebase.ui.auth.AuthUI;
-import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
-import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
+import java.util.Set;
 
 public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatClicked {
+    private static final String TAG = UsersFragment.class.getSimpleName();
     private FirebaseAuth mAuth;
     private List<User> users;
     private ContactsAdapter usersAdapter;
     private FirebaseFirestore mFirestore;
     private NavController mNavController;
+
+    private List<String> mPhoneNumbersFromContacts = new ArrayList<>();
+    private List<String> mPhonNumbersFromServer = new ArrayList<>();
     @Override
     public void onCreate(Bundle savedInstanceState) {
         setHasOptionsMenu(true);
@@ -54,7 +55,7 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
         usersAdapter = new ContactsAdapter(requireContext(), users, this);
         /*firebase database & auth*/
         mAuth = FirebaseAuth.getInstance();
-        initializeUserAndData();
+
         super.onCreate(savedInstanceState);
     }
 
@@ -63,6 +64,33 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.VISIBLE);
         View view =  inflater.inflate(R.layout.users_fragment, container, false);
+        /*---------------------------*/
+        Cursor contactsCursor = requireContext().getContentResolver()
+                .query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                        new String[] {ContactsContract.CommonDataKinds.Phone.NUMBER },
+                        ContactsContract.CommonDataKinds.Phone.NUMBER + " != ?",
+                        new String[] {" "},null);
+        if (contactsCursor != null){
+            int number = contactsCursor.getCount();
+            String demoPhoneNumber = "0115735414";
+            String father = "0123749439";
+            String mother = "+249122155276";
+            int matchNumber =0;
+            Log.d(TAG, "updateUI: there are " + number + " contacts in this device");
+            while (contactsCursor.moveToNext()) {
+                String phoneNumber = contactsCursor.getString(contactsCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                mPhoneNumbersFromContacts.add(phoneNumber);
+                if (PhoneNumberUtils.compare(phoneNumber, demoPhoneNumber) ||PhoneNumberUtils.compare(phoneNumber, father)
+                        || PhoneNumberUtils.compare(phoneNumber, mother) ){
+                    matchNumber++;
+                }
+
+            }
+            initializeUserAndData();
+            Log.d(TAG, "updateUI: match number is : " + matchNumber);
+            contactsCursor.close();
+        }
+        /*---------------------------*/
         mNavController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         Toolbar tb = view.findViewById(R.id.mainToolbar_frag);
         ((AppCompatActivity) requireActivity())
@@ -76,17 +104,44 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
 
     private void initializeUserAndData() {
         /*makeUserActive();*/
-        mFirestore.collection("rooms").get()
+        Log.d(TAG, "initializeUserAndData: start getting data");
+        mFirestore.collection("rooms")
+                .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     for (DocumentChange dc: queryDocumentSnapshots.getDocumentChanges()){
                         User user = dc.getDocument().toObject(User.class);
                         String currentUserId = mAuth.getUid();
+                        Log.d(TAG, "initializeUserAndData: mildle");
+                        String phoneNumber = user.getPhoneNumber();
+                        Log.d(TAG, "initializeUserAndData: phoneNumberSever: " + phoneNumber);
+                        if (phoneNumber != null) {
+                            if(!phoneNumber.equals(""))
+                                mPhonNumbersFromServer.add(phoneNumber);
+                        }
                         assert currentUserId != null;
                         if (!currentUserId.equals(user.getUserId()))
                             users.add(user);
                     }
+                    Log.d(TAG, "initializeUserAndData: phone number size form the server: " + mPhonNumbersFromServer.size());
+                    Set<CustomPhoneNumberUtils> data =
+                            CustomPhoneNumberUtils.getCommonPhoneNumbers(mPhonNumbersFromServer, mPhoneNumbersFromContacts);
+                    Log.d(TAG, "initializeUserAndData: common number size " + data.size());
+                    Log.d(TAG, "initializeUserAndData: fianl common : " + data.toString());
+                    Iterator i = data.iterator();
+                    while ( i.hasNext() ) {
+                        Log.d(TAG, "initializeUserAndData: common phone number is: " +
+                                ( (CustomPhoneNumberUtils) i.next() ).getVal() );
+
+                    }
                     usersAdapter.notifyDataSetChanged();
-                });
+                }).addOnFailureListener(exception -> {
+            Log.d(TAG, "initializeUserAndData: the exception in the new query caused by" +
+                    exception.getMessage());
+        });
+        Log.d(TAG, "initializeUserAndData: end getting data");
+
+
+
     }
 
 
