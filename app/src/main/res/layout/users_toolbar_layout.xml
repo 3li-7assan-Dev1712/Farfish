@@ -4,8 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    tools:background="@color/colorPrimary"
-    android:padding="8dp">
+    tools:background="@color/colorPrimary">
 
     <TextView
         android:id="@+id/usersTextView"
@@ -23,10 +22,10 @@
         android:id="@+id/filterImageView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
+        android:contentDescription="@string/image_button_description"
+        android:padding="16dp"
+        android:src="@drawable/ic_filter_list_24"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:src="@drawable/ic_filter_list_24"
-        android:contentDescription="@string/image_button_description" />
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
