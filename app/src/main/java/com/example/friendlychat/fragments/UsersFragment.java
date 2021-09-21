@@ -1,5 +1,6 @@
 package com.example.friendlychat.fragments;
 
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -26,6 +27,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.friendlychat.Adapters.ContactsAdapter;
 import com.example.friendlychat.Module.CustomPhoneNumberUtils;
+import com.example.friendlychat.Module.FilterPreferenceUtils;
 import com.example.friendlychat.Module.Message;
 import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.SharedPreferenceUtils;
@@ -40,7 +42,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatClicked {
+public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatClicked,
+        SharedPreferences.OnSharedPreferenceChangeListener {
     private static final String TAG = UsersFragment.class.getSimpleName();
     private FirebaseAuth mAuth;
     private List<User> users;
@@ -78,10 +81,10 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
         mFilterImageView = tb.findViewById(R.id.filterImageView);
         updateFilterImageResoucre();
         mFilterImageView.setOnClickListener(filterListener -> {
-            if (MessagesPreference.isFilterActive(requireContext()))
-                MessagesPreference.disableUsersFilter(requireContext());
+            if (FilterPreferenceUtils.isFilterActive(requireContext()))
+                FilterPreferenceUtils.disableUsersFilter(requireContext());
             else
-                MessagesPreference.enableUsersFilter(requireContext());
+                FilterPreferenceUtils.enableUsersFilter(requireContext());
             updateFilterImageResoucre();
         });
         RecyclerView usersRecycler = view.findViewById(R.id.usersRecyclerView);
@@ -90,7 +93,7 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
     }
 
     private void updateFilterImageResoucre() {
-        if (MessagesPreference.isFilterActive(requireContext()))
+        if (FilterPreferenceUtils.isFilterActive(requireContext()))
             mFilterImageView.setImageResource(R.drawable.ic_filter_list_yellow_24);
         else
             mFilterImageView.setImageResource(R.drawable.ic_filter_list_24);
@@ -226,4 +229,14 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
         inflater.inflate(R.menu.main, menu);
     }
 
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+       boolean activeFilter = sharedPreferences.getBoolean(key, true);
+        Log.d(TAG, "onSharedPreferenceChanged: filter state: " + activeFilter);
+        if (activeFilter) {
+            usersAdapter.setUsers(usersUserKnow);
+        }else{
+            usersAdapter.setUsers(users);
+        }
+    }
 }
