@@ -1,10 +1,11 @@
 package com.example.friendlychat.fragments;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.ContactsContract;
-import android.service.voice.AlwaysOnHotwordDetector;
 import android.telephony.PhoneNumberUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -28,17 +29,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.friendlychat.Adapters.ContactsAdapter;
 import com.example.friendlychat.Module.CustomPhoneNumberUtils;
 import com.example.friendlychat.Module.FilterPreferenceUtils;
-import com.example.friendlychat.Module.Message;
-import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.SharedPreferenceUtils;
 import com.example.friendlychat.Module.User;
 import com.example.friendlychat.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -74,6 +73,8 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.VISIBLE);
         View view =  inflater.inflate(R.layout.users_fragment, container, false);
         insertUserContacts();
+        requireActivity().getSharedPreferences("filter_utils", Activity.MODE_PRIVATE).
+                registerOnSharedPreferenceChangeListener(this);
         mNavController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         Toolbar tb = view.findViewById(R.id.mainToolbar_frag);
         ((AppCompatActivity) requireActivity())
@@ -81,7 +82,7 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
         mFilterImageView = tb.findViewById(R.id.filterImageView);
         updateFilterImageResoucre();
         mFilterImageView.setOnClickListener(filterListener -> {
-            if (FilterPreferenceUtils.isFilterActive(requireContext()))
+            if (getFilterState())
                 FilterPreferenceUtils.disableUsersFilter(requireContext());
             else
                 FilterPreferenceUtils.enableUsersFilter(requireContext());
@@ -93,7 +94,7 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
     }
 
     private void updateFilterImageResoucre() {
-        if (FilterPreferenceUtils.isFilterActive(requireContext()))
+        if (getFilterState())
             mFilterImageView.setImageResource(R.drawable.ic_filter_list_yellow_24);
         else
             mFilterImageView.setImageResource(R.drawable.ic_filter_list_24);
@@ -129,6 +130,12 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
         /*---------------------------*/
     }
 
+    @Override
+    public void onDestroyView() {
+        requireActivity().getSharedPreferences("filter_utils", Activity.MODE_PRIVATE).
+                unregisterOnSharedPreferenceChangeListener(this);
+        super.onDestroyView();
+    }
 
     private void initializeUserAndData() {
         /*makeUserActive();*/
@@ -136,56 +143,77 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
         mFirestore.collection("rooms")
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
-                    for (DocumentChange dc: queryDocumentSnapshots.getDocumentChanges()){
-                        User user = dc.getDocument().toObject(User.class);
-                        String currentUserId = mAuth.getUid();
-                        Log.d(TAG, "initializeUserAndData: mildle");
-                        String phoneNumber = user.getPhoneNumber();
-                        Log.d(TAG, "initializeUserAndData: phoneNumberSever: " + phoneNumber);
-                        if (phoneNumber != null) {
-                            if(!phoneNumber.equals(""))
-                                mPhonNumbersFromServer.add(phoneNumber);
-                        }
-                        assert currentUserId != null;
-                        if (!currentUserId.equals(user.getUserId()))
-                            users.add(user);
-                    }
-                    Log.d(TAG, "initializeUserAndData: phone number size form the server: " + mPhonNumbersFromServer.size());
-                    Set<CustomPhoneNumberUtils> data =
-                            CustomPhoneNumberUtils.getCommonPhoneNumbers(mPhonNumbersFromServer, mPhoneNumbersFromContacts);
-                    Log.d(TAG, "initializeUserAndData: common number size " + data.size());
-                    Log.d(TAG, "initializeUserAndData: fianl common : " + data.toString());
-                    for (CustomPhoneNumberUtils datum : data) {
-                        String commonPhoneNumber = datum.getVal();
-                        Log.d(TAG, "initializeUserAndData: common phone number is: " +
-                                commonPhoneNumber);
-                        for (User userUserKnow : users){
-                            String localUserPhoneNumber = userUserKnow.getPhoneNumber();
-                            if (PhoneNumberUtils.compare(commonPhoneNumber, localUserPhoneNumber)) {
-                                usersUserKnow.add(userUserKnow);
-                            }
-                        }
-                    }
-                    usersAdapter.setUsers(usersUserKnow);
-                }).addOnFailureListener(exception -> {
-            Log.d(TAG, "initializeUserAndData: the exception in the new query caused by" +
-                    exception.getMessage());
-        });
-        Log.d(TAG, "initializeUserAndData: end getting data");
+                    // this method will fetch the primary data (insert all users inside users list)
+                    fetchPrimaryData(queryDocumentSnapshots);
+                    // this method will use the users list from above and filter it to users whom current user have in contacts
+                    fetchDataInUsersUserKnowList();
 
+                    // check for the filter state then populate the ui
+                    if (getFilterState()) usersAdapter.setUsers(usersUserKnow);
+                    else usersAdapter.setUsers(users);
+                }).addOnFailureListener(exception -> Log.d(TAG, "initializeUserAndData: the exception in the new query caused by" +
+                        exception.getMessage()));
 
+    }
 
+    private void fetchDataInUsersUserKnowList() {
+        Set<CustomPhoneNumberUtils> data =
+                CustomPhoneNumberUtils.getCommonPhoneNumbers(mPhonNumbersFromServer, mPhoneNumbersFromContacts);
+        Log.d(TAG, "initializeUserAndData: common number size " + data.size());
+        Log.d(TAG, "initializeUserAndData: fianl common : " + data.toString());
+        for (CustomPhoneNumberUtils datum : data) {
+            String commonPhoneNumber = datum.getVal();
+            Log.d(TAG, "initializeUserAndData: common phone number is: " +
+                    commonPhoneNumber);
+            for (User userUserKnow : users){
+                String localUserPhoneNumber = userUserKnow.getPhoneNumber();
+                if (PhoneNumberUtils.compare(commonPhoneNumber, localUserPhoneNumber)) {
+                    usersUserKnow.add(userUserKnow);
+                }
+            }
+        }
+    }
+
+    private void fetchPrimaryData(QuerySnapshot queryDocumentSnapshots) {
+        for (DocumentChange dc: queryDocumentSnapshots.getDocumentChanges()){
+            User user = dc.getDocument().toObject(User.class);
+            String currentUserId = mAuth.getUid();
+            Log.d(TAG, "initializeUserAndData: mildle");
+            String phoneNumber = user.getPhoneNumber();
+            Log.d(TAG, "initializeUserAndData: phoneNumberSever: " + phoneNumber);
+            if (phoneNumber != null) {
+                if(!phoneNumber.equals(""))
+                    mPhonNumbersFromServer.add(phoneNumber);
+            }
+            assert currentUserId != null;
+            if (!currentUserId.equals(user.getUserId()))
+                users.add(user);
+        }
     }
 
 
     @Override
     public void onChatClicked(int position) {
 
-        String chatTitle = users.get(position).getUserName();
-        String photoUrl = users.get(position).getPhotoUrl();
-        String targetUserEmail = users.get(position).getEmail();
-        String userStatus = users.get(position).getStatus();
-        long lastTimeSeen = users.get(position).getLastTimeSeen();
+        String chatTitle;
+        String photoUrl;
+        String targetUserEmail;
+        String userStatus;
+        long lastTimeSeen ;
+        if (getFilterState()){
+            chatTitle= usersUserKnow.get(position).getUserName();
+            photoUrl= usersUserKnow.get(position).getPhotoUrl();
+            targetUserEmail= usersUserKnow.get(position).getEmail();
+            userStatus= usersUserKnow.get(position).getStatus();
+            lastTimeSeen= usersUserKnow.get(position).getLastTimeSeen();
+        }else{
+             chatTitle= users.get(position).getUserName();
+             photoUrl= users.get(position).getPhotoUrl();
+             targetUserEmail= users.get(position).getEmail();
+            userStatus= users.get(position).getStatus();
+             lastTimeSeen= users.get(position).getLastTimeSeen();
+        }
+
         Bundle primaryDataBundle = new Bundle();
         primaryDataBundle.putString("target_user_name", chatTitle);
         primaryDataBundle.putString("target_user_photo_url", photoUrl);
@@ -238,5 +266,9 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
         }else{
             usersAdapter.setUsers(users);
         }
+    }
+
+    private Boolean getFilterState () {
+        return FilterPreferenceUtils.isFilterActive(requireContext());
     }
 }

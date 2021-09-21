@@ -10,7 +10,7 @@
 
     <item
         android:id="@+id/go_to_profile"
-        android:icon="@drawable/ic_round_person_black"
+        android:icon="@drawable/ic_round_person_white"
         android:orderInCategory="2"
         android:title="@string/profile"
         app:showAsAction="ifRoom" />
