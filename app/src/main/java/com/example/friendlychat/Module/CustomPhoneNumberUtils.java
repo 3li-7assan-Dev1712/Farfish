@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 public class CustomPhoneNumberUtils {
+    private static Set<String> mContactsPhoneNumbers = new HashSet<>();
     private  String val;
 
     public CustomPhoneNumberUtils (String val){
@@ -48,6 +49,7 @@ public class CustomPhoneNumberUtils {
             CustomPhoneNumberUtils customPhoneNumberUtils = new CustomPhoneNumberUtils(s);
             if (phoneNumbers.contains(customPhoneNumberUtils)){
                 common.add(customPhoneNumberUtils);
+                mContactsPhoneNumbers.add(s);
             }
         }
         return common;

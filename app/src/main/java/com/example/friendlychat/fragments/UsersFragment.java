@@ -1,7 +1,6 @@
 package com.example.friendlychat.fragments;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -108,23 +107,11 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
                         ContactsContract.CommonDataKinds.Phone.NUMBER + " != ?",
                         new String[] {" "},null);
         if (contactsCursor != null){
-            int number = contactsCursor.getCount();
-            String demoPhoneNumber = "0115735414";
-            String father = "0123749439";
-            String mother = "+249122155276";
-            int matchNumber =0;
-            Log.d(TAG, "updateUI: there are " + number + " contacts in this device");
             while (contactsCursor.moveToNext()) {
                 String phoneNumber = contactsCursor.getString(contactsCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
                 mPhoneNumbersFromContacts.add(phoneNumber);
-                if (PhoneNumberUtils.compare(phoneNumber, demoPhoneNumber) ||PhoneNumberUtils.compare(phoneNumber, father)
-                        || PhoneNumberUtils.compare(phoneNumber, mother) ){
-                    matchNumber++;
-                }
-
             }
             initializeUserAndData();
-            Log.d(TAG, "updateUI: match number is : " + matchNumber);
             contactsCursor.close();
         }
         /*---------------------------*/
@@ -147,6 +134,8 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
                     fetchPrimaryData(queryDocumentSnapshots);
                     // this method will use the users list from above and filter it to users whom current user have in contacts
                     fetchDataInUsersUserKnowList();
+                    // save it in a SharedPreference
+
 
                     // check for the filter state then populate the ui
                     if (getFilterState()) usersAdapter.setUsers(usersUserKnow);
@@ -189,6 +178,7 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
             if (!currentUserId.equals(user.getUserId()))
                 users.add(user);
         }
+        Log.d(TAG, "fetchPrimaryData: uses list size: " + users.size());
     }
 
 
@@ -199,26 +189,30 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
         String photoUrl;
         String targetUserEmail;
         String userStatus;
+        String targetUserId;
         long lastTimeSeen ;
+
         if (getFilterState()){
             chatTitle= usersUserKnow.get(position).getUserName();
             photoUrl= usersUserKnow.get(position).getPhotoUrl();
             targetUserEmail= usersUserKnow.get(position).getEmail();
             userStatus= usersUserKnow.get(position).getStatus();
+            targetUserId = usersUserKnow.get(position).getUserId();
             lastTimeSeen= usersUserKnow.get(position).getLastTimeSeen();
         }else{
              chatTitle= users.get(position).getUserName();
              photoUrl= users.get(position).getPhotoUrl();
              targetUserEmail= users.get(position).getEmail();
-            userStatus= users.get(position).getStatus();
+             userStatus= users.get(position).getStatus();
              lastTimeSeen= users.get(position).getLastTimeSeen();
+            targetUserId = users.get(position).getUserId();
         }
 
         Bundle primaryDataBundle = new Bundle();
         primaryDataBundle.putString("target_user_name", chatTitle);
         primaryDataBundle.putString("target_user_photo_url", photoUrl);
         if (!chatTitle.equals("All people use the app")) {
-            String targetUserId = users.get(position).getUserId();
+
             primaryDataBundle.putString("target_user_id", targetUserId);
             primaryDataBundle.putString("target_user_email", targetUserEmail);
             primaryDataBundle.putString("target_user_status", userStatus);
@@ -265,6 +259,7 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
             usersAdapter.setUsers(usersUserKnow);
         }else{
             usersAdapter.setUsers(users);
+            Log.d(TAG, "onSharedPreferenceChanged: list of users size is: " + users.size());
         }
     }
 
