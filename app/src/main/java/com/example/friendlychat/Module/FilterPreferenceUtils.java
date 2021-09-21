@@ -23,5 +23,4 @@ public class FilterPreferenceUtils {
         SharedPreferences sp = context.getSharedPreferences("filter_utils", Context.MODE_PRIVATE);
         return sp.getBoolean("filter", true);
     }
-
 }

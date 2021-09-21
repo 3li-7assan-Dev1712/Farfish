@@ -3,6 +3,8 @@ package com.example.friendlychat.Module;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import java.util.Set;
+
 public class MessagesPreference {
 
 
@@ -59,6 +61,15 @@ public class MessagesPreference {
         return sp.getString("user_id", "id");
     }
 
+    public static void saveUserContacts(Context context, Set<String> contacts){
+        SharedPreferences sp = context.getSharedPreferences("messages", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putStringSet("contacts", contacts);
+        editor.apply();
+    }
 
-
+    public static Set<String> getUserContacts(Context context){
+        SharedPreferences sp = context.getSharedPreferences("messages", Context.MODE_PRIVATE);
+        return sp.getStringSet("contacts", null);
+    }
 }

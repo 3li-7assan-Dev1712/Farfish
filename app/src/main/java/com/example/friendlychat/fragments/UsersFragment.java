@@ -146,37 +146,41 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
     }
 
     private void fetchDataInUsersUserKnowList() {
-        Set<CustomPhoneNumberUtils> data =
-                CustomPhoneNumberUtils.getCommonPhoneNumbers(mPhonNumbersFromServer, mPhoneNumbersFromContacts);
-        Log.d(TAG, "initializeUserAndData: common number size " + data.size());
-        Log.d(TAG, "initializeUserAndData: fianl common : " + data.toString());
-        for (CustomPhoneNumberUtils datum : data) {
-            String commonPhoneNumber = datum.getVal();
-            Log.d(TAG, "initializeUserAndData: common phone number is: " +
-                    commonPhoneNumber);
-            for (User userUserKnow : users){
-                String localUserPhoneNumber = userUserKnow.getPhoneNumber();
-                if (PhoneNumberUtils.compare(commonPhoneNumber, localUserPhoneNumber)) {
-                    usersUserKnow.add(userUserKnow);
+        if (usersUserKnow.size() == 0) {
+            Set<CustomPhoneNumberUtils> data =
+                    CustomPhoneNumberUtils.getCommonPhoneNumbers(mPhonNumbersFromServer, mPhoneNumbersFromContacts, requireContext());
+            Log.d(TAG, "initializeUserAndData: common number size " + data.size());
+            Log.d(TAG, "initializeUserAndData: fianl common : " + data.toString());
+            for (CustomPhoneNumberUtils datum : data) {
+                String commonPhoneNumber = datum.getVal();
+                Log.d(TAG, "initializeUserAndData: common phone number is: " +
+                        commonPhoneNumber);
+                for (User userUserKnow : users) {
+                    String localUserPhoneNumber = userUserKnow.getPhoneNumber();
+                    if (PhoneNumberUtils.compare(commonPhoneNumber, localUserPhoneNumber)) {
+                        usersUserKnow.add(userUserKnow);
+                    }
                 }
             }
         }
     }
 
     private void fetchPrimaryData(QuerySnapshot queryDocumentSnapshots) {
-        for (DocumentChange dc: queryDocumentSnapshots.getDocumentChanges()){
-            User user = dc.getDocument().toObject(User.class);
-            String currentUserId = mAuth.getUid();
-            Log.d(TAG, "initializeUserAndData: mildle");
-            String phoneNumber = user.getPhoneNumber();
-            Log.d(TAG, "initializeUserAndData: phoneNumberSever: " + phoneNumber);
-            if (phoneNumber != null) {
-                if(!phoneNumber.equals(""))
-                    mPhonNumbersFromServer.add(phoneNumber);
+        if (users.size() == 0) {
+            for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
+                User user = dc.getDocument().toObject(User.class);
+                String currentUserId = mAuth.getUid();
+                Log.d(TAG, "initializeUserAndData: mildle");
+                String phoneNumber = user.getPhoneNumber();
+                Log.d(TAG, "initializeUserAndData: phoneNumberSever: " + phoneNumber);
+                if (phoneNumber != null) {
+                    if (!phoneNumber.equals(""))
+                        mPhonNumbersFromServer.add(phoneNumber);
+                }
+                assert currentUserId != null;
+                if (!currentUserId.equals(user.getUserId()))
+                    users.add(user);
             }
-            assert currentUserId != null;
-            if (!currentUserId.equals(user.getUserId()))
-                users.add(user);
         }
         Log.d(TAG, "fetchPrimaryData: uses list size: " + users.size());
     }

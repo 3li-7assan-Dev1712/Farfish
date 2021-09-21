@@ -135,6 +135,7 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
                 Iterable<DataSnapshot> iterable = snapshot.getChildren();
                 List<List<Status>> allUsersStatues = new ArrayList<>();
                 for (DataSnapshot dataSnapshot : iterable) {
+
                     Iterator<DataSnapshot> childIterator = dataSnapshot.getChildren().iterator();
                     List<Status> oneUserStatuses = new ArrayList<>();
                     while (childIterator.hasNext()) {

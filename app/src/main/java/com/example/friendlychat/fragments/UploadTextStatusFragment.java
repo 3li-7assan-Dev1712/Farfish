@@ -89,21 +89,7 @@ public class UploadTextStatusFragment extends Fragment {
                 }
             };
 
-            final Rect bounds = new Rect();
-            textPaint.getTextBounds(text, 0, text.length(), bounds);
-            final Bitmap bitmap = Bitmap.createBitmap(bounds.width(), bounds.height(), Bitmap.Config.ARGB_8888);
-            final Canvas canvas = new Canvas(bitmap);
-            canvas.drawText(text, 0, 20f, textPaint);
-            try {
-                FileOutputStream stream = new FileOutputStream("testStatus");
-                bitmap.compress(Bitmap.CompressFormat.PNG, 85, stream);
-                bitmap.recycle();
-                stream.close();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+
             //
             userRef.push().setValue(textStatus).addOnCompleteListener(task -> {
                 Navigation.findNavController(view).navigateUp();
