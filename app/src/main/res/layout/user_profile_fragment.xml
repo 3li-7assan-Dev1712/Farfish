@@ -23,13 +23,12 @@
             android:padding="16dp"
             android:text="@string/edit"
             android:textSize="12sp"
-            android:visibility="invisible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/user_profie_view_background"
             tools:visibility="visible" />
 
         <Button
-            android:id="@+id/layoutButton"
+            android:id="@+id/logoutButtonUserProfile"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -39,7 +38,6 @@
             android:text="@string/logout"
             android:textColor="@color/colorTitle"
             android:textSize="18sp"
-            android:visibility="invisible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/statusOfUserTextVIew"
@@ -76,7 +74,7 @@
             android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/layoutButton"
+            app:layout_constraintTop_toBottomOf="@id/logoutButtonUserProfile"
             tools:text="83ldkf839038j3832k" />
 
         <TextView

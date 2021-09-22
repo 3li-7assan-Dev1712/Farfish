@@ -184,6 +184,7 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
 
             if (!isGroup) {
                 Log.d(TAG, "onCreateView: target photo Url : " + targetUserData.getString("target_user_photo_url"));
+                /*messages.clear();*/ // clean the list to ensure it will not contain duplicated data
                 navController.navigate(R.id.action_chatsFragment_to_userProfileFragment,
                         targetUserData);
             }else {
@@ -290,7 +291,10 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
                     .collection("messages");
         }
 
-        initializeUserAndData();
+        if (messages.size() == 0)
+            initializeUserAndData();
+        else
+            mProgressBar.setVisibility(View.GONE);
 
         return view;
     }

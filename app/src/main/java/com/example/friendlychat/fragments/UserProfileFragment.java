@@ -26,8 +26,6 @@ import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
-import java.util.Date;
-
 public class UserProfileFragment extends Fragment {
 
     private static final String TAG = UserProfileFragment.class.getSimpleName();
@@ -57,7 +55,7 @@ public class UserProfileFragment extends Fragment {
         TextView userIdTextView = view.findViewById(R.id.userIdTextView);
         TextView lastTimeSeenTextView = view.findViewById(R.id.userProfileLastTimeSeen);
         Button edit = view.findViewById(R.id.editProfileButton);
-        Button logout = view.findViewById(R.id.layoutButton);
+        Button logout = view.findViewById(R.id.logoutButtonUserProfile);
         /*------------------------------------------------------------------------------*/
 
 
