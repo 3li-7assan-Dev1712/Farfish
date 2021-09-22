@@ -24,6 +24,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
+        android:autofillHints=""
         android:background="@drawable/edit_text_sign_in_background"
         android:ems="10"
         android:hint="@string/type_a_status"
@@ -31,18 +32,17 @@
         android:padding="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/profileImagePhoneNumber"
-        android:autofillHints="" />
+        app:layout_constraintTop_toBottomOf="@+id/profileImagePhoneNumber" />
 
     <FrameLayout
         android:id="@+id/profileImageFrameLayout"
         android:layout_width="150dp"
         android:layout_height="150dp"
         android:layout_marginTop="32dp"
+        android:background="@drawable/empty_profile_border"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:background="@drawable/empty_profile_border">
+        app:layout_constraintTop_toTopOf="parent">
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/registerImage"
@@ -58,18 +58,13 @@
 
     <Button
         android:id="@+id/continueButton"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
+        style="@style/main_buttons_background"
         android:layout_marginTop="32dp"
-        android:layout_marginEnd="16dp"
-        android:background="@drawable/login_button_background"
         android:text="@string/continue_regestration"
-        android:textColor="@color/colorTitle"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias=".5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/editTextStatus"/>
+        app:layout_constraintTop_toBottomOf="@id/editTextStatus" />
 
     <EditText
         android:id="@+id/profileImagePhoneNumber"
@@ -94,8 +89,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:visibility="gone"
         android:layout_marginBottom="16dp"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias=".5"
         app:layout_constraintStart_toStartOf="parent"

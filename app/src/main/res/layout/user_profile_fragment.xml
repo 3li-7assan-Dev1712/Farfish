@@ -29,15 +29,9 @@
 
         <Button
             android:id="@+id/logoutButtonUserProfile"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
+            style="@style/main_buttons_background"
             android:layout_marginTop="128dp"
-            android:layout_marginEnd="16dp"
-            android:background="@drawable/user_profie_gradient_background"
             android:text="@string/logout"
-            android:textColor="@color/colorTitle"
-            android:textSize="18sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/statusOfUserTextVIew"
