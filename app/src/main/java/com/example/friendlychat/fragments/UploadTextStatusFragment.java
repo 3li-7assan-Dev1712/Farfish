@@ -68,13 +68,16 @@ public class UploadTextStatusFragment extends Fragment {
                     0);
 
             //
-            userRef.push().setValue(textStatus).addOnCompleteListener(task -> {
-                Navigation.findNavController(view).navigateUp();
-            }).addOnFailureListener(exception -> {
-                Log.d(TAG, "onCreateView: upload text status exception " + exception.getMessage());
-                Toast.makeText(requireActivity(), "Error uploading status, check out your internet connection", Toast.LENGTH_SHORT).show();
-            });
-
+            if (statusEditText.getText().toString().equals("")) {
+                Toast.makeText(requireContext(), "Enter text first", Toast.LENGTH_SHORT).show();
+            }else{
+                userRef.push().setValue(textStatus).addOnCompleteListener(task -> {
+                    Navigation.findNavController(view).navigateUp();
+                }).addOnFailureListener(exception -> {
+                    Log.d(TAG, "onCreateView: upload text status exception " + exception.getMessage());
+                    Toast.makeText(requireActivity(), "Error uploading status, check out your internet connection", Toast.LENGTH_SHORT).show();
+                });
+            }
         });
         statusEditText.addTextChangedListener(new TextWatcher() {
             @Override

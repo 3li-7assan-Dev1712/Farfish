@@ -96,7 +96,7 @@ public class CustomViewPagerAdapter extends ViewPagerAdapter {
             mImageView.setVisibility(View.INVISIBLE);
             mTextView.setVisibility(View.VISIBLE);
             mTextView.setText(currentStory.getStatusText());
-            view.setBackgroundColor(context.getResources().getColor(R.color.colorAccent));
+            view.setBackgroundColor(context.getResources().getColor(R.color.secondaryDarkColor));
         }
         collection.addView(view);
 
