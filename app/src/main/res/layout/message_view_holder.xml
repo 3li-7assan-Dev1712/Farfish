@@ -9,7 +9,7 @@
     android:paddingEnd="8dp"
     android:paddingStart="8dp"
     android:layout_width="match_parent"
-    tools:context=".Activities.ChatsActivity"
+    tools:context=".fragments.ChatsFragment"
     tools:background="@android:color/darker_gray">
 
     <androidx.constraintlayout.widget.ConstraintLayout

@@ -65,6 +65,8 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
             }else {
                 Picasso.get().load(user.getPhotoUrl()).placeholder(R.drawable.fui_ic_anonymous_white_24dp).into(holder.userPhoto);
             }
+            String userStatus = users.get(position).getStatus();
+            holder.lastMessageTextView.setText(userStatus);
 
         }else if (fullMessages != null){
             FullMessage fullMessage = fullMessages.get(position);
