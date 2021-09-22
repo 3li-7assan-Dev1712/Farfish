@@ -12,14 +12,18 @@
         tools:layout="@layout/fragment_user_chats">
         <action
             android:id="@+id/action_userChatsFragment_to_chatsFragment"
-            app:destination="@id/chatsFragment" />
+            app:destination="@id/chatsFragment"
+            app:enterAnim="@anim/fui_slide_in_right"
+            app:exitAnim="@anim/fui_slide_out_left"
+            app:popEnterAnim="@anim/fui_slide_in_left"
+            app:popExitAnim="@anim/fui_slide_out_right"
+            />
         <action
             android:id="@+id/action_userChatsFragment_to_userProfileFragment"
             app:destination="@id/userProfileFragment"
             app:enterAnim="@anim/nav_default_enter_anim"
             app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+            />
 
 
     </fragment>
@@ -31,13 +35,20 @@
         <argument
             android:name="data"
             android:defaultValue="data"
-            app:argType="string" />
+            app:argType="string"
+            />
         <action
             android:id="@+id/action_chatsFragment_to_fullImageFragment"
-            app:destination="@id/fullImageFragment" />
+            app:destination="@id/fullImageFragment"
+            app:enterAnim="@anim/fui_slide_in_right"
+            app:exitAnim="@anim/fui_slide_out_left"
+            />
         <action
             android:id="@+id/action_chatsFragment_to_userProfileFragment"
-            app:destination="@id/userProfileFragment" />
+            app:destination="@id/userProfileFragment"
+            app:enterAnim="@anim/fui_slide_in_right"
+            app:exitAnim="@anim/fui_slide_out_left"
+           />
     </fragment>
     <fragment
         android:id="@+id/usersFragment"
@@ -46,10 +57,18 @@
         tools:layout="@layout/users_fragment" >
         <action
             android:id="@+id/action_usersFragment_to_chatsFragment"
-            app:destination="@id/chatsFragment" />
+            app:destination="@id/chatsFragment"
+            app:enterAnim="@anim/fui_slide_in_right"
+            app:exitAnim="@anim/fui_slide_out_left"
+            app:popEnterAnim="@anim/fui_slide_in_right"
+            app:popExitAnim="@anim/fui_slide_in_right"/>
         <action
             android:id="@+id/action_usersFragment_to_userProfileFragment"
-            app:destination="@id/userProfileFragment" />
+            app:destination="@id/userProfileFragment"
+            app:enterAnim="@anim/fui_slide_in_right"
+            app:exitAnim="@anim/fui_slide_out_left"
+            app:popEnterAnim="@anim/fui_slide_in_right"
+            app:popExitAnim="@anim/fui_slide_in_right"/>
     </fragment>
     <fragment
         android:id="@+id/fullImageFragment"
@@ -67,10 +86,16 @@
         tools:layout="@layout/status_fragment" >
         <action
             android:id="@+id/action_statusFragment_to_uploadTextStatusFragment"
-            app:destination="@id/uploadTextStatusFragment" />
+            app:destination="@id/uploadTextStatusFragment"
+            app:enterAnim="@anim/fui_slide_in_right"
+            app:exitAnim="@anim/fui_slide_out_left"
+           />
         <action
             android:id="@+id/action_statusFragment_to_userProfileFragment"
-            app:destination="@id/userProfileFragment" />
+            app:destination="@id/userProfileFragment"
+            app:enterAnim="@anim/fui_slide_in_right"
+            app:exitAnim="@anim/fui_slide_out_left"
+          />
     </fragment>
     <fragment
         android:id="@+id/uploadTextStatusFragment"
@@ -84,7 +109,10 @@
         tools:layout="@layout/fragment_sign_in" >
         <action
             android:id="@+id/action_fragmentSignIn_to_fragmentSignUp"
-            app:destination="@id/fragmentSignUp" />
+            app:destination="@id/fragmentSignUp"
+            app:enterAnim="@anim/fui_slide_in_right"
+            app:exitAnim="@anim/fui_slide_out_left"
+          />
     </fragment>
     <fragment
         android:id="@+id/fragmentSignUp"
@@ -93,7 +121,10 @@
         tools:layout="@layout/fragment_sign_up" >
         <action
             android:id="@+id/action_fragmentSignUp_to_profileImageFragment"
-            app:destination="@id/profileImageFragment" />
+            app:destination="@id/profileImageFragment"
+            app:enterAnim="@anim/fui_slide_in_right"
+            app:exitAnim="@anim/fui_slide_out_left"
+         />
     </fragment>
     <fragment
         android:id="@+id/profileImageFragment"
@@ -107,12 +138,16 @@
         tools:layout="@layout/user_profile_fragment" >
         <action
             android:id="@+id/action_userProfileFragment_to_editProfileFragment"
-            app:destination="@id/editProfileFragment" />
+            app:destination="@id/editProfileFragment"
+            app:enterAnim="@anim/fui_slide_in_right"
+            app:exitAnim="@anim/fui_slide_out_left"
+          />
         <action
             android:id="@+id/action_userProfileFragment_to_fragmentSignIn"
             app:destination="@id/fragmentSignIn"
             app:enterAnim="@anim/fui_slide_in_right"
-            app:exitAnim="@anim/fui_slide_out_left" />
+            app:exitAnim="@anim/fui_slide_out_left"
+         />
     </fragment>
     <fragment
         android:id="@+id/editProfileFragment"
