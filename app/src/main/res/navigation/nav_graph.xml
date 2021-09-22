@@ -13,10 +13,8 @@
         <action
             android:id="@+id/action_userChatsFragment_to_chatsFragment"
             app:destination="@id/chatsFragment"
-            app:enterAnim="@anim/fui_slide_in_right"
-            app:exitAnim="@anim/fui_slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right"
+            app:enterAnim="@anim/fade_in"
+            app:exitAnim="@anim/fade_out"
             />
         <action
             android:id="@+id/action_userChatsFragment_to_userProfileFragment"
@@ -60,15 +58,13 @@
             app:destination="@id/chatsFragment"
             app:enterAnim="@anim/fui_slide_in_right"
             app:exitAnim="@anim/fui_slide_out_left"
-            app:popEnterAnim="@anim/fui_slide_in_right"
-            app:popExitAnim="@anim/fui_slide_in_right"/>
+         />
         <action
             android:id="@+id/action_usersFragment_to_userProfileFragment"
             app:destination="@id/userProfileFragment"
             app:enterAnim="@anim/fui_slide_in_right"
             app:exitAnim="@anim/fui_slide_out_left"
-            app:popEnterAnim="@anim/fui_slide_in_right"
-            app:popExitAnim="@anim/fui_slide_in_right"/>
+           />
     </fragment>
     <fragment
         android:id="@+id/fullImageFragment"
@@ -111,7 +107,7 @@
             android:id="@+id/action_fragmentSignIn_to_fragmentSignUp"
             app:destination="@id/fragmentSignUp"
             app:enterAnim="@anim/fui_slide_in_right"
-            app:exitAnim="@anim/fui_slide_out_left"
+            app:exitAnim="@anim/fade_out"
           />
     </fragment>
     <fragment
@@ -140,13 +136,13 @@
             android:id="@+id/action_userProfileFragment_to_editProfileFragment"
             app:destination="@id/editProfileFragment"
             app:enterAnim="@anim/fui_slide_in_right"
-            app:exitAnim="@anim/fui_slide_out_left"
+            app:exitAnim="@anim/fade_out"
           />
         <action
             android:id="@+id/action_userProfileFragment_to_fragmentSignIn"
             app:destination="@id/fragmentSignIn"
             app:enterAnim="@anim/fui_slide_in_right"
-            app:exitAnim="@anim/fui_slide_out_left"
+            app:exitAnim="@anim/fade_out"
          />
     </fragment>
     <fragment
