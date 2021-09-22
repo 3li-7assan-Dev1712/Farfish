@@ -307,8 +307,8 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
                 .setStoriesList(myStories) // Required
                 .setStoryDuration(5000) // Default is 2000 Millis (2 Seconds)
                 .setTitleText(userStatuses.get(0).getUploaderName()) // Default is Hidden
-                .setSubtitleText("Test") // Default is Hidden
-                .setTitleLogoUrl("some-link") // Default is Hidden
+                .setSubtitleText(null) // Default is Hidden
+                .setTitleLogoUrl(userStatuses.get(0).getUploaderPhotoUrl()) // Default is Hidden
                 .setStoryClickListeners(new StoryClickListeners() {
                     @Override
                     public void onDescriptionClickListener(int position) {

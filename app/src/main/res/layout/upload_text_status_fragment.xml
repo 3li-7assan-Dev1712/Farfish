@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorAccent"
+    android:background="@color/secondaryDarkColor"
     tools:context=".fragments.UploadTextStatusFragment">
 
     <EditText
@@ -20,7 +20,7 @@
         android:textColor="@android:color/white"
         android:textColorHint="@android:color/white"
         android:textSize="36sp"
-        app:layout_constraintBottom_toTopOf="@+id/uploadTextStatusFragmentFab"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
