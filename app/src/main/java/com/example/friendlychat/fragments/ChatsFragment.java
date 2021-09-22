@@ -183,6 +183,7 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
         targetUserLayout.setOnClickListener(targetUserLayoutListener ->{
 
             if (!isGroup) {
+                Log.d(TAG, "onCreateView: target photo Url : " + targetUserData.getString("target_user_photo_url"));
                 navController.navigate(R.id.action_chatsFragment_to_userProfileFragment,
                         targetUserData);
             }else {
@@ -328,6 +329,7 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
                     isActive = user.getIsActive();
                     lastTimeSeen = user.getLastTimeSeen();
                     updateChatInfo();
+                    populateTargetUserInfo(user);
                     listenToChange(targetUserId);
                 }
             });
@@ -341,6 +343,21 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
             /*Picasso.get().load(targetUserPhotoUrl).placeholder(R.drawable.ic_baseline_emoji_emotions_24).into(chat_image);*/
             Picasso.get().load(R.drawable.group_icon).placeholder(R.drawable.group_icon).into(chat_image);
         }
+    }
+
+    private void populateTargetUserInfo(User user) {
+        if (!isGroup) {
+            Log.d(TAG, "populateTargetUserInfo: populate successfully");
+            Log.d(TAG, "from populate: the targer user photo url : " + user.getPhotoUrl());
+            targetUserData.putString("target_user_id", user.getUserId());
+            targetUserData.putString("target_user_email", user.getEmail());
+            targetUserData.putString("target_user_photo_url", user.getPhotoUrl());
+            targetUserData.putString("target_user_status", user.getStatus());
+            targetUserData.putString("target_user_name", user.getUserName());
+            targetUserData.putBoolean("isActive", user.getIsActive());
+            targetUserData.putLong("target_user_last_time_seen", user.getLastTimeSeen());
+        }else
+            Log.d(TAG, "populateTargetUserInfo: cannot populate user because it is for group chat");
     }
 
     private void listenToChange(String targetUserId) {
