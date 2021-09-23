@@ -194,7 +194,7 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
         String targetUserEmail;
         String userStatus;
         String targetUserId;
-        long lastTimeSeen ;
+        long lastTimeSeen;
 
         if (getFilterState()){
             chatTitle= usersUserKnow.get(position).getUserName();

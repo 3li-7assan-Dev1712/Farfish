@@ -47,10 +47,18 @@ import com.example.friendlychat.Module.FullMessage;
 import com.example.friendlychat.Module.Message;
 import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.NotificationUtils;
+import com.example.friendlychat.Module.Status;
 import com.example.friendlychat.Module.User;
 import com.example.friendlychat.R;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -126,6 +134,12 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
     private ProgressBar mProgressBar;
     // ok this is a perfi
     /*pick picture via calling picPic.launch() method*/
+
+    // firebase realtime database
+    private DatabaseReference mCurrentUserRoomReference;
+    private DatabaseReference mTargetUserRoomReference;
+    private DatabaseReference mGroupReference;
+
     private ActivityResultLauncher<String> pickPic = registerForActivityResult(
             new ActivityResultContracts.GetContent(){
                 @NonNull
@@ -140,7 +154,6 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
-        Log.d(TAG, "onCreate: CALLLLLLED");
         /*firebase storage and its references*/
         FirebaseStorage mStorage = FirebaseStorage.getInstance();
         // Create a storage reference from our app
@@ -151,12 +164,23 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
         mUsername = ANONYMOUS;
         messages = new ArrayList<>();
         targetUserData = getArguments();
+
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        mGroupReference = database.getReference("rooms").child("all people use the app");
        if (targetUserData != null) {
            targetUserName = targetUserData.getString("target_user_name", "Chat title");
            targetUserPhotoUrl = targetUserData.getString("target_user_photo_url", "photo");
            targetUserId = targetUserData.getString("target_user_id", "id for target user");
            isGroup = targetUserData.getBoolean("isGroup");
 
+           // rooms refereance
+           if (!isGroup) {
+               String currentUserId = MessagesPreference.getUserId(requireContext());
+               mCurrentUserRoomReference = database.getReference("rooms").child(currentUserId)
+                       .child(currentUserId + targetUserId);
+               mTargetUserRoomReference = database.getReference("rooms").child(targetUserId)
+                       .child(targetUserId + currentUserId);
+           }
 
        }else{
            Toast.makeText(requireContext(), "Data is null", Toast.LENGTH_SHORT).show();
@@ -267,10 +291,10 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
         });
 
 
-
+/*
         if (!isGroup) {
 
-            FirebaseAuth auth = FirebaseAuth.getInstance();
+         *//*   FirebaseAuth auth = FirebaseAuth.getInstance();
             messageSingleRef = mFirebasestore.collection("rooms").document(Objects.requireNonNull(auth.getUid()))
                     .collection("chats")
                     .document(auth.getUid()+ targetUserId)
@@ -283,13 +307,13 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
                     .document(targetUserId)
                     .collection("chats").document(targetUserId + auth.getUid())
                     .collection("messages");
-            messageSingleRefTarget.document("isWriting").set(data);
+            messageSingleRefTarget.document("isWriting").set(data);*//*
 
 
         }else{
             messagesRef = mFirebasestore.collection("rooms").document("people use the app")
                     .collection("messages");
-        }
+        }*/
 
         if (messages.size() == 0)
             initializeUserAndData();
@@ -303,18 +327,21 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
 
 
         if (!isGroup) {
-            messageSingleRef.document("isWriting")
-                    .update("isWriting", false);
-
+           /* messageSingleRef.document("isWriting")
+                    .update("isWriting", false);*/
+           mCurrentUserRoomReference.child("isWriting").setValue(false);
             Log.d(TAG, "set user is not writing");
         }
     }
 
     private void setUserIsWriting() {
+
         Log.d(TAG, "set user is writing");
         if (tracker == 0 && !isGroup){
-            messageSingleRef.document("isWriting")
-                    .update("isWriting", true);
+            mCurrentUserRoomReference.child("isWriting")
+                    .setValue(true);
+            /*messageSingleRef.document("isWriting")
+                    .update("isWriting", true);*/
             tracker++;
             Log.d(TAG, " just one time *_* ");
         }
@@ -365,12 +392,12 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
     }
 
     private void listenToChange(String targetUserId) {
-        messageSingleRefTarget.document("isWriting")
+       /* messageSingleRefTarget.document("isWriting")
                 .addSnapshotListener( (value, error) -> {
                     assert value != null;
                     isWriting = (boolean) value.get("isWriting");
                     updateChatInfo();
-                });
+                });*/
         mFirebasestore.collection("rooms").document(targetUserId)
                 .addSnapshotListener( ((value, error) -> {
                     assert value != null;
@@ -474,16 +501,22 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
 
         if (isGroup){
 
-            messagesRef
+            mGroupReference.push().setValue(message);
+          /*  messagesRef
                     .add(message)
                     .addOnSuccessListener(
                             documentReference -> Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId())
 
                     )
-                    .addOnFailureListener(e -> Log.w(TAG, "Error adding document", e));
+                    .addOnFailureListener(e -> Log.w(TAG, "Error adding document", e));*/
             // Clear input box
         }else {
-            messageSingleRef
+            mCurrentUserRoomReference.push().setValue(message).addOnSuccessListener(success -> {
+                mTargetUserRoomReference.push().setValue(message);
+            }).addOnFailureListener(exception -> {
+                Log.d(TAG, "sendMessage: exception msg: " + exception.getMessage());
+            });
+            /*messageSingleRef.
                     .add(message)
                     .addOnSuccessListener(
                             documentReference -> {
@@ -498,7 +531,7 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
                                 FullMessage targetFullMessage = new FullMessage(lastMessage, currentUserName, currentPhotoUrl, currentUserId);
                                 Objects.requireNonNull(messageSingleRefTarget.getParent()).set(targetFullMessage);
                             }).addOnFailureListener(e ->
-                    Toast.makeText(requireContext(), "Error" + e.toString(), Toast.LENGTH_SHORT).show());
+                    Toast.makeText(requireContext(), "Error" + e.toString(), Toast.LENGTH_SHORT).show());*/
         }
         // clean up the the edit text field after sending the message.
         mMessageEditText.setText("");
@@ -528,39 +561,104 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
 
         Log.d(TAG, "initialize user and data");
         if (isGroup) {
-            /*listen to any new new data*/
-            messagesRef.orderBy("timestamp").addSnapshotListener((value, error) -> {
-                if (error != null) {
-                    Toast.makeText(requireContext(), "fail", Toast.LENGTH_SHORT).show();
-                } else {
-                    Log.d(TAG, "no error should read data properly");
-                    String source = value != null && value.getMetadata().hasPendingWrites()
-                            ? "Local" : "Server";
-                    Log.d(TAG, source);
-                    Toast.makeText(requireContext(), source, Toast.LENGTH_SHORT).show();
-                    addNewMessage(value);
+            mCurrentUserRoomReference.get().addOnSuccessListener(allMessagesDataSnapshot -> {
+                insertMessagesInAdapter(allMessagesDataSnapshot);
+            });
+            mGroupReference.addChildEventListener(new ChildEventListener() {
+                @Override
+                public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                    addNewMessage(snapshot);
+                }
+
+                @Override
+                public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                    Log.d(TAG, "onChildChanged: change happens");
+                }
+
+                @Override
+                public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+
+                }
+
+                @Override
+                public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
                 }
             });
         }else{
-            /*get all the messages, and listen to any up coming one*/
-            messageSingleRef.orderBy("timestamp").addSnapshotListener((value, error) -> {
-                if (error != null){
-                    Toast.makeText(requireContext(), "Error reading message", Toast.LENGTH_SHORT).show();
-                }else{
-                    String source = value != null && value.getMetadata().hasPendingWrites()
-                            ? "Local" : "Server";
-                    Log.d(TAG, source);
-                    Toast.makeText(requireContext(), source, Toast.LENGTH_SHORT).show();
-                    addNewMessage(value);
+            mCurrentUserRoomReference.get().addOnSuccessListener(this::insertMessagesInAdapter);
+            mCurrentUserRoomReference.addChildEventListener(new ChildEventListener() {
+                @Override
+                public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                    addNewMessage(snapshot);
+
+                    Log.d(TAG, "onChildAdded: ");
+                }
+
+                @Override
+                public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                    Log.d(TAG, "onChildChanged: expecting the isWirting state is changing");
+                    isWriting = (boolean) snapshot.getValue();
+                    Log.d(TAG, "onChildChanged: isWriting" + isWriting);
+                    updateChatInfo();
+                }
+
+                @Override
+                public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+
+                }
+
+                @Override
+                public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
                 }
             });
         }
+        mProgressBar.setVisibility(View.GONE);
+    }
+
+    private void insertMessagesInAdapter(DataSnapshot allMessagesDataSnapshot) {
+        // here all the messages will be loaded
+        Iterable<DataSnapshot> iterable = allMessagesDataSnapshot.getChildren();
+        for (DataSnapshot dataSnapshot : iterable) {
+            try {
+                messages.add(dataSnapshot.getValue(Message.class));
+            }catch (Exception e){
+                Log.d(TAG, "insertMessagesInAdapter: " + e.getMessage());
+            }
+        }
+        if (messages.size() > 0) {
+            messagesAdapter.notifyDataSetChanged();
+            mMessageRecyclerView.scrollToPosition(messages.size() - 1);
+        }else
+            Toast.makeText(requireContext(), "the size of the messages is 0 or less", Toast.LENGTH_SHORT).show();
     }
 
     /* this method is used in two functionality, for getting all the messages from a special room
     * and for adding new messages as the user sends. */
-    private void addNewMessage(QuerySnapshot value) {
+    private void addNewMessage(DataSnapshot value) {
         mProgressBar.setVisibility(View.INVISIBLE);
+        try {
+            Message newMessage = value.getValue(Message.class);
+            messages.add(newMessage);
+            if (messages.size() > 0) {
+                messagesAdapter.notifyDataSetChanged();
+                mMessageRecyclerView.scrollToPosition(messages.size() - 1);
+            }
+        }catch (Exception e){
+            Log.d(TAG, "addNewMessage: exception " + e.getMessage());
+        }
+      /*
         if (value != null) {
 
             for (DocumentChange dc : value.getDocumentChanges()) {
@@ -571,11 +669,11 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
             }
             Log.d(TAG, "the number of messages in this chat is: " + value.getDocumentChanges().size());
             messagesAdapter.notifyDataSetChanged();
-            /*sendNotification(messages.get(messages.size() -1));*/
+            *//*sendNotification(messages.get(messages.size() -1));*//*
             if (messages.size() > 0)
                 mMessageRecyclerView.scrollToPosition(messages.size() - 1);
 
-        }
+        }*/
     }
 
     @Override
@@ -614,7 +712,6 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
         BitmapDrawable bitmapDrawable = (BitmapDrawable) imageView.getDrawable();
         Bitmap bitmap = bitmapDrawable.getBitmap();
         // checking if the bitmap is correct first by the following code:
-        chat_image.setImageBitmap(bitmap); // i loved this line of code so I will let it for a few commits *_*
 
         /* after initializing these 3 arguments, let's use them*/
         FullImageData imageData = new FullImageData(senderName, formattedDate, bitmap);
