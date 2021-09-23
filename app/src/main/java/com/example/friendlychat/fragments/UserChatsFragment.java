@@ -24,14 +24,21 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.friendlychat.Adapters.ContactsAdapter;
 import com.example.friendlychat.Module.FullMessage;
+import com.example.friendlychat.Module.Message;
+import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.SharedPreferenceUtils;
+import com.example.friendlychat.Module.Status;
 import com.example.friendlychat.R;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -40,9 +47,12 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
 
     private FirebaseAuth mAuth;
     private static final String TAG = UserChatsFragment.class.getSimpleName();
-    private List<FullMessage> fullMessages;
+
+    private List<Message> messages;
+
     private ContactsAdapter contactsAdapter;
     private FirebaseFirestore mFirestore;
+    private DatabaseReference mCurrentUserRoomReference;
     private NavController mNavController;
 
 
@@ -57,9 +67,13 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
         mAuth = FirebaseAuth.getInstance();
 
         mFirestore = FirebaseFirestore.getInstance();
-        fullMessages = new ArrayList<>();
+        String currentUserId = MessagesPreference.getUserId(requireContext());
+        mCurrentUserRoomReference = FirebaseDatabase.getInstance().getReference("rooms")
+                .child(currentUserId);
+
+        messages = new ArrayList<>();
         mAuth = FirebaseAuth.getInstance();
-        contactsAdapter = new ContactsAdapter(getContext(), fullMessages, this, null);
+        contactsAdapter = new ContactsAdapter(getContext(), messages, this, null);
     }
 
     private void navigateToSignIn() {
@@ -94,7 +108,25 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
 
     private void initializeUserAndData() {
 
-        mFirestore.collection("rooms").document(Objects.requireNonNull(mAuth.getUid()))
+        mCurrentUserRoomReference.get().addOnSuccessListener(successDataSnapshot -> {
+
+            Iterable<DataSnapshot> roomsIterable = successDataSnapshot.getChildren();
+            for (DataSnapshot roomsSnapshot : roomsIterable) {
+                if (!roomsSnapshot.getKey().equals("isWriting")) {
+                    Iterable<DataSnapshot> messagesIterable = roomsSnapshot.getChildren();
+                    Message lastMessage = null;
+                    for (DataSnapshot messageSnapShot : messagesIterable){
+                       lastMessage= messageSnapShot.getValue(Message.class);
+                    }
+                    if (lastMessage != null)
+                        messages.add(lastMessage);
+                }
+            }
+            contactsAdapter.notifyDataSetChanged();
+
+
+        });
+       /* mFirestore.collection("rooms").document(Objects.requireNonNull(mAuth.getUid()))
                 .collection("chats").addSnapshotListener((value, error) -> {
             if (error != null){
                 Toast.makeText(getContext(), "Error reading message", Toast.LENGTH_SHORT).show();
@@ -105,7 +137,7 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
                 Toast.makeText(requireActivity(), source, Toast.LENGTH_SHORT).show();
                 updateUI(value);
             }
-        });
+        });*/
 
     }
 
@@ -136,7 +168,7 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
     }
 
     private void updateUI(QuerySnapshot value) {
-        if (value != null) {
+       /* if (value != null) {
 
 
             for (DocumentChange dc : value.getDocumentChanges()) {
@@ -153,20 +185,15 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
 
             }
             contactsAdapter.notifyDataSetChanged();
-        }
+        }*/
     }
 
     @Override
     public void onChatClicked(int position) {
 
-        String chatTitle = fullMessages.get(position).getTargetUserName();
-        String photoUrl= fullMessages.get(position).getTargetUserPhotoUrl();
-        String targetUserId = fullMessages.get(position).getTargetUserId();
+        String targetUserId = messages.get(position).getTargetId();
         Bundle primaryDataBundle = new Bundle();
-        primaryDataBundle.putString("target_user_name", chatTitle);
-        primaryDataBundle.putString("target_user_photo", photoUrl);
         primaryDataBundle.putString("target_user_id", targetUserId);
-        primaryDataBundle.putBoolean("isGroup", false);
         mNavController.navigate(R.id.chatsFragment, primaryDataBundle);
 
     }

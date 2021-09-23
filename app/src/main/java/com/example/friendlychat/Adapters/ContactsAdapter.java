@@ -12,7 +12,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.friendlychat.Module.FullMessage;
 import com.example.friendlychat.Module.Message;
 import com.example.friendlychat.Module.User;
 import com.example.friendlychat.R;
@@ -25,7 +24,7 @@ import java.util.Locale;
 public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ContactsViewHolder>{
     private Context mContext;
     private List<User> users;
-    private List<FullMessage> fullMessages;
+    private List<Message> messages;
 
 
     public interface OnChatClicked {
@@ -37,9 +36,9 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
         this.users = users;
         ContactsAdapter.onChatClicked = onChatClicked;
     }
-    public ContactsAdapter(Context mContext, List<FullMessage> fullMessages, OnChatClicked onChatClicked, List<User> users) {
+    public ContactsAdapter(Context mContext, List<Message> messages, OnChatClicked onChatClicked, List<User> users) {
         this.mContext = mContext;
-        this.fullMessages = fullMessages;
+        this.messages = messages;
         this.users = users;
         ContactsAdapter.onChatClicked = onChatClicked;
     }
@@ -68,48 +67,43 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
             String userStatus = users.get(position).getStatus();
             holder.lastMessageTextView.setText(userStatus);
 
-        }else if (fullMessages != null){
-            FullMessage fullMessage = fullMessages.get(position);
-            String targetUserName = fullMessage.getTargetUserName();
-            String targetUserPhotoUrl = fullMessage.getTargetUserPhotoUrl();
+        }else if (messages != null){
+            Message message = messages.get(position);
+            String targetUserName = message.getTargetName();
+            String targetUserPhotoUrl = message.getTargetPhotoUrl();
             holder.userName.setText(targetUserName);
             if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.JELLY_BEAN_MR2){
                 Picasso.get().load(targetUserPhotoUrl).into(holder.userPhoto);
             }else {
                 Picasso.get().load(targetUserPhotoUrl).placeholder(R.drawable.fui_ic_anonymous_white_24dp).into(holder.userPhoto);
             }
-            Message lastMessage = fullMessage.getLastMessage();
-            if (lastMessage != null) {
-                String messageText = lastMessage.getText();
-                /* if the message is equals to ("") then there's a new photo */
-                if (!messageText.equals(""))
-                    holder.lastMessageTextView.setText(messageText);
-                else {
-                    holder.lastMessageTextView.setText(R.string.new_photo_view_holder);
-                    /*at the first of the text set this drawable to indicate of new photo*/
-                    holder.lastMessageTextView.setCompoundDrawablesRelativeWithIntrinsicBounds(
-                            R.drawable.ic_baseline_photo_camera_24,
-                            0,
-                            0,
-                            0
-                    );
-                }
-                long messageTime = lastMessage.getTimestamp();
-                SimpleDateFormat d = new SimpleDateFormat("h:mm a", Locale.getDefault());
-                String readableDate = d.format(messageTime);
-                holder.lastMessageTimeTextView.setText(readableDate);
-            }
 
+            String messageText = message.getText();
+            /* if the message is equals to ("") then there's a new photo */
+            if (!messageText.equals(""))
+                holder.lastMessageTextView.setText(messageText);
+            else {
+                holder.lastMessageTextView.setText(R.string.new_photo_view_holder);
+                /*at the first of the text set this drawable to indicate of new photo*/
+                holder.lastMessageTextView.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                        R.drawable.ic_baseline_photo_camera_24,
+                        0,
+                        0,
+                        0
+                );
+            }
+            long messageTime = message.getTimestamp();
+            SimpleDateFormat d = new SimpleDateFormat("h:mm a", Locale.getDefault());
+            String readableDate = d.format(messageTime);
+            holder.lastMessageTimeTextView.setText(readableDate);
         }
-        if (fullMessages == null){
-            Log.d("TAG", "the data is null");
-        }
+
     }
 
     @Override
     public int getItemCount() {
-        if (fullMessages != null)
-            return fullMessages.size();
+        if (messages != null)
+            return messages.size();
         else if (users != null)
             return users.size();
         else {

@@ -131,6 +131,10 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
     private DatabaseReference mCurrentUserRoomReference;
     private DatabaseReference mTargetUserRoomReference;
 
+    private String currentUserId;
+    private String currentUserName;
+    private String currentPhotoUrl;
+
     private ActivityResultLauncher<String> pickPic = registerForActivityResult(
             new ActivityResultContracts.GetContent(){
                 @NonNull
@@ -157,11 +161,9 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
         targetUserData = getArguments();
         FirebaseDatabase database = FirebaseDatabase.getInstance();
        if (targetUserData != null) {
-           targetUserName = targetUserData.getString("target_user_name", "Chat title");
-           targetUserPhotoUrl = targetUserData.getString("target_user_photo_url", "photo");
            targetUserId = targetUserData.getString("target_user_id", "id for target user");
            // rooms references
-           String currentUserId = MessagesPreference.getUserId(requireContext());
+           currentUserId =  MessagesPreference.getUserId(requireContext());
            mCurrentUserRoomReference = database.getReference("rooms").child(currentUserId)
                    .child(currentUserId + targetUserId);
            mTargetUserRoomReference = database.getReference("rooms").child(targetUserId)
@@ -169,6 +171,9 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
        }else{
            Toast.makeText(requireContext(), "Data is null", Toast.LENGTH_SHORT).show();
        }
+
+        currentUserName = MessagesPreference.getUserName(requireContext());
+        currentPhotoUrl = MessagesPreference.getUsePhoto(requireContext());
     }
 
     @Nullable
@@ -264,8 +269,14 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
 
             Log.d(TAG, "Date in Local (System.currentTimeMillis() ) " + sdf.format(dateInLocalTime));
             Log.d(TAG, "Date in Local (Date().getTime()) " + sdf.format(dateFromDateClass));
-            Message message = new Message(mMessageEditText.getText().toString(), mUsername, "", MessagesPreference.getUserId(requireContext()), dateFromDateClass);
-            sendMessage(message);
+
+
+            String text = mMessageEditText.getText().toString();
+            Message currentUserMsg = new Message(text, "", dateFromDateClass, currentUserId, targetUserId,
+                    mUsername, currentUserName, currentPhotoUrl);
+            Message targetUserMsg = new Message(text, "", dateFromDateClass, currentUserId, currentUserId,
+                    mUsername, targetUserName, targetUserPhotoUrl);
+            sendMessage(currentUserMsg, targetUserMsg);
         });
 
         if (messages.size() == 0)
@@ -318,13 +329,14 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
         Log.d(TAG, "populateTargetUserInfo: populate successfully");
         Log.d(TAG, "from populate: the targer user photo url : " + user.getPhotoUrl());
         targetUserData.putString("target_user_id", user.getUserId());
+        Log.d(TAG, "populateTargetUserInfo: target userId: " + targetUserData.getString("target_user_id"));
         targetUserData.putString("target_user_email", user.getEmail());
         targetUserData.putString("target_user_photo_url", user.getPhotoUrl());
         targetUserData.putString("target_user_status", user.getStatus());
         targetUserData.putString("target_user_name", user.getUserName());
         targetUserData.putBoolean("isActive", user.getIsActive());
         targetUserData.putLong("target_user_last_time_seen", user.getLastTimeSeen());
-        Log.d(TAG, "populateTargetUserInfo: cannot populate user because it is for group chat");
+
     }
 
     private void listenToChange(String targetUserId) {
@@ -396,8 +408,11 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
                         long dateFromDateClass = new Date().getTime();
                          /* if the image sent successfully to the firebase storage send its metadata as a message
                          to the firebase firestore */
-                        Message message = new Message("", mUsername, downloadUrl, dateFromDateClass);
-                        sendMessage(message);
+                        Message currentUserMsg = new Message("", downloadUrl, dateFromDateClass, currentUserId, targetUserId,
+                                mUsername, currentUserName, currentPhotoUrl);
+                        Message targetUserMsg = new Message("", downloadUrl, dateFromDateClass, currentUserId, currentUserId,
+                                mUsername, targetUserName, targetUserPhotoUrl);
+                        sendMessage(currentUserMsg, targetUserMsg);
                     });
 
                 });
@@ -418,7 +433,8 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        /*mCurrentUserRoomReference.removeEventListener(this);*/
+        // remove the listener when the view is no longer visilbe for the user
+        mCurrentUserRoomReference.removeEventListener(this);
         Log.d(TAG, "onDestroyView: ");
     }
 
@@ -428,10 +444,10 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
         Log.d(TAG, "onDestroy: ");
     }
 
-    private void sendMessage(Message message) {
+    private void sendMessage(Message currentUserMsg, Message targetUserMsg) {
 
-        mCurrentUserRoomReference.push().setValue(message).addOnSuccessListener(success ->
-                mTargetUserRoomReference.push().setValue(message)).addOnFailureListener(exception ->
+        mCurrentUserRoomReference.push().setValue(targetUserMsg).addOnSuccessListener(success ->
+                mTargetUserRoomReference.push().setValue(currentUserMsg)).addOnFailureListener(exception ->
                 Log.d(TAG, "sendMessage: exception msg: " + exception.getMessage()));
         mMessageEditText.setText("");
 
@@ -520,7 +536,7 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
     public void onMessageClick(View view, int position) {
         Toast.makeText(requireContext(), "You click a view", Toast.LENGTH_SHORT).show();
         Message message = messages.get(position);
-        String senderName = message.getName();
+        String senderName = message.getSenderName();
         SimpleDateFormat d = new SimpleDateFormat("EEE, MMM d", Locale.getDefault());
         String formattedDate = d.format(message.getTimestamp());
         ImageView imageView = (ImageView) view;

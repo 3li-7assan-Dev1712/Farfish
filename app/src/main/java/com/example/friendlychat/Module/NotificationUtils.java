@@ -36,7 +36,7 @@ public class NotificationUtils {
         }
 
         notificationBuilder
-                .setContentTitle(newMessage.getName())
+                .setContentTitle(newMessage.getSenderName())
                 .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
                 .setSmallIcon(R.drawable.ic_icon_round)
                 .setAutoCancel(true);

@@ -2,32 +2,47 @@ package com.example.friendlychat.Module;
 
 public class Message {
     private String text;
-    private String name;
     private String photoUrl;
-    private String senderId;
     private long timestamp;
+    private String senderId;
+    private String targetId;
+    private String senderName, targetName, targetPhotoUrl;
+    private int newMessagesCount;
+
+
 
 
     public Message() {
     }
 
-    public Message(String text, String name, String photoUrl) {
+    public Message(String text, String photoUrl, long timestamp, String senderId, String targetId, String senderName, String targetName, String targetPhotoUrl) {
         this.text = text;
-        this.name = name;
+        this.photoUrl = photoUrl;
+        this.timestamp = timestamp;
+        this.senderId = senderId;
+        targetId = this.targetId;
+        this.senderName = senderName;
+        this.targetName = targetName;
+        this.targetPhotoUrl = targetPhotoUrl;
+    }
+
+    public Message(String text, String senderName, String photoUrl) {
+        this.text = text;
+        this.senderName = senderName;
         this.photoUrl = photoUrl;
     }
 
-    public Message(String text, String name, String photoUrl, String senderId, long timestamp) {
+    public Message(String text, String senderName, String photoUrl, String senderId, long timestamp) {
         this.text = text;
-        this.name = name;
+        this.senderName = senderName;
         this.photoUrl = photoUrl;
         this.senderId = senderId;
         this.timestamp = timestamp;
     }
 
-    public Message(String text, String name, String photoUrl, long timestamp) {
+    public Message(String text, String senderName, String photoUrl, long timestamp) {
         this.text = text;
-        this.name = name;
+        this.senderName = senderName;
         this.photoUrl = photoUrl;
         this.timestamp = timestamp;
     }
@@ -44,12 +59,12 @@ public class Message {
         this.text = text;
     }
 
-    public String getName() {
-        return name;
+    public String getSenderName() {
+        return senderName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setSenderName(String senderName) {
+        this.senderName = senderName;
     }
 
     public String getPhotoUrl() {
@@ -58,5 +73,25 @@ public class Message {
 
     public String getSenderId() {
         return senderId;
+    }
+
+    public String getTargetName() {
+        return targetName;
+    }
+
+    public String getTargetPhotoUrl() {
+        return targetPhotoUrl;
+    }
+
+    public void setNewMessagesCount(int newMessagesCount) {
+        this.newMessagesCount = newMessagesCount;
+    }
+
+    public int getNewMessagesCount() {
+        return newMessagesCount;
+    }
+
+    public String getTargetId() {
+        return targetId;
     }
 }

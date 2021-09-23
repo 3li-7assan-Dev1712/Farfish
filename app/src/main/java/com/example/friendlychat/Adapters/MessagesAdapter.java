@@ -106,7 +106,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
         if (messages != null && messages.size() != 0){
 
             Message message = messages.get(position);
-            String name =message.getName();
+            String name =message.getSenderName();
             String messageText = message.getText();
             String photoUrl = message.getPhotoUrl();
             long dateFromServer = message.getTimestamp();
