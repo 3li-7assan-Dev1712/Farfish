@@ -273,9 +273,9 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
 
             String text = mMessageEditText.getText().toString();
             Message currentUserMsg = new Message(text, "", dateFromDateClass, currentUserId, currentUserId,
-                    mUsername, currentUserName, currentPhotoUrl, true);
+                    mUsername, currentUserName, currentPhotoUrl, false);
             Message targetUserMsg = new Message(text, "", dateFromDateClass, currentUserId, targetUserId,
-                    mUsername, targetUserName, targetUserPhotoUrl, false);
+                    mUsername, targetUserName, targetUserPhotoUrl, true);
             sendMessage(currentUserMsg, targetUserMsg);
         });
 
@@ -409,9 +409,9 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
                          /* if the image sent successfully to the firebase storage send its metadata as a message
                          to the firebase firestore */
                         Message currentUserMsg = new Message("", downloadUrl, dateFromDateClass, currentUserId, currentUserId,
-                                mUsername, currentUserName, currentPhotoUrl, true);
+                                mUsername, currentUserName, currentPhotoUrl, false);
                         Message targetUserMsg = new Message("", downloadUrl, dateFromDateClass, currentUserId, targetUserId,
-                                mUsername, targetUserName, targetUserPhotoUrl, false);
+                                mUsername, targetUserName, targetUserPhotoUrl, true);
                         sendMessage(currentUserMsg, targetUserMsg);
                     });
 

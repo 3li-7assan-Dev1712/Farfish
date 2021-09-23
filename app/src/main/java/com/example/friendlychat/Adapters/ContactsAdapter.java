@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -99,6 +100,8 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
 
             int newMessagesNumber = message.getNewMessagesCount();
             if (newMessagesNumber > 0){
+                holder.newMessageCountTextViewContainer.setVisibility(View.VISIBLE);
+                holder.newMessageCountTextView.setText(String.valueOf(newMessagesNumber));
                 holder.lastMessageTextView.setTextColor(mContext.getResources().getColor(R.color.colorPrimary));
                 holder.lastMessageTimeTextView.setTextColor(mContext.getResources().getColor(R.color.colorPrimary));
             }
@@ -122,6 +125,8 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
         private TextView userName;
         private TextView lastMessageTextView;
         private TextView lastMessageTimeTextView;
+        private TextView newMessageCountTextView;
+        private FrameLayout newMessageCountTextViewContainer;
         private ImageView userPhoto;
         public ContactsViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -129,6 +134,8 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
             userPhoto = itemView.findViewById(R.id.profileImage);
             lastMessageTextView = itemView.findViewById(R.id.lastMessage);
             lastMessageTimeTextView = itemView.findViewById(R.id.lastMessageTime);
+            newMessageCountTextView = itemView.findViewById(R.id.newMessageCountTextView);
+            newMessageCountTextViewContainer = itemView.findViewById(R.id.newMessageCountTextViewContainer);
             itemView.setOnClickListener(this);
         }
 
