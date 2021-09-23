@@ -273,9 +273,9 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
 
             String text = mMessageEditText.getText().toString();
             Message currentUserMsg = new Message(text, "", dateFromDateClass, currentUserId, currentUserId,
-                    mUsername, currentUserName, currentPhotoUrl);
+                    mUsername, currentUserName, currentPhotoUrl, true);
             Message targetUserMsg = new Message(text, "", dateFromDateClass, currentUserId, targetUserId,
-                    mUsername, targetUserName, targetUserPhotoUrl);
+                    mUsername, targetUserName, targetUserPhotoUrl, false);
             sendMessage(currentUserMsg, targetUserMsg);
         });
 
@@ -409,9 +409,9 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
                          /* if the image sent successfully to the firebase storage send its metadata as a message
                          to the firebase firestore */
                         Message currentUserMsg = new Message("", downloadUrl, dateFromDateClass, currentUserId, currentUserId,
-                                mUsername, currentUserName, currentPhotoUrl);
+                                mUsername, currentUserName, currentPhotoUrl, true);
                         Message targetUserMsg = new Message("", downloadUrl, dateFromDateClass, currentUserId, targetUserId,
-                                mUsername, targetUserName, targetUserPhotoUrl);
+                                mUsername, targetUserName, targetUserPhotoUrl, false);
                         sendMessage(currentUserMsg, targetUserMsg);
                     });
 
@@ -435,6 +435,8 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
         super.onDestroyView();
         // remove the listener when the view is no longer visilbe for the user
         mCurrentUserRoomReference.removeEventListener(this);
+        mTargetUserRoomReference = null;
+        mCurrentUserRoomReference = null;
         Log.d(TAG, "onDestroyView: ");
     }
 

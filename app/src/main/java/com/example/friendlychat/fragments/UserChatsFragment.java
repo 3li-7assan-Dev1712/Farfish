@@ -1,10 +1,6 @@
 package com.example.friendlychat.fragments;
 
-import android.content.Context;
-import android.database.Cursor;
 import android.os.Bundle;
-import android.provider.ContactsContract;
-import android.telephony.PhoneNumberUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -23,11 +19,9 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.friendlychat.Adapters.ContactsAdapter;
-import com.example.friendlychat.Module.FullMessage;
 import com.example.friendlychat.Module.Message;
 import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.SharedPreferenceUtils;
-import com.example.friendlychat.Module.Status;
 import com.example.friendlychat.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -35,15 +29,11 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
-import java.util.EventListener;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 
 
 public class UserChatsFragment extends Fragment implements ContactsAdapter.OnChatClicked, ValueEventListener{
@@ -57,7 +47,7 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
     private FirebaseFirestore mFirestore;
     private DatabaseReference mCurrentUserRoomReference;
     private NavController mNavController;
-
+    private String mCurrentUserId;
 
     public UserChatsFragment() {
         // Required empty public constructor
@@ -70,9 +60,9 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
         mAuth = FirebaseAuth.getInstance();
 
         mFirestore = FirebaseFirestore.getInstance();
-        String currentUserId = MessagesPreference.getUserId(requireContext());
+        mCurrentUserId = MessagesPreference.getUserId(requireContext());
         mCurrentUserRoomReference = FirebaseDatabase.getInstance().getReference("rooms")
-                .child(currentUserId);
+                .child(mCurrentUserId);
 
         messages = new ArrayList<>();
         mAuth = FirebaseAuth.getInstance();
@@ -198,14 +188,21 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
 
             Iterable<DataSnapshot> messagesIterable = roomsSnapshot.getChildren();
             Message lastMessage = null;
+            int newMessageCounter = 0;
             for (DataSnapshot messageSnapShot : messagesIterable){
                 if (!messageSnapShot.getKey().equals("isWriting")) {
                     lastMessage = messageSnapShot.getValue(Message.class);
+                    if (!lastMessage.getIsRead())
+                        newMessageCounter++;
                 }
             }
-            if (lastMessage != null)
+            if (lastMessage != null) {
+                String senderId = lastMessage.getSenderId();
+                if (!senderId.equals(mCurrentUserId) && newMessageCounter != 0)
+                    lastMessage.setNewMessagesCount(newMessageCounter);
                 messages.add(lastMessage);
 
+            }
         }
         contactsAdapter.notifyDataSetChanged();
 

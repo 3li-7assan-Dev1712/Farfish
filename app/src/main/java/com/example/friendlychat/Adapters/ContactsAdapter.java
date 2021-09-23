@@ -96,6 +96,12 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
             SimpleDateFormat d = new SimpleDateFormat("h:mm a", Locale.getDefault());
             String readableDate = d.format(messageTime);
             holder.lastMessageTimeTextView.setText(readableDate);
+
+            int newMessagesNumber = message.getNewMessagesCount();
+            if (newMessagesNumber > 0){
+                holder.lastMessageTextView.setTextColor(mContext.getResources().getColor(R.color.colorPrimary));
+                holder.lastMessageTimeTextView.setTextColor(mContext.getResources().getColor(R.color.colorPrimary));
+            }
         }
 
     }

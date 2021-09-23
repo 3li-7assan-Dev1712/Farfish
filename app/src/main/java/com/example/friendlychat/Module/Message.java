@@ -7,7 +7,8 @@ public class Message {
     private String senderId;
     private String targetId;
     private String senderName, targetName, targetPhotoUrl;
-    private int newMessagesCount;
+    private boolean isRead;
+    private int newMessagesCount = 0;
 
 
 
@@ -15,7 +16,7 @@ public class Message {
     public Message() {
     }
 
-    public Message(String text, String photoUrl, long timestamp, String senderId, String targetId, String senderName, String targetName, String targetPhotoUrl) {
+    public Message(String text, String photoUrl, long timestamp, String senderId, String targetId, String senderName, String targetName, String targetPhotoUrl, boolean isRead) {
         this.text = text;
         this.photoUrl = photoUrl;
         this.timestamp = timestamp;
@@ -24,6 +25,7 @@ public class Message {
         this.senderName = senderName;
         this.targetName = targetName;
         this.targetPhotoUrl = targetPhotoUrl;
+        this.isRead = isRead;
     }
 
     public Message(String text, String senderName, String photoUrl) {
@@ -88,6 +90,7 @@ public class Message {
         return newMessagesCount;
     }
 
+    public boolean getIsRead () { return this.isRead; }
     public String getTargetId() {
         return targetId;
     }
