@@ -189,7 +189,7 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
     @Override
     public void onChatClicked(int position) {
 
-        String chatTitle;
+        String targetUserName;
         String photoUrl;
         String targetUserEmail;
         String userStatus;
@@ -197,34 +197,27 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
         long lastTimeSeen;
 
         if (getFilterState()){
-            chatTitle= usersUserKnow.get(position).getUserName();
+            targetUserName= usersUserKnow.get(position).getUserName();
             photoUrl= usersUserKnow.get(position).getPhotoUrl();
             targetUserEmail= usersUserKnow.get(position).getEmail();
             userStatus= usersUserKnow.get(position).getStatus();
             targetUserId = usersUserKnow.get(position).getUserId();
             lastTimeSeen= usersUserKnow.get(position).getLastTimeSeen();
         }else{
-             chatTitle= users.get(position).getUserName();
+             targetUserName= users.get(position).getUserName();
              photoUrl= users.get(position).getPhotoUrl();
              targetUserEmail= users.get(position).getEmail();
              userStatus= users.get(position).getStatus();
              lastTimeSeen= users.get(position).getLastTimeSeen();
             targetUserId = users.get(position).getUserId();
         }
-
         Bundle primaryDataBundle = new Bundle();
-        primaryDataBundle.putString("target_user_name", chatTitle);
+        primaryDataBundle.putString("target_user_name", targetUserName);
         primaryDataBundle.putString("target_user_photo_url", photoUrl);
-        if (!chatTitle.equals("All people use the app")) {
-
-            primaryDataBundle.putString("target_user_id", targetUserId);
-            primaryDataBundle.putString("target_user_email", targetUserEmail);
-            primaryDataBundle.putString("target_user_status", userStatus);
-            primaryDataBundle.putLong("target_user_last_time_seen", lastTimeSeen);
-            primaryDataBundle.putBoolean("isGroup", false);
-
-        }else
-            primaryDataBundle.putBoolean("isGroup", true);
+        primaryDataBundle.putString("target_user_id", targetUserId);
+        primaryDataBundle.putString("target_user_email", targetUserEmail);
+        primaryDataBundle.putString("target_user_status", userStatus);
+        primaryDataBundle.putLong("target_user_last_time_seen", lastTimeSeen);
 
         NavController controller = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         controller.navigate(R.id.action_usersFragment_to_chatsFragment, primaryDataBundle);

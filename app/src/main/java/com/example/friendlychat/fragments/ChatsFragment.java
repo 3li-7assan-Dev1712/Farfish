@@ -43,26 +43,17 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.friendlychat.Adapters.MessagesAdapter;
 import com.example.friendlychat.Module.FileUtil;
 import com.example.friendlychat.Module.FullImageData;
-import com.example.friendlychat.Module.FullMessage;
 import com.example.friendlychat.Module.Message;
 import com.example.friendlychat.Module.MessagesPreference;
-import com.example.friendlychat.Module.NotificationUtils;
-import com.example.friendlychat.Module.Status;
 import com.example.friendlychat.Module.User;
 import com.example.friendlychat.R;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -73,15 +64,13 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
 
 import id.zelory.compressor.Compressor;
 
-public class ChatsFragment extends Fragment implements MessagesAdapter.MessageClick{
+public class ChatsFragment extends Fragment implements MessagesAdapter.MessageClick,
+    ChildEventListener{
     /*real time permission*/
     private ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
@@ -95,34 +84,37 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
             });
     /*TAG for logging*/
     private static final String TAG = ChatsFragment.class.getSimpleName();
+    // optional for shiny users *_*
     public static final String ANONYMOUS = "anonymous";
-    public static final int DEFAULT_MSG_LENGTH_LIMIT = 1000; // max number of characters with a single message.
+    // max number of characters with a single message.
+    public static final int DEFAULT_MSG_LENGTH_LIMIT = 1000;
+    // views
     private RecyclerView mMessageRecyclerView;
     private EditText mMessageEditText;
     private FloatingActionButton mSendButton;
-    private CollectionReference messagesRef;
+    // functionality
     private List<Message> messages;
     private MessagesAdapter messagesAdapter;
     private String mUsername;
-    private boolean isGroup; // at the moment this field will be false, then we'll change it.
+    // firestore to get the user state wheater they're active or not
     private FirebaseFirestore mFirebasestore;
-    private CollectionReference messageSingleRef;
-    private CollectionReference messageSingleRefTarget;
+    // for sending and receiving photos
     private StorageReference mRootRef;
-    /*user profile image*/
+    /*toolbar views to display target user info*/
     private ImageView chat_image;
     private TextView chat_title;
     private TextView chat_last_seen;
+    // this tracker is used to invoke the method of the realtime database to update the user is writing once
     private int tracker = 0;
 
     private NavController navController;
-    /*info for FullMessage class*/
+
+    // toolbar values
     private String targetUserId;
-    private Message lastMessage;
     private String targetUserName;
     private String targetUserPhotoUrl;
 
-
+    // for target user profile in detail
     private Bundle targetUserData;
 
     /*chat info in upper toolbar*/
@@ -138,7 +130,6 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
     // firebase realtime database
     private DatabaseReference mCurrentUserRoomReference;
     private DatabaseReference mTargetUserRoomReference;
-    private DatabaseReference mGroupReference;
 
     private ActivityResultLauncher<String> pickPic = registerForActivityResult(
             new ActivityResultContracts.GetContent(){
@@ -164,24 +155,17 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
         mUsername = ANONYMOUS;
         messages = new ArrayList<>();
         targetUserData = getArguments();
-
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        mGroupReference = database.getReference("rooms").child("all people use the app");
        if (targetUserData != null) {
            targetUserName = targetUserData.getString("target_user_name", "Chat title");
            targetUserPhotoUrl = targetUserData.getString("target_user_photo_url", "photo");
            targetUserId = targetUserData.getString("target_user_id", "id for target user");
-           isGroup = targetUserData.getBoolean("isGroup");
-
-           // rooms refereance
-           if (!isGroup) {
-               String currentUserId = MessagesPreference.getUserId(requireContext());
-               mCurrentUserRoomReference = database.getReference("rooms").child(currentUserId)
-                       .child(currentUserId + targetUserId);
-               mTargetUserRoomReference = database.getReference("rooms").child(targetUserId)
-                       .child(targetUserId + currentUserId);
-           }
-
+           // rooms references
+           String currentUserId = MessagesPreference.getUserId(requireContext());
+           mCurrentUserRoomReference = database.getReference("rooms").child(currentUserId)
+                   .child(currentUserId + targetUserId);
+           mTargetUserRoomReference = database.getReference("rooms").child(targetUserId)
+                   .child(targetUserId + currentUserId);
        }else{
            Toast.makeText(requireContext(), "Data is null", Toast.LENGTH_SHORT).show();
        }
@@ -206,15 +190,11 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
         LinearLayout targetUserLayout = view.findViewById(R.id.conversationToolbarUserInfo);
         targetUserLayout.setOnClickListener(targetUserLayoutListener ->{
 
-            if (!isGroup) {
-                Log.d(TAG, "onCreateView: target photo Url : " + targetUserData.getString("target_user_photo_url"));
-                /*messages.clear();*/ // clean the list to ensure it will not contain duplicated data
-                navController.navigate(R.id.action_chatsFragment_to_userProfileFragment,
-                        targetUserData);
-            }else {
-                Toast.makeText(requireContext(), "Group info will be " +
-                        "support in the next versions of the app", Toast.LENGTH_SHORT).show();
-            }
+            Log.d(TAG, "onCreateView: target photo Url : " + targetUserData.getString("target_user_photo_url"));
+            /*messages.clear();*/ // clean the list to ensure it will not contain duplicated data
+            navController.navigate(R.id.action_chatsFragment_to_userProfileFragment,
+                    targetUserData);
+
         });
         setChatInfo();
         mMessageRecyclerView = view.findViewById(R.id.messageRecyclerView);
@@ -270,8 +250,6 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
         });
         mMessageEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(DEFAULT_MSG_LENGTH_LIMIT)});
 
-        Log.d(TAG, "isGroup " + isGroup);
-
         mSendButton.setOnClickListener( v -> {
 
             long dateInLocalTime = System.currentTimeMillis();
@@ -290,31 +268,6 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
             sendMessage(message);
         });
 
-
-/*
-        if (!isGroup) {
-
-         *//*   FirebaseAuth auth = FirebaseAuth.getInstance();
-            messageSingleRef = mFirebasestore.collection("rooms").document(Objects.requireNonNull(auth.getUid()))
-                    .collection("chats")
-                    .document(auth.getUid()+ targetUserId)
-                    .collection("messages");
-            Map<String, Object> data = new HashMap<>();
-            data.put("isWriting", false);
-            messageSingleRef.document("isWriting").set(data);
-            assert targetUserId != null;
-            messageSingleRefTarget = mFirebasestore.collection("rooms")
-                    .document(targetUserId)
-                    .collection("chats").document(targetUserId + auth.getUid())
-                    .collection("messages");
-            messageSingleRefTarget.document("isWriting").set(data);*//*
-
-
-        }else{
-            messagesRef = mFirebasestore.collection("rooms").document("people use the app")
-                    .collection("messages");
-        }*/
-
         if (messages.size() == 0)
             initializeUserAndData();
         else
@@ -324,20 +277,14 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
     }
 
     private void setUserIsNotWriting() {
-
-
-        if (!isGroup) {
-           /* messageSingleRef.document("isWriting")
-                    .update("isWriting", false);*/
            mCurrentUserRoomReference.child("isWriting").setValue(false);
             Log.d(TAG, "set user is not writing");
-        }
     }
 
     private void setUserIsWriting() {
 
         Log.d(TAG, "set user is writing");
-        if (tracker == 0 && !isGroup){
+        if (tracker == 0){
             mCurrentUserRoomReference.child("isWriting")
                     .setValue(true);
             /*messageSingleRef.document("isWriting")
@@ -348,56 +295,39 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
     }
 
     private void setChatInfo() {
-        if (!isGroup) {
-            mFirebasestore.collection("rooms").document(targetUserId)
-                    .get().addOnSuccessListener(documentSnapshot -> {
-                User user = documentSnapshot.toObject(User.class);
-                if (user != null) {
-                    targetUserPhotoUrl = user.getPhotoUrl();
-                    targetUserName = user.getUserName();
-                    chat_title.setText(targetUserName);
-                    Picasso.get().load(targetUserPhotoUrl).placeholder(R.drawable.ic_baseline_emoji_emotions_24).into(chat_image);
-                    isActive = user.getIsActive();
-                    lastTimeSeen = user.getLastTimeSeen();
-                    updateChatInfo();
-                    populateTargetUserInfo(user);
-                    listenToChange(targetUserId);
-                }
-            });
 
-        }else{
-            chat_title.setText(R.string.all_people);
-            chat_title.setTextSize(16f);
-            chat_last_seen.setVisibility(View.GONE);
-            chat_title.setLines(1);
-            chat_title.canScrollHorizontally(1);
-            /*Picasso.get().load(targetUserPhotoUrl).placeholder(R.drawable.ic_baseline_emoji_emotions_24).into(chat_image);*/
-            Picasso.get().load(R.drawable.group_icon).placeholder(R.drawable.group_icon).into(chat_image);
-        }
+        mFirebasestore.collection("rooms").document(targetUserId)
+                .get().addOnSuccessListener(documentSnapshot -> {
+            User user = documentSnapshot.toObject(User.class);
+            if (user != null) {
+                targetUserPhotoUrl = user.getPhotoUrl();
+                targetUserName = user.getUserName();
+                chat_title.setText(targetUserName);
+                Picasso.get().load(targetUserPhotoUrl).placeholder(R.drawable.ic_baseline_emoji_emotions_24).into(chat_image);
+                isActive = user.getIsActive();
+                lastTimeSeen = user.getLastTimeSeen();
+                updateChatInfo();
+                populateTargetUserInfo(user);
+                listenToChange(targetUserId);
+            }
+        });
+
     }
 
     private void populateTargetUserInfo(User user) {
-        if (!isGroup) {
-            Log.d(TAG, "populateTargetUserInfo: populate successfully");
-            Log.d(TAG, "from populate: the targer user photo url : " + user.getPhotoUrl());
-            targetUserData.putString("target_user_id", user.getUserId());
-            targetUserData.putString("target_user_email", user.getEmail());
-            targetUserData.putString("target_user_photo_url", user.getPhotoUrl());
-            targetUserData.putString("target_user_status", user.getStatus());
-            targetUserData.putString("target_user_name", user.getUserName());
-            targetUserData.putBoolean("isActive", user.getIsActive());
-            targetUserData.putLong("target_user_last_time_seen", user.getLastTimeSeen());
-        }else
-            Log.d(TAG, "populateTargetUserInfo: cannot populate user because it is for group chat");
+        Log.d(TAG, "populateTargetUserInfo: populate successfully");
+        Log.d(TAG, "from populate: the targer user photo url : " + user.getPhotoUrl());
+        targetUserData.putString("target_user_id", user.getUserId());
+        targetUserData.putString("target_user_email", user.getEmail());
+        targetUserData.putString("target_user_photo_url", user.getPhotoUrl());
+        targetUserData.putString("target_user_status", user.getStatus());
+        targetUserData.putString("target_user_name", user.getUserName());
+        targetUserData.putBoolean("isActive", user.getIsActive());
+        targetUserData.putLong("target_user_last_time_seen", user.getLastTimeSeen());
+        Log.d(TAG, "populateTargetUserInfo: cannot populate user because it is for group chat");
     }
 
     private void listenToChange(String targetUserId) {
-       /* messageSingleRefTarget.document("isWriting")
-                .addSnapshotListener( (value, error) -> {
-                    assert value != null;
-                    isWriting = (boolean) value.get("isWriting");
-                    updateChatInfo();
-                });*/
         mFirebasestore.collection("rooms").document(targetUserId)
                 .addSnapshotListener( ((value, error) -> {
                     assert value != null;
@@ -413,6 +343,7 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
 
     /*this method will update the chat info int the toolbar in real time!*/
     private void updateChatInfo() {
+        Log.d(TAG, "updateChatInfo: ");
         if (getContext() != null){
             if (isWriting){
                 chat_last_seen.setText(getResources().getString(R.string.isWriting));
@@ -424,7 +355,6 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
                 chat_last_seen.setTextColor(getResources().getColor(R.color.colorTitle));
             }
             else {
-
                 SimpleDateFormat df = new SimpleDateFormat("EEE, MMM d", Locale.getDefault());
                 String lastTimeSeenText = df.format(lastTimeSeen);
                 SimpleDateFormat df2 = new SimpleDateFormat("h:mm a", Locale.getDefault());
@@ -488,6 +418,7 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        /*mCurrentUserRoomReference.removeEventListener(this);*/
         Log.d(TAG, "onDestroyView: ");
     }
 
@@ -499,53 +430,21 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
 
     private void sendMessage(Message message) {
 
-        if (isGroup){
-
-            mGroupReference.push().setValue(message);
-          /*  messagesRef
-                    .add(message)
-                    .addOnSuccessListener(
-                            documentReference -> Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId())
-
-                    )
-                    .addOnFailureListener(e -> Log.w(TAG, "Error adding document", e));*/
-            // Clear input box
-        }else {
-            mCurrentUserRoomReference.push().setValue(message).addOnSuccessListener(success -> {
-                mTargetUserRoomReference.push().setValue(message);
-            }).addOnFailureListener(exception -> {
-                Log.d(TAG, "sendMessage: exception msg: " + exception.getMessage());
-            });
-            /*messageSingleRef.
-                    .add(message)
-                    .addOnSuccessListener(
-                            documentReference -> {
-                                Toast.makeText(requireContext(), "Added new message", Toast.LENGTH_SHORT).show();
-                                messageSingleRefTarget.add(message);
-                                lastMessage = message;
-                                FullMessage fullMessage = new FullMessage(lastMessage, targetUserName, targetUserPhotoUrl, targetUserId);
-                                Objects.requireNonNull(messageSingleRef.getParent()).set(fullMessage);
-                                String currentUserName = MessagesPreference.getUserName(requireContext());
-                                String currentPhotoUrl = MessagesPreference.getUsePhoto(requireContext());
-                                String currentUserId = MessagesPreference.getUserId(requireContext());
-                                FullMessage targetFullMessage = new FullMessage(lastMessage, currentUserName, currentPhotoUrl, currentUserId);
-                                Objects.requireNonNull(messageSingleRefTarget.getParent()).set(targetFullMessage);
-                            }).addOnFailureListener(e ->
-                    Toast.makeText(requireContext(), "Error" + e.toString(), Toast.LENGTH_SHORT).show());*/
-        }
-        // clean up the the edit text field after sending the message.
+        mCurrentUserRoomReference.push().setValue(message).addOnSuccessListener(success ->
+                mTargetUserRoomReference.push().setValue(message)).addOnFailureListener(exception ->
+                Log.d(TAG, "sendMessage: exception msg: " + exception.getMessage()));
         mMessageEditText.setText("");
 
     }
 
-    private void sendNotification(Message message) {
+/*    private void sendNotification(Message message) {
         String currentUserId = MessagesPreference.getUserId(requireContext());
         String senderId = message.getSenderId();
         if (senderId != null) {
             if (!senderId.equals(currentUserId))
                 NotificationUtils.notifyUserOfNewMessage(requireContext(), message);
         }
-    }
+    }*/
 
     private void pickImageFromGallery() {
         pickPic.launch("image/*");
@@ -555,75 +454,9 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
     private void initializeUserAndData() {
 
         /*read all messages form the database and add any new messages with notifying the Adapter after that*/
-        String userName = MessagesPreference.getUserName(requireContext());
-        mUsername = userName;
-        Toast.makeText(requireContext(), "Welcome " + userName + "!", Toast.LENGTH_SHORT).show();
-
-        Log.d(TAG, "initialize user and data");
-        if (isGroup) {
-            mCurrentUserRoomReference.get().addOnSuccessListener(allMessagesDataSnapshot -> {
-                insertMessagesInAdapter(allMessagesDataSnapshot);
-            });
-            mGroupReference.addChildEventListener(new ChildEventListener() {
-                @Override
-                public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                    addNewMessage(snapshot);
-                }
-
-                @Override
-                public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                    Log.d(TAG, "onChildChanged: change happens");
-                }
-
-                @Override
-                public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-
-                }
-
-                @Override
-                public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-
-                }
-            });
-        }else{
-            mCurrentUserRoomReference.get().addOnSuccessListener(this::insertMessagesInAdapter);
-            mCurrentUserRoomReference.addChildEventListener(new ChildEventListener() {
-                @Override
-                public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                    addNewMessage(snapshot);
-
-                    Log.d(TAG, "onChildAdded: ");
-                }
-
-                @Override
-                public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                    Log.d(TAG, "onChildChanged: expecting the isWirting state is changing");
-                    isWriting = (boolean) snapshot.getValue();
-                    Log.d(TAG, "onChildChanged: isWriting" + isWriting);
-                    updateChatInfo();
-                }
-
-                @Override
-                public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-
-                }
-
-                @Override
-                public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-
-                }
-            });
-        }
+        mUsername = MessagesPreference.getUserName(requireContext());
+        mCurrentUserRoomReference.get().addOnSuccessListener(this::insertMessagesInAdapter);
+        mTargetUserRoomReference.addChildEventListener(this);
         mProgressBar.setVisibility(View.GONE);
     }
 
@@ -658,22 +491,6 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
         }catch (Exception e){
             Log.d(TAG, "addNewMessage: exception " + e.getMessage());
         }
-      /*
-        if (value != null) {
-
-            for (DocumentChange dc : value.getDocumentChanges()) {
-                Message newMessage = dc.getDocument().toObject(Message.class);
-                messages.add(newMessage);
-                Log.d(TAG, "document change");
-
-            }
-            Log.d(TAG, "the number of messages in this chat is: " + value.getDocumentChanges().size());
-            messagesAdapter.notifyDataSetChanged();
-            *//*sendNotification(messages.get(messages.size() -1));*//*
-            if (messages.size() > 0)
-                mMessageRecyclerView.scrollToPosition(messages.size() - 1);
-
-        }*/
     }
 
     @Override
@@ -725,7 +542,35 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
         /*NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);*/
         navController.navigate(actionToFullImageFragment, extras);
 
+    }
 
+
+    // listeners
+    @Override
+    public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+        addNewMessage(snapshot);
+        Log.d(TAG, "onChildAdded: ");
+    }
+
+    @Override
+    public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+        isWriting = (boolean) snapshot.getValue();
+        Log.d(TAG, "onChildChanged: isWriting" + isWriting);
+        updateChatInfo();
+    }
+
+    @Override
+    public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+
+    }
+
+    @Override
+    public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+    }
+
+    @Override
+    public void onCancelled(@NonNull DatabaseError error) {
 
     }
 }
