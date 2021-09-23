@@ -9,7 +9,10 @@ and I will use the rest of the libraries by the time.</br>
 As mentioned before it's a social media app, users use the app to communicate and chat
 with one another in real time with high security functionality.</br>
 the user have the option of updating and changing their information in the
-user profile destinations, other users can also see their profile.
+user profile destinations, other users can also see their profile. </br>
+<h2>Real time chat</h2>
+users enjoy real time chat felling with all the functionality like seeing the user is writing
+and read the brand new message all in real time.
 </br></br>
 Note: This is just a temporary Readme and will be rewritten again
 after the app enroll the release and stable state :)
