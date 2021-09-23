@@ -137,15 +137,9 @@
 
         <Button
             android:id="@+id/register_button"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
             android:layout_marginTop="32dp"
-            android:layout_marginEnd="16dp"
-            android:background="@drawable/login_button_background"
+            style="@style/main_buttons_background"
             android:text="@string/register"
-            android:textColor="@android:color/white"
-            android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/check_box_terms_condition" />
@@ -170,6 +164,7 @@
             android:textColor="@android:color/black"
             android:textSize="18sp"
             android:textStyle="bold"
+            android:background="@drawable/gray_ripple"
             app:layout_constraintBottom_toBottomOf="@+id/textView"
             app:layout_constraintStart_toEndOf="@+id/textView"
             app:layout_constraintTop_toTopOf="@+id/textView" />

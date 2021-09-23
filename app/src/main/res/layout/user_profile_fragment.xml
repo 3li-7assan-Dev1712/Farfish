@@ -11,33 +11,35 @@
         android:layout_height="wrap_content">
 
 
-        <Button
-            android:id="@+id/editProfileButton"
+        <FrameLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="16dp"
-            android:background="@drawable/edit_button_background"
-            android:minWidth="0dp"
-            android:minHeight="0dp"
-            android:padding="16dp"
-            android:text="@string/edit"
-            android:textSize="12sp"
+            android:background="?attr/selectableItemBackground"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/user_profie_view_background"
-            tools:visibility="visible" />
+            app:layout_constraintTop_toBottomOf="@+id/user_profie_view_background">
+            <Button
+                android:id="@+id/editProfileButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:background="@drawable/edit_button_background"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:padding="16dp"
+                android:text="@string/edit"
+                android:textSize="12sp"
+                tools:visibility="visible" />
+        </FrameLayout>
+
 
         <Button
             android:id="@+id/logoutButtonUserProfile"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
+            style="@style/main_buttons_background"
             android:layout_marginTop="128dp"
-            android:layout_marginEnd="16dp"
-            android:background="@drawable/user_profie_gradient_background"
             android:text="@string/logout"
-            android:textColor="@color/colorTitle"
-            android:textSize="18sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/statusOfUserTextVIew"

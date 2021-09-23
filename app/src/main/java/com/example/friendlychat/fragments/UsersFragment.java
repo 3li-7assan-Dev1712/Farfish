@@ -238,7 +238,7 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
                 mAuth.signOut();
                 Toast.makeText(requireContext(), "Signed out successfully", Toast.LENGTH_SHORT).show();
                 SharedPreferenceUtils.saveUserSignOut(requireContext());
-                mNavController.navigate(R.id.fragmentSignIn);
+                mNavController.navigate(R.id.action_usersFragment_to_fragmentSignIn);
                 break;
             case R.id.go_to_profile:
                 mNavController.navigate(R.id.action_usersFragment_to_userProfileFragment);
