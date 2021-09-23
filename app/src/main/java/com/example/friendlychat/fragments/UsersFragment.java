@@ -209,7 +209,7 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
              targetUserEmail= users.get(position).getEmail();
              userStatus= users.get(position).getStatus();
              lastTimeSeen= users.get(position).getLastTimeSeen();
-            targetUserId = users.get(position).getUserId();
+             targetUserId = users.get(position).getUserId();
         }
         Bundle primaryDataBundle = new Bundle();
         primaryDataBundle.putString("target_user_name", targetUserName);

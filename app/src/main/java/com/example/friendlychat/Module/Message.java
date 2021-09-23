@@ -20,7 +20,7 @@ public class Message {
         this.photoUrl = photoUrl;
         this.timestamp = timestamp;
         this.senderId = senderId;
-        targetId = this.targetId;
+        this.targetId  = targetId;
         this.senderName = senderName;
         this.targetName = targetName;
         this.targetPhotoUrl = targetPhotoUrl;
@@ -63,9 +63,6 @@ public class Message {
         return senderName;
     }
 
-    public void setSenderName(String senderName) {
-        this.senderName = senderName;
-    }
 
     public String getPhotoUrl() {
         return photoUrl;

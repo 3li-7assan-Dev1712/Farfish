@@ -101,26 +101,29 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
 
 
         contactsRecycler.setAdapter(contactsAdapter);
-        if (mAuth.getCurrentUser() != null)
+        if (mAuth.getCurrentUser() != null && messages.size() == 0)
             initializeUserAndData();
         return view;
     }
 
     private void initializeUserAndData() {
 
+
         mCurrentUserRoomReference.get().addOnSuccessListener(successDataSnapshot -> {
 
             Iterable<DataSnapshot> roomsIterable = successDataSnapshot.getChildren();
             for (DataSnapshot roomsSnapshot : roomsIterable) {
-                if (!roomsSnapshot.getKey().equals("isWriting")) {
-                    Iterable<DataSnapshot> messagesIterable = roomsSnapshot.getChildren();
-                    Message lastMessage = null;
-                    for (DataSnapshot messageSnapShot : messagesIterable){
-                       lastMessage= messageSnapShot.getValue(Message.class);
+
+                Iterable<DataSnapshot> messagesIterable = roomsSnapshot.getChildren();
+                Message lastMessage = null;
+                for (DataSnapshot messageSnapShot : messagesIterable){
+                    if (!messageSnapShot.getKey().equals("isWriting")) {
+                        lastMessage = messageSnapShot.getValue(Message.class);
                     }
-                    if (lastMessage != null)
-                        messages.add(lastMessage);
                 }
+                if (lastMessage != null)
+                    messages.add(lastMessage);
+
             }
             contactsAdapter.notifyDataSetChanged();
 

@@ -272,9 +272,9 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
 
 
             String text = mMessageEditText.getText().toString();
-            Message currentUserMsg = new Message(text, "", dateFromDateClass, currentUserId, targetUserId,
+            Message currentUserMsg = new Message(text, "", dateFromDateClass, currentUserId, currentUserId,
                     mUsername, currentUserName, currentPhotoUrl);
-            Message targetUserMsg = new Message(text, "", dateFromDateClass, currentUserId, currentUserId,
+            Message targetUserMsg = new Message(text, "", dateFromDateClass, currentUserId, targetUserId,
                     mUsername, targetUserName, targetUserPhotoUrl);
             sendMessage(currentUserMsg, targetUserMsg);
         });
@@ -408,9 +408,9 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
                         long dateFromDateClass = new Date().getTime();
                          /* if the image sent successfully to the firebase storage send its metadata as a message
                          to the firebase firestore */
-                        Message currentUserMsg = new Message("", downloadUrl, dateFromDateClass, currentUserId, targetUserId,
+                        Message currentUserMsg = new Message("", downloadUrl, dateFromDateClass, currentUserId, currentUserId,
                                 mUsername, currentUserName, currentPhotoUrl);
-                        Message targetUserMsg = new Message("", downloadUrl, dateFromDateClass, currentUserId, currentUserId,
+                        Message targetUserMsg = new Message("", downloadUrl, dateFromDateClass, currentUserId, targetUserId,
                                 mUsername, targetUserName, targetUserPhotoUrl);
                         sendMessage(currentUserMsg, targetUserMsg);
                     });
@@ -471,8 +471,8 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
 
         /*read all messages form the database and add any new messages with notifying the Adapter after that*/
         mUsername = MessagesPreference.getUserName(requireContext());
-        mCurrentUserRoomReference.get().addOnSuccessListener(this::insertMessagesInAdapter);
-        mTargetUserRoomReference.addChildEventListener(this);
+       /* mCurrentUserRoomReference.get().addOnSuccessListener(this::insertMessagesInAdapter);*/
+        mCurrentUserRoomReference.addChildEventListener(this);
         mProgressBar.setVisibility(View.GONE);
     }
 
