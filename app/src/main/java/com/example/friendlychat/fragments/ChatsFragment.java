@@ -473,6 +473,34 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
         mUsername = MessagesPreference.getUserName(requireContext());
        /* mCurrentUserRoomReference.get().addOnSuccessListener(this::insertMessagesInAdapter);*/
         mCurrentUserRoomReference.addChildEventListener(this);
+        mTargetUserRoomReference.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                isWriting = (boolean) snapshot.getValue();
+                Log.d(TAG, "onChildChanged: isWriting" + isWriting);
+                updateChatInfo();
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
         mProgressBar.setVisibility(View.GONE);
     }
 
@@ -570,9 +598,7 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
 
     @Override
     public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-        isWriting = (boolean) snapshot.getValue();
-        Log.d(TAG, "onChildChanged: isWriting" + isWriting);
-        updateChatInfo();
+
     }
 
     @Override

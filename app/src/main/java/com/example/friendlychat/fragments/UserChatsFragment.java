@@ -31,19 +31,22 @@ import com.example.friendlychat.Module.Status;
 import com.example.friendlychat.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.EventListener;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
 
-public class UserChatsFragment extends Fragment implements ContactsAdapter.OnChatClicked {
+public class UserChatsFragment extends Fragment implements ContactsAdapter.OnChatClicked, ValueEventListener{
 
     private FirebaseAuth mAuth;
     private static final String TAG = UserChatsFragment.class.getSimpleName();
@@ -108,27 +111,13 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
 
     private void initializeUserAndData() {
 
-
-        mCurrentUserRoomReference.get().addOnSuccessListener(successDataSnapshot -> {
-
-            Iterable<DataSnapshot> roomsIterable = successDataSnapshot.getChildren();
-            for (DataSnapshot roomsSnapshot : roomsIterable) {
-
-                Iterable<DataSnapshot> messagesIterable = roomsSnapshot.getChildren();
-                Message lastMessage = null;
-                for (DataSnapshot messageSnapShot : messagesIterable){
-                    if (!messageSnapShot.getKey().equals("isWriting")) {
-                        lastMessage = messageSnapShot.getValue(Message.class);
-                    }
-                }
-                if (lastMessage != null)
-                    messages.add(lastMessage);
-
-            }
-            contactsAdapter.notifyDataSetChanged();
+        mCurrentUserRoomReference.addValueEventListener(this);
+       /* mCurrentUserRoomReference.get().addOnSuccessListener(successDataSnapshot -> {
 
 
-        });
+
+
+        });*/
        /* mFirestore.collection("rooms").document(Objects.requireNonNull(mAuth.getUid()))
                 .collection("chats").addSnapshotListener((value, error) -> {
             if (error != null){
@@ -201,4 +190,35 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
 
     }
 
+    @Override
+    public void onDataChange(@NonNull DataSnapshot snapshot) {
+        messages.clear();
+        Iterable<DataSnapshot> roomsIterable = snapshot.getChildren();
+        for (DataSnapshot roomsSnapshot : roomsIterable) {
+
+            Iterable<DataSnapshot> messagesIterable = roomsSnapshot.getChildren();
+            Message lastMessage = null;
+            for (DataSnapshot messageSnapShot : messagesIterable){
+                if (!messageSnapShot.getKey().equals("isWriting")) {
+                    lastMessage = messageSnapShot.getValue(Message.class);
+                }
+            }
+            if (lastMessage != null)
+                messages.add(lastMessage);
+
+        }
+        contactsAdapter.notifyDataSetChanged();
+
+    }
+
+    @Override
+    public void onCancelled(@NonNull DatabaseError error) {
+
+    }
+
+    @Override
+    public void onDestroy() {
+        mCurrentUserRoomReference.removeEventListener(this);
+        super.onDestroy();
+    }
 }
