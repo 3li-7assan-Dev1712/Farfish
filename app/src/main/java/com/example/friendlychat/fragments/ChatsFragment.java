@@ -57,7 +57,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.google.protobuf.MapEntryLite;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
@@ -65,7 +64,6 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -486,9 +484,13 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
 
             @Override
             public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                isWriting = (boolean) snapshot.getValue();
-                Log.d(TAG, "onChildChanged: isWriting" + isWriting);
-                updateChatInfo();
+                try {
+                    isWriting = (boolean) snapshot.getValue();
+                    Log.d(TAG, "onChildChanged: isWriting" + isWriting);
+                    updateChatInfo();
+                }catch (Exception exp){
+                    Log.d(TAG, "onChildChanged: " + exp.getMessage());
+                }
             }
 
             @Override

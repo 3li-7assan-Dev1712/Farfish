@@ -137,10 +137,16 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
 
             if (message.getSenderId().equals(mCurrentUserId)) {
                 if (message.getIsRead()) {
+                    Log.d(TAG, "onBindViewHolder: send the indicator as read");
                     holder.isReadIndicatorImageView.setImageResource(
                             R.drawable.ic_done_all_24
                     );
+                }else{
+                    holder.isReadIndicatorImageView.setImageResource(
+                            R.drawable.ic_done_all_black
+                    );
                 }
+
             }
         }
     }
