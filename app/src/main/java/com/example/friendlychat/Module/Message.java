@@ -1,5 +1,10 @@
 package com.example.friendlychat.Module;
 
+import com.google.firebase.database.Exclude;
+
+import java.util.HashMap;
+import java.util.Map;
+
 public class Message {
     private String text;
     private String photoUrl;
@@ -49,6 +54,22 @@ public class Message {
         this.timestamp = timestamp;
     }
 
+    @Exclude
+    public Map<String, Object> toMap() {
+        HashMap<String, Object> result = new HashMap<>();
+
+        result.put("text", this.text);
+        result.put("photoUrl", this.photoUrl);
+        result.put("timestamp", this.timestamp);
+        result.put("senderId", this.senderId);
+        result.put("targetId", this.targetId);
+        result.put("senderName", this.senderName);
+        result.put("targetName", this.targetName);
+        result.put("targetPhotoUrl", this.targetPhotoUrl);
+        result.put("isRead", this.isRead);
+
+        return result;
+    }
     public long getTimestamp() {
         return timestamp;
     }
@@ -88,6 +109,10 @@ public class Message {
 
     public int getNewMessagesCount() {
         return newMessagesCount;
+    }
+
+    public void setIsRead(boolean isRead) {
+        this.isRead = isRead;
     }
 
     public boolean getIsRead () { return this.isRead; }

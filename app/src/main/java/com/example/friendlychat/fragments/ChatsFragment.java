@@ -57,6 +57,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.google.protobuf.MapEntryLite;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
@@ -64,8 +65,10 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import id.zelory.compressor.Compressor;
 
@@ -529,6 +532,8 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
         mProgressBar.setVisibility(View.INVISIBLE);
         try {
             Message newMessage = value.getValue(Message.class);
+            if (!newMessage.getIsRead() && !newMessage.getSenderId().equals(currentUserId))
+                markMessageAsRead(value, newMessage);
             messages.add(newMessage);
             if (messages.size() > 0) {
                 messagesAdapter.notifyDataSetChanged();
@@ -537,6 +542,21 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
         }catch (Exception e){
             Log.d(TAG, "addNewMessage: exception " + e.getMessage());
         }
+    }
+
+    private void markMessageAsRead(DataSnapshot snapshotMessageTobeUpdated, Message messageToUpdate) {
+        Log.d(TAG, "markMessageAsRead: ");
+        Map<String, Object> originalMessage = messageToUpdate.toMap();
+        originalMessage.put("isRead", true);
+        snapshotMessageTobeUpdated.getRef().updateChildren(originalMessage).addOnSuccessListener(
+                successListener -> {
+                    Log.d(TAG, "update message successfully to be read");
+
+                }
+
+        ).addOnFailureListener(
+                exception -> Log.d(TAG, "markMessageAsRead: " + exception.getMessage()
+                ));
     }
 
     @Override
