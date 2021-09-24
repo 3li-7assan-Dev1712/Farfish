@@ -460,14 +460,7 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
 
     }
 
-/*    private void sendNotification(Message message) {
-        String currentUserId = MessagesPreference.getUserId(requireContext());
-        String senderId = message.getSenderId();
-        if (senderId != null) {
-            if (!senderId.equals(currentUserId))
-                NotificationUtils.notifyUserOfNewMessage(requireContext(), message);
-        }
-    }*/
+
 
     private void pickImageFromGallery() {
         pickPic.launch("image/*");

@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.friendlychat.Adapters.ContactsAdapter;
 import com.example.friendlychat.Module.Message;
 import com.example.friendlychat.Module.MessagesPreference;
+import com.example.friendlychat.Module.NotificationUtils;
 import com.example.friendlychat.Module.SharedPreferenceUtils;
 import com.example.friendlychat.R;
 import com.google.firebase.auth.FirebaseAuth;
@@ -29,8 +30,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,11 +39,8 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
 
     private FirebaseAuth mAuth;
     private static final String TAG = UserChatsFragment.class.getSimpleName();
-
     private List<Message> messages;
-
     private ContactsAdapter contactsAdapter;
-    private FirebaseFirestore mFirestore;
     private DatabaseReference mCurrentUserRoomReference;
     private NavController mNavController;
     private String mCurrentUserId;
@@ -57,13 +53,9 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        mAuth = FirebaseAuth.getInstance();
-
-        mFirestore = FirebaseFirestore.getInstance();
         mCurrentUserId = MessagesPreference.getUserId(requireContext());
         mCurrentUserRoomReference = FirebaseDatabase.getInstance().getReference("rooms")
                 .child(mCurrentUserId);
-
         messages = new ArrayList<>();
         mAuth = FirebaseAuth.getInstance();
         contactsAdapter = new ContactsAdapter(getContext(), messages, this, null);
@@ -102,25 +94,6 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
     private void initializeUserAndData() {
 
         mCurrentUserRoomReference.addValueEventListener(this);
-       /* mCurrentUserRoomReference.get().addOnSuccessListener(successDataSnapshot -> {
-
-
-
-
-        });*/
-       /* mFirestore.collection("rooms").document(Objects.requireNonNull(mAuth.getUid()))
-                .collection("chats").addSnapshotListener((value, error) -> {
-            if (error != null){
-                Toast.makeText(getContext(), "Error reading message", Toast.LENGTH_SHORT).show();
-            }else{
-                String source = value != null && value.getMetadata().hasPendingWrites()
-                        ? "Local" : "Server";
-                Log.d(TAG, source);
-                Toast.makeText(requireActivity(), source, Toast.LENGTH_SHORT).show();
-                updateUI(value);
-            }
-        });*/
-
     }
 
 
@@ -149,26 +122,6 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
         inflater.inflate(R.menu.main, menu);
     }
 
-    private void updateUI(QuerySnapshot value) {
-       /* if (value != null) {
-
-
-            for (DocumentChange dc : value.getDocumentChanges()) {
-                Toast.makeText(getContext(), "document has changed ", Toast.LENGTH_SHORT).show();
-                Log.d(TAG, "document change in User Contacts Activity");
-                FullMessage fullMessage = dc.getDocument().toObject(FullMessage.class);
-                String upComingId = fullMessage.getTargetUserId();
-                for (int i = 0 ; i < fullMessages.size(); i ++){
-                    String toBeReplaceId = fullMessages.get(i).getTargetUserId();
-                    if (toBeReplaceId.equals(upComingId)) fullMessages.remove(i);
-                }
-
-                fullMessages.add(fullMessage);
-
-            }
-            contactsAdapter.notifyDataSetChanged();
-        }*/
-    }
 
     @Override
     public void onChatClicked(int position) {
@@ -201,7 +154,7 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
                 if (!senderId.equals(mCurrentUserId) && newMessageCounter != 0)
                     lastMessage.setNewMessagesCount(newMessageCounter);
                 messages.add(lastMessage);
-
+                sendNotification(lastMessage);
             }
         }
         contactsAdapter.notifyDataSetChanged();
@@ -218,4 +171,10 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
         mCurrentUserRoomReference.removeEventListener(this);
         super.onDestroy();
     }
+
+    private void sendNotification(Message message) {
+        if (!message.getIsRead() && !message.getSenderId().equals(mCurrentUserId))
+            NotificationUtils.notifyUserOfNewMessage(requireContext(), message);
+    }
+
 }
