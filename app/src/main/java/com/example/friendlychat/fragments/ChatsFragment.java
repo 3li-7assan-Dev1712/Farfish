@@ -449,8 +449,12 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
 
     private void sendMessage(Message currentUserMsg, Message targetUserMsg) {
 
-        mCurrentUserRoomReference.push().setValue(targetUserMsg).addOnSuccessListener(success ->
-                mTargetUserRoomReference.push().setValue(currentUserMsg)).addOnFailureListener(exception ->
+        String key = mCurrentUserRoomReference.push().getKey();
+        Log.d(TAG, "sendMessage: the key of the new two messages is: " + key);
+        if (key == null)
+            throw new NullPointerException("the key of the new messages should not be null");
+        mCurrentUserRoomReference.child(key).setValue(targetUserMsg).addOnSuccessListener(success ->
+                mTargetUserRoomReference.child(key).setValue(currentUserMsg)).addOnFailureListener(exception ->
                 Log.d(TAG, "sendMessage: exception msg: " + exception.getMessage()));
         mMessageEditText.setText("");
 
@@ -484,13 +488,13 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
 
             @Override
             public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                try {
+                Log.d(TAG, "onChildChanged: the key of the changed child is: " + previousChildName);
+                if (snapshot.getKey().equals("isWriting")) {
                     isWriting = (boolean) snapshot.getValue();
-                    Log.d(TAG, "onChildChanged: isWriting" + isWriting);
+                    Log.d(TAG, "onChildChanged: isWriting " + isWriting);
                     updateChatInfo();
-                }catch (Exception exp){
-                    Log.d(TAG, "onChildChanged: " + exp.getMessage());
                 }
+
             }
 
             @Override
@@ -511,22 +515,7 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
         mProgressBar.setVisibility(View.GONE);
     }
 
-    private void insertMessagesInAdapter(DataSnapshot allMessagesDataSnapshot) {
-        // here all the messages will be loaded
-        Iterable<DataSnapshot> iterable = allMessagesDataSnapshot.getChildren();
-        for (DataSnapshot dataSnapshot : iterable) {
-            try {
-                messages.add(dataSnapshot.getValue(Message.class));
-            }catch (Exception e){
-                Log.d(TAG, "insertMessagesInAdapter: " + e.getMessage());
-            }
-        }
-        if (messages.size() > 0) {
-            messagesAdapter.notifyDataSetChanged();
-            mMessageRecyclerView.scrollToPosition(messages.size() - 1);
-        }else
-            Toast.makeText(requireContext(), "the size of the messages is 0 or less", Toast.LENGTH_SHORT).show();
-    }
+
 
     /* this method is used in two functionality, for getting all the messages from a special room
     * and for adding new messages as the user sends. */
@@ -547,15 +536,22 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
     }
 
     private void markMessageAsRead(DataSnapshot snapshotMessageTobeUpdated, Message messageToUpdate) {
-        Log.d(TAG, "markMessageAsRead: ");
+
+
+        String key = snapshotMessageTobeUpdated.getKey();
+        Log.d(TAG, "markMessageAsRead: the key of the message to be updated is: " + key);
         Map<String, Object> originalMessage = messageToUpdate.toMap();
         originalMessage.put("isRead", true);
         snapshotMessageTobeUpdated.getRef().updateChildren(originalMessage).addOnSuccessListener(
                 successListener -> {
                     Log.d(TAG, "update message successfully to be read");
-                    // update locally as well
-                    messageToUpdate.setIsRead(true);
-                    messagesAdapter.notifyDataSetChanged();
+                    //  change the message from target message to local message
+                    originalMessage.put("targetId", currentUserId);
+                    originalMessage.put("targetName", currentUserName);
+                    originalMessage.put("targetPhotoUrl", currentPhotoUrl);
+                    mTargetUserRoomReference.child(key).updateChildren(originalMessage).addOnFailureListener(fle ->
+                            Log.d(TAG, "markMessageAsRead: " + fle.getMessage()));
+
                 }
 
         ).addOnFailureListener(
@@ -624,8 +620,11 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
 
     @Override
     public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
+        if (!snapshot.getKey().equals("isWriting"))
+            refreshData();
     }
+
+
 
     @Override
     public void onChildRemoved(@NonNull DataSnapshot snapshot) {
@@ -640,5 +639,24 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
     @Override
     public void onCancelled(@NonNull DatabaseError error) {
 
+    }
+
+    private void refreshData() {
+        Log.d(TAG, "refreshData: ");
+        messages.clear();
+        try {
+            mCurrentUserRoomReference.get().addOnSuccessListener(sListener -> {
+                Iterable<DataSnapshot> meessagesIterable = sListener.getChildren();
+                for (DataSnapshot messageSnapShot : meessagesIterable) {
+                    if (!messageSnapShot.getKey().equals("isWriting")) {
+                        Message msg = messageSnapShot.getValue(Message.class);
+                        messages.add(msg);
+                    }
+                }
+                messagesAdapter.notifyDataSetChanged();
+            });
+        }catch (Exception e){
+            Log.d(TAG, "refreshData: " +e.getMessage());
+        }
     }
 }
