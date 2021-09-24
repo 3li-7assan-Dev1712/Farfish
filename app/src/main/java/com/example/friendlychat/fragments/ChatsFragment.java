@@ -278,7 +278,7 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
             Message currentUserMsg = new Message(text, "", dateFromDateClass, currentUserId, currentUserId,
                     mUsername, currentUserName, currentPhotoUrl, false);
             Message targetUserMsg = new Message(text, "", dateFromDateClass, currentUserId, targetUserId,
-                    mUsername, targetUserName, targetUserPhotoUrl, true);
+                    mUsername, targetUserName, targetUserPhotoUrl, false);
             sendMessage(currentUserMsg, targetUserMsg);
         });
 
@@ -414,7 +414,7 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
                         Message currentUserMsg = new Message("", downloadUrl, dateFromDateClass, currentUserId, currentUserId,
                                 mUsername, currentUserName, currentPhotoUrl, false);
                         Message targetUserMsg = new Message("", downloadUrl, dateFromDateClass, currentUserId, targetUserId,
-                                mUsername, targetUserName, targetUserPhotoUrl, true);
+                                mUsername, targetUserName, targetUserPhotoUrl, false);
                         sendMessage(currentUserMsg, targetUserMsg);
                     });
 
@@ -551,7 +551,9 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
         snapshotMessageTobeUpdated.getRef().updateChildren(originalMessage).addOnSuccessListener(
                 successListener -> {
                     Log.d(TAG, "update message successfully to be read");
-
+                    // update locally as well
+                    messageToUpdate.setIsRead(true);
+                    messagesAdapter.notifyDataSetChanged();
                 }
 
         ).addOnFailureListener(

@@ -69,6 +69,18 @@
             android:textSize="12sp"
             android:fontFamily="sans-serif-thin"
             tools:text="4:55PM" />
+
+        <ImageView
+            android:id="@+id/isReadIconIndicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_done_all_black"
+            app:layout_constraintTop_toBottomOf="@id/messageTextView"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:visibility="gone"
+            android:contentDescription="@string/image_button_description" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
 
