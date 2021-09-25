@@ -7,6 +7,29 @@
     android:background="?attr/selectableItemBackground">
 
 
+    <FrameLayout
+        android:id="@+id/newMessageCountTextViewContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/new_message_indicator_background"
+        android:padding="4dp"
+        app:layout_constraintEnd_toEndOf="@id/lastMessageTime"
+        tools:visibility="visible"
+        android:visibility="invisible"
+        app:layout_constraintStart_toStartOf="@id/lastMessageTime"
+        app:layout_constraintTop_toBottomOf="@id/lastMessageTime">
+
+        <TextView
+            android:id="@+id/newMessageCountTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textColor="@color/white"
+            android:textSize="12sp"
+            tools:text="7" />
+    </FrameLayout>
+
     <RelativeLayout
         android:id="@+id/frameLayout"
         android:layout_width="56dp"
@@ -15,6 +38,7 @@
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
         android:gravity="center"
+        app:layout_goneMarginBottom="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -103,7 +127,7 @@
         app:layout_constraintEnd_toEndOf="@id/lastMessageTime"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@id/lastMessage"
-        app:layout_constraintTop_toBottomOf="@id/frameLayout" />
+        app:layout_constraintBottom_toBottomOf="parent" />
 
     <ProgressBar
         android:id="@+id/progressImageIndicator"

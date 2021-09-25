@@ -1,37 +1,75 @@
 package com.example.friendlychat.Module;
 
+import com.google.firebase.database.Exclude;
+
+import java.util.HashMap;
+import java.util.Map;
+
 public class Message {
     private String text;
-    private String name;
     private String photoUrl;
-    private String senderId;
     private long timestamp;
+    private String senderId;
+    private String targetId;
+    private String senderName, targetName, targetPhotoUrl;
+    private boolean isRead;
+    private int newMessagesCount = 0;
+
+
 
 
     public Message() {
     }
 
-    public Message(String text, String name, String photoUrl) {
+    public Message(String text, String photoUrl, long timestamp, String senderId, String targetId, String senderName, String targetName, String targetPhotoUrl, boolean isRead) {
         this.text = text;
-        this.name = name;
+        this.photoUrl = photoUrl;
+        this.timestamp = timestamp;
+        this.senderId = senderId;
+        this.targetId  = targetId;
+        this.senderName = senderName;
+        this.targetName = targetName;
+        this.targetPhotoUrl = targetPhotoUrl;
+        this.isRead = isRead;
+    }
+
+    public Message(String text, String senderName, String photoUrl) {
+        this.text = text;
+        this.senderName = senderName;
         this.photoUrl = photoUrl;
     }
 
-    public Message(String text, String name, String photoUrl, String senderId, long timestamp) {
+    public Message(String text, String senderName, String photoUrl, String senderId, long timestamp) {
         this.text = text;
-        this.name = name;
+        this.senderName = senderName;
         this.photoUrl = photoUrl;
         this.senderId = senderId;
         this.timestamp = timestamp;
     }
 
-    public Message(String text, String name, String photoUrl, long timestamp) {
+    public Message(String text, String senderName, String photoUrl, long timestamp) {
         this.text = text;
-        this.name = name;
+        this.senderName = senderName;
         this.photoUrl = photoUrl;
         this.timestamp = timestamp;
     }
 
+    @Exclude
+    public Map<String, Object> toMap() {
+        HashMap<String, Object> result = new HashMap<>();
+
+        result.put("text", this.text);
+        result.put("photoUrl", this.photoUrl);
+        result.put("timestamp", this.timestamp);
+        result.put("senderId", this.senderId);
+        result.put("targetId", this.targetId);
+        result.put("senderName", this.senderName);
+        result.put("targetName", this.targetName);
+        result.put("targetPhotoUrl", this.targetPhotoUrl);
+        result.put("isRead", this.isRead);
+
+        return result;
+    }
     public long getTimestamp() {
         return timestamp;
     }
@@ -44,13 +82,10 @@ public class Message {
         this.text = text;
     }
 
-    public String getName() {
-        return name;
+    public String getSenderName() {
+        return senderName;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
 
     public String getPhotoUrl() {
         return photoUrl;
@@ -58,5 +93,30 @@ public class Message {
 
     public String getSenderId() {
         return senderId;
+    }
+
+    public String getTargetName() {
+        return targetName;
+    }
+
+    public String getTargetPhotoUrl() {
+        return targetPhotoUrl;
+    }
+
+    public void setNewMessagesCount(int newMessagesCount) {
+        this.newMessagesCount = newMessagesCount;
+    }
+
+    public int getNewMessagesCount() {
+        return newMessagesCount;
+    }
+
+    public void setIsRead(boolean isRead) {
+        this.isRead = isRead;
+    }
+
+    public boolean getIsRead () { return this.isRead; }
+    public String getTargetId() {
+        return targetId;
     }
 }

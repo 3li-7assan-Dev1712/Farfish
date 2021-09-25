@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity  {
         super.onStart();
 
           NavHostFragment f = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
-        if ( f != null ){
+        if ( f != null ) {
             NavController navController = f.getNavController();
             BottomNavigationView bottomNav = findViewById(R.id.bottom_nav);
             NavigationUI.setupWithNavController(bottomNav, navController);

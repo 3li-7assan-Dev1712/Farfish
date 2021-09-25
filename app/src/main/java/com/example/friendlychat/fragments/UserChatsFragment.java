@@ -1,10 +1,6 @@
 package com.example.friendlychat.fragments;
 
-import android.content.Context;
-import android.database.Cursor;
 import android.os.Bundle;
-import android.provider.ContactsContract;
-import android.telephony.PhoneNumberUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -23,43 +19,51 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.friendlychat.Adapters.ContactsAdapter;
-import com.example.friendlychat.Module.FullMessage;
+import com.example.friendlychat.Module.Message;
+import com.example.friendlychat.Module.MessagesPreference;
+import com.example.friendlychat.Module.NotificationUtils;
 import com.example.friendlychat.Module.SharedPreferenceUtils;
 import com.example.friendlychat.R;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentChange;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 
-public class UserChatsFragment extends Fragment implements ContactsAdapter.OnChatClicked {
+public class UserChatsFragment extends Fragment implements ContactsAdapter.OnChatClicked, ValueEventListener{
 
     private FirebaseAuth mAuth;
     private static final String TAG = UserChatsFragment.class.getSimpleName();
-    private List<FullMessage> fullMessages;
+    private List<Message> messages;
     private ContactsAdapter contactsAdapter;
-    private FirebaseFirestore mFirestore;
+    private DatabaseReference mCurrentUserRoomReference;
     private NavController mNavController;
-
+    private String mCurrentUserId;
 
     public UserChatsFragment() {
         // Required empty public constructor
     }
 
+
+    private View snackbarView;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        mAuth = FirebaseAuth.getInstance();
+        mCurrentUserId = MessagesPreference.getUserId(requireContext());
 
-        mFirestore = FirebaseFirestore.getInstance();
-        fullMessages = new ArrayList<>();
+        mCurrentUserRoomReference = FirebaseDatabase.getInstance().getReference("rooms")
+                .child(mCurrentUserId);
+        messages = new ArrayList<>();
         mAuth = FirebaseAuth.getInstance();
-        contactsAdapter = new ContactsAdapter(getContext(), fullMessages, this, null);
+        contactsAdapter = new ContactsAdapter(getContext(), messages, this, null);
     }
 
     private void navigateToSignIn() {
@@ -87,26 +91,16 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
 
 
         contactsRecycler.setAdapter(contactsAdapter);
-        if (mAuth.getCurrentUser() != null)
+        if (mAuth.getCurrentUser() != null && messages.size() == 0)
             initializeUserAndData();
+        snackbarView = view;
+        checkUserConnection();
         return view;
     }
 
     private void initializeUserAndData() {
 
-        mFirestore.collection("rooms").document(Objects.requireNonNull(mAuth.getUid()))
-                .collection("chats").addSnapshotListener((value, error) -> {
-            if (error != null){
-                Toast.makeText(getContext(), "Error reading message", Toast.LENGTH_SHORT).show();
-            }else{
-                String source = value != null && value.getMetadata().hasPendingWrites()
-                        ? "Local" : "Server";
-                Log.d(TAG, source);
-                Toast.makeText(requireActivity(), source, Toast.LENGTH_SHORT).show();
-                updateUI(value);
-            }
-        });
-
+        mCurrentUserRoomReference.addValueEventListener(this);
     }
 
 
@@ -135,40 +129,82 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
         inflater.inflate(R.menu.main, menu);
     }
 
-    private void updateUI(QuerySnapshot value) {
-        if (value != null) {
-
-
-            for (DocumentChange dc : value.getDocumentChanges()) {
-                Toast.makeText(getContext(), "document has changed ", Toast.LENGTH_SHORT).show();
-                Log.d(TAG, "document change in User Contacts Activity");
-                FullMessage fullMessage = dc.getDocument().toObject(FullMessage.class);
-                String upComingId = fullMessage.getTargetUserId();
-                for (int i = 0 ; i < fullMessages.size(); i ++){
-                    String toBeReplaceId = fullMessages.get(i).getTargetUserId();
-                    if (toBeReplaceId.equals(upComingId)) fullMessages.remove(i);
-                }
-
-                fullMessages.add(fullMessage);
-
-            }
-            contactsAdapter.notifyDataSetChanged();
-        }
-    }
 
     @Override
     public void onChatClicked(int position) {
 
-        String chatTitle = fullMessages.get(position).getTargetUserName();
-        String photoUrl= fullMessages.get(position).getTargetUserPhotoUrl();
-        String targetUserId = fullMessages.get(position).getTargetUserId();
+        String targetUserId = messages.get(position).getTargetId();
         Bundle primaryDataBundle = new Bundle();
-        primaryDataBundle.putString("target_user_name", chatTitle);
-        primaryDataBundle.putString("target_user_photo", photoUrl);
         primaryDataBundle.putString("target_user_id", targetUserId);
-        primaryDataBundle.putBoolean("isGroup", false);
         mNavController.navigate(R.id.chatsFragment, primaryDataBundle);
 
     }
 
+    @Override
+    public void onDataChange(@NonNull DataSnapshot snapshot) {
+        messages.clear();
+        Iterable<DataSnapshot> roomsIterable = snapshot.getChildren();
+        for (DataSnapshot roomsSnapshot : roomsIterable) {
+
+            Iterable<DataSnapshot> messagesIterable = roomsSnapshot.getChildren();
+            Message lastMessage = null;
+            int newMessageCounter = 0;
+            for (DataSnapshot messageSnapShot : messagesIterable){
+                if (!messageSnapShot.getKey().equals("isWriting")) {
+                    lastMessage = messageSnapShot.getValue(Message.class);
+                    if (!lastMessage.getIsRead())
+                        newMessageCounter++;
+                }
+            }
+            if (lastMessage != null) {
+                String senderId = lastMessage.getSenderId();
+                if (!senderId.equals(mCurrentUserId) && newMessageCounter != 0)
+                    lastMessage.setNewMessagesCount(newMessageCounter);
+                messages.add(lastMessage);
+                sendNotification(lastMessage);
+            }
+        }
+        contactsAdapter.notifyDataSetChanged();
+
+    }
+
+    @Override
+    public void onCancelled(@NonNull DatabaseError error) {
+
+    }
+
+    @Override
+    public void onDestroy() {
+        mCurrentUserRoomReference.removeEventListener(this);
+        super.onDestroy();
+    }
+
+    private void sendNotification(Message message) {
+        if (!message.getIsRead() && !message.getSenderId().equals(mCurrentUserId))
+            NotificationUtils.notifyUserOfNewMessage(requireContext(), message);
+    }
+
+
+    private void checkUserConnection() {
+
+        DatabaseReference connectedRef = FirebaseDatabase.getInstance().getReference(".info/connected");
+        connectedRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                boolean connected = snapshot.getValue(Boolean.class);
+                if (connected) {
+                    Log.d(TAG, "connected");
+                } else {
+                    Log.d(TAG, "not connected");
+                    Snackbar.make(requireActivity().findViewById(R.id.bottom_nav), R.string.user_ofline_msg, BaseTransientBottomBar.LENGTH_LONG)
+                            .setAnchorView(R.id.bottom_nav).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.w(TAG, "Listener was cancelled");
+            }
+        });
+    }
 }

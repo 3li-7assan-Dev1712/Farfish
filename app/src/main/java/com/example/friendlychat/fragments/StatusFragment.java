@@ -153,11 +153,12 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
                         oneUserStatuses.add(status);
                     }
                     // just display contacts status
-                        for (String contact: mContact){
+                    if (mContact != null) {
+                        for (String contact : mContact) {
                             if (PhoneNumberUtils.compare(contact, rootUserStatusPhoneNumber))
                                 allUsersStatues.add(oneUserStatuses);
                         }
-
+                    }
 
                 }
                 mStatusLists.clear();

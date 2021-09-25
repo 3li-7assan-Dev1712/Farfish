@@ -1,7 +1,9 @@
 package com.example.friendlychat.fragments;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -16,10 +18,13 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -31,7 +36,14 @@ import com.example.friendlychat.Module.FilterPreferenceUtils;
 import com.example.friendlychat.Module.SharedPreferenceUtils;
 import com.example.friendlychat.Module.User;
 import com.example.friendlychat.R;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -53,6 +65,8 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
     private ImageView mFilterImageView;
     private List<String> mPhoneNumbersFromContacts = new ArrayList<>();
     private List<String> mPhonNumbersFromServer = new ArrayList<>();
+
+    private View snackbarView;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         setHasOptionsMenu(true);
@@ -65,13 +79,32 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
 
         super.onCreate(savedInstanceState);
     }
-
+    /* request permission*/
+    private ActivityResultLauncher<String> requestPermissionToReadContacts =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    initializeUserAndData();
+                } else {
+                    Toast.makeText(requireContext(),
+                            "In order to display for you the users that you might you" +
+                                    "the app needs to read you contacts", Toast.LENGTH_LONG).show();
+                }
+            });
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.VISIBLE);
         View view =  inflater.inflate(R.layout.users_fragment, container, false);
-        insertUserContacts();
+        // check for the contacts permission if it's granted or not
+
+        if (ContextCompat.checkSelfPermission(
+                requireContext(), Manifest.permission.READ_CONTACTS) ==
+                PackageManager.PERMISSION_GRANTED) {
+            insertUserContacts();
+        }else{
+            requestPermissionToReadContacts.launch(Manifest.permission.READ_CONTACTS);
+        }
+
         requireActivity().getSharedPreferences("filter_utils", Activity.MODE_PRIVATE).
                 registerOnSharedPreferenceChangeListener(this);
         mNavController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
@@ -81,6 +114,7 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
         mFilterImageView = tb.findViewById(R.id.filterImageView);
         updateFilterImageResoucre();
         mFilterImageView.setOnClickListener(filterListener -> {
+
             if (getFilterState())
                 FilterPreferenceUtils.disableUsersFilter(requireContext());
             else
@@ -89,7 +123,10 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
         });
         RecyclerView usersRecycler = view.findViewById(R.id.usersRecyclerView);
         usersRecycler.setAdapter(usersAdapter);
-         return view;
+
+        snackbarView = view;
+        checkUserConnection();
+        return view;
     }
 
     private void updateFilterImageResoucre() {
@@ -189,42 +226,35 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
     @Override
     public void onChatClicked(int position) {
 
-        String chatTitle;
+        String targetUserName;
         String photoUrl;
         String targetUserEmail;
         String userStatus;
         String targetUserId;
-        long lastTimeSeen ;
+        long lastTimeSeen;
 
         if (getFilterState()){
-            chatTitle= usersUserKnow.get(position).getUserName();
+            targetUserName= usersUserKnow.get(position).getUserName();
             photoUrl= usersUserKnow.get(position).getPhotoUrl();
             targetUserEmail= usersUserKnow.get(position).getEmail();
             userStatus= usersUserKnow.get(position).getStatus();
             targetUserId = usersUserKnow.get(position).getUserId();
             lastTimeSeen= usersUserKnow.get(position).getLastTimeSeen();
         }else{
-             chatTitle= users.get(position).getUserName();
+             targetUserName= users.get(position).getUserName();
              photoUrl= users.get(position).getPhotoUrl();
              targetUserEmail= users.get(position).getEmail();
              userStatus= users.get(position).getStatus();
              lastTimeSeen= users.get(position).getLastTimeSeen();
-            targetUserId = users.get(position).getUserId();
+             targetUserId = users.get(position).getUserId();
         }
-
         Bundle primaryDataBundle = new Bundle();
-        primaryDataBundle.putString("target_user_name", chatTitle);
+        primaryDataBundle.putString("target_user_name", targetUserName);
         primaryDataBundle.putString("target_user_photo_url", photoUrl);
-        if (!chatTitle.equals("All people use the app")) {
-
-            primaryDataBundle.putString("target_user_id", targetUserId);
-            primaryDataBundle.putString("target_user_email", targetUserEmail);
-            primaryDataBundle.putString("target_user_status", userStatus);
-            primaryDataBundle.putLong("target_user_last_time_seen", lastTimeSeen);
-            primaryDataBundle.putBoolean("isGroup", false);
-
-        }else
-            primaryDataBundle.putBoolean("isGroup", true);
+        primaryDataBundle.putString("target_user_id", targetUserId);
+        primaryDataBundle.putString("target_user_email", targetUserEmail);
+        primaryDataBundle.putString("target_user_status", userStatus);
+        primaryDataBundle.putLong("target_user_last_time_seen", lastTimeSeen);
 
         NavController controller = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         controller.navigate(R.id.action_usersFragment_to_chatsFragment, primaryDataBundle);
@@ -269,5 +299,28 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
 
     private Boolean getFilterState () {
         return FilterPreferenceUtils.isFilterActive(requireContext());
+    }
+
+    private void checkUserConnection() {
+
+        DatabaseReference connectedRef = FirebaseDatabase.getInstance().getReference(".info/connected");
+        connectedRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                boolean connected = snapshot.getValue(Boolean.class);
+                if (connected) {
+                    Log.d(TAG, "connected");
+                } else {
+                    Log.d(TAG, "not connected");
+                    Snackbar.make(snackbarView, R.string.user_ofline_msg, BaseTransientBottomBar.LENGTH_LONG)
+                            .setAnchorView(R.id.bottom_nav).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.w(TAG, "Listener was cancelled");
+            }
+        });
     }
 }

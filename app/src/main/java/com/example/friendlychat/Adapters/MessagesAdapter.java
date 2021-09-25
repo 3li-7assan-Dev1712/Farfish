@@ -32,6 +32,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
     private Context mContext;
     private List<Message> messages;
 
+    private String mCurrentUserId;
     private static final int USE_SENDER_BACKGROUND = 1;
     private static final int USE_SENDER_BACKGROUND_IMG = 3;
     private static final int USE_LOCAL_BACKGROUND = 0;
@@ -47,6 +48,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
         this.mContext = mContext;
         this.messages = messages;
         mMessageInterface = messageInterface;
+        mCurrentUserId = MessagesPreference.getUserId(mContext);
     }
 
     @Override
@@ -106,7 +108,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
         if (messages != null && messages.size() != 0){
 
             Message message = messages.get(position);
-            String name =message.getName();
+            String name =message.getSenderName();
             String messageText = message.getText();
             String photoUrl = message.getPhotoUrl();
             long dateFromServer = message.getTimestamp();
@@ -132,6 +134,20 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
             String readableDate = d.format(dateFromServer);
             Log.d(TAG, "readable date in Adapter is : " + readableDate);
             holder.timeMessageTextView.setText(readableDate);
+
+            if (message.getSenderId().equals(mCurrentUserId)) {
+                if (message.getIsRead()) {
+                    Log.d(TAG, "onBindViewHolder: send the indicator as read");
+                    holder.isReadIndicatorImageView.setImageResource(
+                            R.drawable.ic_done_all_24
+                    );
+                }else{
+                    holder.isReadIndicatorImageView.setImageResource(
+                            R.drawable.ic_done_all_black
+                    );
+                }
+
+            }
         }
     }
 
@@ -150,12 +166,14 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
         private TextView authorName;
         private ImageView imageView;
         private TextView timeMessageTextView;
+        private ImageView isReadIndicatorImageView;
         public MessageViewHolder(@NonNull View itemView) {
             super(itemView);
             messageTextView = itemView.findViewById(R.id.messageTextView);
             imageView = itemView.findViewById(R.id.photoImageView);
             authorName = itemView.findViewById(R.id.nameTextView);
             timeMessageTextView = itemView.findViewById(R.id.timeMessage);
+            isReadIndicatorImageView = itemView.findViewById(R.id.isReadIconIndicator);
             imageView.setOnClickListener(view -> {
                 mMessageInterface.onMessageClick(view, getBindingAdapterPosition());
             });
