@@ -106,6 +106,8 @@ public class ProfileImageFragment extends Fragment {
             phoneNumber = phoneNumberEditText.getText().toString();
             if (imageUriFromGallery == null)
                 Toast.makeText(requireActivity(), "Please insert an image to continue", Toast.LENGTH_SHORT).show();
+            else if (phoneNumber.equals(""))
+                Toast.makeText(requireContext(), "The phone number is the most signiticant field, insert it", Toast.LENGTH_SHORT).show();
             else {
                 mProgressBar.setVisibility(View.VISIBLE);
                 saveUserDataAndNavigateToHomeScreen();

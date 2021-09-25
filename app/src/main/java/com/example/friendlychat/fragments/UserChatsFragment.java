@@ -19,7 +19,9 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.work.Constraints;
 import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.ExistingWorkPolicy;
 import androidx.work.NetworkType;
+import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
@@ -172,7 +174,7 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
                 if (!senderId.equals(mCurrentUserId) && newMessageCounter != 0)
                     lastMessage.setNewMessagesCount(newMessageCounter);
                 messages.add(lastMessage);
-                sendNotification(lastMessage);
+                /*sendNotification(lastMessage);*/
             }
         }
         contactsAdapter.notifyDataSetChanged();
@@ -226,15 +228,12 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
                 .setRequiresBatteryNotLow(true)
                 .build();
 
-        PeriodicWorkRequest cleanUpRequest =
-                new PeriodicWorkRequest.Builder(CleanUpOldDataPeriodicWork.class, 15, TimeUnit.MINUTES)
+        /*PeriodicWorkRequest cleanUpRequest =
+                new PeriodicWorkRequest.Builder(CleanUpOldDataPeriodicWork.class, 2, TimeUnit.MINUTES)
                         .setConstraints(constraints)
-                        .build();
-        WorkManager.getInstance(requireContext()).enqueueUniquePeriodicWork(
-                "cleanUpWork",
-                ExistingPeriodicWorkPolicy.KEEP,
-                cleanUpRequest);
-
+                        .build();*/
+        OneTimeWorkRequest re = OneTimeWorkRequest.from(CleanUpOldDataPeriodicWork.class);
+        WorkManager.getInstance(requireContext()).enqueueUniqueWork("re", ExistingWorkPolicy.KEEP, re);
 
     }
 }

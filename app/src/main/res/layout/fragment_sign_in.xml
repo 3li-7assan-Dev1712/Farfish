@@ -127,9 +127,9 @@
             android:textColor="#000"
             android:textSize="18sp"
             android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="@+id/textView4"
-            app:layout_constraintStart_toEndOf="@+id/textView4"
-            app:layout_constraintTop_toTopOf="@+id/textView4" />
+            app:layout_constraintBottom_toBottomOf="@id/textView4"
+            app:layout_constraintStart_toEndOf="@id/textView4"
+            app:layout_constraintTop_toTopOf="@id/textView4" />
 
         <ImageView
             android:id="@+id/farfish_sign_in_icon"

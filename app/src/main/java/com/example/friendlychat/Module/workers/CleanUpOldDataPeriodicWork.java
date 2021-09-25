@@ -49,6 +49,7 @@ public class CleanUpOldDataPeriodicWork extends Worker {
         String currentUserId = MessagesPreference.getUserId(getApplicationContext());
         long currentTimeInMillis = System.currentTimeMillis();
 
+        Log.d(TAG, "doWork: start cleaning up");
         // clean up old statuses
         DatabaseReference userStatusReference = mDatabaseStatusReference.child(currentUserId);
         userStatusReference.get().addOnSuccessListener(snapshot -> {
