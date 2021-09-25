@@ -11,7 +11,6 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.example.friendlychat.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.firebase.database.FirebaseDatabase;
 
 public class MainActivity extends AppCompatActivity  {
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -28,7 +27,7 @@ public class MainActivity extends AppCompatActivity  {
         super.onStart();
 
           NavHostFragment f = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
-        if ( f != null ){
+        if ( f != null ) {
             NavController navController = f.getNavController();
             BottomNavigationView bottomNav = findViewById(R.id.bottom_nav);
             NavigationUI.setupWithNavController(bottomNav, navController);

@@ -312,7 +312,8 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
                     Log.d(TAG, "connected");
                 } else {
                     Log.d(TAG, "not connected");
-                    Snackbar.make(snackbarView, R.string.user_ofline_msg, BaseTransientBottomBar.LENGTH_LONG).show();
+                    Snackbar.make(snackbarView, R.string.user_ofline_msg, BaseTransientBottomBar.LENGTH_LONG)
+                            .setAnchorView(R.id.bottom_nav).show();
                 }
             }
 

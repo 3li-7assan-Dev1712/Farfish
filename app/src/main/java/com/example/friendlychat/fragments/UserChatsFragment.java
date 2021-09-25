@@ -196,7 +196,8 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
                     Log.d(TAG, "connected");
                 } else {
                     Log.d(TAG, "not connected");
-                    Snackbar.make(requireActivity().findViewById(R.id.bottom_nav), R.string.user_ofline_msg, BaseTransientBottomBar.LENGTH_LONG).show();
+                    Snackbar.make(requireActivity().findViewById(R.id.bottom_nav), R.string.user_ofline_msg, BaseTransientBottomBar.LENGTH_LONG)
+                            .setAnchorView(R.id.bottom_nav).show();
                 }
             }
 
