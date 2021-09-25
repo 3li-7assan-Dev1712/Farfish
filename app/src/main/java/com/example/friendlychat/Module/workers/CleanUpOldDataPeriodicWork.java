@@ -34,7 +34,7 @@ public class CleanUpOldDataPeriodicWork extends Worker {
     private StorageReference mOutdatedStoryImageReference = FirebaseStorage.getInstance().getReference("stories");
     private StorageReference mOutdatedMessageImageReference = FirebaseStorage.getInstance().getReference("images");
     // max number of story can live
-    private static final long MAX_STATUS_DURATION = 2; // two days
+    private static final long MAX_STATUS_DURATION = 0; // two days
 
     // required constructor
     public CleanUpOldDataPeriodicWork(@NonNull Context context, @NonNull WorkerParameters workerParams) {
@@ -81,22 +81,24 @@ public class CleanUpOldDataPeriodicWork extends Worker {
                 Message newMessage = null;
                 for (DataSnapshot messageSnapshot : messagesIterable) {
 
-                    Message outdatedMessage = messageSnapshot.getValue(Message.class);
-                    // after get the message let's see if it's outdated or not
-                    assert outdatedMessage != null;
-                    long messageTimeInDays = TimeUnit.MILLISECONDS.toDays(outdatedMessage.getTimestamp());
-                    long currentTimeInDays = TimeUnit.MILLISECONDS.toDays(currentTimeInMillis);
-                    long messageAgeInDays = currentTimeInDays - messageTimeInDays;
-                    if (messageAgeInDays >= MAX_MESSAGE_AGE) {
-                        // the message is outdated and should be deleted
-                        String outdatedMessagePhotoUrl = outdatedMessage.getPhotoUrl();
-                        if (!outdatedMessagePhotoUrl.equals(""))
-                            removeImageFromFirestore(outdatedMessagePhotoUrl, 2);
-                        messageSnapshot.getRef().removeValue().addOnSuccessListener(successfullRemove -> {
-                            Log.d(TAG, "doWork: remove outdated message successfully");
-                        });
-                    }else {
-                        newMessage = outdatedMessage;
+                    if (!messageSnapshot.getKey().equals("isWriting")) {
+                        Message outdatedMessage = messageSnapshot.getValue(Message.class);
+                        // after get the message let's see if it's outdated or not
+                        assert outdatedMessage != null;
+                        long messageTimeInDays = TimeUnit.MILLISECONDS.toDays(outdatedMessage.getTimestamp());
+                        long currentTimeInDays = TimeUnit.MILLISECONDS.toDays(currentTimeInMillis);
+                        long messageAgeInDays = currentTimeInDays - messageTimeInDays;
+                        if (messageAgeInDays >= MAX_MESSAGE_AGE) {
+                            // the message is outdated and should be deleted
+                            String outdatedMessagePhotoUrl = outdatedMessage.getPhotoUrl();
+                            if (!outdatedMessagePhotoUrl.equals(""))
+                                removeImageFromFirestore(outdatedMessagePhotoUrl, 2);
+                            messageSnapshot.getRef().removeValue().addOnSuccessListener(successfullRemove -> {
+                                Log.d(TAG, "doWork: remove outdated message successfully");
+                            });
+                        } else {
+                            newMessage = outdatedMessage;
+                        }
                     }
                 }
                 if (newMessage != null && !newMessage.getSenderId().equals(currentUserId) && !newMessage.getIsRead())
