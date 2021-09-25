@@ -29,6 +29,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.work.WorkManager;
 
 import com.example.friendlychat.Adapters.ContactsAdapter;
 import com.example.friendlychat.Module.CustomPhoneNumberUtils;
@@ -184,6 +185,15 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
 
     private void fetchDataInUsersUserKnowList() {
         if (usersUserKnow.size() == 0) {
+          /*  WorkManager.getInstance(requireContext()).getWorkInfoByIdLiveData(ReadCon.getId())
+                    .observe(lifecycleOwner, info -> {
+                        if (info != null && info.getState().isFinished()) {
+                            int myResult = info.getOutputData().getInt(KEY_RESULT,
+                                    myDefaultValue));
+                            // ... do something with the result ...
+                        }
+                    });
+*/
             Set<CustomPhoneNumberUtils> data =
                     CustomPhoneNumberUtils.getCommonPhoneNumbers(mPhonNumbersFromServer, mPhoneNumbersFromContacts, requireContext());
             Log.d(TAG, "initializeUserAndData: common number size " + data.size());
