@@ -9,8 +9,8 @@ import androidx.work.WorkerParameters;
 
 import com.example.friendlychat.Module.Message;
 import com.example.friendlychat.Module.MessagesPreference;
+import com.example.friendlychat.Module.NotificationUtils;
 import com.example.friendlychat.Module.Status;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -71,14 +71,14 @@ public class CleanUpOldDataPeriodicWork extends Worker {
         });
 
         // clean up old messages
-      /*  List<Message> newMessages = new ArrayList<>();*/
+        List<Message> newMessages = new ArrayList<>();
         DatabaseReference userMessageRooms = mDatabaseMessageReference.child(currentUserId);
         userMessageRooms.get().addOnSuccessListener(snapshot -> {
 
             Iterable<DataSnapshot> userRooms = snapshot.getChildren();
             for (DataSnapshot singleRoom : userRooms) {
                 Iterable<DataSnapshot> messagesIterable = singleRoom.getChildren();
-              /*  Message newMessage = null;*/
+                Message newMessage = null;
                 for (DataSnapshot messageSnapshot : messagesIterable) {
 
                     Message outdatedMessage = messageSnapshot.getValue(Message.class);
@@ -96,14 +96,20 @@ public class CleanUpOldDataPeriodicWork extends Worker {
                             Log.d(TAG, "doWork: remove outdated message successfully");
                         });
                     }else {
-                      /*  newMessage = outdatedMessage;*/
+                        newMessage = outdatedMessage;
                     }
                 }
-               /* if (newMessage != null)
-                    newMessages.add(newMessage);*/
+                if (newMessage != null && !newMessage.getSenderId().equals(currentUserId) && !newMessage.getIsRead())
+                    newMessages.add(newMessage);
             }
         });
 
+        // after cleaning up the old messages and check for the new one,
+        // we need to notify the user of the new messages if so
+        if (newMessages.size() > 0 ) {
+            Log.d(TAG, "doWork: notify the user of the " + newMessages.size() + " new messages *_* ");
+            NotificationUtils.notifyUserOfNewMessages(getApplicationContext(), newMessages);
+        }
 
         return Result.success();
     }
