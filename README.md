@@ -13,6 +13,9 @@ user profile destinations, other users can also see their profile. </br>
 <h2>Real time chat</h2>
 users enjoy real time chat felling with all the functionality like seeing the user is writing
 and read the brand new message all in real time.
+users can easily know when the other user have read the message or not through the doubled blue tick
+that indicate the target user has read the message, just like whatsapp and telegram.</br>
+
 </br></br>
 Note: This is just a temporary Readme and will be rewritten again
 after the app enroll the release and stable state :)
