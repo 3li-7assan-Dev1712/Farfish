@@ -56,11 +56,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.MetadataChanges;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -77,8 +73,7 @@ import java.util.Map;
 
 import id.zelory.compressor.Compressor;
 
-public class ChatsFragment extends Fragment implements MessagesAdapter.MessageClick,
-    ChildEventListener{
+public class ChatsFragment extends Fragment implements MessagesAdapter.MessageClick{
     /*real time permission*/
     private ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
@@ -310,7 +305,7 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
                     Log.d(TAG, "connected");
                 } else {
                     Log.d(TAG, "not connected");
-                    Snackbar.make(snackbarView, R.string.user_ofline_msg, BaseTransientBottomBar.LENGTH_LONG).show();
+                    Snackbar.make(snackbarView, R.string.user_ofline_msg, BaseTransientBottomBar.LENGTH_LONG).setAnchorView(R.id.linearLayout).show();
                 }
             }
 
@@ -477,9 +472,7 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
     public void onDestroyView() {
         super.onDestroyView();
         // remove the listener when the view is no longer visilbe for the user
-        mCurrentUserRoomReference.removeEventListener(this);
-        mTargetUserRoomReference = null;
-        mCurrentUserRoomReference = null;
+
         Log.d(TAG, "onDestroyView: ");
     }
 
@@ -514,7 +507,37 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
         /*read all messages form the database and add any new messages with notifying the Adapter after that*/
         mUsername = MessagesPreference.getUserName(requireContext());
        /* mCurrentUserRoomReference.get().addOnSuccessListener(this::insertMessagesInAdapter);*/
-        mCurrentUserRoomReference.addChildEventListener(this);
+        mCurrentUserRoomReference.addChildEventListener(new ChildEventListener() {
+            // listeners
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                addNewMessage(snapshot);
+                Log.d(TAG, "onChildAdded: ");
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                if (!snapshot.getKey().equals("isWriting"))
+                    refreshData();
+            }
+
+
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
         mTargetUserRoomReference.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
@@ -646,35 +669,7 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
     }
 
 
-    // listeners
-    @Override
-    public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-        addNewMessage(snapshot);
-        Log.d(TAG, "onChildAdded: ");
-    }
 
-    @Override
-    public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-        if (!snapshot.getKey().equals("isWriting"))
-            refreshData();
-    }
-
-
-
-    @Override
-    public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-
-    }
-
-    @Override
-    public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
-    }
-
-    @Override
-    public void onCancelled(@NonNull DatabaseError error) {
-
-    }
 
     private void refreshData() {
         Log.d(TAG, "refreshData: ");
