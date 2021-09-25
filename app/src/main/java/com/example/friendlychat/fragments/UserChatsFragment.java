@@ -24,6 +24,8 @@ import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.NotificationUtils;
 import com.example.friendlychat.Module.SharedPreferenceUtils;
 import com.example.friendlychat.R;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -49,11 +51,14 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
         // Required empty public constructor
     }
 
+
+    private View snackbarView;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         mCurrentUserId = MessagesPreference.getUserId(requireContext());
+        FirebaseDatabase.getInstance().setPersistenceEnabled(true); // enable the offline support
         mCurrentUserRoomReference = FirebaseDatabase.getInstance().getReference("rooms")
                 .child(mCurrentUserId);
         messages = new ArrayList<>();
@@ -88,6 +93,8 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
         contactsRecycler.setAdapter(contactsAdapter);
         if (mAuth.getCurrentUser() != null && messages.size() == 0)
             initializeUserAndData();
+        snackbarView = view;
+        checkUserConnection();
         return view;
     }
 
@@ -177,4 +184,26 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
             NotificationUtils.notifyUserOfNewMessage(requireContext(), message);
     }
 
+
+    private void checkUserConnection() {
+
+        DatabaseReference connectedRef = FirebaseDatabase.getInstance().getReference(".info/connected");
+        connectedRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                boolean connected = snapshot.getValue(Boolean.class);
+                if (connected) {
+                    Log.d(TAG, "connected");
+                } else {
+                    Log.d(TAG, "not connected");
+                    Snackbar.make(snackbarView, R.string.user_ofline_msg, BaseTransientBottomBar.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.w(TAG, "Listener was cancelled");
+            }
+        });
+    }
 }

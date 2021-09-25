@@ -48,11 +48,14 @@ import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.User;
 import com.example.friendlychat.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -136,6 +139,8 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
     private String currentUserName;
     private String currentPhotoUrl;
 
+
+    private View snackbarView;
     private ActivityResultLauncher<String> pickPic = registerForActivityResult(
             new ActivityResultContracts.GetContent(){
                 @NonNull
@@ -285,11 +290,37 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
         else
             mProgressBar.setVisibility(View.GONE);
 
+        snackbarView = view;
+        checkUserConnection();
         return view;
+    }
+
+    private void checkUserConnection() {
+
+        DatabaseReference connectedRef = FirebaseDatabase.getInstance().getReference(".info/connected");
+        connectedRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                boolean connected = snapshot.getValue(Boolean.class);
+                if (connected) {
+                    Log.d(TAG, "connected");
+                } else {
+                    Log.d(TAG, "not connected");
+                    Snackbar.make(snackbarView, R.string.user_ofline_msg, BaseTransientBottomBar.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.w(TAG, "Listener was cancelled");
+            }
+        });
     }
 
     private void setUserIsNotWriting() {
            mCurrentUserRoomReference.child("isWriting").setValue(false);
+           // when the user has no internet connection we set the value of the isWriting to be false
+           mCurrentUserRoomReference.child("isWriting").onDisconnect().setValue(false);
             Log.d(TAG, "set user is not writing");
     }
 

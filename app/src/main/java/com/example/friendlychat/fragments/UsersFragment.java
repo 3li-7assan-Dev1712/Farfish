@@ -36,8 +36,14 @@ import com.example.friendlychat.Module.FilterPreferenceUtils;
 import com.example.friendlychat.Module.SharedPreferenceUtils;
 import com.example.friendlychat.Module.User;
 import com.example.friendlychat.R;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -59,6 +65,8 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
     private ImageView mFilterImageView;
     private List<String> mPhoneNumbersFromContacts = new ArrayList<>();
     private List<String> mPhonNumbersFromServer = new ArrayList<>();
+
+    private View snackbarView;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         setHasOptionsMenu(true);
@@ -106,6 +114,7 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
         mFilterImageView = tb.findViewById(R.id.filterImageView);
         updateFilterImageResoucre();
         mFilterImageView.setOnClickListener(filterListener -> {
+
             if (getFilterState())
                 FilterPreferenceUtils.disableUsersFilter(requireContext());
             else
@@ -114,6 +123,9 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
         });
         RecyclerView usersRecycler = view.findViewById(R.id.usersRecyclerView);
         usersRecycler.setAdapter(usersAdapter);
+
+        snackbarView = view;
+        checkUserConnection();
         return view;
     }
 
@@ -287,5 +299,27 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
 
     private Boolean getFilterState () {
         return FilterPreferenceUtils.isFilterActive(requireContext());
+    }
+
+    private void checkUserConnection() {
+
+        DatabaseReference connectedRef = FirebaseDatabase.getInstance().getReference(".info/connected");
+        connectedRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                boolean connected = snapshot.getValue(Boolean.class);
+                if (connected) {
+                    Log.d(TAG, "connected");
+                } else {
+                    Log.d(TAG, "not connected");
+                    Snackbar.make(snackbarView, R.string.user_ofline_msg, BaseTransientBottomBar.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.w(TAG, "Listener was cancelled");
+            }
+        });
     }
 }
