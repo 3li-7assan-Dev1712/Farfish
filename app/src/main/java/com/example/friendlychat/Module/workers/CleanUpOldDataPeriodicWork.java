@@ -34,7 +34,7 @@ public class CleanUpOldDataPeriodicWork extends Worker {
     private StorageReference mOutdatedStoryImageReference = FirebaseStorage.getInstance().getReference("stories");
     private StorageReference mOutdatedMessageImageReference = FirebaseStorage.getInstance().getReference("images");
     // max number of story can live
-    private static final long MAX_STATUS_DURATION = 0; // two days
+    private static final long MAX_STATUS_DURATION = 2; // two days
 
     // required constructor
     public CleanUpOldDataPeriodicWork(@NonNull Context context, @NonNull WorkerParameters workerParams) {
@@ -102,17 +102,24 @@ public class CleanUpOldDataPeriodicWork extends Worker {
                         }
                     }
                 }
-                if (newMessage != null && !newMessage.getSenderId().equals(currentUserId) && !newMessage.getIsRead())
+                 if (newMessage != null && !newMessage.getIsRead() && !newMessage.getSenderId().equals(currentUserId)){
+                    Log.d(TAG, "doWork: message text : " + newMessage.getText());
                     newMessages.add(newMessage);
+                }else{
+                    Log.d(TAG, "doWork: message is null");
+                }
+            }
+        }).addOnCompleteListener(complete -> {
+            Log.d(TAG, "doWork: newMessages size is: " + newMessages.size());
+            // after cleaning up the old messages and check for the new one,
+            // we need to notify the user of the new messages if so
+            if (newMessages.size() > 0 ) {
+                Log.d(TAG, "doWork: notify the user of the " + newMessages.size() + " new messages *_* ");
+                NotificationUtils.notifyUserOfNewMessages(getApplicationContext(), newMessages);
             }
         });
 
-        // after cleaning up the old messages and check for the new one,
-        // we need to notify the user of the new messages if so
-        if (newMessages.size() > 0 ) {
-            Log.d(TAG, "doWork: notify the user of the " + newMessages.size() + " new messages *_* ");
-            NotificationUtils.notifyUserOfNewMessages(getApplicationContext(), newMessages);
-        }
+
 
         return Result.success();
     }

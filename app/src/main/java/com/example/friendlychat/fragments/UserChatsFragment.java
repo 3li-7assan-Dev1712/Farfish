@@ -19,9 +19,7 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.work.Constraints;
 import androidx.work.ExistingPeriodicWorkPolicy;
-import androidx.work.ExistingWorkPolicy;
 import androidx.work.NetworkType;
-import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
@@ -61,7 +59,6 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
     }
 
 
-    private View snackbarView;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,6 +77,7 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
         navController.navigate(R.id.fragmentSignIn);
     }
 
+    private int tracker = 1;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -104,7 +102,6 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
         uniquelyScheduleCleanUPWorker();
         if (mAuth.getCurrentUser() != null && messages.size() == 0)
             initializeUserAndData();
-        snackbarView = view;
         checkUserConnection();
         return view;
     }
@@ -174,7 +171,7 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
                 if (!senderId.equals(mCurrentUserId) && newMessageCounter != 0)
                     lastMessage.setNewMessagesCount(newMessageCounter);
                 messages.add(lastMessage);
-                /*sendNotification(lastMessage);*/
+                sendNotification(lastMessage);
             }
         }
         contactsAdapter.notifyDataSetChanged();
@@ -189,12 +186,16 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
     @Override
     public void onDestroy() {
         mCurrentUserRoomReference.removeEventListener(this);
+        tracker = 1;
         super.onDestroy();
     }
 
     private void sendNotification(Message message) {
-        if (!message.getIsRead() && !message.getSenderId().equals(mCurrentUserId))
-            NotificationUtils.notifyUserOfNewMessage(requireContext(), message);
+        if (tracker == 0) {
+            if (!message.getIsRead() && !message.getSenderId().equals(mCurrentUserId))
+                NotificationUtils.notifyUserOfNewMessage(requireContext(), message);
+        }else
+            tracker = 0;
     }
 
 
@@ -228,12 +229,21 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
                 .setRequiresBatteryNotLow(true)
                 .build();
 
-        /*PeriodicWorkRequest cleanUpRequest =
-                new PeriodicWorkRequest.Builder(CleanUpOldDataPeriodicWork.class, 2, TimeUnit.MINUTES)
+        PeriodicWorkRequest cleanUpRequest =
+                new PeriodicWorkRequest.Builder(CleanUpOldDataPeriodicWork.class, 3, TimeUnit.HOURS)
                         .setConstraints(constraints)
-                        .build();*/
-        OneTimeWorkRequest re = OneTimeWorkRequest.from(CleanUpOldDataPeriodicWork.class);
-        WorkManager.getInstance(requireContext()).enqueueUniqueWork("re", ExistingWorkPolicy.KEEP, re);
+                        .build();
+        WorkManager.getInstance(requireContext()).enqueueUniquePeriodicWork(
+                "cleanUpWork",
+                ExistingPeriodicWorkPolicy.KEEP,
+                cleanUpRequest);
 
     }
+
+    @Override
+    public void onDestroyView() {
+        tracker = 1;
+        super.onDestroyView();
+    }
+
 }
