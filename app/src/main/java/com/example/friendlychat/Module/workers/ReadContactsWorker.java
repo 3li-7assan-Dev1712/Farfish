@@ -1,4 +1,4 @@
-package com.example.friendlychat.Module;
+package com.example.friendlychat.Module.workers;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -41,6 +41,7 @@ public class ReadContactsWorker extends Worker {
         String [] numbers = new String[contactsList.size()];
         for (int i = 0; i < contactsList.size(); i++ ) {
             numbers[i] = contactsList.get(i);
+
         }
         Data output = new Data.Builder()
                 .putStringArray("contacts", numbers)
