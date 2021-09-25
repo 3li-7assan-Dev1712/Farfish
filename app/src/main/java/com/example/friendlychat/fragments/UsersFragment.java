@@ -4,9 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.telephony.PhoneNumberUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -35,7 +34,6 @@ import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
 
 import com.example.friendlychat.Adapters.ContactsAdapter;
-import com.example.friendlychat.Module.CustomPhoneNumberUtils;
 import com.example.friendlychat.Module.FilterPreferenceUtils;
 import com.example.friendlychat.Module.SharedPreferenceUtils;
 import com.example.friendlychat.Module.User;
@@ -55,9 +53,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatClicked,
         SharedPreferences.OnSharedPreferenceChangeListener {
@@ -69,8 +65,8 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
     private FirebaseFirestore mFirestore;
     private NavController mNavController;
 
+    private ProgressBar mProgressBar;
     private ImageView mFilterImageView;
-    private List<String> mPhoneNumbersFromContacts = new ArrayList<>();
     private List<String> mPhonNumbersFromServer = new ArrayList<>();
 
     private String[] serverPhoneNumbers;
@@ -107,8 +103,8 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.VISIBLE);
         View view =  inflater.inflate(R.layout.users_fragment, container, false);
+        mProgressBar = view.findViewById(R.id.loadUsersProgressBar);
         // check for the contacts permission if it's granted or not
-
         if (ContextCompat.checkSelfPermission(
                 requireContext(), Manifest.permission.READ_CONTACTS) ==
                 PackageManager.PERMISSION_GRANTED) {
@@ -217,13 +213,18 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
                                 }
                             }
                         }
+                        // hide the progress bar and hide the progress bar
+                        mProgressBar.setVisibility(View.GONE);
+                        if (getFilterState())
+                            usersAdapter.setUsers(usersUserKnow);
+                        else
+                            usersAdapter.setUsers(users);
                     }
                 });
     }
 
     private void fetchPrimaryData(QuerySnapshot queryDocumentSnapshots) {
         if (users.size() == 0) {
-            int indextTracker = 0;
             for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
                 User user = dc.getDocument().toObject(User.class);
                 String currentUserId = mAuth.getUid();
@@ -232,14 +233,16 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
                 Log.d(TAG, "initializeUserAndData: phoneNumberSever: " + phoneNumber);
                 if (phoneNumber != null) {
                     if (!phoneNumber.equals("")) {
-                        Log.d(TAG, "fetchPrimaryData: index tracker: " + indextTracker);
-                        serverPhoneNumbers[indextTracker] = phoneNumber;
-                        indextTracker++;
+                        mPhonNumbersFromServer.add(phoneNumber);
                     }
                 }
                 assert currentUserId != null;
                 if (!currentUserId.equals(user.getUserId()))
                     users.add(user);
+            }
+            serverPhoneNumbers = new String[mPhonNumbersFromServer.size()];
+            for (int i = 0 ; i < mPhonNumbersFromServer.size(); i++){
+                serverPhoneNumbers[i] = mPhonNumbersFromServer.get(i);
             }
         }
         Log.d(TAG, "fetchPrimaryData: uses list size: " + users.size());
