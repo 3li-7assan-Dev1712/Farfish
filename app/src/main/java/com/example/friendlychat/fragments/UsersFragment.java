@@ -29,6 +29,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.work.Data;
+import androidx.work.ExistingWorkPolicy;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
@@ -103,19 +104,25 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.VISIBLE);
         View view =  inflater.inflate(R.layout.users_fragment, container, false);
-        mProgressBar = view.findViewById(R.id.loadUsersProgressBar);
-        // check for the contacts permission if it's granted or not
-        if (ContextCompat.checkSelfPermission(
-                requireContext(), Manifest.permission.READ_CONTACTS) ==
-                PackageManager.PERMISSION_GRANTED) {
 
-            contactsWork = new OneTimeWorkRequest.Builder(ReadContactsWorker.class)
-                    .build();
-            mWorkManager.enqueue(contactsWork);
-            initializeUserAndData();
+        mProgressBar = view.findViewById(R.id.loadUsersProgressBar);
+        if (users.size() == 0){
+            // check for the contacts permission if it's granted or not
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(), Manifest.permission.READ_CONTACTS) ==
+                    PackageManager.PERMISSION_GRANTED) {
+
+                contactsWork = new OneTimeWorkRequest.Builder(ReadContactsWorker.class)
+                        .build();
+                mWorkManager.enqueueUniqueWork("read_contacts_work", ExistingWorkPolicy.KEEP, contactsWork);
+                initializeUserAndData();
+            }else{
+                requestPermissionToReadContacts.launch(Manifest.permission.READ_CONTACTS);
+            }
         }else{
-            requestPermissionToReadContacts.launch(Manifest.permission.READ_CONTACTS);
+            mProgressBar.setVisibility(View.GONE);
         }
+
 
         requireActivity().getSharedPreferences("filter_utils", Activity.MODE_PRIVATE).
                 registerOnSharedPreferenceChangeListener(this);
