@@ -17,12 +17,18 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.work.Constraints;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.NetworkType;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 
 import com.example.friendlychat.Adapters.ContactsAdapter;
 import com.example.friendlychat.Module.Message;
 import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.NotificationUtils;
 import com.example.friendlychat.Module.SharedPreferenceUtils;
+import com.example.friendlychat.Module.workers.CleanUpOldDataPeriodicWork;
 import com.example.friendlychat.R;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
@@ -35,6 +41,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 
 public class UserChatsFragment extends Fragment implements ContactsAdapter.OnChatClicked, ValueEventListener{
@@ -91,12 +98,16 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
 
 
         contactsRecycler.setAdapter(contactsAdapter);
+        // start the periodic work
+        uniquelyScheduleCleanUPWorker();
         if (mAuth.getCurrentUser() != null && messages.size() == 0)
             initializeUserAndData();
         snackbarView = view;
         checkUserConnection();
         return view;
     }
+
+
 
     private void initializeUserAndData() {
 
@@ -206,5 +217,24 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
                 Log.w(TAG, "Listener was cancelled");
             }
         });
+    }
+
+    private void uniquelyScheduleCleanUPWorker() {
+
+        Constraints constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .setRequiresBatteryNotLow(true)
+                .build();
+
+        PeriodicWorkRequest cleanUpRequest =
+                new PeriodicWorkRequest.Builder(CleanUpOldDataPeriodicWork.class, 15, TimeUnit.MINUTES)
+                        .setConstraints(constraints)
+                        .build();
+        WorkManager.getInstance(requireContext()).enqueueUniquePeriodicWork(
+                "cleanUpWork",
+                ExistingPeriodicWorkPolicy.KEEP,
+                cleanUpRequest);
+
+
     }
 }
