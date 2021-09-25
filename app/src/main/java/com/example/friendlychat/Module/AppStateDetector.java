@@ -10,6 +10,7 @@ import androidx.lifecycle.OnLifecycleEvent;
 import androidx.lifecycle.ProcessLifecycleOwner;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Date;
@@ -28,6 +29,7 @@ public class AppStateDetector extends androidx.multidex.MultiDexApplication impl
     @Override
     public void onCreate() {
         super.onCreate();
+        FirebaseDatabase.getInstance().setPersistenceEnabled(true); // enable the offline support
         getSharedPreferences("user_state", MODE_PRIVATE).registerOnSharedPreferenceChangeListener(this);
 
         mAuth = FirebaseAuth.getInstance();

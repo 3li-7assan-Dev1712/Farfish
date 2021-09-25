@@ -56,7 +56,11 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.MetadataChanges;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -355,6 +359,7 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
             }
         });
 
+
     }
 
     private void populateTargetUserInfo(User user) {
@@ -376,10 +381,16 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
                 .addSnapshotListener( ((value, error) -> {
                     assert value != null;
                     User user = value.toObject(User.class);
+                    String source =
+                            value.getMetadata().isFromCache() ?
+                            "local cache" : "server";
+                    Log.d(TAG, "Data fetched from " + source);
                     assert user != null;
                     isActive = user.getIsActive();
                     targetUserData.putBoolean("isActive", isActive);
                     lastTimeSeen = user.getLastTimeSeen();
+                    if (!source.equals("server"))
+                        isActive = false;
                     updateChatInfo();
                 }));
 

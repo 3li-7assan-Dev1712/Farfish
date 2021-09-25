@@ -58,7 +58,7 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         mCurrentUserId = MessagesPreference.getUserId(requireContext());
-        FirebaseDatabase.getInstance().setPersistenceEnabled(true); // enable the offline support
+
         mCurrentUserRoomReference = FirebaseDatabase.getInstance().getReference("rooms")
                 .child(mCurrentUserId);
         messages = new ArrayList<>();
@@ -196,7 +196,7 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
                     Log.d(TAG, "connected");
                 } else {
                     Log.d(TAG, "not connected");
-                    Snackbar.make(snackbarView, R.string.user_ofline_msg, BaseTransientBottomBar.LENGTH_LONG).show();
+                    Snackbar.make(requireActivity().findViewById(R.id.bottom_nav), R.string.user_ofline_msg, BaseTransientBottomBar.LENGTH_LONG).show();
                 }
             }
 
