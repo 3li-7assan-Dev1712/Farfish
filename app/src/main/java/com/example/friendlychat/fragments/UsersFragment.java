@@ -36,6 +36,7 @@ import androidx.work.WorkRequest;
 
 import com.example.friendlychat.Adapters.ContactsAdapter;
 import com.example.friendlychat.Module.FilterPreferenceUtils;
+import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.SharedPreferenceUtils;
 import com.example.friendlychat.Module.User;
 import com.example.friendlychat.Module.workers.ReadContactsWorker;
@@ -50,11 +51,13 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatClicked,
         SharedPreferences.OnSharedPreferenceChangeListener {
@@ -112,11 +115,17 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
             if (ContextCompat.checkSelfPermission(
                     requireContext(), Manifest.permission.READ_CONTACTS) ==
                     PackageManager.PERMISSION_GRANTED) {
+                // check if we have the phone numbers already
+                Set<String> contacts = MessagesPreference.getUserContacts(requireContext());
+                if (contacts == null) {
+                    contactsWork = new OneTimeWorkRequest.Builder(ReadContactsWorker.class)
+                            .build();
+                    mWorkManager.enqueueUniqueWork("read_contacts_work", ExistingWorkPolicy.KEEP, contactsWork);
+                    initializeUserAndData();
+                }else{
+                    initializeDataDirectly(contacts);
+                }
 
-                contactsWork = new OneTimeWorkRequest.Builder(ReadContactsWorker.class)
-                        .build();
-                mWorkManager.enqueueUniqueWork("read_contacts_work", ExistingWorkPolicy.KEEP, contactsWork);
-                initializeUserAndData();
             }else{
                 requestPermissionToReadContacts.launch(Manifest.permission.READ_CONTACTS);
             }
@@ -147,6 +156,33 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
         snackbarView = view;
         checkUserConnection();
         return view;
+    }
+
+    private void initializeDataDirectly(Set<String> commonContacts) {
+        String currentId = MessagesPreference.getUserId(requireContext());
+        mFirestore.collection("rooms").get().addOnSuccessListener(queryDocumentSnapshots -> {
+            if (users.size() == 0) {
+                for (DocumentSnapshot userSnapshot : queryDocumentSnapshots.getDocuments()) {
+                    User user = userSnapshot.toObject(User.class);
+                    assert user != null;
+                    String userId = user.getUserId();
+                    if (!userId.equals(currentId))
+                        users.add(user);
+                    String userPhoneNumber = user.getPhoneNumber();
+                    Log.d(TAG, "initializeDataDirectly: user id from shared preferences" + currentId);
+                    Log.d(TAG, "initializeDataDirectly: user id from server: " + currentId);
+                    for (String number: commonContacts) {
+                        if (PhoneNumberUtils.compare(number, userPhoneNumber) && !currentId.equals(userId))
+                            usersUserKnow.add(user);
+                    }
+                }
+            }
+        }).addOnCompleteListener(comp -> {
+            mProgressBar.setVisibility(View.GONE);
+            if (getFilterState()) usersAdapter.setUsers(usersUserKnow);
+            else usersAdapter.setUsers(users);
+
+        });
     }
 
     private void updateFilterImageResoucre() {
