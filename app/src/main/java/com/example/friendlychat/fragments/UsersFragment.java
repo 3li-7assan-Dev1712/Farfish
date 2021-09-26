@@ -97,6 +97,7 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
                     Toast.makeText(requireContext(),
                             "In order to display for you the users that you might you" +
                                     "the app needs to read you contacts", Toast.LENGTH_LONG).show();
+                    mProgressBar.setVisibility(View.GONE);
                 }
             });
     @Nullable

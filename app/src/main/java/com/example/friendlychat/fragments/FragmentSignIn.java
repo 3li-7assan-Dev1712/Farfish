@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -63,6 +64,7 @@ public class FragmentSignIn extends Fragment {
     // email - password edit texts
     private EditText mEmailEditText;
     private EditText mPasswordEditText;
+    private ProgressBar mHorizontalProgressBar;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
 
@@ -86,11 +88,13 @@ public class FragmentSignIn extends Fragment {
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
         mEmailEditText = view.findViewById(R.id.editTextEmailSignIn);
         mPasswordEditText = view.findViewById(R.id.editTextPasswordSignIn);
+        mHorizontalProgressBar = view.findViewById(R.id.signInHorizontalProgressBar);
         TextView forgotPassWord = view.findViewById(R.id.forgotPasswordSignIn);
         TextView tryAnotherWay = view.findViewById(R.id.tryAnotherWay);
         tryAnotherWay.setOnClickListener(tryAnotherWayListener -> launchFirebaseUI());
         Button loginButton = view.findViewById(R.id.buttonLogin);
         loginButton.setOnClickListener( loginButtonListener -> {
+
             String email = mEmailEditText.getText().toString();
             String password = mPasswordEditText.getText().toString();
             if (email.equals(""))
@@ -98,6 +102,7 @@ public class FragmentSignIn extends Fragment {
             else if (password.equals(""))
                 displayRequiredFieldToast("Please enter you password to sign in");
             else{
+                showHorizontalProgressBar(true);
                 // sign in functionality
                 Toast.makeText(requireContext(), "You are ready to sign in", Toast.LENGTH_SHORT).show();
                 signIn(email, password);
@@ -106,23 +111,37 @@ public class FragmentSignIn extends Fragment {
         // when user forgot their password
         forgotPassWord.setOnClickListener( forgotPassWordListener -> {
             // forgot password functionality
+            showHorizontalProgressBar(true);
             String email = mEmailEditText.getText().toString();
             if (email.equals("")){
-                Snackbar.make(snackBarView, R.string.enter_email, Snackbar.LENGTH_INDEFINITE)
+                Snackbar.make(snackBarView, R.string.enter_email, Snackbar.LENGTH_LONG)
                         .setAction(R.string.insert_email, actionFocus -> showKeyboardOnEditText(mEmailEditText)).show();
+                showHorizontalProgressBar(false);
             }else{
 
                 mAuth.sendPasswordResetEmail(email)
                         .addOnSuccessListener(message -> {
                             Log.d(TAG, "onCreateView: " + message);
+                            showHorizontalProgressBar(false);
                             Toast.makeText(requireActivity(), "Send email successfully, now check you email", Toast.LENGTH_SHORT).show();
-                        }).addOnFailureListener(exc -> Log.d(TAG, "onCreateView: forgot password exception: " + exc.getMessage()));
+                        }).addOnFailureListener(exc -> {
+                            showHorizontalProgressBar(false);
+                            Log.d(TAG, "onCreateView: forgot password exception: " + exc.getMessage());
+                        }
+                                );
             }
 
         });
         TextView register = view.findViewById(R.id.register_sign_in);
         register.setOnClickListener( registerTextView -> mNavController.navigate(FragmentSignInDirections.actionFragmentSignInToFragmentSignUp()));
         return view;
+    }
+
+    private void showHorizontalProgressBar(boolean showVisibility) {
+        if (showVisibility)
+            mHorizontalProgressBar.setVisibility(View.VISIBLE);
+        else
+            mHorizontalProgressBar.setVisibility(View.GONE);
     }
 
     private void signIn(String email, String password) {
@@ -157,6 +176,7 @@ public class FragmentSignIn extends Fragment {
 
     private void updateUserInfoAndNavigateBack() {
 
+        showHorizontalProgressBar(false);
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         SharedPreferenceUtils.saveUserSignIn(requireContext());
         FirebaseUser currentUser = mAuth.getCurrentUser();
@@ -175,6 +195,7 @@ public class FragmentSignIn extends Fragment {
                     mNavController.navigateUp();
                 }
             }).addOnFailureListener(exc -> {
+                showHorizontalProgressBar(false);
                 Log.d(TAG, "updateUserInfoAndNavigateBack: exception: " + exc.getMessage());
                 Toast.makeText(requireActivity(), "Error sign in", Toast.LENGTH_SHORT).show();
                 // save default

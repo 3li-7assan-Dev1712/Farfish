@@ -10,6 +10,18 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
+        <ProgressBar
+            android:id="@+id/signInHorizontalProgressBar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="0dp"
+            android:max="100"
+            android:textAlignment="center"
+            android:indeterminate="true"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/appbar" />
+
         <Button
             android:id="@+id/editProfileSaveButton"
             style="@style/main_buttons_background"
