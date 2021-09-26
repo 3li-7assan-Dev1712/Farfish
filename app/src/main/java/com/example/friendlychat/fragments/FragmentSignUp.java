@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -17,6 +18,8 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import com.example.friendlychat.R;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 
 public class FragmentSignUp extends Fragment {
 
@@ -46,9 +49,21 @@ public class FragmentSignUp extends Fragment {
         EditText passwordTextView = view.findViewById(R.id.edit_text_password_sign_up);
         EditText confirmPasswordTextView = view.findViewById(R.id.edit_text_confirm_password);
         Button registerButton = view.findViewById(R.id.register_button);
+        CheckBox termsCheck = view.findViewById(R.id.check_box_terms_condition);
+        termsCheck.setOnClickListener(termsListener -> {
+            if (!termsCheck.isChecked()) {
+                TermsAndConditionsDialogFragment termsAndConditionsDialogFragment
+                        = new TermsAndConditionsDialogFragment();
+                termsAndConditionsDialogFragment.
+                        show(requireActivity().getSupportFragmentManager(), "terms_conditions");
+            }
+        });
         registerButton.setOnClickListener( registerButtonListener -> {
             if (firstNameTextView.getText().toString().equals(""))
                 displayRequiredFieldToast(firstNameTextView, "please enter you first name to register");
+            else if (termsCheck.isChecked()){
+                Snackbar.make(view, R.string.terms_and_conditions, BaseTransientBottomBar.LENGTH_LONG).show();
+            }
             else if (lastNameTextView.getText().toString().equals(""))
                 displayRequiredFieldToast(lastNameTextView, "please enter your last name to register");
             else if (emailTextView.getText().toString().equals(""))
