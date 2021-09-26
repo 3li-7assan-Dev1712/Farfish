@@ -15,6 +15,7 @@
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="0dp"
             android:max="100"
+            android:visibility="invisible"
             android:textAlignment="center"
             android:indeterminate="true"
             android:layout_height="wrap_content"

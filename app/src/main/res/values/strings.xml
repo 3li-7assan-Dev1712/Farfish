@@ -74,6 +74,8 @@
     <string name="last_time_seen_was_seconds_ago">last time seen was seconds ago</string>
     <string name="one_day">1 day</string>
     <string name="user_ofline_msg">You are offline</string>
+    <string name="profile_updated_successully">Profile updated successfully</string>
+    <string name="ok">OK</string>
 
 
 </resources>

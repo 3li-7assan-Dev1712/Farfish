@@ -8,6 +8,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
@@ -93,12 +95,6 @@ public class NotificationUtils {
 
         List<Notification> notifications = new ArrayList<>();
         for (Message newMessage: newMessages) {
-            try {
-                Bitmap largeIcon = Picasso.get().load(newMessage.getTargetPhotoUrl()).get();
-                notificationBuilder.setLargeIcon(largeIcon);
-            }catch (IOException ioe){
-                Log.d(TAG, "notifyUserOfNewMessages: exception " + ioe.getMessage());
-            }
             notificationBuilder.setContentTitle(newMessage.getSenderName());
             String messageItSelf = newMessage.getText();
             if (!messageItSelf.equals("")){
