@@ -260,7 +260,7 @@ public class EditProfileFragment extends Fragment {
     private void putIntoImage(Uri uri) {
         imageUri = uri;
         if (imageUri != null) {
-            profile.setImageURI(imageUri);
+            Picasso.get().load(imageUri).fit().centerCrop().into(profile);
         }else {
             Toast.makeText(requireActivity(), "operation canceled", Toast.LENGTH_SHORT).show();
         }

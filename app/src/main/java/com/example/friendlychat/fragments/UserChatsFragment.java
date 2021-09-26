@@ -77,7 +77,7 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
         navController.navigate(R.id.fragmentSignIn);
     }
 
-    private int tracker = 1;
+    private int tracker;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -86,6 +86,7 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
         Log.d(TAG, "onCreateView: ");
         View view =inflater.inflate(R.layout.fragment_user_chats, container, false);
 
+        tracker = 1;
         mNavController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         if (mAuth.getCurrentUser() == null){
             navigateToSignIn();
@@ -103,6 +104,7 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
         if (mAuth.getCurrentUser() != null && messages.size() == 0)
             initializeUserAndData();
         checkUserConnection();
+
         return view;
     }
 
@@ -192,6 +194,7 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
 
     private void sendNotification(Message message) {
         if (tracker == 0) {
+            Log.d(TAG, "sendNotification: " + tracker);
             if (!message.getIsRead() && !message.getSenderId().equals(mCurrentUserId))
                 NotificationUtils.notifyUserOfNewMessage(requireContext(), message);
         }else

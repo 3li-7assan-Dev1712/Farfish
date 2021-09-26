@@ -4,6 +4,8 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -40,6 +42,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.io.IOException;
@@ -153,7 +156,8 @@ public class ProfileImageFragment extends Fragment {
         imageUriFromGallery = uri;
         if (imageUriFromGallery != null) {
             mBorder.setBackground(requireContext().getResources().getDrawable(R.drawable.circle_background));
-            mImageView.setImageURI(imageUriFromGallery);
+            Picasso.get().load(uri).fit().centerCrop().into(mImageView);
+
         }
     }
 

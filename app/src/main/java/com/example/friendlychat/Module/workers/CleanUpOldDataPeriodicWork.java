@@ -11,6 +11,7 @@ import com.example.friendlychat.Module.Message;
 import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.NotificationUtils;
 import com.example.friendlychat.Module.Status;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -46,6 +47,8 @@ public class CleanUpOldDataPeriodicWork extends Worker {
     @Override
     public Result doWork() {
 
+        if (FirebaseAuth.getInstance().getCurrentUser() == null)
+            return Result.failure();
         String currentUserId = MessagesPreference.getUserId(getApplicationContext());
         long currentTimeInMillis = System.currentTimeMillis();
 

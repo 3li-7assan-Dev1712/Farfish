@@ -48,7 +48,7 @@
             android:id="@+id/registerImage"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:src="@drawable/ic_round_person_24"
+            tools:src="@tools:sample/avatars"
             android:background="?attr/selectableItemBackground"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
