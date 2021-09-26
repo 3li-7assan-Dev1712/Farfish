@@ -30,7 +30,6 @@ import com.example.friendlychat.Adapters.StatusAdapter;
 import com.example.friendlychat.CustomViews.CustomStatusView;
 import com.example.friendlychat.Module.CustomStory;
 import com.example.friendlychat.Module.FileUtil;
-import com.example.friendlychat.Module.Message;
 import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.SharedPreferenceUtils;
 import com.example.friendlychat.Module.Status;
@@ -56,7 +55,6 @@ import java.util.Objects;
 import java.util.Set;
 
 import id.zelory.compressor.Compressor;
-import omari.hamza.storyview.callback.StoryClickListeners;
 
 public class StatusFragment extends Fragment implements StatusAdapter.OnStatusClicked{
 
@@ -164,8 +162,6 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
                 mStatusLists.clear();
                 mStatusLists.addAll(allUsersStatues);
                 mStatusAdapter.notifyDataSetChanged();
-                /* delete status older than 2 days*/
-                cleanUpOlderStatus(snapshot);
             }
 
             @Override
@@ -175,47 +171,6 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
         });
     }
 
-    private void cleanUpOlderStatus(DataSnapshot snapshot) {
-        Toast.makeText(requireActivity(), "start", Toast.LENGTH_SHORT).show();
-        int outDatedStatusCount = 0;
-        String userId = MessagesPreference.getUserId(requireContext());
-        Iterable<DataSnapshot> iterable = snapshot.getChildren();
-        for (DataSnapshot dataSnapshot : iterable) {
-            if (userId.equals(dataSnapshot.getKey())){
-                Log.d(TAG, "cleanUpOlderStatus: yes I found your user id here and you can delete their out dated status");
-                Iterable<DataSnapshot> childIterable = dataSnapshot.getChildren();
-                for (DataSnapshot singleStatusSnapshot : childIterable) {
-                    Status outDatedStatus = singleStatusSnapshot.getValue(Status.class);
-                    long statusTime = outDatedStatus.getTimestamp();
-                    long currentTime = System.currentTimeMillis();
-                    if (currentTime - statusTime >= MAX_STATUS_DURATION){
-                        outDatedStatusCount++;
-                        String statusImageUrl = outDatedStatus.getStatusImage();
-                        if (!statusImageUrl.equals("")){
-                            removeOutDatedStatusWithImage(statusImageUrl, singleStatusSnapshot );
-                        }else
-                            removeOutDatedStatusWithText(singleStatusSnapshot);
-                    }
-                }
-            }
-            Toast.makeText(requireActivity(), "end analysis there are " + outDatedStatusCount + "out dated statuses", Toast.LENGTH_SHORT).show();
-            Log.d(TAG, "cleanUpOlderStatus: number of outdated status are " + outDatedStatusCount + dataSnapshot.getKey());
-
-        }
-    }
-
-    private void removeOutDatedStatusWithImage(String statusImageUrl, DataSnapshot singleStatusSnapshot) {
-        FirebaseStorage storage = FirebaseStorage.getInstance();
-        String path = storage.getReferenceFromUrl(statusImageUrl).getName();
-        Log.d(TAG, "removeImageFromStorage: out dated status path to delete " + path);
-        mRootRef.child(path).delete().addOnSuccessListener(aVoid -> {
-            // after successfully removing the image we remove the status it self
-            removeOutDatedStatusWithText(singleStatusSnapshot);
-        }).addOnFailureListener(exception -> {
-            Toast.makeText(requireActivity(), "exception deleting image " + exception.getMessage(), Toast.LENGTH_SHORT).show();
-            Log.d(TAG, "removeOutDatedStatusWithImage: exception" + exception.getMessage());
-        });
-    }
 
     private void removeOutDatedStatusWithText(DataSnapshot singleStatusSnapshot) {
         singleStatusSnapshot.getRef().removeValue().addOnFailureListener(exception -> {
@@ -289,11 +244,6 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
         Log.d(TAG, "onStatusClicked: Ok, will be completed soon");
 
         List<Status> userStatuses = mStatusLists.get(position);
-        /*StatusFragmentDirections.ActionStatusFragmentToStatusDetailFragment2 acionToDetail =
-                StatusFragmentDirections.actionStatusFragmentToStatusDetailFragment2(userStatuses.toArray(new Status[0]));
-        NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
-        navController.navigate(acionToDetail); */// OK, that's it, it's time to pray!
-
         // test story view library
         ArrayList<CustomStory> myStories = new ArrayList<>();
         for (Status status : userStatuses) {
@@ -309,21 +259,7 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
                 .setStoryDuration(5000) // Default is 2000 Millis (2 Seconds)
                 .setTitleText(userStatuses.get(0).getUploaderName()) // Default is Hidden
                 .setSubtitleText(null) // Default is Hidden
-                .setTitleLogoUrl(userStatuses.get(0).getUploaderPhotoUrl()) // Default is Hidden
-                .setStoryClickListeners(new StoryClickListeners() {
-                    @Override
-                    public void onDescriptionClickListener(int position) {
-                        //your action
-                        Toast.makeText(requireActivity(), "description click", Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void onTitleIconClickListener(int position) {
-                        //your action
-                        Toast.makeText(requireActivity(), "title icon click", Toast.LENGTH_SHORT).show();
-                    }
-                }) // Optional Listeners
-                .build() // Must be called before calling show method
+                .build()
                 .show();
     }
 

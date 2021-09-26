@@ -19,12 +19,12 @@
             android:background="?attr/selectableItemBackground"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/user_profie_view_background">
+
+
             <Button
                 android:id="@+id/editProfileButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="16dp"
                 android:background="@drawable/edit_button_background"
                 android:minWidth="0dp"
                 android:minHeight="0dp"
@@ -32,6 +32,8 @@
                 android:text="@string/edit"
                 android:textSize="12sp"
                 tools:visibility="visible" />
+
+
         </FrameLayout>
 
 

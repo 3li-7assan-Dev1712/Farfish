@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,6 +29,8 @@ import androidx.navigation.Navigation;
 import com.example.friendlychat.Module.FileUtil;
 import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.R;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
@@ -82,8 +85,10 @@ public class EditProfileFragment extends Fragment {
     private String userStatusAfterClick;
     private String userPhoneNumberAfterClick;
 
+    private View snackbarView;
     FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
 
+    private ProgressBar mHorizontalProgressBar;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -96,6 +101,7 @@ public class EditProfileFragment extends Fragment {
         EditText userNameEditText = view.findViewById(R.id.editProfileEditTextUserName);
         EditText statusEditText = view.findViewById(R.id.editProfileEditTextStatus);
         EditText phoneNumberEditText = view.findViewById(R.id.editProfilePhoneNumber);
+        mHorizontalProgressBar = view.findViewById(R.id.editProfileHorizontalProgressBar);
         Button save = view.findViewById(R.id.editProfileSaveButton);
         Bundle userData = getArguments();
 
@@ -124,6 +130,7 @@ public class EditProfileFragment extends Fragment {
             }
         });
         save.setOnClickListener(saveListener -> {
+            mHorizontalProgressBar.setVisibility(View.VISIBLE);
             // firstly save the image if the user choose a new one
 
             List<Map> fieldsToUpdate = new ArrayList<>();
@@ -152,23 +159,32 @@ public class EditProfileFragment extends Fragment {
 
             if (fieldsToUpdate.size() == 0 && imageUri == null){
                 // there's no any change happened
+                mHorizontalProgressBar.setVisibility(View.GONE);
                 Toast.makeText(requireActivity(), "There is no any change to be updated", Toast.LENGTH_SHORT).show();
             }else {
 
                 DocumentReference documentReference =
                         mFirestore.collection("rooms").document(MessagesPreference.getUserId(requireContext()));
                 String[] keys = {"userName", "status", "phoneNumber"};
-                for (Map field : fieldsToUpdate)
+                for (int i = 0; i < fieldsToUpdate.size(); i++)
                 {
+                    Map field = fieldsToUpdate.get(i);
                     for (String key : keys){
                         if (field.containsKey(key)){
-                           documentReference.update(key, field.get(key));
+                            int finalI = i;
+                            documentReference.update(key, field.get(key)).addOnSuccessListener(sl -> {
+                               if (finalI == fieldsToUpdate.size() -1 && imageUri == null) {
+                                   mHorizontalProgressBar.setVisibility(View.GONE);
+                                   showSnackBar();
+                               }
+                           });
                            updateLocalUserData(key, Objects.requireNonNull(field.get(key)).toString());
                         }
                     }
                 }
             }
         });
+        snackbarView =view;
         return view;
     }
 
@@ -177,15 +193,19 @@ public class EditProfileFragment extends Fragment {
         switch (key) {
             case "userName":
                 MessagesPreference.saveUserName(context, data);
+                userName = data;
                 break;
             case "status":
                 MessagesPreference.saveUserStatus(context, data);
+                userStatus = data;
                 break;
             case "phoneNumber":
                 MessagesPreference.saveUserPhoneNumber(context, data);
+                userPhoneNumber = data;
                 break;
             case "photoUrl":
                 MessagesPreference.saveUserPhotoUrl(context, data);
+                photoUrl = data;
                 break;
         }
     }
@@ -195,8 +215,11 @@ public class EditProfileFragment extends Fragment {
         FirebaseStorage storage = FirebaseStorage.getInstance();
 
         String imageNameInTheServer = "";
+        StorageReference oldProfileReference = null;
         try {
             imageNameInTheServer = storage.getReferenceFromUrl(photoUrl).getName();
+            oldProfileReference = storage.getReferenceFromUrl(photoUrl);
+            Log.d(TAG, "checkIfUserSelectTheSameImageAndContinueIfNot: image int the server is: " + imageNameInTheServer);
         }catch (Exception e){
             Log.d(TAG, "checkIfUserSelectTheSameImageAndContinueIfNot: " + e.getMessage());
         }
@@ -217,16 +240,19 @@ public class EditProfileFragment extends Fragment {
             uploadImageToServer(compressedFile);
 
             // delete the old profile
-            if (!imageNameInTheServer.equals(""))
-                deleteOldProfile(imageNameInTheServer);
-            Log.d(TAG, "checkIfUserSelectTheSameImageAndContinueIfNot: photo to be updated" + photoUrlToBeUpdated);
-        }
+            if (!imageNameInTheServer.equals("") && oldProfileReference != null)
+                deleteOldProfile(oldProfileReference);
+        }else
+            Log.d(TAG, "checkIfUserSelectTheSameImageAndContinueIfNot: the user seletect the same image");
 
     }
 
-    private void deleteOldProfile(String profileRefToBeDeleted) {
-        mStorage.getReference("profiles")
-                .child(profileRefToBeDeleted).delete().addOnSuccessListener(deleteListener -> Log.d(TAG, "deleteOldProfile: deleted old password successfully")).addOnFailureListener(faliureListener -> Log.d(TAG, "deleteOldProfile: " + faliureListener.getMessage()));
+    private void deleteOldProfile(StorageReference profileRefToBeDeleted) {
+        profileRefToBeDeleted.delete().addOnSuccessListener(s -> {
+            Log.d(TAG, "deleteOldProfile: old profile deleted successfully");
+        }).addOnFailureListener(f -> {
+            Log.d(TAG, "deleteOldProfile: " + f.getMessage());
+        });
     }
 
     private void uploadImageToServer(File compressedFile) {
@@ -249,8 +275,21 @@ public class EditProfileFragment extends Fragment {
         mFirestore.collection("rooms")
                 .document(MessagesPreference.getUserId(requireContext()))
                 .update("photoUrl", newProfileUrl)
-                .addOnSuccessListener(sListner -> Log.d(TAG, "saveDataInFirestore: update new profile image successfully")).
+                .addOnSuccessListener(sListner -> {
+                        Log.d(TAG, "saveDataInFirestore: update new profile image successfully");
+                        mHorizontalProgressBar.setVisibility(View.GONE);
+                            showSnackBar();
+                            imageUri = null;
+                        }
+                ).
                 addOnFailureListener(fListener -> Log.d(TAG, "saveDataInFirestore: " + fListener.getMessage()));
+    }
+
+    private void showSnackBar() {
+        Snackbar.make(snackbarView, R.string.profile_updated_successully, BaseTransientBottomBar.LENGTH_SHORT)
+                .setAction(R.string.ok, sbl -> {
+
+                }).show();
     }
 
     private void pickImageFromGallery() {
@@ -260,7 +299,7 @@ public class EditProfileFragment extends Fragment {
     private void putIntoImage(Uri uri) {
         imageUri = uri;
         if (imageUri != null) {
-            profile.setImageURI(imageUri);
+            Picasso.get().load(imageUri).fit().centerCrop().into(profile);
         }else {
             Toast.makeText(requireActivity(), "operation canceled", Toast.LENGTH_SHORT).show();
         }

@@ -1,5 +1,7 @@
 package com.example.friendlychat.fragments;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,12 +19,18 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.work.Constraints;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.NetworkType;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 
 import com.example.friendlychat.Adapters.ContactsAdapter;
 import com.example.friendlychat.Module.Message;
 import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.NotificationUtils;
 import com.example.friendlychat.Module.SharedPreferenceUtils;
+import com.example.friendlychat.Module.workers.CleanUpOldDataPeriodicWork;
 import com.example.friendlychat.R;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
@@ -32,9 +40,13 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.Picasso;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 
 public class UserChatsFragment extends Fragment implements ContactsAdapter.OnChatClicked, ValueEventListener{
@@ -52,7 +64,6 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
     }
 
 
-    private View snackbarView;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,6 +82,7 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
         navController.navigate(R.id.fragmentSignIn);
     }
 
+    private int tracker;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -79,6 +91,7 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
         Log.d(TAG, "onCreateView: ");
         View view =inflater.inflate(R.layout.fragment_user_chats, container, false);
 
+        tracker = 1;
         mNavController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         if (mAuth.getCurrentUser() == null){
             navigateToSignIn();
@@ -91,12 +104,16 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
 
 
         contactsRecycler.setAdapter(contactsAdapter);
+        // start the periodic work
+        uniquelyScheduleCleanUPWorker();
         if (mAuth.getCurrentUser() != null && messages.size() == 0)
             initializeUserAndData();
-        snackbarView = view;
         checkUserConnection();
+
         return view;
     }
+
+
 
     private void initializeUserAndData() {
 
@@ -113,6 +130,7 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
                 Toast.makeText(requireContext(), "Signed out successfully", Toast.LENGTH_SHORT).show();
                 SharedPreferenceUtils.saveUserSignOut(requireContext());
                 mNavController.navigate(R.id.action_userChatsFragment_to_fragmentSignIn);
+                messages.clear();
                 break;
             case R.id.go_to_profile:
                 mNavController.navigate(R.id.action_userChatsFragment_to_userProfileFragment);
@@ -176,12 +194,17 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
     @Override
     public void onDestroy() {
         mCurrentUserRoomReference.removeEventListener(this);
+        tracker = 1;
         super.onDestroy();
     }
 
     private void sendNotification(Message message) {
-        if (!message.getIsRead() && !message.getSenderId().equals(mCurrentUserId))
-            NotificationUtils.notifyUserOfNewMessage(requireContext(), message);
+        if (tracker == 0) {
+            Log.d(TAG, "sendNotification: " + tracker);
+            if (!message.getIsRead() && !message.getSenderId().equals(mCurrentUserId))
+                NotificationUtils.notifyUserOfNewMessage(requireContext(), message);
+        }else
+            tracker = 0;
     }
 
 
@@ -207,4 +230,29 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
             }
         });
     }
+
+    private void uniquelyScheduleCleanUPWorker() {
+
+        Constraints constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .setRequiresBatteryNotLow(true)
+                .build();
+
+        PeriodicWorkRequest cleanUpRequest =
+                new PeriodicWorkRequest.Builder(CleanUpOldDataPeriodicWork.class, 3, TimeUnit.HOURS)
+                        .setConstraints(constraints)
+                        .build();
+        WorkManager.getInstance(requireContext()).enqueueUniquePeriodicWork(
+                "cleanUpWork",
+                ExistingPeriodicWorkPolicy.KEEP,
+                cleanUpRequest);
+
+    }
+
+    @Override
+    public void onDestroyView() {
+        tracker = 1;
+        super.onDestroyView();
+    }
+
 }

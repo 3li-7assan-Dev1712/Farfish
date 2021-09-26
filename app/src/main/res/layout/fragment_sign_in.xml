@@ -12,6 +12,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
+
+
         <View
             android:id="@+id/icon_container_view"
             android:layout_width="wrap_content"
@@ -127,9 +129,9 @@
             android:textColor="#000"
             android:textSize="18sp"
             android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="@+id/textView4"
-            app:layout_constraintStart_toEndOf="@+id/textView4"
-            app:layout_constraintTop_toTopOf="@+id/textView4" />
+            app:layout_constraintBottom_toBottomOf="@id/textView4"
+            app:layout_constraintStart_toEndOf="@id/textView4"
+            app:layout_constraintTop_toTopOf="@id/textView4" />
 
         <ImageView
             android:id="@+id/farfish_sign_in_icon"
@@ -154,6 +156,18 @@
             app:layout_constraintBottom_toBottomOf="@+id/farfish_sign_in_icon"
             app:layout_constraintStart_toEndOf="@+id/farfish_sign_in_icon"
             app:layout_constraintTop_toTopOf="@+id/farfish_sign_in_icon" />
+
+        <ProgressBar
+            android:id="@+id/signInHorizontalProgressBar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="0dp"
+            android:max="100"
+            android:visibility="invisible"
+            android:indeterminate="true"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

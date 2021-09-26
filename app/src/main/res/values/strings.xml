@@ -43,7 +43,7 @@
     <string name="sign_up">Sign up</string>
     <string name="sign_in_customUI">Sign in with custom UI</string>
     <string name="sign_in_firebaseUI">Sign in with firebase UI</string>
-    <string name="phone_number_optional">phone number (optional)</string>
+    <string name="phone_number_optional">phone number (required)</string>
     <string name="continue_regestration">Continue</string>
     <string name="try_another_way">Try another way</string>
     <string name="notRegsitered">You\'re not registered, go and register</string>
@@ -74,6 +74,8 @@
     <string name="last_time_seen_was_seconds_ago">last time seen was seconds ago</string>
     <string name="one_day">1 day</string>
     <string name="user_ofline_msg">You are offline</string>
+    <string name="profile_updated_successully">Profile updated successfully</string>
+    <string name="ok">OK</string>
 
 
 </resources>

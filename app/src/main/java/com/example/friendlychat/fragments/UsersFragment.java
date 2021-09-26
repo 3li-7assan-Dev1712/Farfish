@@ -4,9 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.telephony.PhoneNumberUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -29,12 +28,19 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.work.Data;
+import androidx.work.ExistingWorkPolicy;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
+import androidx.work.WorkRequest;
 
 import com.example.friendlychat.Adapters.ContactsAdapter;
-import com.example.friendlychat.Module.CustomPhoneNumberUtils;
 import com.example.friendlychat.Module.FilterPreferenceUtils;
+import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.SharedPreferenceUtils;
 import com.example.friendlychat.Module.User;
+import com.example.friendlychat.Module.workers.ReadContactsWorker;
+import com.example.friendlychat.Module.workers.ReadDataFromServerWorker;
 import com.example.friendlychat.R;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
@@ -45,6 +51,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -62,11 +69,16 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
     private FirebaseFirestore mFirestore;
     private NavController mNavController;
 
+    private ProgressBar mProgressBar;
     private ImageView mFilterImageView;
-    private List<String> mPhoneNumbersFromContacts = new ArrayList<>();
     private List<String> mPhonNumbersFromServer = new ArrayList<>();
 
+    private String[] serverPhoneNumbers;
     private View snackbarView;
+
+    // for WorkManager functionality
+    private  OneTimeWorkRequest contactsWork;
+    private WorkManager mWorkManager;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         setHasOptionsMenu(true);
@@ -76,7 +88,7 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
         usersAdapter = new ContactsAdapter(requireContext(), users, this);
         /*firebase database & auth*/
         mAuth = FirebaseAuth.getInstance();
-
+        mWorkManager = WorkManager.getInstance(requireContext());
         super.onCreate(savedInstanceState);
     }
     /* request permission*/
@@ -88,6 +100,7 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
                     Toast.makeText(requireContext(),
                             "In order to display for you the users that you might you" +
                                     "the app needs to read you contacts", Toast.LENGTH_LONG).show();
+                    mProgressBar.setVisibility(View.GONE);
                 }
             });
     @Nullable
@@ -95,15 +108,31 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.VISIBLE);
         View view =  inflater.inflate(R.layout.users_fragment, container, false);
-        // check for the contacts permission if it's granted or not
 
-        if (ContextCompat.checkSelfPermission(
-                requireContext(), Manifest.permission.READ_CONTACTS) ==
-                PackageManager.PERMISSION_GRANTED) {
-            insertUserContacts();
+        mProgressBar = view.findViewById(R.id.loadUsersProgressBar);
+        if (users.size() == 0){
+            // check for the contacts permission if it's granted or not
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(), Manifest.permission.READ_CONTACTS) ==
+                    PackageManager.PERMISSION_GRANTED) {
+                // check if we have the phone numbers already
+                Set<String> contacts = MessagesPreference.getUserContacts(requireContext());
+                if (contacts == null) {
+                    contactsWork = new OneTimeWorkRequest.Builder(ReadContactsWorker.class)
+                            .build();
+                    mWorkManager.enqueueUniqueWork("read_contacts_work", ExistingWorkPolicy.KEEP, contactsWork);
+                    initializeUserAndData();
+                }else{
+                    initializeDataDirectly(contacts);
+                }
+
+            }else{
+                requestPermissionToReadContacts.launch(Manifest.permission.READ_CONTACTS);
+            }
         }else{
-            requestPermissionToReadContacts.launch(Manifest.permission.READ_CONTACTS);
+            mProgressBar.setVisibility(View.GONE);
         }
+
 
         requireActivity().getSharedPreferences("filter_utils", Activity.MODE_PRIVATE).
                 registerOnSharedPreferenceChangeListener(this);
@@ -129,6 +158,33 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
         return view;
     }
 
+    private void initializeDataDirectly(Set<String> commonContacts) {
+        String currentId = MessagesPreference.getUserId(requireContext());
+        mFirestore.collection("rooms").get().addOnSuccessListener(queryDocumentSnapshots -> {
+            if (users.size() == 0) {
+                for (DocumentSnapshot userSnapshot : queryDocumentSnapshots.getDocuments()) {
+                    User user = userSnapshot.toObject(User.class);
+                    assert user != null;
+                    String userId = user.getUserId();
+                    if (!userId.equals(currentId))
+                        users.add(user);
+                    String userPhoneNumber = user.getPhoneNumber();
+                    Log.d(TAG, "initializeDataDirectly: user id from shared preferences" + currentId);
+                    Log.d(TAG, "initializeDataDirectly: user id from server: " + currentId);
+                    for (String number: commonContacts) {
+                        if (PhoneNumberUtils.compare(number, userPhoneNumber) && !currentId.equals(userId))
+                            usersUserKnow.add(user);
+                    }
+                }
+            }
+        }).addOnCompleteListener(comp -> {
+            mProgressBar.setVisibility(View.GONE);
+            if (getFilterState()) usersAdapter.setUsers(usersUserKnow);
+            else usersAdapter.setUsers(users);
+
+        });
+    }
+
     private void updateFilterImageResoucre() {
         if (getFilterState())
             mFilterImageView.setImageResource(R.drawable.ic_filter_list_yellow_24);
@@ -136,23 +192,6 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
             mFilterImageView.setImageResource(R.drawable.ic_filter_list_24);
     }
 
-    private void insertUserContacts() {
-        /*---------------------------*/
-        Cursor contactsCursor = requireContext().getContentResolver()
-                .query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                        new String[] {ContactsContract.CommonDataKinds.Phone.NUMBER },
-                        ContactsContract.CommonDataKinds.Phone.NUMBER + " != ?",
-                        new String[] {" "},null);
-        if (contactsCursor != null){
-            while (contactsCursor.moveToNext()) {
-                String phoneNumber = contactsCursor.getString(contactsCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                mPhoneNumbersFromContacts.add(phoneNumber);
-            }
-            initializeUserAndData();
-            contactsCursor.close();
-        }
-        /*---------------------------*/
-    }
 
     @Override
     public void onDestroyView() {
@@ -172,8 +211,6 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
                     // this method will use the users list from above and filter it to users whom current user have in contacts
                     fetchDataInUsersUserKnowList();
                     // save it in a SharedPreference
-
-
                     // check for the filter state then populate the ui
                     if (getFilterState()) usersAdapter.setUsers(usersUserKnow);
                     else usersAdapter.setUsers(users);
@@ -184,22 +221,50 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
 
     private void fetchDataInUsersUserKnowList() {
         if (usersUserKnow.size() == 0) {
-            Set<CustomPhoneNumberUtils> data =
-                    CustomPhoneNumberUtils.getCommonPhoneNumbers(mPhonNumbersFromServer, mPhoneNumbersFromContacts, requireContext());
-            Log.d(TAG, "initializeUserAndData: common number size " + data.size());
-            Log.d(TAG, "initializeUserAndData: fianl common : " + data.toString());
-            for (CustomPhoneNumberUtils datum : data) {
-                String commonPhoneNumber = datum.getVal();
-                Log.d(TAG, "initializeUserAndData: common phone number is: " +
-                        commonPhoneNumber);
-                for (User userUserKnow : users) {
-                    String localUserPhoneNumber = userUserKnow.getPhoneNumber();
-                    if (PhoneNumberUtils.compare(commonPhoneNumber, localUserPhoneNumber)) {
-                        usersUserKnow.add(userUserKnow);
-                    }
-                }
-            }
+            mWorkManager.getWorkInfoByIdLiveData(contactsWork.getId())
+                    .observe(getViewLifecycleOwner(), info -> {
+                        if (info != null && info.getState().isFinished()) {
+                            String[] userContacts = info.getOutputData().getStringArray("contacts");
+                            assert userContacts != null;
+                            Data input = new Data.Builder()
+                                    .putStringArray("device_contacts", userContacts)
+                                    .putStringArray("server_contacts", serverPhoneNumbers)
+                                    .build();
+                            WorkRequest commonContactsWorker = new OneTimeWorkRequest.Builder(ReadDataFromServerWorker.class)
+                                    .setInputData(input)
+                                    .build();
+                            mWorkManager.enqueue(commonContactsWorker);
+                            filterUsers(commonContactsWorker);
+                        }
+                    });
+
         }
+    }
+
+    private void filterUsers(WorkRequest commonContactsWorker) {
+        mWorkManager.getWorkInfoByIdLiveData(commonContactsWorker.getId())
+                .observe(getViewLifecycleOwner(), info -> {
+                    if (info != null && info.getState().isFinished()) {
+                        String[] userContacts = info.getOutputData().getStringArray("common_phone_numbers");
+                        assert userContacts != null;
+                        for (String commonPhoneNumber : userContacts) {
+                            Log.d(TAG, "initializeUserAndData: common phone number is: " +
+                                    commonPhoneNumber);
+                            for (User userUserKnow : users) {
+                                String localUserPhoneNumber = userUserKnow.getPhoneNumber();
+                                if (PhoneNumberUtils.compare(commonPhoneNumber, localUserPhoneNumber)) {
+                                    usersUserKnow.add(userUserKnow);
+                                }
+                            }
+                        }
+                        // hide the progress bar and hide the progress bar
+                        mProgressBar.setVisibility(View.GONE);
+                        if (getFilterState())
+                            usersAdapter.setUsers(usersUserKnow);
+                        else
+                            usersAdapter.setUsers(users);
+                    }
+                });
     }
 
     private void fetchPrimaryData(QuerySnapshot queryDocumentSnapshots) {
@@ -211,12 +276,17 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
                 String phoneNumber = user.getPhoneNumber();
                 Log.d(TAG, "initializeUserAndData: phoneNumberSever: " + phoneNumber);
                 if (phoneNumber != null) {
-                    if (!phoneNumber.equals(""))
+                    if (!phoneNumber.equals("")) {
                         mPhonNumbersFromServer.add(phoneNumber);
+                    }
                 }
                 assert currentUserId != null;
                 if (!currentUserId.equals(user.getUserId()))
                     users.add(user);
+            }
+            serverPhoneNumbers = new String[mPhonNumbersFromServer.size()];
+            for (int i = 0 ; i < mPhonNumbersFromServer.size(); i++){
+                serverPhoneNumbers[i] = mPhonNumbersFromServer.get(i);
             }
         }
         Log.d(TAG, "fetchPrimaryData: uses list size: " + users.size());

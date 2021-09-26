@@ -8,7 +8,21 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp">
+
+        <ProgressBar
+            android:id="@+id/editProfileHorizontalProgressBar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="0dp"
+            android:max="100"
+            android:visibility="invisible"
+            android:textAlignment="center"
+            android:indeterminate="true"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/appbar" />
 
         <Button
             android:id="@+id/editProfileSaveButton"
