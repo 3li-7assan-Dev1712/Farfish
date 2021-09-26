@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -84,6 +85,7 @@ public class EditProfileFragment extends Fragment {
 
     FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
 
+    private ProgressBar mHorizontalProgressBar;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -96,6 +98,7 @@ public class EditProfileFragment extends Fragment {
         EditText userNameEditText = view.findViewById(R.id.editProfileEditTextUserName);
         EditText statusEditText = view.findViewById(R.id.editProfileEditTextStatus);
         EditText phoneNumberEditText = view.findViewById(R.id.editProfilePhoneNumber);
+        mHorizontalProgressBar = view.findViewById(R.id.editProfileHorizontalProgressBar);
         Button save = view.findViewById(R.id.editProfileSaveButton);
         Bundle userData = getArguments();
 
@@ -124,6 +127,7 @@ public class EditProfileFragment extends Fragment {
             }
         });
         save.setOnClickListener(saveListener -> {
+            mHorizontalProgressBar.setVisibility(View.VISIBLE);
             // firstly save the image if the user choose a new one
 
             List<Map> fieldsToUpdate = new ArrayList<>();
@@ -152,6 +156,7 @@ public class EditProfileFragment extends Fragment {
 
             if (fieldsToUpdate.size() == 0 && imageUri == null){
                 // there's no any change happened
+
                 Toast.makeText(requireActivity(), "There is no any change to be updated", Toast.LENGTH_SHORT).show();
             }else {
 
@@ -167,7 +172,7 @@ public class EditProfileFragment extends Fragment {
                         }
                     }
                 }
-            }
+            } mHorizontalProgressBar.setVisibility(View.GONE); // this is the write place
         });
         return view;
     }
