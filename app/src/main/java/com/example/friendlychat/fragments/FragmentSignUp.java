@@ -51,7 +51,7 @@ public class FragmentSignUp extends Fragment {
         Button registerButton = view.findViewById(R.id.register_button);
         CheckBox termsCheck = view.findViewById(R.id.check_box_terms_condition);
         termsCheck.setOnClickListener(termsListener -> {
-            if (!termsCheck.isChecked()) {
+            if (termsCheck.isChecked()) {
                 TermsAndConditionsDialogFragment termsAndConditionsDialogFragment
                         = new TermsAndConditionsDialogFragment();
                 termsAndConditionsDialogFragment.

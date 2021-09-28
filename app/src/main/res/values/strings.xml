@@ -77,10 +77,10 @@
     <string name="profile_updated_successully">Profile updated successfully</string>
     <string name="ok">OK</string>
     <string name="terms_and_conditions">This app needs your contacts to display for the you the people you may know in the users section,
-    you should also be aware about:"\br"
-    1- your messages will stay for 3 months and will be deleted to clean up the limited storage"/br"
-    2- your statue will remain about 2 days and will also be cleaned up"/br>
-    3- the app will not share any kind of you information to other part.
+    you should also be aware about: <br/>
+    1- your messages will stay for 3 months and will be deleted to clean up the limited storage <br/>
+    2- your statue will remain about 2 days and will also be cleaned up <br/>
+    3- the app will not share any kind of you information to other part. <br/>
     -you need to agree on these conditions to continue.</string>
     <string name="agree">agree</string>
     <string name="dont_agree">don\'t agree</string>
