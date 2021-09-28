@@ -59,12 +59,12 @@ public class MessagesPreference {
     public static void saveUserPrivacy(Context context, boolean isPublic){
         SharedPreferences sp = context.getSharedPreferences("messages", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sp.edit();
-        editor.putBoolean("user_visibility", isPublic);
+        editor.putBoolean("user_privacy", isPublic);
         editor.apply();
     }
-    public static boolean getVisibility(Context context){
+    public static boolean userIsPublic(Context context){
         SharedPreferences sp = context.getSharedPreferences("messages", Context.MODE_PRIVATE);
-        return sp.getBoolean("user_visibility", false);
+        return sp.getBoolean("user_privacy", false);
     }
 
     public static String getUserId(Context context){
