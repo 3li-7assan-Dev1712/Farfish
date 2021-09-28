@@ -45,7 +45,7 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Name" />
 
-        <TextView
+        <com.aghajari.emojiview.view.AXEmojiTextView
             android:id="@+id/messageTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

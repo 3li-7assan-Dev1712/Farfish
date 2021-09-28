@@ -40,6 +40,8 @@ import androidx.navigation.fragment.FragmentNavigator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.aghajari.emojiview.view.AXEmojiPopupLayout;
+import com.aghajari.emojiview.view.AXEmojiView;
 import com.example.friendlychat.Adapters.MessagesAdapter;
 import com.example.friendlychat.Module.FileUtil;
 import com.example.friendlychat.Module.FullImageData;
@@ -218,6 +220,7 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
         mMessageRecyclerView = view.findViewById(R.id.messageRecyclerView);
         mProgressBar = view.findViewById(R.id.progressBar);
         ImageButton mPhotoPickerButton = view.findViewById(R.id.photoPickerButton);
+        ImageButton emijiImageButton = view.findViewById(R.id.send_emoji_btn);
         mMessageEditText = view.findViewById(R.id.messageEditText);
         mSendButton = view.findViewById(R.id.sendButton);
         mProgressBar.setVisibility(ProgressBar.VISIBLE);
@@ -240,6 +243,31 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
                         Manifest.permission.READ_EXTERNAL_STORAGE);
             }
 
+        });
+
+        AXEmojiView emojiView = new AXEmojiView(requireContext());
+        emojiView.setEditText(mMessageEditText);
+        AXEmojiPopupLayout emojiPopupLayout = view.findViewById(R.id.emoji_keyboard_popup);
+        emojiPopupLayout.initPopupView(emojiView);
+        emojiPopupLayout.hideAndOpenKeyboard();
+        mMessageEditText.setOnClickListener( editTextView ->{
+            emojiPopupLayout.openKeyboard();
+            emojiPopupLayout.setVisibility(View.GONE);
+            Log.d(TAG, "onCreateView: mMessageEditTextClick");
+            Toast.makeText(requireContext(), "click", Toast.LENGTH_SHORT).show();
+        });
+        emijiImageButton.setOnClickListener(emojiPopupListener -> {
+            if (emojiPopupLayout.isShowing()) {
+                emojiPopupLayout.openKeyboard();
+                emojiPopupLayout.dismiss();
+                emojiPopupLayout.setVisibility(View.GONE);
+                emijiImageButton.setImageResource(R.drawable.ic_baseline_emoji_emotions_24_50_gray);
+            }
+            else {
+                emojiPopupLayout.setVisibility(View.VISIBLE);
+                emojiPopupLayout.show();
+                emijiImageButton.setImageResource(R.drawable.ic_baseline_keyboard_24);
+            }
         });
 
         // Enable Send button when there's text to send
@@ -705,4 +733,5 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
 
         }
     }
+
 }

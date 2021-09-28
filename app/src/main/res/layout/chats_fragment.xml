@@ -69,7 +69,7 @@
         android:orientation="horizontal"
         android:paddingStart="8dp"
         android:paddingEnd="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/emoji_keyboard_popup"
         app:layout_constraintEnd_toStartOf="@id/sendButton"
         app:layout_constraintStart_toStartOf="parent">
 
@@ -82,19 +82,25 @@
             android:padding="16dp"
             android:src="@drawable/ic_baseline_emoji_emotions_24_50_gray" />
 
-        <EditText
-            android:id="@+id/messageEditText"
+        <RelativeLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
             android:layout_weight="1"
-            android:autofillHints=""
-            android:fontFamily="sans-serif-thin"
-            android:hint="@string/edit_text_hint"
-            android:inputType="text|textMultiLine"
-            android:maxHeight="104dp"
-            android:scrollHorizontally="false"
-            android:textColor="@android:color/darker_gray" />
+            >
+            <com.aghajari.emojiview.view.AXEmojiEditText
+                android:id="@+id/messageEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:autofillHints=""
+                android:fontFamily="sans-serif-thin"
+                android:hint="@string/edit_text_hint"
+                android:inputType="text|textMultiLine"
+                android:maxHeight="104dp"
+                android:scrollHorizontally="false"
+                android:textColor="@android:color/darker_gray" />
+
+        </RelativeLayout>
 
         <ImageButton
             android:id="@+id/photoPickerButton"
@@ -120,5 +126,14 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/linearLayout"
         app:rippleColor="@color/colorPrimaryDark" />
-
+    <com.aghajari.emojiview.view.AXEmojiPopupLayout
+        android:id="@+id/emoji_keyboard_popup"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:hint="@string/edit_text_hint"
+        android:maxHeight="104dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
