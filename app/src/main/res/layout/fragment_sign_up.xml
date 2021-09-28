@@ -36,8 +36,9 @@
 
         </com.google.android.material.appbar.AppBarLayout>
 
+
         <EditText
-            android:id="@+id/edit_text_password_sign_up"
+            android:id="@+id/edit_text_first_name"
             style="@style/edit_text_sign_up_style"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -47,12 +48,30 @@
             android:autofillHints=""
             android:background="@drawable/edit_text_sign_in_background"
             android:ems="10"
-            android:hint="@string/password_sign_in"
-            android:inputType="textPassword"
+            android:hint="@string/first_name"
+            android:inputType="textPersonName|text"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/edit_text_email_address_sign_up" />
+            app:layout_constraintTop_toBottomOf="@id/appbar" />
+
+        <EditText
+            android:id="@+id/edit_text_last_name"
+            style="@style/edit_text_sign_up_style"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/edit_text_sign_in_background"
+            android:ems="10"
+            android:hint="@string/last_name"
+            android:importantForAutofill="no"
+            android:inputType="textPersonName|text"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/edit_text_first_name" />
+
 
         <EditText
             android:id="@+id/edit_text_email_address_sign_up"
@@ -73,6 +92,26 @@
             app:layout_constraintTop_toBottomOf="@+id/edit_text_last_name" />
 
         <EditText
+            android:id="@+id/edit_text_password_sign_up"
+            style="@style/edit_text_sign_up_style"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:autofillHints=""
+            android:background="@drawable/edit_text_sign_in_background"
+            android:ems="10"
+            android:hint="@string/password_sign_in"
+            android:inputType="textPassword"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/edit_text_email_address_sign_up" />
+
+
+
+        <EditText
             android:id="@+id/edit_text_confirm_password"
             style="@style/edit_text_sign_up_style"
             android:layout_width="0dp"
@@ -90,40 +129,9 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/edit_text_password_sign_up" />
 
-        <EditText
-            android:id="@+id/edit_text_last_name"
-            style="@style/edit_text_sign_up_style"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
-            android:background="@drawable/edit_text_sign_in_background"
-            android:ems="10"
-            android:hint="@string/last_name"
-            android:importantForAutofill="no"
-            android:inputType="textPersonName|text"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/edit_text_first_name" />
 
-        <EditText
-            android:id="@+id/edit_text_first_name"
-            style="@style/edit_text_sign_up_style"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
-            android:autofillHints=""
-            android:background="@drawable/edit_text_sign_in_background"
-            android:ems="10"
-            android:hint="@string/first_name"
-            android:inputType="textPersonName|text"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/appbar" />
+
+
 
         <CheckBox
             android:id="@+id/check_box_terms_condition"
