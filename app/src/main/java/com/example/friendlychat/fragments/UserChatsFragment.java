@@ -1,5 +1,6 @@
 package com.example.friendlychat.fragments;
 
+import android.app.MediaRouteButton;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -11,6 +12,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -60,6 +62,7 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
     private NavController mNavController;
     private String mCurrentUserId;
 
+    private  ProgressBar mProgressBar;;
     public UserChatsFragment() {
         // Required empty public constructor
     }
@@ -93,6 +96,7 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
         Log.d(TAG, "onCreateView: ");
         View view =inflater.inflate(R.layout.fragment_user_chats, container, false);
 
+        mProgressBar = view.findViewById(R.id.userChatsProgressBar);
         tracker = 1;
         mNavController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         if (mAuth.getCurrentUser() == null){
@@ -131,8 +135,8 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
                 mAuth.signOut();
                 Toast.makeText(requireContext(), "Signed out successfully", Toast.LENGTH_SHORT).show();
                 SharedPreferenceUtils.saveUserSignOut(requireContext());
-                mNavController.navigate(R.id.action_userChatsFragment_to_fragmentSignIn);
                 messages.clear();
+                mNavController.navigate(R.id.action_userChatsFragment_to_fragmentSignIn);
                 break;
             case R.id.go_to_profile:
                 mNavController.navigate(R.id.action_userChatsFragment_to_userProfileFragment);
@@ -184,6 +188,8 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
                 sendNotification(lastMessage);
             }
         }
+
+        mProgressBar.setVisibility(View.GONE);
         contactsAdapter.notifyDataSetChanged();
 
     }

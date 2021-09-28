@@ -27,12 +27,12 @@
         <Button
             android:id="@+id/editProfileSaveButton"
             style="@style/main_buttons_background"
-            android:layout_marginTop="32dp"
+            android:layout_marginTop="16dp"
             android:layout_marginBottom="16dp"
             android:text="@string/save"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/editProfilePhoneNumber" />
+            app:layout_constraintTop_toBottomOf="@id/privateButton" />
 
         <EditText
             android:id="@+id/editProfilePhoneNumber"
@@ -107,6 +107,32 @@
             app:riv_mutate_background="true"
             tools:src="@tools:sample/backgrounds/scenic" />
 
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:id="@+id/privateButton"
+            app:layout_constraintEnd_toStartOf="@id/publicButton"
+            app:layout_constraintTop_toBottomOf="@id/editProfilePhoneNumber"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="32dp"
+            android:background="@color/primaryLightColor"
+            android:textColor="@color/white"
+            android:text="@string/private_btn"/>
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/publicButton"
+            app:layout_constraintTop_toBottomOf="@id/editProfilePhoneNumber"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="32dp"
+            app:layout_constraintStart_toEndOf="@id/privateButton"
+            android:layout_marginStart="16dp"
+            android:background="@android:color/darker_gray"
+            android:textColor="@color/white"
+            android:text="@string/public_btn"/>
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/appbar"
             android:layout_width="match_parent"

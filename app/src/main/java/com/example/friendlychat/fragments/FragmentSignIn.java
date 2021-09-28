@@ -191,7 +191,8 @@ public class FragmentSignIn extends Fragment {
                     String userId = currentUser.getUid();
                     String phoneNumber = user.getPhoneNumber();
                     String userStatus = user.getStatus();
-                    saveUserDataInSharedPreference(userName, photoUrl, userId, userStatus, phoneNumber);
+                    boolean isPublic = user.getIsPublic();
+                    saveUserDataInSharedPreference(userName, photoUrl, userId, userStatus, phoneNumber, isPublic);
                     mNavController.navigateUp();
                 }
             }).addOnFailureListener(exc -> {
@@ -212,7 +213,7 @@ public class FragmentSignIn extends Fragment {
                 User user = new User(userName, email, phoneNumber, photoUrl, userId, "اللهم صلي وسلم على محمد" ,true, new Date().getTime());
                 String finalPhotoUrl = photoUrl;
                 firestore.collection("rooms").document(userId).set(user).addOnSuccessListener(suc -> {
-                    saveUserDataInSharedPreference(userName, finalPhotoUrl, userId, "اللهم صلي وسلم على محمد", phoneNumber);
+                    saveUserDataInSharedPreference(userName, finalPhotoUrl, userId, "اللهم صلي وسلم على محمد", phoneNumber, false);
                     mNavController.navigateUp();
                 }).addOnFailureListener(exception -> Log.d(TAG, "updateUserInfoAndNavigateBack: exception: " + exception.getMessage()));
 
@@ -221,14 +222,14 @@ public class FragmentSignIn extends Fragment {
 
     }
 
-    private void saveUserDataInSharedPreference(String userName, String photoUrl, String userId, String status, String phoneNumber) {
+    private void saveUserDataInSharedPreference(String userName, String photoUrl, String userId, String status, String phoneNumber, boolean isPublic) {
         Context context = requireContext();
         MessagesPreference.saveUserName(context, userName);
         MessagesPreference.saveUserId(context, userId);
         MessagesPreference.saveUserPhotoUrl(context, photoUrl);
         MessagesPreference.saveUserStatus(context, status);
         MessagesPreference.saveUserPhoneNumber(context, phoneNumber);
-
+        MessagesPreference.saveUserPrivacy(context, isPublic);
         SharedPreferenceUtils.saveUserSignIn(context);
     }
 
