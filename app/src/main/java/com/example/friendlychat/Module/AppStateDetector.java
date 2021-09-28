@@ -35,6 +35,7 @@ public class AppStateDetector extends androidx.multidex.MultiDexApplication impl
         mAuth = FirebaseAuth.getInstance();
         mFirestore = FirebaseFirestore.getInstance();
 
+
         ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
 
     }
