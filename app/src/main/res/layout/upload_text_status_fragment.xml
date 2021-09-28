@@ -7,7 +7,7 @@
     android:background="@color/secondaryDarkColor"
     tools:context=".fragments.UploadTextStatusFragment">
 
-    <EditText
+    <com.aghajari.emojiview.view.AXEmojiEditText
         android:id="@+id/editTextUploadStatus"
         android:layout_width="0dp"
         android:layout_height="0dp"
