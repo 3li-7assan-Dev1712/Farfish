@@ -140,7 +140,7 @@ public class ProfileImageFragment extends Fragment {
                 }catch (Exception generalException){
                     Toast.makeText(requireActivity(), generalException.getMessage(), Toast.LENGTH_SHORT).show();
                     Log.d(TAG, "saveUserDataAndNavigateToHomeScreen: general exception: " + generalException.getMessage());
-
+                    showSnackBarWithAction(R.string.wrong_email, generalException);
                 }
             });
         }else
@@ -220,6 +220,7 @@ public class ProfileImageFragment extends Fragment {
 
 
     private void showSnackBarWithAction(int label, Exception exception){
+        mProgressBar.setVisibility(View.GONE);
         Snackbar snackbar = Snackbar.make(snackBarView, label, Snackbar.LENGTH_INDEFINITE);
         int action = R.string.return_fix;
         NavController controller = Navigation.findNavController(snackBarView);
@@ -237,6 +238,10 @@ public class ProfileImageFragment extends Fragment {
                snackbar.setAction(action, snackbarListener -> {
                    controller.popBackStack(R.id.fragmentSignIn, false);
                });
+            }else {
+                snackbar.setAction(action, snackbarListener -> {
+                    controller.navigateUp();
+                });
             }
         }
         snackbar.show();

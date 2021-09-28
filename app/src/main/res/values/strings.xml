@@ -76,15 +76,18 @@
     <string name="user_ofline_msg">You are offline</string>
     <string name="profile_updated_successully">Profile updated successfully</string>
     <string name="ok">OK</string>
-    <string name="terms_and_conditions">This app needs your contacts to display for the you the people you may know in the users section,
-    you should also be aware about: <br/>
-    1- your messages will stay for 3 months and will be deleted to clean up the limited storage <br/>
-    2- your statue will remain about 2 days and will also be cleaned up <br/>
-    3- the app will not share any kind of you information to other part. <br/>
+    <string name="terms_and_conditions">This app needs your contacts to display for you the people you may know in the users section,
+    you should also be aware about:"\n"
+    1- your messages will stay for 3 months and will be deleted to clean up the limited storage \n
+    2- your statue will remain about 2 days and will also be cleaned up \n
+    3- the app will not share any kind of you information to other part. \n
     -you need to agree on these conditions to continue.</string>
     <string name="agree">agree</string>
     <string name="dont_agree">don\'t agree</string>
     <string name="terms_and_conditions_title"><![CDATA[Terms & Conditions]]></string>
+    <string name="agree_message">"perfect know you are ready to continue "</string>
+    <string name="not_agree_message">you cannot continue if you don\'t agree on the the terms and conditions</string>
+    <string name="fix">fix</string>
 
 
 </resources>
