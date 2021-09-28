@@ -24,10 +24,10 @@
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar_sign_up"
                 android:layout_width="match_parent"
-                app:contentInsetStart="0dp"
                 android:layout_height="?attr/actionBarSize"
                 android:background="@color/colorPrimary"
                 android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+                app:contentInsetStart="0dp"
                 app:navigationIcon="@drawable/ic__navigate_before"
                 app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
                 app:title="@string/sign_up">
@@ -37,100 +37,100 @@
         </com.google.android.material.appbar.AppBarLayout>
 
 
-        <EditText
-            android:id="@+id/edit_text_first_name"
-            style="@style/edit_text_sign_up_style"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
-            android:autofillHints=""
-            android:background="@drawable/edit_text_sign_in_background"
-            android:ems="10"
-            android:hint="@string/first_name"
-            android:inputType="textPersonName|text"
+        <ss.anoop.awesometextinputlayout.AwesomeTextInputLayout
+            android:id="@+id/container_3"
+            style="@style/input_field_style"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/appbar" />
+            app:layout_constraintTop_toBottomOf="@id/appbar">
 
-        <EditText
-            android:id="@+id/edit_text_last_name"
-            style="@style/edit_text_sign_up_style"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
-            android:background="@drawable/edit_text_sign_in_background"
-            android:ems="10"
-            android:hint="@string/last_name"
-            android:importantForAutofill="no"
-            android:inputType="textPersonName|text"
+            <EditText
+                android:id="@+id/edit_text_first_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints=""
+                android:ems="10"
+                android:hint="@string/first_name"
+                android:inputType="textPersonName|text" />
+
+        </ss.anoop.awesometextinputlayout.AwesomeTextInputLayout>
+
+        <ss.anoop.awesometextinputlayout.AwesomeTextInputLayout
+            android:id="@+id/container_4"
+            style="@style/input_field_style"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/edit_text_first_name" />
+            app:layout_constraintTop_toBottomOf="@id/container_3">
+
+            <EditText
+                android:id="@+id/edit_text_last_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/last_name"
+                android:importantForAutofill="no"
+                android:inputType="textPersonName|text" />
+        </ss.anoop.awesometextinputlayout.AwesomeTextInputLayout>
 
 
-        <EditText
-            android:id="@+id/edit_text_email_address_sign_up"
-            style="@style/edit_text_sign_up_style"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
-            android:autofillHints=""
-            android:background="@drawable/edit_text_sign_in_background"
-            android:ems="10"
-            android:hint="@string/e_mail"
-            android:inputType="textEmailAddress"
+        <ss.anoop.awesometextinputlayout.AwesomeTextInputLayout
+            android:id="@+id/container_5"
+            style="@style/input_field_style"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/edit_text_last_name" />
+            app:layout_constraintTop_toBottomOf="@id/container_4">
 
-        <EditText
-            android:id="@+id/edit_text_password_sign_up"
-            style="@style/edit_text_sign_up_style"
+            <EditText
+                android:id="@+id/edit_text_email_address_sign_up"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints=""
+                android:ems="10"
+                android:hint="@string/e_mail"
+                android:inputType="textEmailAddress" />
+        </ss.anoop.awesometextinputlayout.AwesomeTextInputLayout>
+
+
+        <ss.anoop.awesometextinputlayout.AwesomeTextInputLayout
+            android:id="@+id/container_7"
+            style="@style/input_field_style"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
-            android:autofillHints=""
-            android:background="@drawable/edit_text_sign_in_background"
-            android:ems="10"
-            android:hint="@string/password_sign_in"
-            android:inputType="textPassword"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/edit_text_email_address_sign_up" />
+            app:layout_constraintTop_toBottomOf="@id/container_5">
 
+            <EditText
+                android:id="@+id/edit_text_password_sign_up"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints=""
+                android:ems="10"
+                android:hint="@string/password_sign_in"
+                android:inputType="textPassword" />
+        </ss.anoop.awesometextinputlayout.AwesomeTextInputLayout>
 
-
-        <EditText
-            android:id="@+id/edit_text_confirm_password"
-            style="@style/edit_text_sign_up_style"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
-            android:autofillHints=""
-            android:background="@drawable/edit_text_sign_in_background"
-            android:ems="10"
-            android:hint="@string/confirm_password"
-            android:inputType="textPassword"
+        <ss.anoop.awesometextinputlayout.AwesomeTextInputLayout
+            android:id="@+id/container_8"
+            style="@style/input_field_style"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/edit_text_password_sign_up" />
+            app:layout_constraintTop_toBottomOf="@id/container_7">
 
+            <EditText
+                android:id="@+id/edit_text_confirm_password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints=""
+                android:ems="10"
+                android:hint="@string/confirm_password"
+                android:inputType="textPassword" />
 
-
+        </ss.anoop.awesometextinputlayout.AwesomeTextInputLayout>
 
 
         <CheckBox
@@ -141,12 +141,12 @@
             android:text="@string/i_agree_to_the_terms_conditions"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/edit_text_confirm_password" />
+            app:layout_constraintTop_toBottomOf="@id/container_8" />
 
         <Button
             android:id="@+id/register_button"
-            android:layout_marginTop="32dp"
             style="@style/main_buttons_background"
+            android:layout_marginTop="32dp"
             android:text="@string/register"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -168,11 +168,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
             android:text="@string/login"
             android:textColor="@android:color/black"
             android:textSize="18sp"
             android:textStyle="bold"
-            android:background="?attr/selectableItemBackgroundBorderless"
             app:layout_constraintBottom_toBottomOf="@id/textView"
             app:layout_constraintStart_toEndOf="@id/textView"
             app:layout_constraintTop_toTopOf="@id/textView" />
