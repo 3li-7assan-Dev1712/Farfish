@@ -6,6 +6,10 @@ android {
     compileSdkVersion 29
     buildToolsVersion "30.0.1"
 
+    // enable the view biding to start the work
+    buildFeatures {
+        viewBinding true
+    }
 
     compileOptions{
         sourceCompatibility JavaVersion.VERSION_1_8

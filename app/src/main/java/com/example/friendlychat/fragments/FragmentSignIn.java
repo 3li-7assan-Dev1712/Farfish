@@ -10,9 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,6 +26,7 @@ import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.SharedPreferenceUtils;
 import com.example.friendlychat.Module.User;
 import com.example.friendlychat.R;
+import com.example.friendlychat.databinding.FragmentSignInBinding;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
@@ -61,10 +60,9 @@ public class FragmentSignIn extends Fragment {
     private NavController mNavController;
     // snackbar view
     private View snackBarView;
-    // email - password edit texts
-    private EditText mEmailEditText;
-    private EditText mPasswordEditText;
-    private ProgressBar mHorizontalProgressBar;
+
+    // Root class that contains al the views
+    private FragmentSignInBinding mBinding;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
 
@@ -82,21 +80,15 @@ public class FragmentSignIn extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_sign_in, container, false);
+        mBinding = FragmentSignInBinding.inflate(inflater, container, false);
+        View view = mBinding.getRoot();
         snackBarView = view;
         mNavController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
-        mEmailEditText = view.findViewById(R.id.editTextEmailSignIn);
-        mPasswordEditText = view.findViewById(R.id.editTextPasswordSignIn);
-        mHorizontalProgressBar = view.findViewById(R.id.signInHorizontalProgressBar);
-        TextView forgotPassWord = view.findViewById(R.id.forgotPasswordSignIn);
-        TextView tryAnotherWay = view.findViewById(R.id.tryAnotherWay);
-        tryAnotherWay.setOnClickListener(tryAnotherWayListener -> launchFirebaseUI());
-        Button loginButton = view.findViewById(R.id.buttonLogin);
-        loginButton.setOnClickListener( loginButtonListener -> {
+        mBinding.buttonLogin.setOnClickListener( loginButtonListener -> {
 
-            String email = mEmailEditText.getText().toString();
-            String password = mPasswordEditText.getText().toString();
+            String email = mBinding.editTextEmailSignIn.getText().toString();
+            String password = mBinding.editTextPasswordSignIn.getText().toString();
             if (email.equals(""))
                 displayRequiredFieldToast("Please enter you e-mail address to sign in");
             else if (password.equals(""))
@@ -109,16 +101,15 @@ public class FragmentSignIn extends Fragment {
             }
         });
         // when user forgot their password
-        forgotPassWord.setOnClickListener( forgotPassWordListener -> {
+        mBinding.forgotPasswordSignIn.setOnClickListener( forgotPassWordListener -> {
             // forgot password functionality
             showHorizontalProgressBar(true);
-            String email = mEmailEditText.getText().toString();
+            String email = mBinding.editTextEmailSignIn.getText().toString();
             if (email.equals("")){
                 Snackbar.make(snackBarView, R.string.enter_email, Snackbar.LENGTH_LONG)
-                        .setAction(R.string.insert_email, actionFocus -> showKeyboardOnEditText(mEmailEditText)).show();
+                        .setAction(R.string.insert_email, actionFocus -> showKeyboardOnEditText(mBinding.editTextEmailSignIn)).show();
                 showHorizontalProgressBar(false);
             }else{
-
                 mAuth.sendPasswordResetEmail(email)
                         .addOnSuccessListener(message -> {
                             Log.d(TAG, "onCreateView: " + message);
@@ -139,9 +130,9 @@ public class FragmentSignIn extends Fragment {
 
     private void showHorizontalProgressBar(boolean showVisibility) {
         if (showVisibility)
-            mHorizontalProgressBar.setVisibility(View.VISIBLE);
+            mBinding.signInHorizontalProgressBar.setVisibility(View.VISIBLE);
         else
-            mHorizontalProgressBar.setVisibility(View.GONE);
+            mBinding.signInHorizontalProgressBar.setVisibility(View.GONE);
     }
 
     private void signIn(String email, String password) {
@@ -274,10 +265,10 @@ public class FragmentSignIn extends Fragment {
         Snackbar snackbar = Snackbar.make(snackBarView, label, Snackbar.LENGTH_INDEFINITE);
         if (exception != null) {
             if (exception instanceof FirebaseAuthInvalidCredentialsException) {
-                snackbar.setAction(action, snackbarListener -> showKeyboardOnEditText(mPasswordEditText));
+                snackbar.setAction(action, snackbarListener -> showKeyboardOnEditText(mBinding.editTextPasswordSignIn));
             } else if (exception instanceof FirebaseAuthEmailException) {
                 snackbar.setAction(action, snackbarListener -> {
-                    showKeyboardOnEditText(mEmailEditText);
+                    showKeyboardOnEditText(mBinding.editTextEmailSignIn);
                 });
             } else if (exception instanceof FirebaseNoSignedInUserException) {
                 snackbar.setAction(action, snackbarListener -> mNavController.navigate(R.id.action_fragmentSignIn_to_fragmentSignUp));
@@ -286,5 +277,11 @@ public class FragmentSignIn extends Fragment {
             snackbar.setAction(action, snackBarAction -> mNavController.navigate(R.id.action_fragmentSignIn_to_fragmentSignUp));
         }
         snackbar.show();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mBinding = null;
     }
 }
