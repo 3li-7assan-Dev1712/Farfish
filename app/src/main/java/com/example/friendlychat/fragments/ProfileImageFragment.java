@@ -29,6 +29,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import com.example.friendlychat.Module.FileUtil;
+import com.example.friendlychat.Module.Message;
 import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.SharedPreferenceUtils;
 import com.example.friendlychat.Module.User;
@@ -205,8 +206,9 @@ public class ProfileImageFragment extends Fragment {
         MessagesPreference.saveUserId(requireContext(), userId);
         MessagesPreference.saveUserName(requireContext(), userName);
         MessagesPreference.saveUserPhoneNumber(requireContext(), phoneNumber);
+        MessagesPreference.saveUserPrivacy(requireContext(), false);
         /*create a new user*/
-        User newUser = new User(userName, email, phoneNumber, photoUrl, userId, status,true, new Date().getTime());
+        User newUser = new User(userName, email, phoneNumber, photoUrl, userId, status,true, false, new Date().getTime());
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         firestore.collection("rooms").document(userId).set(newUser).addOnSuccessListener(data -> {
             Log.d(TAG, "saveUserDataAndNavigateToHomeScreen: successfully register new user");

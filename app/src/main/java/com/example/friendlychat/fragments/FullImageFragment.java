@@ -22,6 +22,7 @@ import com.example.friendlychat.R;
 
 public class FullImageFragment extends Fragment {
     private FullImageData mFullImageData;
+    private View rootView;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
@@ -34,6 +35,7 @@ public class FullImageFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view =  inflater.inflate(R.layout.full_image_fragment, container, false);
+        rootView = view;
         ViewCompat.setTransitionName(view, "root_view_full_image_fragment");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             Transition transition = TransitionInflater.from(requireContext())
@@ -42,8 +44,11 @@ public class FullImageFragment extends Fragment {
             setSharedElementReturnTransition(transition);
         }
         Toolbar toolbar = view.findViewById(R.id.toolbar_full_image);
+        toolbar.setNavigationOnClickListener(navigationclickListener-> {
+           navigateBack();
+        });
         ImageView fullImage = view.findViewById(R.id.full_bleed_image);
-        fullImage.setOnClickListener( v -> Navigation.findNavController(v).navigateUp());
+        fullImage.setOnClickListener( v -> navigateBack());
         if (mFullImageData != null) {
             toolbar.setTitle(mFullImageData.getSenderName());
             toolbar.setSubtitle(mFullImageData.getFormattedTime());
@@ -51,5 +56,8 @@ public class FullImageFragment extends Fragment {
         }else
             Toast.makeText(requireContext(), "data is null", Toast.LENGTH_SHORT).show();
         return view;
+    }
+    private void navigateBack(){
+        Navigation.findNavController(rootView).navigateUp();
     }
 }

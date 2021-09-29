@@ -63,7 +63,8 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
         SharedPreferences.OnSharedPreferenceChangeListener {
     private static final String TAG = UsersFragment.class.getSimpleName();
     private FirebaseAuth mAuth;
-    private List<User> users;
+    private List<User> publicUsers;
+    private List<User> contactUsers;
     private List<User> usersUserKnow;
     private ContactsAdapter usersAdapter;
     private FirebaseFirestore mFirestore;
@@ -83,9 +84,10 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
     public void onCreate(Bundle savedInstanceState) {
         setHasOptionsMenu(true);
         mFirestore = FirebaseFirestore.getInstance();
-        users = new ArrayList<>();
+        publicUsers = new ArrayList<>();
+        contactUsers = new ArrayList<>();
         usersUserKnow = new ArrayList<>();
-        usersAdapter = new ContactsAdapter(requireContext(), users, this);
+        usersAdapter = new ContactsAdapter(requireContext(), publicUsers, this);
         /*firebase database & auth*/
         mAuth = FirebaseAuth.getInstance();
         mWorkManager = WorkManager.getInstance(requireContext());
@@ -110,7 +112,7 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
         View view =  inflater.inflate(R.layout.users_fragment, container, false);
 
         mProgressBar = view.findViewById(R.id.loadUsersProgressBar);
-        if (users.size() == 0){
+        if (publicUsers.size() == 0){
             // check for the contacts permission if it's granted or not
             if (ContextCompat.checkSelfPermission(
                     requireContext(), Manifest.permission.READ_CONTACTS) ==
@@ -161,13 +163,19 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
     private void initializeDataDirectly(Set<String> commonContacts) {
         String currentId = MessagesPreference.getUserId(requireContext());
         mFirestore.collection("rooms").get().addOnSuccessListener(queryDocumentSnapshots -> {
-            if (users.size() == 0) {
+            if (publicUsers.size() == 0) {
                 for (DocumentSnapshot userSnapshot : queryDocumentSnapshots.getDocuments()) {
                     User user = userSnapshot.toObject(User.class);
                     assert user != null;
                     String userId = user.getUserId();
-                    if (!userId.equals(currentId))
-                        users.add(user);
+                    if (!userId.equals(currentId) && user.getIsPublic()) {
+                        publicUsers.add(user);
+                    }
+                    // even if the user's privacy is private they will be visible for the contacts, as the the user
+                    // expects
+                    if (!userId.equals(currentId)){
+                        contactUsers.add(user);
+                    }
                     String userPhoneNumber = user.getPhoneNumber();
                     Log.d(TAG, "initializeDataDirectly: user id from shared preferences" + currentId);
                     Log.d(TAG, "initializeDataDirectly: user id from server: " + currentId);
@@ -180,7 +188,7 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
         }).addOnCompleteListener(comp -> {
             mProgressBar.setVisibility(View.GONE);
             if (getFilterState()) usersAdapter.setUsers(usersUserKnow);
-            else usersAdapter.setUsers(users);
+            else usersAdapter.setUsers(publicUsers);
 
         });
     }
@@ -213,7 +221,7 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
                     // save it in a SharedPreference
                     // check for the filter state then populate the ui
                     if (getFilterState()) usersAdapter.setUsers(usersUserKnow);
-                    else usersAdapter.setUsers(users);
+                    else usersAdapter.setUsers(publicUsers);
                 }).addOnFailureListener(exception -> Log.d(TAG, "initializeUserAndData: the exception in the new query caused by" +
                         exception.getMessage()));
 
@@ -250,7 +258,7 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
                         for (String commonPhoneNumber : userContacts) {
                             Log.d(TAG, "initializeUserAndData: common phone number is: " +
                                     commonPhoneNumber);
-                            for (User userUserKnow : users) {
+                            for (User userUserKnow : contactUsers) {
                                 String localUserPhoneNumber = userUserKnow.getPhoneNumber();
                                 if (PhoneNumberUtils.compare(commonPhoneNumber, localUserPhoneNumber)) {
                                     usersUserKnow.add(userUserKnow);
@@ -262,13 +270,13 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
                         if (getFilterState())
                             usersAdapter.setUsers(usersUserKnow);
                         else
-                            usersAdapter.setUsers(users);
+                            usersAdapter.setUsers(publicUsers);
                     }
                 });
     }
 
     private void fetchPrimaryData(QuerySnapshot queryDocumentSnapshots) {
-        if (users.size() == 0) {
+        if (publicUsers.size() == 0) {
             for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
                 User user = dc.getDocument().toObject(User.class);
                 String currentUserId = mAuth.getUid();
@@ -281,15 +289,17 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
                     }
                 }
                 assert currentUserId != null;
-                if (!currentUserId.equals(user.getUserId()))
-                    users.add(user);
+                if (  !currentUserId.equals(user.getUserId())  && user.getIsPublic())
+                    publicUsers.add(user);
+                if ( !currentUserId.equals(user.getUserId()) )
+                    contactUsers.add(user);
             }
             serverPhoneNumbers = new String[mPhonNumbersFromServer.size()];
             for (int i = 0 ; i < mPhonNumbersFromServer.size(); i++){
                 serverPhoneNumbers[i] = mPhonNumbersFromServer.get(i);
             }
         }
-        Log.d(TAG, "fetchPrimaryData: uses list size: " + users.size());
+        Log.d(TAG, "fetchPrimaryData: uses list size: " + publicUsers.size());
     }
 
 
@@ -311,12 +321,12 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
             targetUserId = usersUserKnow.get(position).getUserId();
             lastTimeSeen= usersUserKnow.get(position).getLastTimeSeen();
         }else{
-             targetUserName= users.get(position).getUserName();
-             photoUrl= users.get(position).getPhotoUrl();
-             targetUserEmail= users.get(position).getEmail();
-             userStatus= users.get(position).getStatus();
-             lastTimeSeen= users.get(position).getLastTimeSeen();
-             targetUserId = users.get(position).getUserId();
+             targetUserName= publicUsers.get(position).getUserName();
+             photoUrl= publicUsers.get(position).getPhotoUrl();
+             targetUserEmail= publicUsers.get(position).getEmail();
+             userStatus= publicUsers.get(position).getStatus();
+             lastTimeSeen= publicUsers.get(position).getLastTimeSeen();
+             targetUserId = publicUsers.get(position).getUserId();
         }
         Bundle primaryDataBundle = new Bundle();
         primaryDataBundle.putString("target_user_name", targetUserName);
@@ -362,8 +372,8 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
         if (activeFilter) {
             usersAdapter.setUsers(usersUserKnow);
         }else{
-            usersAdapter.setUsers(users);
-            Log.d(TAG, "onSharedPreferenceChanged: list of users size is: " + users.size());
+            usersAdapter.setUsers(publicUsers);
+            Log.d(TAG, "onSharedPreferenceChanged: list of users size is: " + publicUsers.size());
         }
     }
 

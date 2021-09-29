@@ -76,6 +76,7 @@
     <string name="user_ofline_msg">You are offline</string>
     <string name="profile_updated_successully">Profile updated successfully</string>
     <string name="ok">OK</string>
+    <string name="private_btn">Private</string>
     <string name="terms_and_conditions">This app needs your contacts to display for you the people you may know in the users section,
     you should also be aware about:"\n"
     1- your messages will stay for 3 months and will be deleted to clean up the limited storage \n
@@ -88,6 +89,7 @@
     <string name="agree_message">"perfect know you are ready to continue "</string>
     <string name="not_agree_message">you cannot continue if you don\'t agree on the the terms and conditions</string>
     <string name="fix">fix</string>
+    <string name="public_btn">Public</string>
 
 
 </resources>

@@ -7,7 +7,20 @@
     android:background="@color/secondaryDarkColor"
     tools:context=".fragments.UploadTextStatusFragment">
 
-    <EditText
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/uploadTextStatusFragmentFab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="@color/colorPrimary"
+        android:src="@drawable/ic_baseline_send_24"
+        app:layout_constraintBottom_toTopOf="@id/status_edit_text_poppup_layout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.3" />
+
+    <com.aghajari.emojiview.view.AXEmojiEditText
         android:id="@+id/editTextUploadStatus"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -20,22 +33,19 @@
         android:textColor="@android:color/white"
         android:textColorHint="@android:color/white"
         android:textSize="36sp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/status_edit_text_poppup_layout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/uploadTextStatusFragmentFab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:background="@color/colorPrimary"
-        android:src="@drawable/ic_baseline_send_24"
-        app:layout_constraintBottom_toBottomOf="@id/editTextUploadStatus"
-        app:layout_constraintEnd_toEndOf="parent"/>
 
+    <com.aghajari.emojiview.view.AXEmojiPopupLayout
+        android:id="@+id/status_edit_text_poppup_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

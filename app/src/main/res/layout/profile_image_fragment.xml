@@ -30,7 +30,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/container_9"
             >
-            <EditText
+            <com.aghajari.emojiview.view.AXEmojiEditText
                 android:id="@+id/editTextStatus"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -48,7 +48,7 @@
             android:layout_height="150dp"
             android:layout_marginTop="32dp"
             android:background="@drawable/empty_profile_border"
-            android:padding="8dp"
+            android:padding="4dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
