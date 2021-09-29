@@ -27,6 +27,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
 import com.example.friendlychat.Module.FileUtil;
+import com.example.friendlychat.Module.Message;
 import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.R;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
@@ -89,6 +90,11 @@ public class EditProfileFragment extends Fragment {
     FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
 
     private ProgressBar mHorizontalProgressBar;
+    private boolean mOriginalUserPrivacyState; // the one which saved shared preferences and the server
+    private boolean mDynamicPrivacyState; // this will be changed every tiem the user click on the two button above save button
+    // privacy buttons
+    private Button mPrivateButton;
+    private Button mPublicButton;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -102,6 +108,8 @@ public class EditProfileFragment extends Fragment {
         EditText statusEditText = view.findViewById(R.id.editProfileEditTextStatus);
         EditText phoneNumberEditText = view.findViewById(R.id.editProfilePhoneNumber);
         mHorizontalProgressBar = view.findViewById(R.id.editProfileHorizontalProgressBar);
+        mPrivateButton = view.findViewById(R.id.privateButton);
+        mPublicButton = view.findViewById(R.id.publicButton);
         Button save = view.findViewById(R.id.editProfileSaveButton);
         Bundle userData = getArguments();
 
@@ -117,6 +125,18 @@ public class EditProfileFragment extends Fragment {
             statusEditText.setText(userStatus, TextView.BufferType.EDITABLE);
             phoneNumberEditText.setText(userPhoneNumber, TextView.BufferType.EDITABLE);
         }
+
+        mOriginalUserPrivacyState = MessagesPreference.userIsPublic(requireContext());
+        mDynamicPrivacyState = mOriginalUserPrivacyState;
+        updateButtonBackground(mOriginalUserPrivacyState);
+        mPrivateButton.setOnClickListener(privateListener -> {
+            mDynamicPrivacyState = false;
+            updateButtonBackground(mDynamicPrivacyState);
+        });
+        mPublicButton.setOnClickListener(publicListener -> {
+            mDynamicPrivacyState = true;
+            updateButtonBackground(mDynamicPrivacyState);
+        });
 
         // invoke listeners
         profile.setOnClickListener(profileImageListener -> {
@@ -157,6 +177,11 @@ public class EditProfileFragment extends Fragment {
                 fieldsToUpdate.add(field);
             }
 
+            if (mDynamicPrivacyState != mOriginalUserPrivacyState){
+                Map<String, Boolean> field = new HashMap<>();
+                field.put("isPublic", mDynamicPrivacyState);
+                fieldsToUpdate.add(field);
+            }
             if (fieldsToUpdate.size() == 0 && imageUri == null){
                 // there's no any change happened
                 mHorizontalProgressBar.setVisibility(View.GONE);
@@ -165,7 +190,7 @@ public class EditProfileFragment extends Fragment {
 
                 DocumentReference documentReference =
                         mFirestore.collection("rooms").document(MessagesPreference.getUserId(requireContext()));
-                String[] keys = {"userName", "status", "phoneNumber"};
+                String[] keys = {"userName", "status", "phoneNumber", "isPublic"};
                 for (int i = 0; i < fieldsToUpdate.size(); i++)
                 {
                     Map field = fieldsToUpdate.get(i);
@@ -173,12 +198,19 @@ public class EditProfileFragment extends Fragment {
                         if (field.containsKey(key)){
                             int finalI = i;
                             documentReference.update(key, field.get(key)).addOnSuccessListener(sl -> {
+                                // check if the this is the last updated item in  the list to hide the progress bar and show the result
                                if (finalI == fieldsToUpdate.size() -1 && imageUri == null) {
                                    mHorizontalProgressBar.setVisibility(View.GONE);
                                    showSnackBar();
                                }
                            });
-                           updateLocalUserData(key, Objects.requireNonNull(field.get(key)).toString());
+                            if (key.equals("isPublic")) {
+                                MessagesPreference.saveUserPrivacy(requireContext(), mDynamicPrivacyState);
+                                // update the original value to prevent overriding the same value
+                                mOriginalUserPrivacyState = mDynamicPrivacyState;
+                            }
+                            else
+                                updateLocalUserData(key, Objects.requireNonNull(field.get(key)).toString());
                         }
                     }
                 }
@@ -186,6 +218,17 @@ public class EditProfileFragment extends Fragment {
         });
         snackbarView =view;
         return view;
+    }
+
+    private void updateButtonBackground(boolean userIsPublic) {
+        if (userIsPublic) {
+            mPublicButton.setBackgroundColor(requireContext().getResources().getColor(R.color.red));
+            mPrivateButton.setBackgroundColor(requireContext().getResources().getColor(R.color.darkerGray));
+        }
+        else {
+            mPublicButton.setBackgroundColor(requireContext().getResources().getColor(R.color.darkerGray));
+            mPrivateButton.setBackgroundColor(requireContext().getResources().getColor(R.color.red));
+        }
     }
 
     private void updateLocalUserData(String key, String data) {
@@ -207,6 +250,7 @@ public class EditProfileFragment extends Fragment {
                 MessagesPreference.saveUserPhotoUrl(context, data);
                 photoUrl = data;
                 break;
+
         }
     }
 

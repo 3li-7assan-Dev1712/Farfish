@@ -114,6 +114,8 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
         uniquelyScheduleCleanUPWorker();
         if (mAuth.getCurrentUser() != null && messages.size() == 0)
             initializeUserAndData();
+        else
+            mProgressBar.setVisibility(View.GONE);
         checkUserConnection();
 
         return view;

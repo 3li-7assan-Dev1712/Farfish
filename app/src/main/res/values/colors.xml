@@ -39,4 +39,6 @@
   <color name="secondaryTextColor">#000000</color>
 
 
+  <color name="darkerGray">@android:color/darker_gray</color>
+  <color name="red">#E64A19</color>
 </resources>
