@@ -1,9 +1,6 @@
 package com.example.friendlychat.fragments;
 
-import android.app.MediaRouteButton;
 import android.content.pm.ActivityInfo;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -43,16 +40,13 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.squareup.picasso.Picasso;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 
-public class UserChatsFragment extends Fragment implements ContactsAdapter.OnChatClicked, ValueEventListener{
+public class UserChatsFragment extends Fragment implements ContactsAdapter.OnChatClicked, ValueEventListener {
 
     private FirebaseAuth mAuth;
     private static final String TAG = UserChatsFragment.class.getSimpleName();
@@ -62,7 +56,8 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
     private NavController mNavController;
     private String mCurrentUserId;
 
-    private  ProgressBar mProgressBar;;
+    private ProgressBar mProgressBar;
+
     public UserChatsFragment() {
         // Required empty public constructor
     }
@@ -72,12 +67,8 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        mCurrentUserId = MessagesPreference.getUserId(requireContext());
 
-        mCurrentUserRoomReference = FirebaseDatabase.getInstance().getReference("rooms")
-                .child(mCurrentUserId);
         messages = new ArrayList<>();
-        mAuth = FirebaseAuth.getInstance();
         contactsAdapter = new ContactsAdapter(getContext(), messages, this, null);
     }
 
@@ -94,12 +85,16 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
         requireActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.VISIBLE);
         Log.d(TAG, "onCreateView: ");
-        View view =inflater.inflate(R.layout.fragment_user_chats, container, false);
-
+        View view = inflater.inflate(R.layout.fragment_user_chats, container, false);
+        mCurrentUserId = MessagesPreference.getUserId(requireContext());
+        Log.d(TAG, "onCreate: ");
+        mCurrentUserRoomReference = FirebaseDatabase.getInstance().getReference("rooms")
+                .child(mCurrentUserId);
+        mAuth = FirebaseAuth.getInstance();
         mProgressBar = view.findViewById(R.id.userChatsProgressBar);
         tracker = 1;
         mNavController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
-        if (mAuth.getCurrentUser() == null){
+        if (mAuth.getCurrentUser() == null) {
             navigateToSignIn();
         }
         Toolbar tb = view.findViewById(R.id.mainToolbar_frag);
@@ -112,7 +107,8 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
         contactsRecycler.setAdapter(contactsAdapter);
         // start the periodic work
         uniquelyScheduleCleanUPWorker();
-        if (mAuth.getCurrentUser() != null && messages.size() == 0)
+        Log.d(TAG, "onCreateView: messges size is: " + messages.size());
+        if (messages.size() == 0)
             initializeUserAndData();
         else
             mProgressBar.setVisibility(View.GONE);
@@ -120,7 +116,6 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
 
         return view;
     }
-
 
 
     private void initializeUserAndData() {
@@ -132,12 +127,13 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
-        switch (id){
+        switch (id) {
             case R.id.sign_out:
                 mAuth.signOut();
                 Toast.makeText(requireContext(), "Signed out successfully", Toast.LENGTH_SHORT).show();
                 SharedPreferenceUtils.saveUserSignOut(requireContext());
                 messages.clear();
+                onDestroy();
                 mNavController.navigate(R.id.action_userChatsFragment_to_fragmentSignIn);
                 break;
             case R.id.go_to_profile:
@@ -175,7 +171,7 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
             Iterable<DataSnapshot> messagesIterable = roomsSnapshot.getChildren();
             Message lastMessage = null;
             int newMessageCounter = 0;
-            for (DataSnapshot messageSnapShot : messagesIterable){
+            for (DataSnapshot messageSnapShot : messagesIterable) {
                 if (!messageSnapShot.getKey().equals("isWriting")) {
                     lastMessage = messageSnapShot.getValue(Message.class);
                     if (!lastMessage.getIsRead())
@@ -203,6 +199,7 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
 
     @Override
     public void onDestroy() {
+        Log.d(TAG, "onDestroy: ");
         mCurrentUserRoomReference.removeEventListener(this);
         tracker = 1;
         super.onDestroy();
@@ -213,7 +210,7 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
             Log.d(TAG, "sendNotification: " + tracker);
             if (!message.getIsRead() && !message.getSenderId().equals(mCurrentUserId))
                 NotificationUtils.notifyUserOfNewMessage(requireContext(), message);
-        }else
+        } else
             tracker = 0;
     }
 
