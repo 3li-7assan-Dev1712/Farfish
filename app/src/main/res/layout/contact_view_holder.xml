@@ -52,7 +52,7 @@
             android:visibility="visible"
             tools:src="@tools:sample/avatars" />
 
-        <TextView
+        <com.aghajari.emojiview.view.AXEmojiTextView
             android:id="@+id/textStatusAsItem"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -97,7 +97,7 @@
         app:layout_constraintVertical_bias="0.3"
         tools:text="Ali Hassan" />
 
-    <TextView
+    <com.aghajari.emojiview.view.AXEmojiTextView
         android:id="@+id/lastMessage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -9,6 +9,8 @@ import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
 import androidx.lifecycle.ProcessLifecycleOwner;
 
+import com.aghajari.emojiview.AXEmojiManager;
+import com.aghajari.emojiview.iosprovider.AXIOSEmojiProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -35,8 +37,10 @@ public class AppStateDetector extends androidx.multidex.MultiDexApplication impl
         mAuth = FirebaseAuth.getInstance();
         mFirestore = FirebaseFirestore.getInstance();
 
+
         ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
 
+        AXEmojiManager.install(this, new AXIOSEmojiProvider(this));
     }
 
 

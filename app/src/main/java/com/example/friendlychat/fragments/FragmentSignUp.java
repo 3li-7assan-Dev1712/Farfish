@@ -1,10 +1,13 @@
 package com.example.friendlychat.fragments;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -17,12 +20,17 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import com.example.friendlychat.R;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 
-public class FragmentSignUp extends Fragment {
+public class FragmentSignUp extends Fragment implements TermsAndConditionsDialogFragment.ActionClickListener{
 
     private static final String TAG = FragmentSignUp.class.getSimpleName();
     private NavController mNavController;
     private String mUserName;
+    private CheckBox mTermsCheck;
+    private View snackBarView;
+    private  TermsAndConditionsDialogFragment termsAndConditionsDialogFragment;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,19 +54,31 @@ public class FragmentSignUp extends Fragment {
         EditText passwordTextView = view.findViewById(R.id.edit_text_password_sign_up);
         EditText confirmPasswordTextView = view.findViewById(R.id.edit_text_confirm_password);
         Button registerButton = view.findViewById(R.id.register_button);
+        termsAndConditionsDialogFragment = new TermsAndConditionsDialogFragment(this);
+        mTermsCheck = view.findViewById(R.id.check_box_terms_condition);
+        mTermsCheck.setOnClickListener(termsListener -> {
+            if (mTermsCheck.isChecked()) {
+                termsAndConditionsDialogFragment.
+                        show(requireActivity().getSupportFragmentManager(), "terms_conditions");
+            }
+        });
         registerButton.setOnClickListener( registerButtonListener -> {
             if (firstNameTextView.getText().toString().equals(""))
-                displayRequiredFieldToast(firstNameTextView, "please enter you first name to register");
+                displayRequiredFieldSnackBar(firstNameTextView, "please enter you first name to register");
             else if (lastNameTextView.getText().toString().equals(""))
-                displayRequiredFieldToast(lastNameTextView, "please enter your last name to register");
+                displayRequiredFieldSnackBar(lastNameTextView, "please enter your last name to register");
             else if (emailTextView.getText().toString().equals(""))
-                displayRequiredFieldToast(emailTextView, "please enter your email address to register");
+                displayRequiredFieldSnackBar(emailTextView, "please enter your email address to register");
             else if (passwordTextView.getText().toString().equals(""))
-                displayRequiredFieldToast(passwordTextView, "please enter a password to register");
+                displayRequiredFieldSnackBar(passwordTextView, "please enter a password to register");
             else if (confirmPasswordTextView.getText().toString().equals(""))
-                displayRequiredFieldToast(lastNameTextView, "please confirm the password to register");
+                displayRequiredFieldSnackBar(confirmPasswordTextView, "please confirm the password to register");
             else if (!confirmPasswordTextView.getText().toString().equals(passwordTextView.getText().toString()))
-                displayRequiredFieldToast(confirmPasswordTextView, "please confirm password is different from the password above");
+                displayRequiredFieldSnackBar(confirmPasswordTextView, "please confirm password is different from the password above");
+            else if (!mTermsCheck.isChecked()){
+                Snackbar.make(view, R.string.terms_and_conditions, BaseTransientBottomBar.LENGTH_LONG).show();
+                termsAndConditionsDialogFragment.show(requireActivity().getSupportFragmentManager(), "terms_conditions");
+            }
             else{
                 Toast.makeText(requireContext(), "You are ready to register", Toast.LENGTH_SHORT).show();
                 String email = emailTextView.getText().toString();
@@ -69,6 +89,7 @@ public class FragmentSignUp extends Fragment {
                 signUp(email, password);
             }
         });
+        snackBarView = view;
         return view;
     }
 
@@ -85,8 +106,27 @@ public class FragmentSignUp extends Fragment {
         mNavController.navigateUp();
     }
 
-    private void displayRequiredFieldToast(EditText requiredField, String message) {
+    // this method is replaced by the one below it
+/*    private void displayRequiredFieldToast(EditText requiredField, String message) {
         Toast.makeText(requireActivity(), message, Toast.LENGTH_SHORT).show();
         requiredField.requestFocus();
+    }*/
+    private void showKeyboardOnEditText (EditText editText){
+        editText.requestFocus();
+        InputMethodManager manager = (InputMethodManager) requireActivity().
+                getSystemService(Context.INPUT_METHOD_SERVICE);
+        manager.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
+    }
+    private void displayRequiredFieldSnackBar(EditText requiredField, String message){
+        Snackbar snackbar = Snackbar.make(snackBarView, message, Snackbar.LENGTH_LONG);
+        int action = R.string.fix;
+        snackbar.setAction(action, listener-> {
+            showKeyboardOnEditText(requiredField);
+        });
+        snackbar.show();
+    }
+    @Override
+    public void onActionClick(boolean isAgree) {
+        mTermsCheck.setChecked(isAgree);
     }
 }

@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".fragments.ChatsFragment"
+    android:background="@drawable/wallpaper_1"
     android:fitsSystemWindows="true"
     android:paddingBottom="8dp"
-    android:background="@drawable/wallpaper_1">
+    tools:context=".fragments.ChatsFragment">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <!--  app:popupTheme="@style/ThemeOverlay.AppCompat.Light" -->
         <androidx.appcompat.widget.Toolbar
@@ -22,9 +22,10 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-            app:contentInsetStart="0dp">
-            <include layout="@layout/toolbar_conversation"/>
+            app:contentInsetStart="0dp"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+
+            <include layout="@layout/toolbar_conversation" />
         </androidx.appcompat.widget.Toolbar>
 
     </com.google.android.material.appbar.AppBarLayout>
@@ -34,6 +35,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_above="@id/linearLayout"
+        android:layout_marginBottom="8dp"
         android:divider="@android:color/transparent"
         android:stackFromBottom="false"
         android:transcriptMode="alwaysScroll"
@@ -41,8 +43,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/appbar"
-        tools:listitem="@layout/message_view_holder"
-        android:layout_marginBottom="8dp"/>
+        tools:listitem="@layout/message_view_holder" />
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -56,66 +57,83 @@
         app:layout_constraintTop_toBottomOf="@+id/appbar" />
 
     <LinearLayout
-        android:layout_marginStart="4dp"
         android:id="@+id/linearLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/sending_background"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:layout_marginEnd="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/sendButton"
-        app:layout_constraintStart_toStartOf="parent"
-        android:background="@drawable/sending_background"
         android:paddingStart="8dp"
         android:paddingEnd="8dp"
-        android:layout_marginTop="8dp">
+        app:layout_constraintBottom_toTopOf="@id/emoji_keyboard_popup"
+        app:layout_constraintEnd_toStartOf="@id/sendButton"
+        app:layout_constraintStart_toStartOf="parent">
 
         <ImageButton
             android:id="@+id/send_emoji_btn"
             android:layout_width="24dp"
             android:layout_height="24dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/image_button_description"
             android:padding="16dp"
-            android:background="@drawable/ic_baseline_emoji_emotions_24_50_gray"
-            android:contentDescription="@string/image_button_description" />
+            android:src="@drawable/ic_baseline_emoji_emotions_24_50_gray" />
 
-        <EditText
-            android:id="@+id/messageEditText"
+        <RelativeLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:maxHeight="104dp"
-            android:layout_gravity="center_vertical"
             android:layout_weight="1"
-            android:autofillHints=""
-            android:hint="@string/edit_text_hint"
-            android:textColor="@android:color/darker_gray"
-            android:inputType="text|textMultiLine"
-            android:scrollHorizontally="false"
-            android:fontFamily="sans-serif-thin"/>
+            >
+            <com.aghajari.emojiview.view.AXEmojiEditText
+                android:id="@+id/messageEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:autofillHints=""
+                android:fontFamily="sans-serif-thin"
+                android:hint="@string/edit_text_hint"
+                android:inputType="text|textMultiLine"
+                android:maxHeight="104dp"
+                android:scrollHorizontally="false"
+                android:textColor="@android:color/darker_gray" />
+
+        </RelativeLayout>
 
         <ImageButton
             android:id="@+id/photoPickerButton"
             android:layout_width="24dp"
             android:layout_height="24dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/image_button_description"
             android:padding="16dp"
-            android:background="@drawable/ic_baseline_photo_camera_24"
-            android:contentDescription="@string/image_button_description" />
+            android:src="@drawable/ic_baseline_photo_camera_24" />
 
     </LinearLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/sendButton"
+        style="@style/Widget.AppCompat.Button.Small"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="4dp"
         android:enabled="false"
-        app:rippleColor="@color/colorPrimaryDark"
         android:src="@drawable/ic_baseline_send_24"
         app:fabSize="mini"
-        style="@style/Widget.AppCompat.Button.Small"
         app:layout_constraintBottom_toBottomOf="@id/linearLayout"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/linearLayout"
-        android:layout_marginEnd="4dp"
+        app:rippleColor="@color/colorPrimaryDark" />
+    <com.aghajari.emojiview.view.AXEmojiPopupLayout
+        android:id="@+id/emoji_keyboard_popup"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:hint="@string/edit_text_hint"
+        android:maxHeight="104dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

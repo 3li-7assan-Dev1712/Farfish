@@ -17,7 +17,11 @@ users can easily know when the other user have read the message or not through t
 that indicate the target user has read the message, just like whatsapp and telegram.</br>
 With the help of the magic of the WorkManager the app checks every three hours for the new messages and statues and send a notification if so,
 in addition the app also checks for the old messages that are older than 3 months, deleting them to free up the realtime database.
-the reason that the app only save user's messages for 3 months is that the server can afford up to 20M messages, which is limited:)
+in addition the app also checks for the old messages that are older than 3 months, deleting them to free up the realtime database.</br>
+the reason that the app only save user's messages for 3 months is that the server can afford up to 20M messages, which is limited:)</br>
+<h2>Telegram Emojis</h2>
+the app uses a special library to provide telegram's emojis which really gives users a great user-experience,
+and it is also a background compatible unit (API 4.1).
 </br></br>
 Note: This is just a temporary Readme and will be rewritten again
 after the app enroll the release and stable state :)

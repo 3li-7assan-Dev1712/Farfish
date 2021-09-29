@@ -21,6 +21,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
+import com.aghajari.emojiview.view.AXEmojiPopupLayout;
+import com.aghajari.emojiview.view.AXEmojiView;
 import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.Status;
 import com.example.friendlychat.R;
@@ -56,6 +58,7 @@ public class UploadTextStatusFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view =  inflater.inflate(R.layout.upload_text_status_fragment, container, false);
         EditText statusEditText = view.findViewById(R.id.editTextUploadStatus);
+
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference("status");
         DatabaseReference userRef = reference.child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid()));
         mUploadFab = view.findViewById(R.id.uploadTextStatusFragmentFab);
@@ -78,6 +81,27 @@ public class UploadTextStatusFragment extends Fragment {
                     Toast.makeText(requireActivity(), "Error uploading status, check out your internet connection", Toast.LENGTH_SHORT).show();
                 });
             }
+        });
+        AXEmojiView emojiView = new AXEmojiView(requireContext());
+        emojiView.setEditText(statusEditText);
+        AXEmojiPopupLayout emojiPopupLayout = view.findViewById(R.id.status_edit_text_poppup_layout);
+        emojiPopupLayout.initPopupView(emojiView);
+        emojiPopupLayout.hideAndOpenKeyboard();
+        statusEditText.setOnClickListener(listener-> {
+            emojiPopupLayout.openKeyboard();
+            emojiPopupLayout.setVisibility(View.GONE);
+        });
+        statusEditText.setOnLongClickListener(longListener-> {
+            if (emojiPopupLayout.isShowing()) {
+                emojiPopupLayout.openKeyboard();
+                emojiPopupLayout.dismiss();
+                emojiPopupLayout.setVisibility(View.GONE);
+            }
+            else {
+                emojiPopupLayout.setVisibility(View.VISIBLE);
+                emojiPopupLayout.show();
+            }
+            return true;
         });
         statusEditText.addTextChangedListener(new TextWatcher() {
             @Override

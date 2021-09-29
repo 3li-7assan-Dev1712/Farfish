@@ -1,6 +1,7 @@
 package com.example.friendlychat.fragments;
 
 import android.content.Context;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -32,7 +33,9 @@ public class UserProfileFragment extends Fragment {
     private String phoneNumber;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
+
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
+
         super.onCreate(savedInstanceState);
     }
 
@@ -69,8 +72,8 @@ public class UserProfileFragment extends Fragment {
         String lastTimeSeen = requireContext().getResources().getString(R.string.online);
         Bundle userInfo = getArguments();
         if (userInfo != null){
-            edit.setVisibility(View.INVISIBLE);
-            logout.setVisibility(View.INVISIBLE);
+            edit.setVisibility(View.GONE);
+            logout.setVisibility(View.GONE);
             userPhotoUrl = userInfo.getString("target_user_photo_url");
             userName = userInfo.getString("target_user_name");
             status = userInfo.getString("target_user_status");

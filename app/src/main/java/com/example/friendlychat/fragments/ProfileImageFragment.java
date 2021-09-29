@@ -29,6 +29,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import com.example.friendlychat.Module.FileUtil;
+import com.example.friendlychat.Module.Message;
 import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.SharedPreferenceUtils;
 import com.example.friendlychat.Module.User;
@@ -140,7 +141,7 @@ public class ProfileImageFragment extends Fragment {
                 }catch (Exception generalException){
                     Toast.makeText(requireActivity(), generalException.getMessage(), Toast.LENGTH_SHORT).show();
                     Log.d(TAG, "saveUserDataAndNavigateToHomeScreen: general exception: " + generalException.getMessage());
-
+                    showSnackBarWithAction(R.string.wrong_email, generalException);
                 }
             });
         }else
@@ -205,8 +206,9 @@ public class ProfileImageFragment extends Fragment {
         MessagesPreference.saveUserId(requireContext(), userId);
         MessagesPreference.saveUserName(requireContext(), userName);
         MessagesPreference.saveUserPhoneNumber(requireContext(), phoneNumber);
+        MessagesPreference.saveUserPrivacy(requireContext(), false);
         /*create a new user*/
-        User newUser = new User(userName, email, phoneNumber, photoUrl, userId, status,true, new Date().getTime());
+        User newUser = new User(userName, email, phoneNumber, photoUrl, userId, status,true, false, new Date().getTime());
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         firestore.collection("rooms").document(userId).set(newUser).addOnSuccessListener(data -> {
             Log.d(TAG, "saveUserDataAndNavigateToHomeScreen: successfully register new user");
@@ -220,6 +222,7 @@ public class ProfileImageFragment extends Fragment {
 
 
     private void showSnackBarWithAction(int label, Exception exception){
+        mProgressBar.setVisibility(View.GONE);
         Snackbar snackbar = Snackbar.make(snackBarView, label, Snackbar.LENGTH_INDEFINITE);
         int action = R.string.return_fix;
         NavController controller = Navigation.findNavController(snackBarView);
@@ -237,6 +240,10 @@ public class ProfileImageFragment extends Fragment {
                snackbar.setAction(action, snackbarListener -> {
                    controller.popBackStack(R.id.fragmentSignIn, false);
                });
+            }else {
+                snackbar.setAction(action, snackbarListener -> {
+                    controller.navigateUp();
+                });
             }
         }
         snackbar.show();
