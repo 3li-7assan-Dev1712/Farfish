@@ -17,6 +17,7 @@ users can easily know when the other user have read the message or not through t
 that indicate the target user has read the message, just like whatsapp and telegram.</br>
 With the help of the magic of the WorkManager the app checks every three hours for the new messages and statues and send a notification if so,
 in addition the app also checks for the old messages that are older than 3 months, deleting them to free up the realtime database.
+the reason that the app only save user's messages for 3 months is that the server can afford up to 20M messages, which is limited:)
 </br></br>
 Note: This is just a temporary Readme and will be rewritten again
 after the app enroll the release and stable state :)
