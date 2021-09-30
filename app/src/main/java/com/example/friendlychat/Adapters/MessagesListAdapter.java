@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
@@ -22,9 +23,9 @@ import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 
 public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewHolder> {
     private static final String TAG = MessagesListAdapter.class.getSimpleName();
@@ -35,9 +36,10 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
 
     private List<Message> mMessages;
     private Context mContext;
-    public MessagesListAdapter (List<Message> messages, Context context) {
+
+    public MessagesListAdapter(List<Message> messages, Context context) {
         super(MessagesListAdapter.Diff);
-        this.mMessages  = messages;
+        this.mMessages = messages;
         this.mContext = context;
     }
 
@@ -46,16 +48,16 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
     public int getItemViewType(int position) {
         String senderId = mMessages.get(position).getSenderId();
         String photoUrl = mMessages.get(position).getPhotoUrl();
-        if (mMessages == null){
+        if (mMessages == null) {
             throw new NullPointerException("From getItemViewType message is null");
         }
-        if (useCurrentMessageBackground(senderId) && !photoUrl.equals("")){
+        if (useCurrentMessageBackground(senderId) && !photoUrl.equals("")) {
             return USE_SEND_BACKGROUND_IMG;
-        }else if (useCurrentMessageBackground(senderId) && photoUrl.equals("")){
+        } else if (useCurrentMessageBackground(senderId) && photoUrl.equals("")) {
             return USE_SEND_BACKGROUND;
-        }else if (!useCurrentMessageBackground(senderId) && photoUrl.equals("")){
+        } else if (!useCurrentMessageBackground(senderId) && photoUrl.equals("")) {
             return USE_RECEIVE_BACKGROUND;
-        }else {
+        } else {
             return USE_RECEIVE_BACKGROUND_IMG;
         }
     }
@@ -64,6 +66,7 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
         String currentUserId = MessagesPreference.getUserId(mContext);
         return currentUserId.equals(senderId);
     }
+
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -85,6 +88,11 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
                         ReceiveImageViewHolderBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
                 return new ReceivedImageMessageViewHolder(receiveImageViewHolderBinding);
         }
+    }
+
+    @Override
+    public int getItemCount() {
+        return (mMessages != null) ? mMessages.size() : 0;
     }
 
     @Override
@@ -110,9 +118,10 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
         }
     }
 
-    static class LocalMessageViewHolder extends RecyclerView.ViewHolder{
+    static class LocalMessageViewHolder extends RecyclerView.ViewHolder {
 
         private LocalMessageViewHolderBinding binding;
+
         public LocalMessageViewHolder(@NonNull LocalMessageViewHolderBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
@@ -120,7 +129,8 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
                 /*mMessageInterface.onMessageClick(view, getBindingAdapterPosition());*/
             });
         }
-        public void bind(Message message){
+
+        public void bind(Message message) {
             binding.nameTextView.setText(message.getSenderName());
             binding.messageTextView.setText(message.getText());
             binding.timeMessage.setText(getReadableDate(message.getTimestamp()));
@@ -132,9 +142,10 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
 
     }
 
-    static class ReceivedMessageViewHolder extends RecyclerView.ViewHolder{
+    static class ReceivedMessageViewHolder extends RecyclerView.ViewHolder {
 
         private MessageViewHolderBinding binding;
+
         public ReceivedMessageViewHolder(@NonNull MessageViewHolderBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
@@ -143,7 +154,7 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
             });
         }
 
-        public void bind(Message message){
+        public void bind(Message message) {
             binding.nameTextView.setText(message.getSenderName());
             binding.messageTextView.setText(message.getText());
             binding.timeMessage.setText(getReadableDate(message.getTimestamp()));
@@ -151,10 +162,11 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
 
     }
 
-    static class LocalImageMessageViewHolder extends RecyclerView.ViewHolder{
+    static class LocalImageMessageViewHolder extends RecyclerView.ViewHolder {
 
 
         private SendImageViewHolderBinding binding;
+
         public LocalImageMessageViewHolder(@NonNull SendImageViewHolderBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
@@ -162,7 +174,8 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
                 /*mMessageInterface.onMessageClick(view, getBindingAdapterPosition());*/
             });
         }
-        public void bind(Message message){
+
+        public void bind(Message message) {
             binding.nameTextView.setText(message.getSenderName());
             Picasso.get().load(message.getPhotoUrl()).into(binding.photoImageView, new Callback() {
                 @Override
@@ -184,8 +197,9 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
 
     }
 
-    static class ReceivedImageMessageViewHolder extends RecyclerView.ViewHolder{
+    static class ReceivedImageMessageViewHolder extends RecyclerView.ViewHolder {
         private ReceiveImageViewHolderBinding binding;
+
         public ReceivedImageMessageViewHolder(@NonNull ReceiveImageViewHolderBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
@@ -193,7 +207,8 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
                 /*mMessageInterface.onMessageClick(view, getBindingAdapterPosition());*/
             });
         }
-        public void bind(Message message){
+
+        public void bind(Message message) {
             binding.nameTextView.setText(message.getSenderName());
             Picasso.get().load(message.getPhotoUrl()).into(binding.photoImageView, new Callback() {
                 @Override
@@ -216,15 +231,24 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
         return d.format(timestamp);
     }
 
-    public static final  DiffUtil.ItemCallback<Message> Diff = new DiffUtil.ItemCallback<Message> () {
+    public static final DiffUtil.ItemCallback<Message> Diff = new DiffUtil.ItemCallback<Message>() {
         @Override
         public boolean areItemsTheSame(@NonNull Message oldItem, @NonNull Message newItem) {
-            return oldItem.getSenderId().equals(newItem.getSenderId());
+            if (oldItem.getTimestamp() == newItem.getTimestamp())
+                Log.d(TAG, "areItemsTheSame: same");
+            else
+                Log.d(TAG, "areItemsTheSame: noooooooo");
+            return oldItem.getTimestamp() == newItem.getTimestamp();
         }
 
         @Override
         public boolean areContentsTheSame(@NonNull Message oldItem, @NonNull Message newItem) {
+            if (oldItem.equals(newItem))
+                Log.d(TAG, "areContentsTheSame: the content is the same");
+            else
+                Log.d(TAG, "areContentsTheSame: not the same");
             return oldItem.equals(newItem);
         }
     };
+
 }

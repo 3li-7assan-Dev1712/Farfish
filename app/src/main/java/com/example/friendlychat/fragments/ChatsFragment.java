@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListAdapter;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -39,6 +40,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.aghajari.emojiview.view.AXEmojiPopupLayout;
 import com.aghajari.emojiview.view.AXEmojiView;
 import com.example.friendlychat.Adapters.MessagesAdapter;
+import com.example.friendlychat.Adapters.MessagesListAdapter;
 import com.example.friendlychat.Module.FileUtil;
 import com.example.friendlychat.Module.FullImageData;
 import com.example.friendlychat.Module.Message;
@@ -97,7 +99,8 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
 
     // functionality
     private List<Message> messages;
-    private MessagesAdapter messagesAdapter;
+
+    private MessagesListAdapter messagesListAdapter;
     private String mUsername;
     // firestore to get the user state wheater they're active or not
     private FirebaseFirestore mFirebasestore;
@@ -148,6 +151,7 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        messages = new ArrayList<>();
         setHasOptionsMenu(true);
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
         /*firebase storage and its references*/
@@ -158,7 +162,7 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
         mFirebasestore = FirebaseFirestore.getInstance();
         /*app UI functionality*/
         mUsername = ANONYMOUS;
-        messages = new ArrayList<>();
+
         targetUserData = getArguments();
         FirebaseDatabase database = FirebaseDatabase.getInstance();
        if (targetUserData != null) {
@@ -209,8 +213,9 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
         mBinding.progressBar.setVisibility(ProgressBar.VISIBLE);
 
         /*implementing Messages Adapter for the RecyclerView*/
-        messagesAdapter = new MessagesAdapter(requireContext(), messages, this);
-        mBinding.messageRecyclerView.setAdapter(messagesAdapter);
+        /*messagesAdapter = new MessagesAdapter(requireContext(), messages, this);*/
+        messagesListAdapter = new MessagesListAdapter(messages, requireContext());
+        mBinding.messageRecyclerView.setAdapter(messagesListAdapter);
         mBinding.messageRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         // ImagePickerButton shows an image picker to upload a image for a message
         mBinding.photoPickerButton.setOnClickListener(v -> {
@@ -539,13 +544,14 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
         mBinding.progressBar.setVisibility(View.INVISIBLE);
         try {
             Message newMessage = value.getValue(Message.class);
-            if (!newMessage.getIsRead() && !newMessage.getSenderId().equals(currentUserId))
-                markMessageAsRead(value, newMessage);
+            assert newMessage != null;
             messages.add(newMessage);
             if (messages.size() > 0) {
                 Log.d(TAG, "addNewMessage: messges size is: " + messages.size());
-                messagesAdapter.notifyDataSetChanged();
+                messagesListAdapter.submitList(messages);
                 mBinding.messageRecyclerView.scrollToPosition(messages.size() - 1);
+                if (!newMessage.getIsRead() && !newMessage.getSenderId().equals(currentUserId))
+                    markMessageAsRead(value, newMessage);
             }
         }catch (Exception e){
             Log.d(TAG, "addNewMessage: exception " + e.getMessage());
@@ -555,6 +561,7 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
     private void markMessageAsRead(DataSnapshot snapshotMessageTobeUpdated, Message messageToUpdate) {
 
 
+        Log.d(TAG, "markMessageAsRead: ");
         String key = snapshotMessageTobeUpdated.getKey();
         Log.d(TAG, "markMessageAsRead: the key of the message to be updated is: " + key);
         Map<String, Object> originalMessage = messageToUpdate.toMap();
@@ -640,10 +647,12 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
                 for (DataSnapshot messageSnapShot : meessagesIterable) {
                     if (!messageSnapShot.getKey().equals("isWriting")) {
                         Message msg = messageSnapShot.getValue(Message.class);
+                        Log.d(TAG, "refreshData: isRead: " + msg.getIsRead());
                         messages.add(msg);
                     }
                 }
-                messagesAdapter.notifyDataSetChanged();
+                messagesListAdapter.submitList(messages);
+                messagesListAdapter.notifyDataSetChanged();
             });
         }catch (Exception e){
             Log.d(TAG, "refreshData: " +e.getMessage());
@@ -660,6 +669,7 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
 
         @Override
         public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+            Log.d(TAG, "onChildChanged: ");
             if (!snapshot.getKey().equals("isWriting"))
                 refreshData();
         }
