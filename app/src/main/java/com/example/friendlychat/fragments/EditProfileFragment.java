@@ -10,10 +10,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,15 +17,14 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
 import com.example.friendlychat.Module.FileUtil;
-import com.example.friendlychat.Module.Message;
 import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.R;
+import com.example.friendlychat.databinding.EditProfileFragmentBinding;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.DocumentReference;
@@ -62,7 +57,7 @@ public class EditProfileFragment extends Fragment {
                 }
             });
     private ActivityResultLauncher<String> choosePicture = registerForActivityResult(
-            new ActivityResultContracts.GetContent(){
+            new ActivityResultContracts.GetContent() {
                 @NonNull
                 @Override
                 public Intent createIntent(@NonNull Context context, @NonNull String input) {
@@ -72,7 +67,6 @@ public class EditProfileFragment extends Fragment {
             this::putIntoImage);
 
     private Uri imageUri;
-    private ImageView profile;
     private String photoUrl;
     private String userName;
     private String userStatus;
@@ -86,31 +80,22 @@ public class EditProfileFragment extends Fragment {
     private String userStatusAfterClick;
     private String userPhoneNumberAfterClick;
 
-    private View snackbarView;
     FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
 
-    private ProgressBar mHorizontalProgressBar;
     private boolean mOriginalUserPrivacyState; // the one which saved shared preferences and the server
     private boolean mDynamicPrivacyState; // this will be changed every tiem the user click on the two button above save button
-    // privacy buttons
-    private Button mPrivateButton;
-    private Button mPublicButton;
+
+    private EditProfileFragmentBinding mBinding;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.edit_profile_fragment, container, false);
-        profile = view.findViewById(R.id.editProfileImageVIew);
-        Toolbar toolbar = view.findViewById(R.id.toolbar_edit_profile);
-        toolbar.setNavigationOnClickListener(navigationClickListener -> {
-            Navigation.findNavController(view).navigateUp();
-        });
-        EditText userNameEditText = view.findViewById(R.id.editProfileEditTextUserName);
-        EditText statusEditText = view.findViewById(R.id.editProfileEditTextStatus);
-        EditText phoneNumberEditText = view.findViewById(R.id.editProfilePhoneNumber);
-        mHorizontalProgressBar = view.findViewById(R.id.editProfileHorizontalProgressBar);
-        mPrivateButton = view.findViewById(R.id.privateButton);
-        mPublicButton = view.findViewById(R.id.publicButton);
-        Button save = view.findViewById(R.id.editProfileSaveButton);
+        mBinding = EditProfileFragmentBinding.inflate(inflater, container, false);
+        View view = mBinding.getRoot();
+        mBinding.toolbarEditProfile.setNavigationOnClickListener(navigationClickListener ->
+                Navigation.findNavController(view).navigateUp()
+        );
+
         Bundle userData = getArguments();
 
         if (userData != null) {
@@ -120,26 +105,26 @@ public class EditProfileFragment extends Fragment {
             userPhoneNumber = userData.getString("phone_number");
             // populate the UI
             Picasso.get().load(photoUrl).placeholder(R.drawable.ic_round_person_24)
-                    .into(profile);
-            userNameEditText.setText(userName, TextView.BufferType.EDITABLE);
-            statusEditText.setText(userStatus, TextView.BufferType.EDITABLE);
-            phoneNumberEditText.setText(userPhoneNumber, TextView.BufferType.EDITABLE);
+                    .into(mBinding.editProfileImageVIew);
+            mBinding.editProfileEditTextUserName.setText(userName, TextView.BufferType.EDITABLE);
+            mBinding.editProfileEditTextStatus.setText(userStatus, TextView.BufferType.EDITABLE);
+            mBinding.editProfilePhoneNumber.setText(userPhoneNumber, TextView.BufferType.EDITABLE);
         }
 
         mOriginalUserPrivacyState = MessagesPreference.userIsPublic(requireContext());
         mDynamicPrivacyState = mOriginalUserPrivacyState;
         updateButtonBackground(mOriginalUserPrivacyState);
-        mPrivateButton.setOnClickListener(privateListener -> {
+        mBinding.privateButton.setOnClickListener(privateListener -> {
             mDynamicPrivacyState = false;
             updateButtonBackground(mDynamicPrivacyState);
         });
-        mPublicButton.setOnClickListener(publicListener -> {
+        mBinding.publicButton.setOnClickListener(publicListener -> {
             mDynamicPrivacyState = true;
             updateButtonBackground(mDynamicPrivacyState);
         });
 
         // invoke listeners
-        profile.setOnClickListener(profileImageListener -> {
+        mBinding.editProfileImageVIew.setOnClickListener(profileImageListener -> {
             if (ContextCompat.checkSelfPermission(
                     requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) ==
                     PackageManager.PERMISSION_GRANTED) {
@@ -149,85 +134,82 @@ public class EditProfileFragment extends Fragment {
                         Manifest.permission.READ_EXTERNAL_STORAGE);
             }
         });
-        save.setOnClickListener(saveListener -> {
-            mHorizontalProgressBar.setVisibility(View.VISIBLE);
+        mBinding.editProfileSaveButton.setOnClickListener(saveListener -> {
+            mBinding.editProfileHorizontalProgressBar.setVisibility(View.VISIBLE);
             // firstly save the image if the user choose a new one
 
             List<Map> fieldsToUpdate = new ArrayList<>();
-            userNameAfterClick = userNameEditText.getText().toString();
-            userStatusAfterClick = statusEditText.getText().toString();
-            userPhoneNumberAfterClick = phoneNumberEditText.getText().toString();
+            userNameAfterClick = mBinding.editProfileEditTextUserName.getText().toString();
+            userStatusAfterClick = mBinding.editProfileEditTextStatus.getText().toString();
+            userPhoneNumberAfterClick = mBinding.editProfilePhoneNumber.getText().toString();
             Log.d(TAG, "onCreateView: imageUrl: " + imageUri);
-            if (imageUri != null){
+            if (imageUri != null) {
                 checkIfUserSelectTheSameImageAndContinueIfNot();
             }
-            if (!userName.equals(userNameAfterClick)){
+            if (!userName.equals(userNameAfterClick)) {
                 Map<String, String> field = new HashMap<>();
                 field.put("userName", userNameAfterClick);
                 fieldsToUpdate.add(field);
             }
-            if (!userStatus.equals(statusEditText.getText().toString())){
+            if (!userStatus.equals(mBinding.editProfileEditTextStatus.getText().toString())) {
                 Map<String, String> field = new HashMap<>();
                 field.put("status", userStatusAfterClick);
                 fieldsToUpdate.add(field);
             }
-            if (!userPhoneNumber.equals(phoneNumberEditText.getText().toString())){
+            if (!userPhoneNumber.equals(mBinding.editProfilePhoneNumber.getText().toString())) {
                 Map<String, String> field = new HashMap<>();
                 field.put("phoneNumber", userPhoneNumberAfterClick);
                 fieldsToUpdate.add(field);
             }
 
-            if (mDynamicPrivacyState != mOriginalUserPrivacyState){
+            if (mDynamicPrivacyState != mOriginalUserPrivacyState) {
                 Map<String, Boolean> field = new HashMap<>();
                 field.put("isPublic", mDynamicPrivacyState);
                 fieldsToUpdate.add(field);
             }
-            if (fieldsToUpdate.size() == 0 && imageUri == null){
+            if (fieldsToUpdate.size() == 0 && imageUri == null) {
                 // there's no any change happened
-                mHorizontalProgressBar.setVisibility(View.GONE);
+                mBinding.editProfileHorizontalProgressBar.setVisibility(View.GONE);
                 Toast.makeText(requireActivity(), "There is no any change to be updated", Toast.LENGTH_SHORT).show();
-            }else {
+            } else {
 
                 DocumentReference documentReference =
                         mFirestore.collection("rooms").document(MessagesPreference.getUserId(requireContext()));
                 String[] keys = {"userName", "status", "phoneNumber", "isPublic"};
-                for (int i = 0; i < fieldsToUpdate.size(); i++)
-                {
+                for (int i = 0; i < fieldsToUpdate.size(); i++) {
                     Map field = fieldsToUpdate.get(i);
-                    for (String key : keys){
-                        if (field.containsKey(key)){
+                    for (String key : keys) {
+                        if (field.containsKey(key)) {
                             int finalI = i;
                             documentReference.update(key, field.get(key)).addOnSuccessListener(sl -> {
                                 // check if the this is the last updated item in  the list to hide the progress bar and show the result
-                               if (finalI == fieldsToUpdate.size() -1 && imageUri == null) {
-                                   mHorizontalProgressBar.setVisibility(View.GONE);
-                                   showSnackBar();
-                               }
-                           });
+                                if (finalI == fieldsToUpdate.size() - 1 && imageUri == null) {
+                                    mBinding.editProfileHorizontalProgressBar.setVisibility(View.GONE);
+                                    showSnackBar();
+                                }
+                            });
                             if (key.equals("isPublic")) {
                                 MessagesPreference.saveUserPrivacy(requireContext(), mDynamicPrivacyState);
                                 // update the original value to prevent overriding the same value
                                 mOriginalUserPrivacyState = mDynamicPrivacyState;
-                            }
-                            else
+                            } else
                                 updateLocalUserData(key, Objects.requireNonNull(field.get(key)).toString());
                         }
                     }
                 }
             }
         });
-        snackbarView =view;
+
         return view;
     }
 
     private void updateButtonBackground(boolean userIsPublic) {
         if (userIsPublic) {
-            mPublicButton.setBackgroundColor(requireContext().getResources().getColor(R.color.red));
-            mPrivateButton.setBackgroundColor(requireContext().getResources().getColor(R.color.darkerGray));
-        }
-        else {
-            mPublicButton.setBackgroundColor(requireContext().getResources().getColor(R.color.darkerGray));
-            mPrivateButton.setBackgroundColor(requireContext().getResources().getColor(R.color.red));
+            mBinding.publicButton.setBackgroundColor(requireContext().getResources().getColor(R.color.red));
+            mBinding.privateButton.setBackgroundColor(requireContext().getResources().getColor(R.color.darkerGray));
+        } else {
+            mBinding.publicButton.setBackgroundColor(requireContext().getResources().getColor(R.color.darkerGray));
+            mBinding.privateButton.setBackgroundColor(requireContext().getResources().getColor(R.color.red));
         }
     }
 
@@ -264,7 +246,7 @@ public class EditProfileFragment extends Fragment {
             imageNameInTheServer = storage.getReferenceFromUrl(photoUrl).getName();
             oldProfileReference = storage.getReferenceFromUrl(photoUrl);
             Log.d(TAG, "checkIfUserSelectTheSameImageAndContinueIfNot: image int the server is: " + imageNameInTheServer);
-        }catch (Exception e){
+        } catch (Exception e) {
             Log.d(TAG, "checkIfUserSelectTheSameImageAndContinueIfNot: " + e.getMessage());
         }
         String imageFromGalleryName = "";
@@ -276,27 +258,23 @@ public class EditProfileFragment extends Fragment {
             File compressedImageFile = new Compressor(requireContext()).compressToFile(galleryFile);
             compressedFile = compressedImageFile;
             imageFromGalleryName = compressedImageFile.getName();
-        }catch (IOException exc){
+        } catch (IOException exc) {
             Log.d(TAG, "checkIfTheUserSeletectTheSameImage: " + exc.getMessage());
         }
         // if there are not the same prepare the downloadable url
-        if (!imageFromGalleryName.equals(imageNameInTheServer)){
+        if (!imageFromGalleryName.equals(imageNameInTheServer)) {
             uploadImageToServer(compressedFile);
 
             // delete the old profile
             if (!imageNameInTheServer.equals("") && oldProfileReference != null)
                 deleteOldProfile(oldProfileReference);
-        }else
+        } else
             Log.d(TAG, "checkIfUserSelectTheSameImageAndContinueIfNot: the user seletect the same image");
 
     }
 
     private void deleteOldProfile(StorageReference profileRefToBeDeleted) {
-        profileRefToBeDeleted.delete().addOnSuccessListener(s -> {
-            Log.d(TAG, "deleteOldProfile: old profile deleted successfully");
-        }).addOnFailureListener(f -> {
-            Log.d(TAG, "deleteOldProfile: " + f.getMessage());
-        });
+        profileRefToBeDeleted.delete().addOnSuccessListener(s -> Log.d(TAG, "deleteOldProfile: old profile deleted successfully")).addOnFailureListener(f -> Log.d(TAG, "deleteOldProfile: " + f.getMessage()));
     }
 
     private void uploadImageToServer(File compressedFile) {
@@ -305,8 +283,8 @@ public class EditProfileFragment extends Fragment {
             StorageReference imageReference = profiles.child(compressedFile.toString());
             UploadTask uploadTask = imageReference.putFile(Uri.fromFile(compressedFile));
             uploadTask.addOnSuccessListener(successListener -> imageReference.getDownloadUrl().addOnSuccessListener(downloadUrlSuccessListener -> {
-               String newProfileUrl  = downloadUrlSuccessListener.toString();
-               saveDataInFirestore(newProfileUrl);
+                String newProfileUrl = downloadUrlSuccessListener.toString();
+                saveDataInFirestore(newProfileUrl);
                 Log.d(TAG, "uploadImageToServer: " + photoUrlToBeUpdated);
             })).addOnFailureListener(failureListener -> Log.d(TAG, "uploadImageToServer: " + failureListener.getMessage()));
         }
@@ -320,8 +298,8 @@ public class EditProfileFragment extends Fragment {
                 .document(MessagesPreference.getUserId(requireContext()))
                 .update("photoUrl", newProfileUrl)
                 .addOnSuccessListener(sListner -> {
-                        Log.d(TAG, "saveDataInFirestore: update new profile image successfully");
-                        mHorizontalProgressBar.setVisibility(View.GONE);
+                            Log.d(TAG, "saveDataInFirestore: update new profile image successfully");
+                            mBinding.editProfileHorizontalProgressBar.setVisibility(View.GONE);
                             showSnackBar();
                             imageUri = null;
                         }
@@ -330,7 +308,7 @@ public class EditProfileFragment extends Fragment {
     }
 
     private void showSnackBar() {
-        Snackbar.make(snackbarView, R.string.profile_updated_successully, BaseTransientBottomBar.LENGTH_SHORT)
+        Snackbar.make(mBinding.getRoot(), R.string.profile_updated_successully, BaseTransientBottomBar.LENGTH_SHORT)
                 .setAction(R.string.ok, sbl -> {
 
                 }).show();
@@ -343,8 +321,8 @@ public class EditProfileFragment extends Fragment {
     private void putIntoImage(Uri uri) {
         imageUri = uri;
         if (imageUri != null) {
-            Picasso.get().load(imageUri).fit().centerCrop().into(profile);
-        }else {
+            Picasso.get().load(imageUri).fit().centerCrop().into(mBinding.editProfileImageVIew);
+        } else {
             Toast.makeText(requireActivity(), "operation canceled", Toast.LENGTH_SHORT).show();
         }
     }
