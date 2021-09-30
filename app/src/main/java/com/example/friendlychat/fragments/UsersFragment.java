@@ -13,8 +13,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -22,7 +20,6 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
@@ -42,6 +39,7 @@ import com.example.friendlychat.Module.User;
 import com.example.friendlychat.Module.workers.ReadContactsWorker;
 import com.example.friendlychat.Module.workers.ReadDataFromServerWorker;
 import com.example.friendlychat.R;
+import com.example.friendlychat.databinding.UsersFragmentBinding;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
@@ -59,9 +57,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatClicked,
+public class UsersFragment extends Fragment implements ContactsAdapter.OnChatClicked,
         SharedPreferences.OnSharedPreferenceChangeListener {
     private static final String TAG = UsersFragment.class.getSimpleName();
+    private UsersFragmentBinding mBinding;
     private FirebaseAuth mAuth;
     private List<User> publicUsers;
     private List<User> contactUsers;
@@ -70,16 +69,14 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
     private FirebaseFirestore mFirestore;
     private NavController mNavController;
 
-    private ProgressBar mProgressBar;
-    private ImageView mFilterImageView;
     private List<String> mPhonNumbersFromServer = new ArrayList<>();
 
     private String[] serverPhoneNumbers;
-    private View snackbarView;
 
     // for WorkManager functionality
-    private  OneTimeWorkRequest contactsWork;
+    private OneTimeWorkRequest contactsWork;
     private WorkManager mWorkManager;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         setHasOptionsMenu(true);
@@ -93,6 +90,7 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
         mWorkManager = WorkManager.getInstance(requireContext());
         super.onCreate(savedInstanceState);
     }
+
     /* request permission*/
     private ActivityResultLauncher<String> requestPermissionToReadContacts =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
@@ -102,17 +100,19 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
                     Toast.makeText(requireContext(),
                             "In order to display for you the users that you might you" +
                                     "the app needs to read you contacts", Toast.LENGTH_LONG).show();
-                    mProgressBar.setVisibility(View.GONE);
+                    mBinding.loadUsersProgressBar.setVisibility(View.GONE);
                 }
             });
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        mBinding = UsersFragmentBinding.inflate(inflater, container, false);
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.VISIBLE);
-        View view =  inflater.inflate(R.layout.users_fragment, container, false);
 
-        mProgressBar = view.findViewById(R.id.loadUsersProgressBar);
-        if (publicUsers.size() == 0){
+        View view = mBinding.getRoot();
+
+        if (publicUsers.size() == 0) {
             // check for the contacts permission if it's granted or not
             if (ContextCompat.checkSelfPermission(
                     requireContext(), Manifest.permission.READ_CONTACTS) ==
@@ -124,27 +124,25 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
                             .build();
                     mWorkManager.enqueueUniqueWork("read_contacts_work", ExistingWorkPolicy.KEEP, contactsWork);
                     initializeUserAndData();
-                }else{
+                } else {
                     initializeDataDirectly(contacts);
                 }
 
-            }else{
+            } else {
                 requestPermissionToReadContacts.launch(Manifest.permission.READ_CONTACTS);
             }
-        }else{
-            mProgressBar.setVisibility(View.GONE);
+        } else {
+            mBinding.loadUsersProgressBar.setVisibility(View.GONE);
         }
 
 
         requireActivity().getSharedPreferences("filter_utils", Activity.MODE_PRIVATE).
                 registerOnSharedPreferenceChangeListener(this);
         mNavController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
-        Toolbar tb = view.findViewById(R.id.mainToolbar_frag);
         ((AppCompatActivity) requireActivity())
-                .setSupportActionBar(tb);
-        mFilterImageView = tb.findViewById(R.id.filterImageView);
+                .setSupportActionBar(mBinding.mainToolbarFrag);
         updateFilterImageResoucre();
-        mFilterImageView.setOnClickListener(filterListener -> {
+        mBinding.usersToolbar.filterImageView.setOnClickListener(filterListener -> {
 
             if (getFilterState())
                 FilterPreferenceUtils.disableUsersFilter(requireContext());
@@ -155,7 +153,6 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
         RecyclerView usersRecycler = view.findViewById(R.id.usersRecyclerView);
         usersRecycler.setAdapter(usersAdapter);
 
-        snackbarView = view;
         checkUserConnection();
         return view;
     }
@@ -173,20 +170,20 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
                     }
                     // even if the user's privacy is private they will be visible for the contacts, as the the user
                     // expects
-                    if (!userId.equals(currentId)){
+                    if (!userId.equals(currentId)) {
                         contactUsers.add(user);
                     }
                     String userPhoneNumber = user.getPhoneNumber();
                     Log.d(TAG, "initializeDataDirectly: user id from shared preferences" + currentId);
                     Log.d(TAG, "initializeDataDirectly: user id from server: " + currentId);
-                    for (String number: commonContacts) {
+                    for (String number : commonContacts) {
                         if (PhoneNumberUtils.compare(number, userPhoneNumber) && !currentId.equals(userId))
                             usersUserKnow.add(user);
                     }
                 }
             }
         }).addOnCompleteListener(comp -> {
-            mProgressBar.setVisibility(View.GONE);
+            mBinding.loadUsersProgressBar.setVisibility(View.GONE);
             if (getFilterState()) usersAdapter.setUsers(usersUserKnow);
             else usersAdapter.setUsers(publicUsers);
 
@@ -195,17 +192,18 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
 
     private void updateFilterImageResoucre() {
         if (getFilterState())
-            mFilterImageView.setImageResource(R.drawable.ic_filter_list_yellow_24);
+            mBinding.usersToolbar.filterImageView.setImageResource(R.drawable.ic_filter_list_yellow_24);
         else
-            mFilterImageView.setImageResource(R.drawable.ic_filter_list_24);
+            mBinding.usersToolbar.filterImageView.setImageResource(R.drawable.ic_filter_list_24);
     }
 
 
     @Override
     public void onDestroyView() {
+        super.onDestroyView();
         requireActivity().getSharedPreferences("filter_utils", Activity.MODE_PRIVATE).
                 unregisterOnSharedPreferenceChangeListener(this);
-        super.onDestroyView();
+        mBinding = null;
     }
 
     private void initializeUserAndData() {
@@ -223,7 +221,7 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
                     if (getFilterState()) usersAdapter.setUsers(usersUserKnow);
                     else usersAdapter.setUsers(publicUsers);
                 }).addOnFailureListener(exception -> Log.d(TAG, "initializeUserAndData: the exception in the new query caused by" +
-                        exception.getMessage()));
+                exception.getMessage()));
 
     }
 
@@ -266,7 +264,7 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
                             }
                         }
                         // hide the progress bar and hide the progress bar
-                        mProgressBar.setVisibility(View.GONE);
+                        mBinding.loadUsersProgressBar.setVisibility(View.GONE);
                         if (getFilterState())
                             usersAdapter.setUsers(usersUserKnow);
                         else
@@ -289,13 +287,13 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
                     }
                 }
                 assert currentUserId != null;
-                if (  !currentUserId.equals(user.getUserId())  && user.getIsPublic())
+                if (!currentUserId.equals(user.getUserId()) && user.getIsPublic())
                     publicUsers.add(user);
-                if ( !currentUserId.equals(user.getUserId()) )
+                if (!currentUserId.equals(user.getUserId()))
                     contactUsers.add(user);
             }
             serverPhoneNumbers = new String[mPhonNumbersFromServer.size()];
-            for (int i = 0 ; i < mPhonNumbersFromServer.size(); i++){
+            for (int i = 0; i < mPhonNumbersFromServer.size(); i++) {
                 serverPhoneNumbers[i] = mPhonNumbersFromServer.get(i);
             }
         }
@@ -313,20 +311,20 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
         String targetUserId;
         long lastTimeSeen;
 
-        if (getFilterState()){
-            targetUserName= usersUserKnow.get(position).getUserName();
-            photoUrl= usersUserKnow.get(position).getPhotoUrl();
-            targetUserEmail= usersUserKnow.get(position).getEmail();
-            userStatus= usersUserKnow.get(position).getStatus();
+        if (getFilterState()) {
+            targetUserName = usersUserKnow.get(position).getUserName();
+            photoUrl = usersUserKnow.get(position).getPhotoUrl();
+            targetUserEmail = usersUserKnow.get(position).getEmail();
+            userStatus = usersUserKnow.get(position).getStatus();
             targetUserId = usersUserKnow.get(position).getUserId();
-            lastTimeSeen= usersUserKnow.get(position).getLastTimeSeen();
-        }else{
-             targetUserName= publicUsers.get(position).getUserName();
-             photoUrl= publicUsers.get(position).getPhotoUrl();
-             targetUserEmail= publicUsers.get(position).getEmail();
-             userStatus= publicUsers.get(position).getStatus();
-             lastTimeSeen= publicUsers.get(position).getLastTimeSeen();
-             targetUserId = publicUsers.get(position).getUserId();
+            lastTimeSeen = usersUserKnow.get(position).getLastTimeSeen();
+        } else {
+            targetUserName = publicUsers.get(position).getUserName();
+            photoUrl = publicUsers.get(position).getPhotoUrl();
+            targetUserEmail = publicUsers.get(position).getEmail();
+            userStatus = publicUsers.get(position).getStatus();
+            lastTimeSeen = publicUsers.get(position).getLastTimeSeen();
+            targetUserId = publicUsers.get(position).getUserId();
         }
         Bundle primaryDataBundle = new Bundle();
         primaryDataBundle.putString("target_user_name", targetUserName);
@@ -343,7 +341,7 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
-        switch (id){
+        switch (id) {
             case R.id.sign_out:
                 mAuth.signOut();
                 Toast.makeText(requireContext(), "Signed out successfully", Toast.LENGTH_SHORT).show();
@@ -367,17 +365,17 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-       boolean activeFilter = sharedPreferences.getBoolean(key, true);
+        boolean activeFilter = sharedPreferences.getBoolean(key, true);
         Log.d(TAG, "onSharedPreferenceChanged: filter state: " + activeFilter);
         if (activeFilter) {
             usersAdapter.setUsers(usersUserKnow);
-        }else{
+        } else {
             usersAdapter.setUsers(publicUsers);
             Log.d(TAG, "onSharedPreferenceChanged: list of users size is: " + publicUsers.size());
         }
     }
 
-    private Boolean getFilterState () {
+    private Boolean getFilterState() {
         return FilterPreferenceUtils.isFilterActive(requireContext());
     }
 
@@ -392,7 +390,7 @@ public class UsersFragment extends Fragment implements  ContactsAdapter.OnChatCl
                     Log.d(TAG, "connected");
                 } else {
                     Log.d(TAG, "not connected");
-                    Snackbar.make(snackbarView, R.string.user_ofline_msg, BaseTransientBottomBar.LENGTH_LONG)
+                    Snackbar.make(mBinding.getRoot(), R.string.user_ofline_msg, BaseTransientBottomBar.LENGTH_LONG)
                             .setAnchorView(R.id.bottom_nav).show();
                 }
             }
