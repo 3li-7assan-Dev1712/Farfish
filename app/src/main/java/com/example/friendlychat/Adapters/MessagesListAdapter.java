@@ -7,7 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
@@ -23,7 +23,6 @@ import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -37,10 +36,18 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
     private List<Message> mMessages;
     private Context mContext;
 
-    public MessagesListAdapter(List<Message> messages, Context context) {
+    /* interface for listening to touching*/
+    public interface MessageClick {
+        void onMessageClick(View view, int position);
+    }
+
+    static MessagesListAdapter.MessageClick mMessageInterface;
+
+    public MessagesListAdapter(List<Message> messages, Context context, MessageClick messageClick) {
         super(MessagesListAdapter.Diff);
         this.mMessages = messages;
         this.mContext = context;
+        mMessageInterface = messageClick;
     }
 
 
@@ -149,9 +156,6 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
         public ReceivedMessageViewHolder(@NonNull MessageViewHolderBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
-            this.binding.photoImageView.setOnClickListener(view -> {
-                /*mMessageInterface.onMessageClick(view, getBindingAdapterPosition());*/
-            });
         }
 
         public void bind(Message message) {
@@ -171,11 +175,12 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
             super(binding.getRoot());
             this.binding = binding;
             binding.photoImageView.setOnClickListener(view -> {
-                /*mMessageInterface.onMessageClick(view, getBindingAdapterPosition());*/
+                mMessageInterface.onMessageClick(view, getBindingAdapterPosition());
             });
         }
 
         public void bind(Message message) {
+            ViewCompat.setTransitionName(binding.photoImageView, String.valueOf(message.getTimestamp()));
             binding.nameTextView.setText(message.getSenderName());
             Picasso.get().load(message.getPhotoUrl()).into(binding.photoImageView, new Callback() {
                 @Override
@@ -204,11 +209,12 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
             super(binding.getRoot());
             this.binding = binding;
             this.binding.photoImageView.setOnClickListener(view -> {
-                /*mMessageInterface.onMessageClick(view, getBindingAdapterPosition());*/
+                mMessageInterface.onMessageClick(view, getBindingAdapterPosition());
             });
         }
 
         public void bind(Message message) {
+            ViewCompat.setTransitionName(binding.photoImageView, String.valueOf(message.getTimestamp()));
             binding.nameTextView.setText(message.getSenderName());
             Picasso.get().load(message.getPhotoUrl()).into(binding.photoImageView, new Callback() {
                 @Override

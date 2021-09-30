@@ -214,7 +214,7 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
 
         /*implementing Messages Adapter for the RecyclerView*/
         /*messagesAdapter = new MessagesAdapter(requireContext(), messages, this);*/
-        messagesListAdapter = new MessagesListAdapter(messages, requireContext());
+        messagesListAdapter = new MessagesListAdapter(messages, requireContext(), this::onMessageClick);
         mBinding.messageRecyclerView.setAdapter(messagesListAdapter);
         mBinding.messageRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         // ImagePickerButton shows an image picker to upload a image for a message
@@ -618,7 +618,6 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
         /*imageView.setDrawingCacheEnabled(true);*/
         BitmapDrawable bitmapDrawable = (BitmapDrawable) imageView.getDrawable();
         Bitmap bitmap = bitmapDrawable.getBitmap();
-        // checking if the bitmap is correct first by the following code:
 
         /* after initializing these 3 arguments, let's use them*/
         FullImageData imageData = new FullImageData(senderName, formattedDate, bitmap);
