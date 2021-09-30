@@ -32,6 +32,7 @@ import com.example.friendlychat.Module.NotificationUtils;
 import com.example.friendlychat.Module.SharedPreferenceUtils;
 import com.example.friendlychat.Module.workers.CleanUpOldDataPeriodicWork;
 import com.example.friendlychat.R;
+import com.example.friendlychat.databinding.FragmentUserChatsBinding;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
@@ -56,7 +57,8 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
     private NavController mNavController;
     private String mCurrentUserId;
 
-    private ProgressBar mProgressBar;
+
+    private FragmentUserChatsBinding mBinding;
 
     public UserChatsFragment() {
         // Required empty public constructor
@@ -78,6 +80,7 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
     }
 
     private int tracker;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -85,13 +88,13 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
         requireActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.VISIBLE);
         Log.d(TAG, "onCreateView: ");
-        View view = inflater.inflate(R.layout.fragment_user_chats, container, false);
+        mBinding = FragmentUserChatsBinding.inflate(inflater, container, false);
+        View view = mBinding.getRoot();
         mCurrentUserId = MessagesPreference.getUserId(requireContext());
         Log.d(TAG, "onCreate: ");
         mCurrentUserRoomReference = FirebaseDatabase.getInstance().getReference("rooms")
                 .child(mCurrentUserId);
         mAuth = FirebaseAuth.getInstance();
-        mProgressBar = view.findViewById(R.id.userChatsProgressBar);
         tracker = 1;
         mNavController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         if (mAuth.getCurrentUser() == null) {
@@ -111,7 +114,7 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
         if (messages.size() == 0)
             initializeUserAndData();
         else
-            mProgressBar.setVisibility(View.GONE);
+            mBinding.userChatsProgressBar.setVisibility(View.GONE);
         checkUserConnection();
 
         return view;
@@ -186,8 +189,8 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
                 sendNotification(lastMessage);
             }
         }
-
-        mProgressBar.setVisibility(View.GONE);
+        if (mBinding != null)
+            mBinding.userChatsProgressBar.setVisibility(View.GONE);
         contactsAdapter.notifyDataSetChanged();
 
     }
@@ -199,11 +202,11 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
 
     @Override
     public void onDestroy() {
+        super.onDestroy();
         Log.d(TAG, "onDestroy: ");
         mCurrentUserRoomReference.removeEventListener(this);
-        tracker = 1;
-        super.onDestroy();
     }
+
 
     private void sendNotification(Message message) {
         if (tracker == 0) {
@@ -258,8 +261,10 @@ public class UserChatsFragment extends Fragment implements ContactsAdapter.OnCha
 
     @Override
     public void onDestroyView() {
-        tracker = 1;
         super.onDestroyView();
+        tracker = 1;
+        mBinding = null;
+
     }
 
 }

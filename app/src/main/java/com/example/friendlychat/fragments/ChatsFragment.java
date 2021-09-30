@@ -18,12 +18,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -38,7 +35,6 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.FragmentNavigator;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.aghajari.emojiview.view.AXEmojiPopupLayout;
 import com.aghajari.emojiview.view.AXEmojiView;
@@ -49,7 +45,8 @@ import com.example.friendlychat.Module.Message;
 import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.User;
 import com.example.friendlychat.R;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.example.friendlychat.databinding.ChatsFragmentBinding;
+import com.example.friendlychat.databinding.ToolbarConversationBinding;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.database.ChildEventListener;
@@ -72,10 +69,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 import id.zelory.compressor.Compressor;
 
 public class ChatsFragment extends Fragment implements MessagesAdapter.MessageClick{
+    // root class
+    private ChatsFragmentBinding mBinding;
+    private ToolbarConversationBinding mToolbarBinding;
     /*real time permission*/
     private ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
@@ -93,10 +94,7 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
     public static final String ANONYMOUS = "anonymous";
     // max number of characters with a single message.
     public static final int DEFAULT_MSG_LENGTH_LIMIT = 1000;
-    // views
-    private RecyclerView mMessageRecyclerView;
-    private EditText mMessageEditText;
-    private FloatingActionButton mSendButton;
+
     // functionality
     private List<Message> messages;
     private MessagesAdapter messagesAdapter;
@@ -105,10 +103,6 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
     private FirebaseFirestore mFirebasestore;
     // for sending and receiving photos
     private StorageReference mRootRef;
-    /*toolbar views to display target user info*/
-    private ImageView chat_image;
-    private TextView chat_title;
-    private TextView chat_last_seen;
     // this tracker is used to invoke the method of the realtime database to update the user is writing once
     private int tracker = 0;
 
@@ -127,10 +121,7 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
     private boolean isActive;
     private long lastTimeSeen;
     /*---------------------*/
-    /* progress bar to show loading of messages*/
-    private ProgressBar mProgressBar;
-    // ok this is a perfi
-    /*pick picture via calling picPic.launch() method*/
+
 
     // firebase realtime database
     private DatabaseReference mCurrentUserRoomReference;
@@ -140,8 +131,6 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
     private String currentUserName;
     private String currentPhotoUrl;
 
-
-    private View snackbarView;
     private ActivityResultLauncher<String> pickPic = registerForActivityResult(
             new ActivityResultContracts.GetContent(){
                 @NonNull
@@ -191,24 +180,23 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.chats_fragment, container, false);
+        mBinding = ChatsFragmentBinding.inflate(inflater, container, false);
+        View view = mBinding.getRoot();
         // listeners
         mCurrentRoomListener = new CurrentRoomListener();
         mTargetRoomListener = new TargettRoomListener();
          navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
-        Toolbar tb = view.findViewById(R.id.toolbar_frag);
+        Toolbar tb = mBinding.toolbarFrag;
         ((AppCompatActivity) requireActivity()).setSupportActionBar(tb);
-        
-        chat_image = view.findViewById(R.id.chat_conversation_profile);
-        chat_title = view.findViewById(R.id.chat_title);
-        chat_last_seen = view.findViewById(R.id.chat_last_seen);
+        mToolbarBinding = mBinding.toolbarTargetUserInfo;
+
         LinearLayout layout = view.findViewById(R.id.go_back);
         layout.setOnClickListener( v -> {
             Log.d(TAG, "onCreateView: navigate to the back stack through the navigation components");
             navController.navigateUp();
         });
-        LinearLayout targetUserLayout = view.findViewById(R.id.conversationToolbarUserInfo);
-        targetUserLayout.setOnClickListener(targetUserLayoutListener ->{
+
+        mToolbarBinding.conversationToolbarUserInfo.setOnClickListener(targetUserLayoutListener ->{
 
             Log.d(TAG, "onCreateView: target photo Url : " + targetUserData.getString("target_user_photo_url"));
             /*messages.clear();*/ // clean the list to ensure it will not contain duplicated data
@@ -217,20 +205,15 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
 
         });
         setChatInfo();
-        mMessageRecyclerView = view.findViewById(R.id.messageRecyclerView);
-        mProgressBar = view.findViewById(R.id.progressBar);
-        ImageButton mPhotoPickerButton = view.findViewById(R.id.photoPickerButton);
-        ImageButton emijiImageButton = view.findViewById(R.id.send_emoji_btn);
-        mMessageEditText = view.findViewById(R.id.messageEditText);
-        mSendButton = view.findViewById(R.id.sendButton);
-        mProgressBar.setVisibility(ProgressBar.VISIBLE);
+
+        mBinding.progressBar.setVisibility(ProgressBar.VISIBLE);
 
         /*implementing Messages Adapter for the RecyclerView*/
         messagesAdapter = new MessagesAdapter(requireContext(), messages, this);
-        mMessageRecyclerView.setAdapter(messagesAdapter);
-        mMessageRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        mBinding.messageRecyclerView.setAdapter(messagesAdapter);
+        mBinding.messageRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         // ImagePickerButton shows an image picker to upload a image for a message
-        mPhotoPickerButton.setOnClickListener(v -> {
+        mBinding.photoPickerButton.setOnClickListener(v -> {
             if (ContextCompat.checkSelfPermission(
                     requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) ==
                     PackageManager.PERMISSION_GRANTED) {
@@ -246,32 +229,32 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
         });
 
         AXEmojiView emojiView = new AXEmojiView(requireContext());
-        emojiView.setEditText(mMessageEditText);
+        emojiView.setEditText(mBinding.messageEditText);
         AXEmojiPopupLayout emojiPopupLayout = view.findViewById(R.id.emoji_keyboard_popup);
         emojiPopupLayout.initPopupView(emojiView);
         emojiPopupLayout.hideAndOpenKeyboard();
-        mMessageEditText.setOnClickListener( editTextView ->{
+        mBinding.messageEditText.setOnClickListener( editTextView ->{
             emojiPopupLayout.openKeyboard();
             emojiPopupLayout.setVisibility(View.GONE);
             Log.d(TAG, "onCreateView: mMessageEditTextClick");
             Toast.makeText(requireContext(), "click", Toast.LENGTH_SHORT).show();
         });
-        emijiImageButton.setOnClickListener(emojiPopupListener -> {
+        mBinding.sendEmojiBtn.setOnClickListener(emojiPopupListener -> {
             if (emojiPopupLayout.isShowing()) {
                 emojiPopupLayout.openKeyboard();
                 emojiPopupLayout.dismiss();
                 emojiPopupLayout.setVisibility(View.GONE);
-                emijiImageButton.setImageResource(R.drawable.ic_baseline_emoji_emotions_24_50_gray);
+                mBinding.sendEmojiBtn.setImageResource(R.drawable.ic_baseline_emoji_emotions_24_50_gray);
             }
             else {
                 emojiPopupLayout.setVisibility(View.VISIBLE);
                 emojiPopupLayout.show();
-                emijiImageButton.setImageResource(R.drawable.ic_baseline_keyboard_24);
+                mBinding.sendEmojiBtn.setImageResource(R.drawable.ic_baseline_keyboard_24);
             }
         });
 
         // Enable Send button when there's text to send
-        mMessageEditText.addTextChangedListener(new TextWatcher() {
+        mBinding.messageEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 Log.d(TAG, "beforeTextChanged");
@@ -281,9 +264,9 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 if (charSequence.toString().trim().length() > 0) {
-                    mSendButton.setEnabled(true);
+                    mBinding.sendButton.setEnabled(true);
                 } else {
-                    mSendButton.setEnabled(false);
+                    mBinding.sendButton.setEnabled(false);
                     setUserIsNotWriting();
                     tracker = 0;
                 }
@@ -294,9 +277,9 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
                 Log.d(TAG, "afterTextChanged");
             }
         });
-        mMessageEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(DEFAULT_MSG_LENGTH_LIMIT)});
+        mBinding.messageEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(DEFAULT_MSG_LENGTH_LIMIT)});
 
-        mSendButton.setOnClickListener( v -> {
+        mBinding.sendButton.setOnClickListener( v -> {
 
             long dateInLocalTime = System.currentTimeMillis();
             long dateFromDateClass = new Date().getTime();
@@ -312,7 +295,7 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
             Log.d(TAG, "Date in Local (Date().getTime()) " + sdf.format(dateFromDateClass));
 
 
-            String text = mMessageEditText.getText().toString();
+            String text = Objects.requireNonNull(mBinding.messageEditText.getText()).toString();
             Message currentUserMsg = new Message(text, "", dateFromDateClass, currentUserId, currentUserId,
                     mUsername, currentUserName, currentPhotoUrl, false);
             Message targetUserMsg = new Message(text, "", dateFromDateClass, currentUserId, targetUserId,
@@ -323,11 +306,8 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
         if (messages.size() == 0)
             initializeUserAndData();
         else
-            mProgressBar.setVisibility(View.GONE);
+            mBinding.progressBar.setVisibility(View.GONE);
 
-
-
-        snackbarView = view;
         checkUserConnection();
         return view;
     }
@@ -343,7 +323,7 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
                     Log.d(TAG, "connected");
                 } else {
                     Log.d(TAG, "not connected");
-                    Snackbar.make(snackbarView, R.string.user_ofline_msg, BaseTransientBottomBar.LENGTH_LONG).setAnchorView(R.id.linearLayout).show();
+                    Snackbar.make(mBinding.getRoot(), R.string.user_ofline_msg, BaseTransientBottomBar.LENGTH_LONG).setAnchorView(R.id.linearLayout).show();
                 }
             }
 
@@ -382,8 +362,8 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
             if (user != null) {
                 targetUserPhotoUrl = user.getPhotoUrl();
                 targetUserName = user.getUserName();
-                chat_title.setText(targetUserName);
-                Picasso.get().load(targetUserPhotoUrl).placeholder(R.drawable.ic_baseline_emoji_emotions_24).into(chat_image);
+                mToolbarBinding.chatTitle.setText(targetUserName);
+                Picasso.get().load(targetUserPhotoUrl).placeholder(R.drawable.ic_baseline_emoji_emotions_24).into(mToolbarBinding.chatConversationProfile);
                 isActive = user.getIsActive();
                 lastTimeSeen = user.getLastTimeSeen();
                 updateChatInfo();
@@ -434,13 +414,13 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
         Log.d(TAG, "updateChatInfo: ");
         if (getContext() != null){
             if (isWriting){
-                chat_last_seen.setText(getResources().getString(R.string.isWriting));
-                chat_last_seen.setTextColor(getResources().getColor(R.color.colorAccent));
+                mToolbarBinding.chatLastSeen.setText(getResources().getString(R.string.isWriting));
+                mToolbarBinding.chatLastSeen.setTextColor(getResources().getColor(R.color.colorAccent));
             }
             else if (isActive) {
 
-                chat_last_seen.setText(getResources().getString(R.string.online));
-                chat_last_seen.setTextColor(getResources().getColor(R.color.colorTitle));
+                mToolbarBinding.chatLastSeen.setText(getResources().getString(R.string.online));
+                mToolbarBinding.chatLastSeen.setTextColor(getResources().getColor(R.color.colorTitle));
             }
             else {
                 SimpleDateFormat df = new SimpleDateFormat("EEE, MMM d", Locale.getDefault());
@@ -448,7 +428,7 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
                 SimpleDateFormat df2 = new SimpleDateFormat("h:mm a", Locale.getDefault());
                 String text2 = df2.format(lastTimeSeen);
                 String lastTimeSeenToDisplay = lastTimeSeenText +", "+ text2;
-                chat_last_seen.setText(lastTimeSeenToDisplay);
+                mToolbarBinding.chatLastSeen.setText(lastTimeSeenToDisplay);
             }
         }
     }
@@ -509,17 +489,15 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        Log.d(TAG, "onDestroyView: "); // for logging
         // remove the listener when the view is no longer visilbe for the user
         mCurrentUserRoomReference.removeEventListener(mCurrentRoomListener);
         mTargetUserRoomReference.removeEventListener(mTargetRoomListener);
-        Log.d(TAG, "onDestroyView: ");
+       // clean up views
+        mBinding = null;
+        mToolbarBinding = null;
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        Log.d(TAG, "onDestroy: ");
-    }
 
     private void sendMessage(Message currentUserMsg, Message targetUserMsg) {
 
@@ -530,7 +508,7 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
         mCurrentUserRoomReference.child(key).setValue(targetUserMsg).addOnSuccessListener(success ->
                 mTargetUserRoomReference.child(key).setValue(currentUserMsg)).addOnFailureListener(exception ->
                 Log.d(TAG, "sendMessage: exception msg: " + exception.getMessage()));
-        mMessageEditText.setText("");
+        mBinding.messageEditText.setText("");
 
     }
 
@@ -549,7 +527,7 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
 
         mCurrentUserRoomReference.addChildEventListener(mCurrentRoomListener);
         mTargetUserRoomReference.addChildEventListener(mTargetRoomListener);
-        mProgressBar.setVisibility(View.GONE);
+        mBinding.progressBar.setVisibility(View.GONE);
     }
 
 
@@ -557,15 +535,17 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
     /* this method is used in two functionality, for getting all the messages from a special room
     * and for adding new messages as the user sends. */
     private void addNewMessage(DataSnapshot value) {
-        mProgressBar.setVisibility(View.INVISIBLE);
+        Log.d(TAG, "addNewMessage: ");
+        mBinding.progressBar.setVisibility(View.INVISIBLE);
         try {
             Message newMessage = value.getValue(Message.class);
             if (!newMessage.getIsRead() && !newMessage.getSenderId().equals(currentUserId))
                 markMessageAsRead(value, newMessage);
             messages.add(newMessage);
             if (messages.size() > 0) {
+                Log.d(TAG, "addNewMessage: messges size is: " + messages.size());
                 messagesAdapter.notifyDataSetChanged();
-                mMessageRecyclerView.scrollToPosition(messages.size() - 1);
+                mBinding.messageRecyclerView.scrollToPosition(messages.size() - 1);
             }
         }catch (Exception e){
             Log.d(TAG, "addNewMessage: exception " + e.getMessage());
@@ -601,7 +581,7 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
         int id = item.getItemId();
         switch (id) {
             case R.id.profile:
-                Toast.makeText(requireContext(), "Go to Profile", Toast.LENGTH_SHORT).show(); // will be implemented in the future
+                Navigation.findNavController(mBinding.getRoot()).navigate(R.id.action_chatsFragment_to_userProfileFragment, targetUserData);
                 break;
             case R.id.make_video_call:
             case R.id.make_normal_call:

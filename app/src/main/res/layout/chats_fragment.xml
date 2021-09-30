@@ -25,7 +25,9 @@
             app:contentInsetStart="0dp"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
 
-            <include layout="@layout/toolbar_conversation" />
+            <include
+                android:id="@+id/toolbarTargetUserInfo"
+                layout="@layout/toolbar_conversation" />
         </androidx.appcompat.widget.Toolbar>
 
     </com.google.android.material.appbar.AppBarLayout>
