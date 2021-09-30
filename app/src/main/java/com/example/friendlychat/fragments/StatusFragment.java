@@ -34,7 +34,7 @@ import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.SharedPreferenceUtils;
 import com.example.friendlychat.Module.Status;
 import com.example.friendlychat.R;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.example.friendlychat.databinding.StatusFragmentBinding;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -56,15 +56,15 @@ import java.util.Set;
 
 import id.zelory.compressor.Compressor;
 
-public class StatusFragment extends Fragment implements StatusAdapter.OnStatusClicked{
+public class StatusFragment extends Fragment implements StatusAdapter.OnStatusClicked {
 
-    private static final long MAX_STATUS_DURATION = 172800000; /*two days in milliseconds*/
+    // the root view
+    private StatusFragmentBinding mBinding;
     private static final String TAG = StatusFragment.class.getSimpleName();
-    private DatabaseReference mDatabaseReference  = FirebaseDatabase.getInstance().getReference("status");
-    private DatabaseReference mUserReference  = FirebaseDatabase.getInstance().getReference();
+    private DatabaseReference mDatabaseReference = FirebaseDatabase.getInstance().getReference("status");
+    private DatabaseReference mUserReference = FirebaseDatabase.getInstance().getReference();
     private StorageReference mRootRef;
     private NavController mNavController;
-
     private Set<String> mContact;
 
     /* request permission*/
@@ -73,13 +73,13 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
                 if (isGranted) {
                     // Permission is granted. Continue the action or workflow in your
                     // app.
-                   pickImageFromGallery();
+                    pickImageFromGallery();
                 } else {
                     Toast.makeText(requireContext(), "Ok, if you need to send images please grant the requested permission", Toast.LENGTH_SHORT).show();
                 }
             });
     private ActivityResultLauncher<String> selectImageToUpload = registerForActivityResult(
-            new ActivityResultContracts.GetContent(){
+            new ActivityResultContracts.GetContent() {
                 @NonNull
                 @Override
                 public Intent createIntent(@NonNull Context context, @NonNull String input) {
@@ -90,19 +90,27 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
 
     private List<List<Status>> mStatusLists = new ArrayList<>();
     private StatusAdapter mStatusAdapter;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        mRootRef = FirebaseStorage.getInstance().getReference("stories");
+        mUserReference = mDatabaseReference.child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid()));
+        mStatusAdapter = new StatusAdapter(requireContext(), mStatusLists, this);
+        super.onCreate(savedInstanceState);
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.status_fragment, container, false);
+        mBinding = StatusFragmentBinding.inflate(inflater, container, false);
+        View view = mBinding.getRoot();
         setHasOptionsMenu(true);
         mContact = MessagesPreference.getUserContacts(requireContext());
         mNavController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.VISIBLE);
         RecyclerView statusRecycler = view.findViewById(R.id.statusRecycler);
         statusRecycler.setAdapter(mStatusAdapter);
-        FloatingActionButton uploadImageFab = view.findViewById(R.id.uploadImageStatusFab);
-        uploadImageFab.setClickable(true);
-        uploadImageFab.setOnClickListener( uploadImage -> {
+        mBinding.uploadImageStatusFab.setOnClickListener(uploadImage -> {
 
             if (ContextCompat.checkSelfPermission(
                     requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) ==
@@ -117,9 +125,7 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
             }
         });
 
-        FloatingActionButton uploadTextFab = view.findViewById(R.id.uploadTextStatusFab);
-        uploadTextFab.setClickable(true);
-        uploadTextFab.setOnClickListener(v -> {
+        mBinding.uploadTextStatusFab.setOnClickListener(v -> {
             Toast.makeText(getActivity(), "Upload text as a status", Toast.LENGTH_SHORT).show();
             Navigation.findNavController(view).navigate(R.id.uploadTextStatusFragment);
         });
@@ -171,23 +177,7 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
         });
     }
 
-
-    private void removeOutDatedStatusWithText(DataSnapshot singleStatusSnapshot) {
-        singleStatusSnapshot.getRef().removeValue().addOnFailureListener(exception -> {
-            Toast.makeText(requireActivity(), "exception deleting text " + exception.getMessage(), Toast.LENGTH_SHORT).show();
-            Log.d(TAG, "removeOutDatedStatusWithText: exception" + exception.getMessage());
-        });
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        mRootRef = FirebaseStorage.getInstance().getReference("stories");
-        mUserReference = mDatabaseReference.child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid()));
-        mStatusAdapter = new StatusAdapter(requireContext(), mStatusLists, this);
-        super.onCreate(savedInstanceState);
-    }
-
-    private void putIntoImage(Uri uri)  {
+    private void putIntoImage(Uri uri) {
 
         if (uri != null) {
             try {
@@ -199,7 +189,7 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
                 // finally uploading the file to firebase storage.
                 UploadTask uploadTask = imageRef.putFile(Uri.fromFile(compressedImageFile));
 
-                 // Register observers to listen for when the download is done or if it fails
+                // Register observers to listen for when the download is done or if it fails
                 uploadTask.addOnFailureListener(exception -> {
                     // Handle unsuccessful uploads
                     Toast.makeText(requireContext(), "failed to set the image please try again later", Toast.LENGTH_SHORT).show();
@@ -212,8 +202,8 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
                         long dateFromDateClass = new Date().getTime();
                          /* if the image sent successfully to the firebase storage send its metadata as a message
                          to the firebase firestore */
-                         String uploaderName = MessagesPreference.getUserName(requireContext());
-                         String uploaderPhoneNumber = MessagesPreference.getUsePhoneNumber(requireContext());
+                        String uploaderName = MessagesPreference.getUserName(requireContext());
+                        String uploaderPhoneNumber = MessagesPreference.getUsePhoneNumber(requireContext());
                         Status newStatus = new Status(uploaderName, uploaderPhoneNumber, downloadUrl, "", dateFromDateClass, 0);
                         uploadNewStatus(newStatus);
                     });
@@ -225,7 +215,7 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
                 Toast.makeText(requireContext(), "Error occurs", Toast.LENGTH_SHORT).show();
             }
             // if the user hit the back button before choosing an image to send the code below will be executed.
-        }else{
+        } else {
             Toast.makeText(requireContext(), "canceled uploading new image", Toast.LENGTH_SHORT).show();
         }
 
@@ -247,10 +237,10 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
         // test story view library
         ArrayList<CustomStory> myStories = new ArrayList<>();
         for (Status status : userStatuses) {
-            myStories.add( new CustomStory(
+            myStories.add(new CustomStory(
                             status.getStatusImage(),
                             new Date(status.getTimestamp()),
-                    status.getStatusText()
+                            status.getStatusText()
                     )
             );
         }
@@ -267,7 +257,7 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
         FirebaseAuth auth = FirebaseAuth.getInstance();
-        switch (id){
+        switch (id) {
             case R.id.sign_out:
                 auth.signOut();
                 Toast.makeText(requireContext(), "Signed out successfully", Toast.LENGTH_SHORT).show();
@@ -287,5 +277,11 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         inflater.inflate(R.menu.main, menu);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mBinding = null;
     }
 }
