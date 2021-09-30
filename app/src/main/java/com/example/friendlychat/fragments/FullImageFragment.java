@@ -19,10 +19,12 @@ import androidx.navigation.Navigation;
 
 import com.example.friendlychat.Module.FullImageData;
 import com.example.friendlychat.R;
+import com.example.friendlychat.databinding.FullImageFragmentBinding;
 
 public class FullImageFragment extends Fragment {
     private FullImageData mFullImageData;
-    private View rootView;
+    private FullImageFragmentBinding mBinding;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
@@ -34,8 +36,8 @@ public class FullImageFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view =  inflater.inflate(R.layout.full_image_fragment, container, false);
-        rootView = view;
+        mBinding = FullImageFragmentBinding.inflate(inflater, container, false);
+        View view = mBinding.getRoot();
         ViewCompat.setTransitionName(view, "root_view_full_image_fragment");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             Transition transition = TransitionInflater.from(requireContext())
@@ -44,20 +46,19 @@ public class FullImageFragment extends Fragment {
             setSharedElementReturnTransition(transition);
         }
         Toolbar toolbar = view.findViewById(R.id.toolbar_full_image);
-        toolbar.setNavigationOnClickListener(navigationclickListener-> {
-           navigateBack();
-        });
+        toolbar.setNavigationOnClickListener(navigationclickListener -> navigateBack());
         ImageView fullImage = view.findViewById(R.id.full_bleed_image);
-        fullImage.setOnClickListener( v -> navigateBack());
+        fullImage.setOnClickListener(v -> navigateBack());
         if (mFullImageData != null) {
             toolbar.setTitle(mFullImageData.getSenderName());
             toolbar.setSubtitle(mFullImageData.getFormattedTime());
             fullImage.setImageBitmap(mFullImageData.getBitmap());
-        }else
+        } else
             Toast.makeText(requireContext(), "data is null", Toast.LENGTH_SHORT).show();
         return view;
     }
-    private void navigateBack(){
-        Navigation.findNavController(rootView).navigateUp();
+
+    private void navigateBack() {
+        Navigation.findNavController(mBinding.getRoot()).navigateUp();
     }
 }
