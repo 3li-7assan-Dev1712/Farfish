@@ -1,5 +1,7 @@
 package com.example.friendlychat.Module;
 
+import androidx.annotation.Nullable;
+
 import com.google.firebase.database.Exclude;
 
 import java.util.HashMap;
@@ -16,8 +18,6 @@ public class Message {
     private int newMessagesCount = 0;
 
 
-
-
     public Message() {
     }
 
@@ -26,7 +26,7 @@ public class Message {
         this.photoUrl = photoUrl;
         this.timestamp = timestamp;
         this.senderId = senderId;
-        this.targetId  = targetId;
+        this.targetId = targetId;
         this.senderName = senderName;
         this.targetName = targetName;
         this.targetPhotoUrl = targetPhotoUrl;
@@ -70,6 +70,7 @@ public class Message {
 
         return result;
     }
+
     public long getTimestamp() {
         return timestamp;
     }
@@ -115,8 +116,28 @@ public class Message {
         this.isRead = isRead;
     }
 
-    public boolean getIsRead () { return this.isRead; }
+    public boolean getIsRead() {
+        return this.isRead;
+    }
+
     public String getTargetId() {
         return targetId;
+    }
+
+
+    // check if the tow class are the same *_-
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        Message msg = (Message) obj;
+        assert msg != null;
+        return this.text.equals(msg.getText()) &&
+                this.photoUrl.equals(msg.getPhotoUrl()) &&
+                this.timestamp == msg.getTimestamp() &&
+                this.senderId.equals(msg.senderId) &&
+                this.targetId.equals(msg.targetId) &&
+                this.senderName.equals(msg.senderName) &&
+                this.targetName.equals(msg.targetName) &&
+                this.targetPhotoUrl.equals(msg.targetPhotoUrl) &&
+                this.isRead == msg.isRead;
     }
 }

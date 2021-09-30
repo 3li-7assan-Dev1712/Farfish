@@ -27,7 +27,8 @@
             android:adjustViewBounds="true"
             android:contentDescription="@string/message_image_des"
             android:maxWidth="300dp"
-            app:layout_constraintBottom_toBottomOf="@id/timeMessage"
+            android:minWidth="56dp"
+            android:minHeight="56dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/nameTextView"
             tools:src="@tools:sample/avatars" />
@@ -90,5 +91,14 @@
             android:visibility="gone"
             android:contentDescription="@string/image_button_description" />
 
+        <ProgressBar
+            android:id="@+id/receiveImageProgressBar"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
