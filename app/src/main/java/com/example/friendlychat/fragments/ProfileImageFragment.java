@@ -4,19 +4,12 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -29,11 +22,11 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import com.example.friendlychat.Module.FileUtil;
-import com.example.friendlychat.Module.Message;
 import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.SharedPreferenceUtils;
 import com.example.friendlychat.Module.User;
 import com.example.friendlychat.R;
+import com.example.friendlychat.databinding.ProfileImageFragmentBinding;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthEmailException;
@@ -54,9 +47,7 @@ import id.zelory.compressor.Compressor;
 
 public class ProfileImageFragment extends Fragment {
     private Uri imageUriFromGallery;
-    private ProgressBar mProgressBar;
-    private FrameLayout mBorder;
-    private EditText mStatusEditText;
+    private ProfileImageFragmentBinding mBinding;
     private static final String TAG = ProfileImageFragment.class.getSimpleName();
     private ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
@@ -76,25 +67,21 @@ public class ProfileImageFragment extends Fragment {
             },
             this::putIntoImage);
 
-    private ImageView mImageView;
     private String userId, userName, photoUrl, phoneNumber, email, password;
     private View snackBarView;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.profile_image_fragment, container, false);
+        mBinding = ProfileImageFragmentBinding.inflate(inflater, container, false);
+        View view = mBinding.getRoot();
         snackBarView = view;
-        mBorder = view.findViewById(R.id.profileImageFrameLayout);
-        mProgressBar = view.findViewById(R.id.progressBarProfileImage);
-        mStatusEditText = view.findViewById(R.id.editTextStatus);
         Bundle userData = getArguments();
         if (userData != null) {
             userName = userData.getString("userName");
             email = userData.getString("email");
             password = userData.getString("password");
         }
-        mImageView = view.findViewById(R.id.registerImage);
-        mImageView.setOnClickListener( imageListener -> {
+        mBinding.registerImage.setOnClickListener( imageListener -> {
             if (ContextCompat.checkSelfPermission(
                     requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) ==
                     PackageManager.PERMISSION_GRANTED) {
@@ -104,16 +91,15 @@ public class ProfileImageFragment extends Fragment {
                         Manifest.permission.READ_EXTERNAL_STORAGE);
             }
         });
-        EditText phoneNumberEditText = view.findViewById(R.id.profileImagePhoneNumber);
-        Button continueButton = view.findViewById(R.id.continueButton);
-        continueButton.setOnClickListener(continueButtonListener -> {
-            phoneNumber = phoneNumberEditText.getText().toString();
+
+        mBinding.continueButton.setOnClickListener(continueButtonListener -> {
+            phoneNumber = mBinding.profileImagePhoneNumber.getText().toString();
             if (imageUriFromGallery == null)
                 Toast.makeText(requireActivity(), "Please insert an image to continue", Toast.LENGTH_SHORT).show();
             else if (phoneNumber.equals(""))
                 Toast.makeText(requireContext(), "The phone number is the most signiticant field, insert it", Toast.LENGTH_SHORT).show();
             else {
-                mProgressBar.setVisibility(View.VISIBLE);
+                mBinding.progressBarProfileImage.setVisibility(View.VISIBLE);
                 saveUserDataAndNavigateToHomeScreen();
             }
         });
@@ -156,8 +142,8 @@ public class ProfileImageFragment extends Fragment {
     private void putIntoImage(Uri uri) {
         imageUriFromGallery = uri;
         if (imageUriFromGallery != null) {
-            mBorder.setBackground(requireContext().getResources().getDrawable(R.drawable.circle_background));
-            Picasso.get().load(uri).fit().centerCrop().into(mImageView);
+            mBinding.profileImageFrameLayout.setBackground(requireContext().getResources().getDrawable(R.drawable.circle_background));
+            Picasso.get().load(uri).fit().centerCrop().into(mBinding.registerImage);
 
         }
     }
@@ -199,7 +185,7 @@ public class ProfileImageFragment extends Fragment {
     }
     private void saveFinalData() {
         Log.d(TAG, "saveFinalData: photoUrl" + photoUrl);
-        String status = mStatusEditText.getText().toString();
+        String status = Objects.requireNonNull(mBinding.editTextStatus.getText()).toString();
         /*save user data to be used later*/
         MessagesPreference.saveUserStatus(requireContext(), status);
         MessagesPreference.saveUserPhotoUrl(requireContext(), photoUrl);
@@ -222,30 +208,28 @@ public class ProfileImageFragment extends Fragment {
 
 
     private void showSnackBarWithAction(int label, Exception exception){
-        mProgressBar.setVisibility(View.GONE);
+        mBinding.progressBarProfileImage.setVisibility(View.GONE);
         Snackbar snackbar = Snackbar.make(snackBarView, label, Snackbar.LENGTH_INDEFINITE);
         int action = R.string.return_fix;
         NavController controller = Navigation.findNavController(snackBarView);
         if (exception != null) {
             if (exception instanceof FirebaseAuthEmailException) {
-                snackbar.setAction(action, snackbarListener -> {
-                    controller.navigateUp();
-                });
+                snackbar.setAction(action, snackbarListener -> controller.navigateUp());
             } else if (exception instanceof FirebaseAuthWeakPasswordException) {
-                snackbar.setAction(action, snackbarListener -> {
-                    controller.navigateUp();
-                });
+                snackbar.setAction(action, snackbarListener -> controller.navigateUp());
             }else if (exception instanceof FirebaseAuthUserCollisionException){
                 action = R.string.sign_in;
-               snackbar.setAction(action, snackbarListener -> {
-                   controller.popBackStack(R.id.fragmentSignIn, false);
-               });
+               snackbar.setAction(action, snackbarListener -> controller.popBackStack(R.id.fragmentSignIn, false));
             }else {
-                snackbar.setAction(action, snackbarListener -> {
-                    controller.navigateUp();
-                });
+                snackbar.setAction(action, snackbarListener -> controller.navigateUp());
             }
         }
         snackbar.show();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mBinding = null;
     }
 }
