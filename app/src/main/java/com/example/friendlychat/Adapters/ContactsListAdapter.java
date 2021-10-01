@@ -1,6 +1,7 @@
 package com.example.friendlychat.Adapters;
 
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -12,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.friendlychat.Module.User;
 import com.example.friendlychat.databinding.ContactViewHolderBinding;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -55,7 +57,17 @@ public class ContactsListAdapter extends ListAdapter<User, ContactsListAdapter.C
         }
 
         public void bind(User user) {
-            Picasso.get().load(user.getPhotoUrl()).into(binding.profileImage);
+            Picasso.get().load(user.getPhotoUrl()).into(binding.profileImage, new Callback() {
+                @Override
+                public void onSuccess() {
+                    binding.progressImageIndicator.setVisibility(View.GONE);
+                }
+
+                @Override
+                public void onError(Exception e) {
+
+                }
+            });
             binding.personName.setText(user.getUserName());
             binding.lastMessage.setText(user.getStatus());
         }
