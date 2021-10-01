@@ -134,7 +134,7 @@
         style="?android:attr/progressBarStyleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="invisible"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="@id/frameLayout"
         app:layout_constraintEnd_toEndOf="@id/frameLayout"
         app:layout_constraintStart_toStartOf="@id/frameLayout"

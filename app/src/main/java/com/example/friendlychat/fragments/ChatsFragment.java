@@ -212,7 +212,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
 
         /*implementing Messages Adapter for the RecyclerView*/
         /*messagesAdapter = new MessagesAdapter(requireContext(), messages, this);*/
-        messagesListAdapter = new MessagesListAdapter(messages, requireContext(), this::onMessageClick);
+        messagesListAdapter = new MessagesListAdapter(messages, requireContext(), this::onMessageClick, false);
         mBinding.messageRecyclerView.setAdapter(messagesListAdapter);
         mBinding.messageRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         // ImagePickerButton shows an image picker to upload a image for a message

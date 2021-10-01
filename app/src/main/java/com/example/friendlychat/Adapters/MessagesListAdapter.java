@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.friendlychat.Module.Message;
 import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.R;
+import com.example.friendlychat.databinding.ContactViewHolderBinding;
 import com.example.friendlychat.databinding.LocalMessageViewHolderBinding;
 import com.example.friendlychat.databinding.MessageViewHolderBinding;
 import com.example.friendlychat.databinding.ReceiveImageViewHolderBinding;
@@ -32,9 +33,12 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
     private static final int USE_SEND_BACKGROUND = 1;
     private static final int USE_SEND_BACKGROUND_IMG = 2;
     private static final int USE_RECEIVE_BACKGROUND_IMG = 3;
+    private static final int USE_PARENT_VIEW_HOLDER = 4; // this will indicate for the UserContactsFragment's viewholders
 
     private List<Message> mMessages;
     private Context mContext;
+    // this boolean is for UserChatsFragment's ViewHolders
+    private boolean mIsGeneral;
 
     /* interface for listening to touching*/
     public interface MessageClick {
@@ -43,16 +47,19 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
 
     static MessagesListAdapter.MessageClick mMessageInterface;
 
-    public MessagesListAdapter(List<Message> messages, Context context, MessageClick messageClick) {
+    public MessagesListAdapter(List<Message> messages, Context context, MessageClick messageClick, boolean isGeneral) {
         super(MessagesListAdapter.Diff);
         this.mMessages = messages;
         this.mContext = context;
         mMessageInterface = messageClick;
+        this.mIsGeneral = isGeneral;
     }
 
 
     @Override
     public int getItemViewType(int position) {
+        if (mIsGeneral)
+            return USE_PARENT_VIEW_HOLDER;
         String senderId = mMessages.get(position).getSenderId();
         String photoUrl = mMessages.get(position).getPhotoUrl();
         if (mMessages == null) {
@@ -78,6 +85,10 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         switch (viewType) {
+            case USE_PARENT_VIEW_HOLDER:
+                ContactViewHolderBinding contactViewHolderBinding
+                        = ContactViewHolderBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
+                return new UserChatsViewHolder(contactViewHolderBinding);
             case USE_SEND_BACKGROUND:
                 LocalMessageViewHolderBinding localMessageViewHolderBinding
                         = LocalMessageViewHolderBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
@@ -106,6 +117,10 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         Message message = mMessages.get(position);
         switch (holder.getItemViewType()) {
+            case USE_PARENT_VIEW_HOLDER:
+                UserChatsViewHolder chatsViewHolder = (UserChatsViewHolder) holder;
+                chatsViewHolder.bind(message);
+                break;
             case USE_SEND_BACKGROUND:
                 LocalMessageViewHolder locaMessage = (LocalMessageViewHolder) holder;
                 locaMessage.bind(message);
@@ -228,6 +243,55 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
                 }
             });
             binding.timeMessage.setText(getReadableDate(message.getTimestamp()));
+        }
+
+    }
+
+    static class UserChatsViewHolder extends RecyclerView.ViewHolder {
+        private ContactViewHolderBinding binding;
+
+        public UserChatsViewHolder(ContactViewHolderBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
+            this.binding.getRoot().setOnClickListener(listener -> {
+                mMessageInterface.onMessageClick(listener, getBindingAdapterPosition());
+            });
+
+        }
+
+        public void bind(Message message) {
+            Picasso.get().load(message.getTargetPhotoUrl()).placeholder(R.drawable.place_holder).into(binding.profileImage, new Callback() {
+                @Override
+                public void onSuccess() {
+                    binding.progressImageIndicator.setVisibility(View.GONE);
+                }
+
+                @Override
+                public void onError(Exception e) {
+
+                }
+            });
+            binding.personName.setText(message.getTargetName());
+            if (!message.getText().equals(""))
+                binding.lastMessage.setText(message.getText());
+            else {
+                binding.lastMessage.setText(R.string.new_photo_view_holder);
+                /*at the first of the text set this drawable to indicate of new photo*/
+                binding.lastMessage.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                        R.drawable.ic_baseline_photo_camera_24,
+                        0,
+                        0,
+                        0
+                );
+            }
+            binding.lastMessageTime.setText(getReadableDate(message.getTimestamp()));
+            int newMessageNumber = message.getNewMessagesCount();
+            if (newMessageNumber > 0) {
+                binding.newMessageCountTextViewContainer.setVisibility(View.VISIBLE);
+                binding.newMessageCountTextView.setText(String.valueOf(newMessageNumber));
+                binding.lastMessage.setTextColor(binding.getRoot().getContext().getResources().getColor(R.color.colorPrimary));
+                binding.lastMessageTime.setTextColor(binding.getRoot().getContext().getResources().getColor(R.color.colorPrimary));
+            }
         }
 
     }
