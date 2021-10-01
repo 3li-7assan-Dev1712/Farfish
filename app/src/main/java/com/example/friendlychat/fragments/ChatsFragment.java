@@ -20,7 +20,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListAdapter;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -39,7 +38,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.aghajari.emojiview.view.AXEmojiPopupLayout;
 import com.aghajari.emojiview.view.AXEmojiView;
-import com.example.friendlychat.Adapters.MessagesAdapter;
 import com.example.friendlychat.Adapters.MessagesListAdapter;
 import com.example.friendlychat.Module.FileUtil;
 import com.example.friendlychat.Module.FullImageData;
@@ -75,7 +73,7 @@ import java.util.Objects;
 
 import id.zelory.compressor.Compressor;
 
-public class ChatsFragment extends Fragment implements MessagesAdapter.MessageClick{
+public class ChatsFragment extends Fragment implements MessagesListAdapter.MessageClick{
     // root class
     private ChatsFragmentBinding mBinding;
     private ToolbarConversationBinding mToolbarBinding;
