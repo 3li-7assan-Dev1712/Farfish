@@ -31,7 +31,7 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
 
-import com.example.friendlychat.Adapters.ContactsAdapter;
+import com.example.friendlychat.Adapters.ContactsListAdapter;
 import com.example.friendlychat.Module.FilterPreferenceUtils;
 import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.SharedPreferenceUtils;
@@ -57,7 +57,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-public class UsersFragment extends Fragment implements ContactsAdapter.OnChatClicked,
+public class UsersFragment extends Fragment implements ContactsListAdapter.OnChatClicked,
         SharedPreferences.OnSharedPreferenceChangeListener {
     private static final String TAG = UsersFragment.class.getSimpleName();
     private UsersFragmentBinding mBinding;
@@ -65,7 +65,8 @@ public class UsersFragment extends Fragment implements ContactsAdapter.OnChatCli
     private List<User> publicUsers;
     private List<User> contactUsers;
     private List<User> usersUserKnow;
-    private ContactsAdapter usersAdapter;
+    /*private ContactsAdapter usersAdapter;*/
+    private ContactsListAdapter mUserListAdapter;
     private FirebaseFirestore mFirestore;
     private NavController mNavController;
 
@@ -84,7 +85,8 @@ public class UsersFragment extends Fragment implements ContactsAdapter.OnChatCli
         publicUsers = new ArrayList<>();
         contactUsers = new ArrayList<>();
         usersUserKnow = new ArrayList<>();
-        usersAdapter = new ContactsAdapter(requireContext(), publicUsers, this);
+        /*usersAdapter = new ContactsAdapter(requireContext(), publicUsers, this);*/
+        mUserListAdapter = new ContactsListAdapter(this);
         /*firebase database & auth*/
         mAuth = FirebaseAuth.getInstance();
         mWorkManager = WorkManager.getInstance(requireContext());
@@ -151,7 +153,10 @@ public class UsersFragment extends Fragment implements ContactsAdapter.OnChatCli
             updateFilterImageResoucre();
         });
         RecyclerView usersRecycler = view.findViewById(R.id.usersRecyclerView);
-        usersRecycler.setAdapter(usersAdapter);
+        // migrating from the old normal RecyclerView adapter to the new ListRecyclerView Adapter (With ListAdapter)
+        // to get benefit from the DiffUtil class
+
+        usersRecycler.setAdapter(mUserListAdapter);
 
         checkUserConnection();
         return view;
@@ -184,8 +189,8 @@ public class UsersFragment extends Fragment implements ContactsAdapter.OnChatCli
             }
         }).addOnCompleteListener(comp -> {
             mBinding.loadUsersProgressBar.setVisibility(View.GONE);
-            if (getFilterState()) usersAdapter.setUsers(usersUserKnow);
-            else usersAdapter.setUsers(publicUsers);
+            if (getFilterState()) mUserListAdapter.submitList(usersUserKnow);
+            else mUserListAdapter.submitList(publicUsers);
 
         });
     }
@@ -218,8 +223,8 @@ public class UsersFragment extends Fragment implements ContactsAdapter.OnChatCli
                     fetchDataInUsersUserKnowList();
                     // save it in a SharedPreference
                     // check for the filter state then populate the ui
-                    if (getFilterState()) usersAdapter.setUsers(usersUserKnow);
-                    else usersAdapter.setUsers(publicUsers);
+                    if (getFilterState()) mUserListAdapter.submitList(usersUserKnow);
+                    else mUserListAdapter.submitList(publicUsers);
                 }).addOnFailureListener(exception -> Log.d(TAG, "initializeUserAndData: the exception in the new query caused by" +
                 exception.getMessage()));
 
@@ -266,9 +271,9 @@ public class UsersFragment extends Fragment implements ContactsAdapter.OnChatCli
                         // hide the progress bar and hide the progress bar
                         mBinding.loadUsersProgressBar.setVisibility(View.GONE);
                         if (getFilterState())
-                            usersAdapter.setUsers(usersUserKnow);
+                            mUserListAdapter.submitList(usersUserKnow);
                         else
-                            usersAdapter.setUsers(publicUsers);
+                            mUserListAdapter.submitList(publicUsers);
                     }
                 });
     }
@@ -368,9 +373,9 @@ public class UsersFragment extends Fragment implements ContactsAdapter.OnChatCli
         boolean activeFilter = sharedPreferences.getBoolean(key, true);
         Log.d(TAG, "onSharedPreferenceChanged: filter state: " + activeFilter);
         if (activeFilter) {
-            usersAdapter.setUsers(usersUserKnow);
+            mUserListAdapter.submitList(usersUserKnow);
         } else {
-            usersAdapter.setUsers(publicUsers);
+            mUserListAdapter.submitList(publicUsers);
             Log.d(TAG, "onSharedPreferenceChanged: list of users size is: " + publicUsers.size());
         }
     }
@@ -401,4 +406,14 @@ public class UsersFragment extends Fragment implements ContactsAdapter.OnChatCli
             }
         });
     }
+
+    /*
+     * that's it it's super easy to create and to migrate from normal Adapter into ListAdapter
+     * this functionality real give the app better performance and make even faster
+     *
+     * know it's time for testing
+     *
+     * It was Ali Hassan Ibrahim Alzubair
+     * Android Developer @farfish
+     * */
 }

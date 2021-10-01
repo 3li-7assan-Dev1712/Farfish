@@ -4,6 +4,8 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.AsyncListDiffer;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
@@ -17,17 +19,14 @@ import java.util.List;
 public class ContactsListAdapter extends ListAdapter<User, ContactsListAdapter.ContactsViewHolder> {
 
 
-    private List<User> mUsers;
-
     public interface OnChatClicked {
         void onChatClicked(int position);
     }
 
     private static OnChatClicked onChatClicked;
 
-    public ContactsListAdapter(List<User> users, OnChatClicked pOnChatClicked) {
+    public ContactsListAdapter(OnChatClicked pOnChatClicked) {
         super(Diff);
-        this.mUsers = users;
         onChatClicked = pOnChatClicked;
     }
 
@@ -41,9 +40,10 @@ public class ContactsListAdapter extends ListAdapter<User, ContactsListAdapter.C
 
     @Override
     public void onBindViewHolder(@NonNull ContactsViewHolder holder, int position) {
-        User user = mUsers.get(position);
+        User user = mDiffer.getCurrentList().get(position);
         holder.bind(user);
     }
+
 
     static class ContactsViewHolder extends RecyclerView.ViewHolder {
         private ContactViewHolderBinding binding;
@@ -72,4 +72,17 @@ public class ContactsListAdapter extends ListAdapter<User, ContactsListAdapter.C
             return oldItem.equals(newItem);
         }
     };
+
+    // significant attribute to hunt the difference between two lists on a background thread
+    private final AsyncListDiffer<User> mDiffer = new AsyncListDiffer<>(this, Diff);
+
+    @Override
+    public int getItemCount() {
+        return mDiffer.getCurrentList().size();
+    }
+
+    @Override
+    public void submitList(@Nullable List<User> list) {
+        mDiffer.submitList(list);
+    }
 }
