@@ -4,6 +4,8 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -122,7 +124,11 @@ public class EditProfileFragment extends Fragment {
             mDynamicPrivacyState = true;
             updateButtonBackground(mDynamicPrivacyState);
         });
-
+        // connection check
+        ConnectivityManager cm = (ConnectivityManager) requireContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+        InternetConnectionDialog internetDialog = new InternetConnectionDialog();
         // invoke listeners
         mBinding.editProfileImageVIew.setOnClickListener(profileImageListener -> {
             if (ContextCompat.checkSelfPermission(
@@ -135,6 +141,10 @@ public class EditProfileFragment extends Fragment {
             }
         });
         mBinding.editProfileSaveButton.setOnClickListener(saveListener -> {
+            if (!isConnected) {
+                internetDialog.show(requireActivity().getSupportFragmentManager(), "internet_alert");
+                return;
+            }
             mBinding.editProfileHorizontalProgressBar.setVisibility(View.VISIBLE);
             // firstly save the image if the user choose a new one
 

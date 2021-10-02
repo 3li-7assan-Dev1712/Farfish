@@ -1,5 +1,9 @@
 package com.example.friendlychat.Module;
 
+import android.telephony.PhoneNumberUtils;
+
+import androidx.annotation.Nullable;
+
 public class User {
     private String userName, email, phoneNumber, photoUrl, userId, status;
     private boolean isActive, isPublic;
@@ -81,7 +85,23 @@ public class User {
     }
 
     public boolean getIsPublic(){ return this.isPublic; }
+
     public String getEmail() {
         return email;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        User user = (User) obj;
+        assert user != null;
+        return this.userName.equals(user.getUserName()) &&
+                this.email.equals(user.getEmail()) &&
+                PhoneNumberUtils.compare(this.phoneNumber, user.getPhoneNumber()) &&
+                this.photoUrl.equals(user.getPhotoUrl()) &&
+                this.userId.equals(user.getUserId()) &&
+                this.status.equals(user.getStatus()) &&
+                this.isActive == user.getIsActive() &&
+                this.isPublic == user.getIsPublic() &&
+                this.lastTimeSeen == user.getLastTimeSeen();
     }
 }

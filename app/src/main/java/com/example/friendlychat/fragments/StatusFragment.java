@@ -4,6 +4,8 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.telephony.PhoneNumberUtils;
@@ -126,8 +128,9 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
         });
 
         mBinding.uploadTextStatusFab.setOnClickListener(v -> {
-            Toast.makeText(getActivity(), "Upload text as a status", Toast.LENGTH_SHORT).show();
-            Navigation.findNavController(view).navigate(R.id.uploadTextStatusFragment);
+            // prevent the user from uploading new statues if they are not connected to the internet *_-
+            if (!getInternetState()) new InternetConnectionDialog().show(requireActivity().getSupportFragmentManager(), "internet_alert");
+            else Navigation.findNavController(view).navigate(R.id.uploadTextStatusFragment);
         });
         listenToUpComingStatus();
         return view;
@@ -226,9 +229,15 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
     }
 
     private void pickImageFromGallery() {
-        selectImageToUpload.launch("image/*");
+        if (!getInternetState()) new InternetConnectionDialog().show(requireActivity().getSupportFragmentManager(), "internet_alert");
+        else selectImageToUpload.launch("image/*");
     }
 
+    public boolean getInternetState () {
+        ConnectivityManager cm = (ConnectivityManager) requireContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+    }
     @Override
     public void onStatusClicked(int position) {
         Log.d(TAG, "onStatusClicked: Ok, will be completed soon");

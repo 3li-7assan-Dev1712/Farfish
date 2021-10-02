@@ -4,6 +4,8 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -91,13 +93,18 @@ public class ProfileImageFragment extends Fragment {
                         Manifest.permission.READ_EXTERNAL_STORAGE);
             }
         });
-
+        // for checking internet connection
+        ConnectivityManager cm = (ConnectivityManager) requireContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+        InternetConnectionDialog internetDialog = new InternetConnectionDialog();
         mBinding.continueButton.setOnClickListener(continueButtonListener -> {
             phoneNumber = mBinding.profileImagePhoneNumber.getText().toString();
             if (imageUriFromGallery == null)
-                Toast.makeText(requireActivity(), "Please insert an image to continue", Toast.LENGTH_SHORT).show();
-            else if (phoneNumber.equals(""))
-                Toast.makeText(requireContext(), "The phone number is the most signiticant field, insert it", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireActivity(), getString(R.string.img_required_msg), Toast.LENGTH_SHORT).show();
+            else if (phoneNumber.equals("") || phoneNumber.length() > 10)
+                Toast.makeText(requireContext(), getString(R.string.phone_number_required_msg), Toast.LENGTH_SHORT).show();
+            else if (!isConnected) internetDialog.show(requireActivity().getSupportFragmentManager(), "internet_alert");
             else {
                 mBinding.progressBarProfileImage.setVisibility(View.VISIBLE);
                 saveUserDataAndNavigateToHomeScreen();

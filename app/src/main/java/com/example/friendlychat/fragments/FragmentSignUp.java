@@ -43,7 +43,7 @@ public class FragmentSignUp extends Fragment implements TermsAndConditionsDialog
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mBinding = FragmentSignUpBinding.inflate(inflater, container, false);
         View view = mBinding.getRoot();
-        mNavController = Navigation.findNavController(view);
+        mNavController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         mBinding.toolbarSignUp.setNavigationOnClickListener( navigationIcon -> {
             navigateUp(); // navigate back using the navigation icon
         });

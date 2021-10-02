@@ -9,6 +9,7 @@
     android:paddingStart="16dp"
     android:paddingEnd="16dp">
 
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/messageLayout"
         android:layout_width="wrap_content"
@@ -21,11 +22,15 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+
         <ImageView
             android:id="@+id/photoImageView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="2dp"
+            android:maxWidth="300dp"
+            android:minHeight="56dp"
+            android:minWidth="56dp"
             android:adjustViewBounds="true"
             android:contentDescription="@string/message_image_des"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -89,6 +94,18 @@
                 android:contentDescription="@string/image_button_description"
                 android:src="@drawable/ic_done_all_black" />
 
+
         </RelativeLayout>
+
+        <ProgressBar
+            android:id="@+id/sendImageProgressBar"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
