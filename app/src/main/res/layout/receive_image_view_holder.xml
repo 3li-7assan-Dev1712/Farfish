@@ -60,8 +60,8 @@
         <FrameLayout
             android:layout_width="96dp"
             android:layout_height="32dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/photoImageView"
+            app:layout_constraintEnd_toEndOf="@id/photoImageView"
             >
             <View
                 android:layout_width="match_parent"

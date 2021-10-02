@@ -132,7 +132,7 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
         switch (id) {
             case R.id.sign_out:
                 mAuth.signOut();
-                Toast.makeText(requireContext(), "Signed out successfully", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), getString(R.string.sign_out_msg), Toast.LENGTH_SHORT).show();
                 SharedPreferenceUtils.saveUserSignOut(requireContext());
                 messages.clear();
                 onDestroy();
@@ -218,7 +218,7 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
                     Log.d(TAG, "connected");
                 } else {
                     Log.d(TAG, "not connected");
-                    Snackbar.make(requireActivity().findViewById(R.id.bottom_nav), R.string.user_ofline_msg, BaseTransientBottomBar.LENGTH_LONG)
+                    Snackbar.make(requireActivity().findViewById(R.id.bottom_nav), R.string.user_offline_msg, BaseTransientBottomBar.LENGTH_LONG)
                             .setAnchorView(R.id.bottom_nav).show();
                 }
             }

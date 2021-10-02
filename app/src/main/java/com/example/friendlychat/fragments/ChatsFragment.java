@@ -87,7 +87,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
                     // app.
                     pickImageFromGallery();
                 } else {
-                    Toast.makeText(requireContext(), "Ok, if you need to send images please grant the requested permission", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), requireContext().getString(R.string.grant_access_media_permission), Toast.LENGTH_SHORT).show();
                 }
             });
     /*TAG for logging*/
@@ -245,7 +245,6 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
             emojiPopupLayout.openKeyboard();
             emojiPopupLayout.setVisibility(View.GONE);
             Log.d(TAG, "onCreateView: mMessageEditTextClick");
-            Toast.makeText(requireContext(), "click", Toast.LENGTH_SHORT).show();
         });
         mBinding.sendEmojiBtn.setOnClickListener(emojiPopupListener -> {
             if (emojiPopupLayout.isShowing()) {
@@ -334,7 +333,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
                         Log.d(TAG, "connected");
                     } else {
                         Log.d(TAG, "not connected");
-                        Snackbar.make(mBinding.getRoot(), R.string.user_ofline_msg, BaseTransientBottomBar.LENGTH_LONG).setAnchorView(R.id.linearLayout).show();
+                        Snackbar.make(mBinding.getRoot(), R.string.user_offline_msg, BaseTransientBottomBar.LENGTH_LONG).setAnchorView(R.id.linearLayout).show();
                     }
                 }else Log.d(TAG, "onDataChange: object is null");
             }
@@ -461,11 +460,10 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
                 // Register observers to listen for when the download is done or if it fails
                 uploadTask.addOnFailureListener(exception -> {
                     // Handle unsuccessful uploads
-                    Toast.makeText(requireContext(), "failed to set the image please try again later", Toast.LENGTH_SHORT).show();
                 }).addOnSuccessListener(taskSnapshot -> {
                     // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
                     // ...
-                    Toast.makeText(getContext(), "Added image to Storage successfully", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), requireContext().getString(R.string.sending_img_msg), Toast.LENGTH_SHORT).show();
                     imageRef.getDownloadUrl().addOnSuccessListener(downloadUri -> {
                         Log.d(TAG, downloadUri.toString());
                         Log.d(TAG, String.valueOf(downloadUri));
@@ -489,7 +487,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
             }
             // if the user hit the back button before choosing an image to send the code below will be executed.
         } else {
-            Toast.makeText(requireContext(), "Sending image operation canceled", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), requireContext().getString(R.string.cancel_sending_img), Toast.LENGTH_SHORT).show();
         }
 
     }
@@ -619,7 +617,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
     }
 
     private void displayFutureFeature() {
-        Toast.makeText(requireContext(), "This feature wil be added the next next version of the app", Toast.LENGTH_SHORT).show();
+        Toast.makeText(requireContext(),requireContext().getString(R.string.future_msg), Toast.LENGTH_SHORT).show();
     }
 
     @Override

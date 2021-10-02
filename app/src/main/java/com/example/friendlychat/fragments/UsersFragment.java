@@ -100,8 +100,7 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
                     initializeUserAndData();
                 } else {
                     Toast.makeText(requireContext(),
-                            "In order to display for you the users that you might you" +
-                                    "the app needs to read you contacts", Toast.LENGTH_LONG).show();
+                            getString(R.string.access_contacts_permission_msg), Toast.LENGTH_LONG).show();
                     mBinding.loadUsersProgressBar.setVisibility(View.GONE);
                 }
             });
@@ -349,7 +348,7 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
         switch (id) {
             case R.id.sign_out:
                 mAuth.signOut();
-                Toast.makeText(requireContext(), "Signed out successfully", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), requireContext().getString(R.string.sign_out_msg), Toast.LENGTH_SHORT).show();
                 SharedPreferenceUtils.saveUserSignOut(requireContext());
                 mNavController.navigate(R.id.action_usersFragment_to_fragmentSignIn);
                 break;
@@ -395,7 +394,7 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
                     Log.d(TAG, "connected");
                 } else {
                     Log.d(TAG, "not connected");
-                    Snackbar.make(mBinding.getRoot(), R.string.user_ofline_msg, BaseTransientBottomBar.LENGTH_LONG)
+                    Snackbar.make(mBinding.getRoot(), R.string.user_offline_msg, BaseTransientBottomBar.LENGTH_LONG)
                             .setAnchorView(R.id.bottom_nav).show();
                 }
             }

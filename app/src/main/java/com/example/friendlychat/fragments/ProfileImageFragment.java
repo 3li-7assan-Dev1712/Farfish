@@ -56,7 +56,7 @@ public class ProfileImageFragment extends Fragment {
                 if (isGranted) {
                     pickImageFromGallery();
                 } else {
-                    Toast.makeText(requireContext(), "Ok, if you need to send images please grant the requested permission", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), getString(R.string.grant_access_media_permission), Toast.LENGTH_SHORT).show();
                 }
             });
     private ActivityResultLauncher<String> choosePicture = registerForActivityResult(
@@ -137,8 +137,8 @@ public class ProfileImageFragment extends Fragment {
                     showSnackBarWithAction(R.string.wrong_email, generalException);
                 }
             });
-        }else
-            Toast.makeText(requireActivity(), "you email is null", Toast.LENGTH_SHORT).show();
+        }
+
 
     }
 
@@ -182,7 +182,6 @@ public class ProfileImageFragment extends Fragment {
         } catch (IOException e) {
             e.printStackTrace();
             Log.d(TAG, "Error compressing the file");
-            Toast.makeText(requireContext(), "Error occurs", Toast.LENGTH_SHORT).show();
         }
     }
 

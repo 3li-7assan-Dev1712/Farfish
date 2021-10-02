@@ -11,6 +11,7 @@ import androidx.lifecycle.ProcessLifecycleOwner;
 
 import com.aghajari.emojiview.AXEmojiManager;
 import com.aghajari.emojiview.iosprovider.AXIOSEmojiProvider;
+import com.example.friendlychat.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -18,8 +19,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.Date;
 
 /* In my chat app I want to know when the user close the app (navigate to another app, or
-* go the home screen so I can save their last time activation my firestore server,
-* this class demonstrates the process*/
+ * go the home screen so I can save their last time activation my firestore server,
+ * this class demonstrates the process*/
 
 public class AppStateDetector extends androidx.multidex.MultiDexApplication implements
         LifecycleObserver, SharedPreferences.OnSharedPreferenceChangeListener {
@@ -47,17 +48,16 @@ public class AppStateDetector extends androidx.multidex.MultiDexApplication impl
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     public void started() {
         Log.d("SampleLifeCycle", "ON_START");
-        Toast.makeText(this, "Welcome back", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, getString(R.string.return_greet_msg), Toast.LENGTH_SHORT).show();
         makeUserActive();
     }
-
 
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     public void stopped() {
         getSharedPreferences("user_state", MODE_PRIVATE).unregisterOnSharedPreferenceChangeListener(this);
         Log.d("SampleLifeCycle", "ON_STOP");
-        Toast.makeText(this, "Goodbye", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, getString(R.string.leave_greet_msg), Toast.LENGTH_SHORT).show();
         makeUserInActive();
     }
 
@@ -73,7 +73,6 @@ public class AppStateDetector extends androidx.multidex.MultiDexApplication impl
                                 "lastTimeSeen", lastTimeSeen
                         ).addOnSuccessListener(aVoid -> {
                     Log.d(TAG, "made user inactive");
-                    Toast.makeText(this, "User inactivated successfully", Toast.LENGTH_SHORT).show();
                 });
             }
         }
@@ -86,9 +85,8 @@ public class AppStateDetector extends androidx.multidex.MultiDexApplication impl
                 mFirestore.collection("rooms").document(userId)
                         .update("isActive", true).addOnCompleteListener(task -> {
                     Log.d(TAG, "made user active");
-                    Toast.makeText(this, "User activated successfully", Toast.LENGTH_SHORT).show();
                 });
-            }else
+            } else
                 Toast.makeText(this, "user id is null", Toast.LENGTH_SHORT).show();
         }
     }
@@ -113,7 +111,6 @@ public class AppStateDetector extends androidx.multidex.MultiDexApplication impl
             Toast.makeText(this, "successfully done!", Toast.LENGTH_SHORT).show();
         });
     }
-
 
 
 }

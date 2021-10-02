@@ -55,7 +55,7 @@ public class EditProfileFragment extends Fragment {
                 if (isGranted) {
                     pickImageFromGallery();
                 } else {
-                    Toast.makeText(requireContext(), "Ok, if you need to send images please grant the requested permission", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), requireContext().getString(R.string.grant_access_media_permission),Toast.LENGTH_SHORT).show();
                 }
             });
     private ActivityResultLauncher<String> choosePicture = registerForActivityResult(
@@ -180,7 +180,7 @@ public class EditProfileFragment extends Fragment {
             if (fieldsToUpdate.size() == 0 && imageUri == null) {
                 // there's no any change happened
                 mBinding.editProfileHorizontalProgressBar.setVisibility(View.GONE);
-                Toast.makeText(requireActivity(), "There is no any change to be updated", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireActivity(), requireContext().getString(R.string.no_update_happened_msg), Toast.LENGTH_SHORT).show();
             } else {
 
                 DocumentReference documentReference =
@@ -278,8 +278,11 @@ public class EditProfileFragment extends Fragment {
             // delete the old profile
             if (!imageNameInTheServer.equals("") && oldProfileReference != null)
                 deleteOldProfile(oldProfileReference);
-        } else
-            Log.d(TAG, "checkIfUserSelectTheSameImageAndContinueIfNot: the user seletect the same image");
+        } else {
+            Log.d(TAG, "checkIfUserSelectTheSameImageAndContinueIfNot: the user select the same image");
+            Snackbar.make(mBinding.getRoot(), R.string.same_img_msg, BaseTransientBottomBar.LENGTH_LONG).show();
+            mBinding.editProfileHorizontalProgressBar.setVisibility(View.GONE);
+        }
 
     }
 
@@ -333,7 +336,7 @@ public class EditProfileFragment extends Fragment {
         if (imageUri != null) {
             Picasso.get().load(imageUri).fit().centerCrop().into(mBinding.editProfileImageVIew);
         } else {
-            Toast.makeText(requireActivity(), "operation canceled", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireActivity(), requireContext().getString(R.string.grant_access_media_permission), Toast.LENGTH_SHORT).show();
         }
     }
 }

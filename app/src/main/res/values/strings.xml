@@ -5,19 +5,19 @@
     <string name="edit_text_hint">Type a message…</string>
     <string name="sign_out">Sign Out</string>
     <string name="menu_action">always</string>
-    <string name="message_image_des">Image to be sent to users</string>
-    <string name="profile_image">profile image</string>
+    <string name="message_image_des" translatable="false">Image to be sent to users</string>
+    <string name="profile_image" translatable="false">profile image</string>
     <string name="today">Today</string>
     <string name="yesterday">Yesterday</string>
     <string name="online">Online</string>
     <string name="last_time_seen">last time seen</string>
-    <string name="targetUidKey">targetId</string>
-    <string name="chat_title">chatTitle</string>
+    <string name="targetUidKey" translatable="false">targetId</string>
+    <string name="chat_title" translatable="false">chatTitle</string>
     <string name="isWriting">is writing…</string>
     <string name="go_to_contacts">See all users</string>
-    <string name="photoUrl">photoUrl</string>
+    <string name="photoUrl" translatable="false">photoUrl</string>
     <string name="new_photo_view_holder">new photo</string>
-    <string name="notification_utils_farfish">notification_utils_in_farfish</string>
+    <string name="notification_utils_farfish" translatable="false">notification_utils_in_farfish</string>
     <string name="enter_email_address_hint">Enter your e-mail address</string>
     <string name="password_sign_in">Password</string>
     <string name="login">LOGIN</string>
@@ -25,7 +25,7 @@
     <string name="don_t_have_an_account">Don\'t have an account?</string>
     <string name="register">Register</string>
     <string name="farfish">Farfish</string>
-    <string name="unique_logo_for_the_app">unique logo for the app</string>
+    <string name="unique_logo_for_the_app" translatable="false">unique logo for the app</string>
     <string name="first_name">First name</string>
     <string name="last_name">Last name</string>
     <string name="name">Name</string>
@@ -33,16 +33,16 @@
     <string name="confirm_password">Confirm password</string>
     <string name="i_agree_to_the_terms_conditions"><![CDATA[I Agree To The Terms & Conditions]]></string>
     <string name="already_have_an_account">already have an account?</string>
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="hello_blank_fragment" translatable="false">Hello blank fragment</string>
     <string name="chats">chats</string>
     <string name="status">status</string>
     <string name="users">Users</string>
-    <string name="all_people">All People Use The App</string>
+    <string name="all_people" translatable="false">All People Use The App</string>
     <string name="status_cap">Status</string>
     <string name="type_a_status">Type a status</string>
     <string name="sign_up">Sign up</string>
-    <string name="sign_in_customUI">Sign in with custom UI</string>
-    <string name="sign_in_firebaseUI">Sign in with firebase UI</string>
+    <string name="sign_in_customUI" translatable="false">Sign in with custom UI</string>
+    <string name="sign_in_firebaseUI" translatable="false">Sign in with firebase UI</string>
     <string name="phone_number_optional">phone number (required)</string>
     <string name="continue_regestration">Continue</string>
     <string name="try_another_way">Try another way</string>
@@ -56,7 +56,7 @@
     <string name="already_registered">You aleady registered</string>
     <string name="enter_email">Insert email first</string>
     <string name="insert_email">insert email</string>
-    <string name="user_profile_image_description">ImageView where the user can see and update their image</string>
+    <string name="user_profile_image_description" translatable="false">ImageView where the user can see and update their image</string>
     <string name="edit">edit</string>
     <string name="logout">logout</string>
     <string name="profile">Profile</string>
@@ -73,7 +73,7 @@
     <string name="seconds_ago">seconds ago</string>
     <string name="last_time_seen_was_seconds_ago">last time seen was seconds ago</string>
     <string name="one_day">1 day</string>
-    <string name="user_ofline_msg">You are offline</string>
+    <string name="user_offline_msg">You are offline</string>
     <string name="profile_updated_successully">Profile updated successfully</string>
     <string name="ok">OK</string>
     <string name="private_btn">Private</string>
@@ -87,7 +87,7 @@
     <string name="dont_agree">don\'t agree</string>
     <string name="terms_and_conditions_title"><![CDATA[Terms & Conditions]]></string>
     <string name="agree_message">"perfect know you are ready to continue "</string>
-    <string name="not_agree_message">you cannot continue if you don\'t agree on the the terms and conditions</string>
+    <string name="not_agree_message">you cannot continue if you don\'t agree on the terms and conditions</string>
     <string name="fix">fix</string>
     <string name="public_btn">Public</string>
     <string name="no_connection">Connection Alert!</string>
@@ -96,6 +96,26 @@
     <string name="img_required_msg">Please insert an image to continue</string>
     <string name="network_state_msg">In order to continue you must except for the app the detect you connection</string>
     <string name="ok_try_again">Perfect, now press the button again to continue</string>
+    <string name="sign_in_success_msg">You\'ve signed in successflly</string>
+    <string name="sign_out_msg">Sign out successfully</string>
+    <string name="sending_img_msg">Sending the image please wait for seconds</string>
+    <string name="cancel_sending_img">Sending image operation canceled</string>
+    <string name="future_msg">This feature wil be added the next version of the app</string>
+    <string name="grant_access_media_permission">Ok, if you need to send images please grant the requested permission</string>
+    <string name="no_update_happened_msg">There is no any change to be updated</string>
+    <string name="required_field_email">Please enter you e-mail address to sign in</string>
+    <string name="required_field_password">Please enter you password to sign in</string>
+    <string name="foregot_password_msg">Send email successfully, now check you email</string>
+    <string name="uploading_text_status">Uploading status…</string>
+    <string name="input_field_first">Enter text first</string>
+    <string name="access_contacts_permission_msg">In order to display for you the users that you might you
+        the app needs to read you contacts</string>
+    <string name="sound_call">Sound Call</string>
+    <string name="video_call">Video Call</string>
+    <string name="return_greet_msg">Welcome back</string>
+    <string name="leave_greet_msg">Goodbye</string>
+    <string name="confirm_password_first">please confirm password is not different from the password above</string>
+    <string name="same_img_msg">You have selected the same image, nothing will be updated!</string>
 
 
 </resources>
