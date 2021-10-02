@@ -132,6 +132,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
     private String currentUserName;
     private String currentPhotoUrl;
 
+    private boolean USER_EXPECT_TO_RETURN = false;
     private ActivityResultLauncher<String> pickPic = registerForActivityResult(
             new ActivityResultContracts.GetContent() {
                 @NonNull
@@ -144,7 +145,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
 
     // rooms listeners
     private CurrentRoomListener mCurrentRoomListener;
-    private TargettRoomListener mTargetRoomListener;
+    private TargetRoomListener mTargetRoomListener;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -184,9 +185,10 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mBinding = ChatsFragmentBinding.inflate(inflater, container, false);
         View view = mBinding.getRoot();
+        Log.d(TAG, "onCreateView: ");
         // listeners
         mCurrentRoomListener = new CurrentRoomListener();
-        mTargetRoomListener = new TargettRoomListener();
+        mTargetRoomListener = new TargetRoomListener();
         navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         Toolbar tb = mBinding.toolbarFrag;
         ((AppCompatActivity) requireActivity()).setSupportActionBar(tb);
@@ -200,6 +202,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
 
         mToolbarBinding.conversationToolbarUserInfo.setOnClickListener(targetUserLayoutListener -> {
 
+            USER_EXPECT_TO_RETURN = true;
             Log.d(TAG, "onCreateView: target photo Url : " + targetUserData.getString("target_user_photo_url"));
             /*messages.clear();*/ // clean the list to ensure it will not contain duplicated data
             navController.navigate(R.id.action_chatsFragment_to_userProfileFragment,
@@ -212,7 +215,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
 
         /*implementing Messages Adapter for the RecyclerView*/
         /*messagesAdapter = new MessagesAdapter(requireContext(), messages, this);*/
-        messagesListAdapter = new MessagesListAdapter(messages, requireContext(), this::onMessageClick, false);
+        messagesListAdapter = new MessagesListAdapter(messages, requireContext(), this, false);
         mBinding.messageRecyclerView.setAdapter(messagesListAdapter);
         mBinding.messageRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         // ImagePickerButton shows an image picker to upload a image for a message
@@ -307,8 +310,10 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
 
         if (messages.size() == 0)
             initializeUserAndData();
-        else
+        else {
             mBinding.progressBar.setVisibility(View.GONE);
+            messagesListAdapter.submitList(messages);
+        }
 
         checkUserConnection();
         return view;
@@ -488,14 +493,22 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
     // these overriding methods for debugging only and will be cleaned up in the future.
     @Override
     public void onDestroyView() {
+
         super.onDestroyView();
         Log.d(TAG, "onDestroyView: "); // for logging
-        // remove the listener when the view is no longer visilbe for the user
-        mCurrentUserRoomReference.removeEventListener(mCurrentRoomListener);
-        mTargetUserRoomReference.removeEventListener(mTargetRoomListener);
-        // clean up views
-        mBinding = null;
-        mToolbarBinding = null;
+        Log.d(TAG, "onDestroyView: expect user to return " + USER_EXPECT_TO_RETURN);
+
+        if (!USER_EXPECT_TO_RETURN) {
+            Log.d(TAG, "onDestroyView: going to clean up");
+            // remove the listener when the view is no longer visilbe for the user
+            mCurrentUserRoomReference.removeEventListener(mCurrentRoomListener);
+            mTargetUserRoomReference.removeEventListener(mTargetRoomListener);
+            // clean up views
+            mBinding = null;
+            mToolbarBinding = null;
+            messages.clear();
+        } else Log.d(TAG, "onDestroyView: should not clean up the data");
+
     }
 
 
@@ -620,7 +633,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
                 .addSharedElement(view, "root_view_full_image_fragment")
                 .build();
 
-
+        USER_EXPECT_TO_RETURN = true;
         /*NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);*/
         navController.navigate(actionToFullImageFragment, extras);
 
@@ -636,6 +649,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
                 for (DataSnapshot messageSnapShot : meessagesIterable) {
                     if (!messageSnapShot.getKey().equals("isWriting")) {
                         Message msg = messageSnapShot.getValue(Message.class);
+                        assert msg != null;
                         Log.d(TAG, "refreshData: isRead: " + msg.getIsRead());
                         messages.add(msg);
                     }
@@ -679,7 +693,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
         }
     }
 
-    class TargettRoomListener implements ChildEventListener {
+    class TargetRoomListener implements ChildEventListener {
 
         @Override
         public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
