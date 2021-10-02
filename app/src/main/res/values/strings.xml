@@ -73,7 +73,7 @@
     <string name="seconds_ago">seconds ago</string>
     <string name="last_time_seen_was_seconds_ago">last time seen was seconds ago</string>
     <string name="one_day">1 day</string>
-    <string name="user_ofline_msg">You are offline</string>
+    <string name="user_offline_msg">You are offline</string>
     <string name="profile_updated_successully">Profile updated successfully</string>
     <string name="ok">OK</string>
     <string name="private_btn">Private</string>
@@ -106,7 +106,7 @@
     <string name="required_field_email">Please enter you e-mail address to sign in</string>
     <string name="required_field_password">Please enter you password to sign in</string>
     <string name="foregot_password_msg">Send email successfully, now check you email</string>
-    <string name="uploading_text_status">Uploading status...</string>
+    <string name="uploading_text_status">Uploading status…</string>
     <string name="input_field_first">Enter text first</string>
     <string name="access_contacts_permission_msg">In order to display for you the users that you might you
         the app needs to read you contacts</string>
@@ -114,6 +114,7 @@
     <string name="video_call">Video Call</string>
     <string name="return_greet_msg">Welcome back</string>
     <string name="leave_greet_msg">Goodbye</string>
+    <string name="confirm_password_first">please confirm password is not different from the password above</string>
 
 
 </resources>

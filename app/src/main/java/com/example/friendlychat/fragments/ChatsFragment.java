@@ -333,7 +333,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
                         Log.d(TAG, "connected");
                     } else {
                         Log.d(TAG, "not connected");
-                        Snackbar.make(mBinding.getRoot(), R.string.user_ofline_msg, BaseTransientBottomBar.LENGTH_LONG).setAnchorView(R.id.linearLayout).show();
+                        Snackbar.make(mBinding.getRoot(), R.string.user_offline_msg, BaseTransientBottomBar.LENGTH_LONG).setAnchorView(R.id.linearLayout).show();
                     }
                 }else Log.d(TAG, "onDataChange: object is null");
             }

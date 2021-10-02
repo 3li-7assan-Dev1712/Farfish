@@ -17,7 +17,7 @@
     <string name="password_sign_in">كلمة السر</string>
     <string name="login">تسجيل الدخول</string>
     <string name="foregot_password">نسيت كلمة السر؟</string>
-    <string name="don_t_have_an_account">اول مرة تسجيل في التطبيق؟</string>
+    <string name="don_t_have_an_account">اول مرة تسجل في التطبيق؟</string>
     <string name="register">تسجيل</string>
     <string name="farfish">فرفش</string>
     <string name="first_name">الإسم الأول (إسمك)</string>
@@ -62,15 +62,15 @@
     <string name="seconds_ago">ثواني من الأن</string>
     <string name="last_time_seen_was_seconds_ago">أخر ظهور كان قبل ثواني</string>
     <string name="one_day">قبل يوم واحد</string>
-    <string name="user_ofline_msg">انت غير متصل</string>
+    <string name="user_offline_msg">انت غير متصل</string>
     <string name="profile_updated_successully">تم تعديل الملف الشخصي بنجاح</string>
     <string name="ok">حسنا</string>
     <string name="private_btn">خاص</string>
-    <string name="terms_and_conditions">"يحتاج تظبيق فرفش ان يتوصل الى ارقام هاتفك وذلك بغرض اظهار المستخدمين الذين قد تعرفهم. وهم الذين انت سجلتهم في هاتفك وقاموا بالتسجيل في فرفش بالفعل
-        يجب ايضا ان تكون على علم بهذه البنود:   n\
-        -أولا: تبقى الرسائل فترة قدرها ثلالثة شهور ثم تمسح باكامل، وهذا بغرض الحافظة على اداء خادم التطبيق بالاضافة الي ذالك فان المساحة التخزينية السحابية مكلفة بعض الشئ.  n\
-        -ثانيا: الحالات التي تقوم بمشاركتها كذلك تبقى فتىرة يومين فقظ لنفس الاسباب التي ذكرت في البند الاول.  n\
-        -ثالثا: لن يقوم هذا التطبيق بمشاركة ايي معلومات عنكــ، وفي هذه النسخة لن تكون هنالك ايي إعلانات الي حين اصدار اعلان جديد.  n\
+    <string name="terms_and_conditions">"يحتاج تطبيق فرفش ان يتوصل الى ارقام هاتفك وذلك بغرض اظهار المستخدمين الذين قد تعرفهم. وهم الذين انت سجلتهم في هاتفك وقاموا بالتسجيل في فرفش بالفعل
+        يجب ايضا ان تكون على علم بهذه البنود:  \
+        -أولا: تبقى الرسائل فترة قدرها ثلاثة شهور ثم تمسح بالكامل، وهذا بغرض الحفاظ على اداء خادم التطبيق بالاضافة الي ذلك فان المساحة التخزينية السحابية مكلفة بعض الشئ.  \
+        -ثانيا: الحالات التي تقوم بمشاركتها كذلك تبقى فترة يومين فقظ لنفس الاسباب التي ذكرت في البند الاول. \
+        -ثالثا: لن يقوم هذا التطبيق بمشاركة ايي معلومات عنكــ، وفي هذه النسخة لن تكون هنالك ايي إعلانات الي حين اصدار تحديث جديد.  \
         ----تحتاج الي الموافقة على هذه البنود للمواصلة ومرحبا بك في عالم فرفش!
         "</string>
     <string name="agree">أوفق</string>
@@ -103,4 +103,5 @@
     <string name="video_call">مكالمة فيديو</string>
     <string name="return_greet_msg">أهلا بعودك</string>
     <string name="leave_greet_msg">مع السلامة</string>
+    <string name="confirm_password_first">الرجاء التأكد من تطابق كلمات المرور</string>
 </resources>

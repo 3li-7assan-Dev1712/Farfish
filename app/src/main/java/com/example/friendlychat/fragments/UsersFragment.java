@@ -394,7 +394,7 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
                     Log.d(TAG, "connected");
                 } else {
                     Log.d(TAG, "not connected");
-                    Snackbar.make(mBinding.getRoot(), R.string.user_ofline_msg, BaseTransientBottomBar.LENGTH_LONG)
+                    Snackbar.make(mBinding.getRoot(), R.string.user_offline_msg, BaseTransientBottomBar.LENGTH_LONG)
                             .setAnchorView(R.id.bottom_nav).show();
                 }
             }
