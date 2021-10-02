@@ -100,8 +100,7 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
                     initializeUserAndData();
                 } else {
                     Toast.makeText(requireContext(),
-                            "In order to display for you the users that you might you" +
-                                    "the app needs to read you contacts", Toast.LENGTH_LONG).show();
+                            getString(R.string.access_contacts_permission_msg), Toast.LENGTH_LONG).show();
                     mBinding.loadUsersProgressBar.setVisibility(View.GONE);
                 }
             });

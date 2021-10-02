@@ -87,7 +87,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
                     // app.
                     pickImageFromGallery();
                 } else {
-                    Toast.makeText(requireContext(), "Ok, if you need to send images please grant the requested permission", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), requireContext().getString(R.string.grant_access_media_permission), Toast.LENGTH_SHORT).show();
                 }
             });
     /*TAG for logging*/
@@ -245,7 +245,6 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
             emojiPopupLayout.openKeyboard();
             emojiPopupLayout.setVisibility(View.GONE);
             Log.d(TAG, "onCreateView: mMessageEditTextClick");
-            Toast.makeText(requireContext(), "click", Toast.LENGTH_SHORT).show();
         });
         mBinding.sendEmojiBtn.setOnClickListener(emojiPopupListener -> {
             if (emojiPopupLayout.isShowing()) {
@@ -461,7 +460,6 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
                 // Register observers to listen for when the download is done or if it fails
                 uploadTask.addOnFailureListener(exception -> {
                     // Handle unsuccessful uploads
-                    Toast.makeText(requireContext(), "failed to set the image please try again later", Toast.LENGTH_SHORT).show();
                 }).addOnSuccessListener(taskSnapshot -> {
                     // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
                     // ...

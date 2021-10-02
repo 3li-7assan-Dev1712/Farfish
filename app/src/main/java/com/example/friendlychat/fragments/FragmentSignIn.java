@@ -122,9 +122,9 @@ public class FragmentSignIn extends Fragment {
                 String email = mBinding.editTextEmailSignIn.getText().toString();
                 String password = mBinding.editTextPasswordSignIn.getText().toString();
                 if (email.equals(""))
-                    displayRequiredFieldToast("Please enter you e-mail address to sign in");
+                    displayRequiredFieldToast(getString(R.string.required_field_email));
                 else if (password.equals(""))
-                    displayRequiredFieldToast("Please enter you password to sign in");
+                    displayRequiredFieldToast(getString(R.string.required_field_password));
                 else if (!mConnected)
                     internetDialog.show(requireActivity().getSupportFragmentManager(), "internet_alert");
                 else {
@@ -154,7 +154,7 @@ public class FragmentSignIn extends Fragment {
                             .addOnSuccessListener(message -> {
                                 Log.d(TAG, "onCreateView: " + message);
                                 showHorizontalProgressBar(false);
-                                Toast.makeText(requireActivity(), "Send email successfully, now check you email", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(requireActivity(), getString(R.string.foregot_password_msg), Toast.LENGTH_SHORT).show();
                             }).addOnFailureListener(exc -> {
                                 showHorizontalProgressBar(false);
                                 Log.d(TAG, "onCreateView: forgot password exception: " + exc.getMessage());
@@ -234,7 +234,6 @@ public class FragmentSignIn extends Fragment {
             }).addOnFailureListener(exc -> {
                 showHorizontalProgressBar(false);
                 Log.d(TAG, "updateUserInfoAndNavigateBack: exception: " + exc.getMessage());
-                Toast.makeText(requireActivity(), "Error sign in", Toast.LENGTH_SHORT).show();
                 // save default
                 FirebaseUser firebaseUser = mAuth.getCurrentUser();
                 String userId = firebaseUser.getUid();

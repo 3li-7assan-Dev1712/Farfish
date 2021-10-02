@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -53,8 +52,7 @@ public class FullImageFragment extends Fragment {
             toolbar.setTitle(mFullImageData.getSenderName());
             toolbar.setSubtitle(mFullImageData.getFormattedTime());
             fullImage.setImageBitmap(mFullImageData.getBitmap());
-        } else
-            Toast.makeText(requireContext(), "data is null", Toast.LENGTH_SHORT).show();
+        }
         return view;
     }
 

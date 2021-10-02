@@ -91,4 +91,12 @@
     <string name="sending_img_msg">جار إرسال الصورة</string>
     <string name="cancel_sending_img">لم تثم بإختيار صورة، تم ألغاء لارسال</string>
     <string name="future_msg">هذه الميزة سوف تكون متاحة في النسخ القادمة من التظبيق إن شاء الله</string>
+    <string name="grant_access_media_permission">حسنا، إئا اردت ارسال صورة يجب ان تسمح للتطبيق بهذاك التصريحب</string>
+    <string name="no_update_happened_msg">لم يحدث ايي تغير في البيانات</string>
+    <string name="required_field_email">الرجاء ادخال البريد الالكتروني لتسجيل الدخول</string>
+    <string name="required_field_password">الرجاء ادخال كملة السر لتسجيل الدخول</string>
+    <string name="foregot_password_msg">تم ارسال رابط لتعين كلمة السر لديكــ، راجع رسائل بريدك الالكتروني</string>
+    <string name="uploading_text_status">جار ارسال حالة…</string>
+    <string name="input_field_first">الرجاء ادخال نص اولا</string>
+    <string name="access_contacts_permission_msg">للمواصلة يحتاج التطبيق لذاك التصريح</string>
 </resources>

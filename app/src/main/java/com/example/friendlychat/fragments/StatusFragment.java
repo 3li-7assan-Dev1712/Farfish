@@ -62,7 +62,6 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
     private DatabaseReference mDatabaseReference = FirebaseDatabase.getInstance().getReference("status");
     private DatabaseReference mUserReference = FirebaseDatabase.getInstance().getReference();
     private StorageReference mRootRef;
-    private NavController mNavController;
     private Set<String> mContact;
 
     /* request permission*/
@@ -73,7 +72,7 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
                     // app.
                     pickImageFromGallery();
                 } else {
-                    Toast.makeText(requireContext(), "Ok, if you need to send images please grant the requested permission", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), getString(R.string.grant_access_media_permission), Toast.LENGTH_SHORT).show();
                 }
             });
     private ActivityResultLauncher<String> selectImageToUpload = registerForActivityResult(
@@ -103,7 +102,7 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
         mBinding = StatusFragmentBinding.inflate(inflater, container, false);
         View view = mBinding.getRoot();
         mContact = MessagesPreference.getUserContacts(requireContext());
-        mNavController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+        NavController mNavController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.VISIBLE);
         RecyclerView statusRecycler = view.findViewById(R.id.statusRecycler);
         statusRecycler.setAdapter(mStatusAdapter);
@@ -124,7 +123,7 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
 
         mBinding.uploadTextStatusFab.setOnClickListener(v -> {
             // prevent the user from uploading new statues if they are not connected to the internet *_-
-            if (!getInternetState())
+            if (getInternetState())
                 new InternetConnectionDialog().show(requireActivity().getSupportFragmentManager(), "internet_alert");
             else Navigation.findNavController(view).navigate(R.id.uploadTextStatusFragment);
         });
@@ -191,11 +190,10 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
                 // Register observers to listen for when the download is done or if it fails
                 uploadTask.addOnFailureListener(exception -> {
                     // Handle unsuccessful uploads
-                    Toast.makeText(requireContext(), "failed to set the image please try again later", Toast.LENGTH_SHORT).show();
                 }).addOnSuccessListener(taskSnapshot -> {
                     // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
                     // ...
-                    Toast.makeText(getContext(), "Uploaded the image to storage successfully", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), getString(R.string.sending_img_msg), Toast.LENGTH_SHORT).show();
                     imageRef.getDownloadUrl().addOnSuccessListener(downloadUri -> {
                         String downloadUrl = downloadUri.toString();
                         long dateFromDateClass = new Date().getTime();
@@ -211,11 +209,10 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
 
             } catch (IOException e) {
                 e.printStackTrace();
-                Toast.makeText(requireContext(), "Error occurs", Toast.LENGTH_SHORT).show();
             }
             // if the user hit the back button before choosing an image to send the code below will be executed.
         } else {
-            Toast.makeText(requireContext(), "canceled uploading new image", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), getString(R.string.cancel_sending_img), Toast.LENGTH_SHORT).show();
         }
 
     }
@@ -225,7 +222,7 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
     }
 
     private void pickImageFromGallery() {
-        if (!getInternetState())
+        if (getInternetState())
             new InternetConnectionDialog().show(requireActivity().getSupportFragmentManager(), "internet_alert");
         else selectImageToUpload.launch("image/*");
     }
@@ -233,7 +230,7 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
     public boolean getInternetState() {
         ConnectivityManager cm = (ConnectivityManager) requireContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+        return activeNetwork == null || !activeNetwork.isConnectedOrConnecting();
     }
 
     @Override

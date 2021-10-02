@@ -6,15 +6,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -73,7 +69,7 @@ public class FragmentSignUp extends Fragment implements TermsAndConditionsDialog
                 termsAndConditionsDialogFragment.show(requireActivity().getSupportFragmentManager(), "terms_conditions");
             }
             else{
-                Toast.makeText(requireContext(), "You are ready to register", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), getString(R.string.agree_message), Toast.LENGTH_SHORT).show();
                 String email = mBinding.editTextEmailAddressSignUp.getText().toString();
                 String password = mBinding.editTextPasswordSignUp.getText().toString();
                 String firstName = mBinding.editTextFirstName.getText().toString();

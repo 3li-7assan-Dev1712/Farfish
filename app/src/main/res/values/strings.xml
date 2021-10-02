@@ -101,6 +101,15 @@
     <string name="sending_img_msg">Sending the image please wait for seconds</string>
     <string name="cancel_sending_img">Sending image operation canceled</string>
     <string name="future_msg">This feature wil be added the next version of the app</string>
+    <string name="grant_access_media_permission">Ok, if you need to send images please grant the requested permission</string>
+    <string name="no_update_happened_msg">There is no any change to be updated</string>
+    <string name="required_field_email">Please enter you e-mail address to sign in</string>
+    <string name="required_field_password">Please enter you password to sign in</string>
+    <string name="foregot_password_msg">Send email successfully, now check you email</string>
+    <string name="uploading_text_status">Uploading status...</string>
+    <string name="input_field_first">Enter text first</string>
+    <string name="access_contacts_permission_msg">In order to display for you the users that you might you
+        the app needs to read you contacts</string>
 
 
 </resources>
