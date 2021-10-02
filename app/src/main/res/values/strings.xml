@@ -87,7 +87,7 @@
     <string name="dont_agree">don\'t agree</string>
     <string name="terms_and_conditions_title"><![CDATA[Terms & Conditions]]></string>
     <string name="agree_message">"perfect know you are ready to continue "</string>
-    <string name="not_agree_message">you cannot continue if you don\'t agree on the the terms and conditions</string>
+    <string name="not_agree_message">you cannot continue if you don\'t agree on the terms and conditions</string>
     <string name="fix">fix</string>
     <string name="public_btn">Public</string>
     <string name="no_connection">Connection Alert!</string>
@@ -96,6 +96,7 @@
     <string name="img_required_msg">Please insert an image to continue</string>
     <string name="network_state_msg">In order to continue you must except for the app the detect you connection</string>
     <string name="ok_try_again">Perfect, now press the button again to continue</string>
+    <string name="sign_in_success_msg">You\'ve signed in successflly</string>
 
 
 </resources>

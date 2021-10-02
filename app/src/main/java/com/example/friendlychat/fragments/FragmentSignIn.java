@@ -130,7 +130,7 @@ public class FragmentSignIn extends Fragment {
                 else {
                     showHorizontalProgressBar(true);
                     // sign in functionality
-                    Toast.makeText(requireContext(), "You are ready to sign in", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), requireContext().getString(R.string.agree_message), Toast.LENGTH_SHORT).show();
                     signIn(email, password);
                 }
             } else
@@ -277,7 +277,7 @@ public class FragmentSignIn extends Fragment {
 
         if (result.getResultCode() == Activity.RESULT_OK) {
             // Successfully signed in
-            Toast.makeText(requireContext(), "You've signed in successfully", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), requireContext().getString(R.string.sign_in_success_msg), Toast.LENGTH_SHORT).show();
             Log.d(TAG, "sign in successfully");
 
             updateUserInfoAndNavigateBack();
