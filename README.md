@@ -21,7 +21,9 @@ in addition the app also checks for the old messages that are older than 3 month
 the reason that the app only save user's messages for 3 months is that the server can afford up to 20M messages, which is limited:)</br>
 <h2>Telegram Emojis</h2>
 the app uses a special library to provide telegram's emojis which really gives users a great user-experience,
-and it is also a background compatible unit (API 4.1).
+and it is also a background compatible unit (API 4.1). </br>
+The app support both English and Arabic as primary languages, and the
+language will be selected according to user's phone language.
 </br></br>
 Note: This is just a temporary Readme and will be rewritten again
 after the app enroll the release and stable state :)
