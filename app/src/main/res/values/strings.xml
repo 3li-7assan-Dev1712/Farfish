@@ -110,6 +110,10 @@
     <string name="input_field_first">Enter text first</string>
     <string name="access_contacts_permission_msg">In order to display for you the users that you might you
         the app needs to read you contacts</string>
+    <string name="sound_call">Sound Call</string>
+    <string name="video_call">Video Call</string>
+    <string name="return_greet_msg">Welcome back</string>
+    <string name="leave_greet_msg">Goodbye</string>
 
 
 </resources>

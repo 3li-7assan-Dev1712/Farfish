@@ -6,17 +6,17 @@
         android:id="@+id/make_video_call"
         app:showAsAction="ifRoom"
         android:icon="@drawable/ic_baseline_videocam_24"
-        android:title="Video Call" />
+        android:title="@string/video_call" />
 
     <item
         android:id="@+id/make_normal_call"
         app:showAsAction="ifRoom"
         android:icon="@drawable/fui_ic_phone_white_24dp"
-        android:title="Sound Call" />
+        android:title="@string/sound_call" />
 
     <item
         android:id="@+id/profile"
         app:showAsAction="never"
-        android:title="Profile" />
+        android:title="@string/profile" />
 
 </menu>
