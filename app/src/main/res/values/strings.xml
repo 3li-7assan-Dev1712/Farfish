@@ -94,6 +94,8 @@
     <string name="no_connection_msg">It seems like you are not conneccted the internet! \n check out your internet first and try again!</string>
     <string name="phone_number_required_msg">Make sure you\'ve input valid phone number</string>
     <string name="img_required_msg">Please insert an image to continue</string>
+    <string name="network_state_msg">In order to continue you must except for the app the detect you connection</string>
+    <string name="ok_try_again">Perfect, now press the button again to continue</string>
 
 
 </resources>

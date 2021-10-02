@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
@@ -529,7 +531,12 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
 
 
     private void pickImageFromGallery() {
-        pickPic.launch("image/*");
+        ConnectivityManager cm = (ConnectivityManager) requireContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+        InternetConnectionDialog internetDialog = new InternetConnectionDialog();
+        if (!isConnected) internetDialog.show(requireActivity().getSupportFragmentManager(), "internet_alert");
+        else pickPic.launch("image/*");
     }
 
 
