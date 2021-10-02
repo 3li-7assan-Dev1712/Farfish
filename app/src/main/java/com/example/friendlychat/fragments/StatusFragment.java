@@ -11,9 +11,6 @@ import android.os.Bundle;
 import android.telephony.PhoneNumberUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -33,7 +30,6 @@ import com.example.friendlychat.CustomViews.CustomStatusView;
 import com.example.friendlychat.Module.CustomStory;
 import com.example.friendlychat.Module.FileUtil;
 import com.example.friendlychat.Module.MessagesPreference;
-import com.example.friendlychat.Module.SharedPreferenceUtils;
 import com.example.friendlychat.Module.Status;
 import com.example.friendlychat.R;
 import com.example.friendlychat.databinding.StatusFragmentBinding;
@@ -106,7 +102,6 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mBinding = StatusFragmentBinding.inflate(inflater, container, false);
         View view = mBinding.getRoot();
-        setHasOptionsMenu(true);
         mContact = MessagesPreference.getUserContacts(requireContext());
         mNavController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.VISIBLE);
@@ -129,7 +124,8 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
 
         mBinding.uploadTextStatusFab.setOnClickListener(v -> {
             // prevent the user from uploading new statues if they are not connected to the internet *_-
-            if (!getInternetState()) new InternetConnectionDialog().show(requireActivity().getSupportFragmentManager(), "internet_alert");
+            if (!getInternetState())
+                new InternetConnectionDialog().show(requireActivity().getSupportFragmentManager(), "internet_alert");
             else Navigation.findNavController(view).navigate(R.id.uploadTextStatusFragment);
         });
         listenToUpComingStatus();
@@ -229,15 +225,17 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
     }
 
     private void pickImageFromGallery() {
-        if (!getInternetState()) new InternetConnectionDialog().show(requireActivity().getSupportFragmentManager(), "internet_alert");
+        if (!getInternetState())
+            new InternetConnectionDialog().show(requireActivity().getSupportFragmentManager(), "internet_alert");
         else selectImageToUpload.launch("image/*");
     }
 
-    public boolean getInternetState () {
+    public boolean getInternetState() {
         ConnectivityManager cm = (ConnectivityManager) requireContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
     }
+
     @Override
     public void onStatusClicked(int position) {
         Log.d(TAG, "onStatusClicked: Ok, will be completed soon");
@@ -254,38 +252,12 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
             );
         }
         new CustomStatusView.Builder(requireActivity().getSupportFragmentManager())
-                .setStoriesList(myStories) // Required
-                .setStoryDuration(5000) // Default is 2000 Millis (2 Seconds)
-                .setTitleText(userStatuses.get(0).getUploaderName()) // Default is Hidden
+                .setStoriesList(myStories)
+                .setStoryDuration(5000)
+                .setTitleText(userStatuses.get(0).getUploaderName())
                 .setSubtitleText(null) // Default is Hidden
                 .build()
                 .show();
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        int id = item.getItemId();
-        FirebaseAuth auth = FirebaseAuth.getInstance();
-        switch (id) {
-            case R.id.sign_out:
-                auth.signOut();
-                Toast.makeText(requireContext(), "Signed out successfully", Toast.LENGTH_SHORT).show();
-                SharedPreferenceUtils.saveUserSignOut(requireContext());
-                mNavController.navigate(R.id.fragmentSignIn);
-                break;
-            case R.id.go_to_profile:
-                mNavController.navigate(R.id.action_statusFragment_to_userProfileFragment);
-                break;
-            case R.id.report_issue:
-                // will be implemented...
-                break;
-        }
-        return true;
-    }
-
-    @Override
-    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
-        inflater.inflate(R.menu.main, menu);
     }
 
     @Override
