@@ -325,15 +325,17 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
         connectedRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                boolean connected = snapshot.getValue(Boolean.class);
-                if (connected) {
-                    Log.d(TAG, "connected");
-                } else {
-                    Log.d(TAG, "not connected");
-                    Snackbar.make(mBinding.getRoot(), R.string.user_ofline_msg, BaseTransientBottomBar.LENGTH_LONG).setAnchorView(R.id.linearLayout).show();
-                }
+                Object o = snapshot.getValue(Boolean.class);
+                if (o != null) {
+                    boolean connected = (boolean) o;
+                    if (connected) {
+                        Log.d(TAG, "connected");
+                    } else {
+                        Log.d(TAG, "not connected");
+                        Snackbar.make(mBinding.getRoot(), R.string.user_ofline_msg, BaseTransientBottomBar.LENGTH_LONG).setAnchorView(R.id.linearLayout).show();
+                    }
+                }else Log.d(TAG, "onDataChange: object is null");
             }
-
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 Log.w(TAG, "Listener was cancelled");

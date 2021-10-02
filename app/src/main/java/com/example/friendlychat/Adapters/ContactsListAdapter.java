@@ -65,7 +65,7 @@ public class ContactsListAdapter extends ListAdapter<User, ContactsListAdapter.C
 
                 @Override
                 public void onError(Exception e) {
-
+                    binding.progressImageIndicator.setVisibility(View.GONE);
                 }
             });
             binding.personName.setText(user.getUserName());

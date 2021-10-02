@@ -275,7 +275,7 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
 
                 @Override
                 public void onError(Exception e) {
-
+                    binding.progressImageIndicator.setVisibility(View.GONE);
                 }
             });
             binding.personName.setText(message.getTargetName());
