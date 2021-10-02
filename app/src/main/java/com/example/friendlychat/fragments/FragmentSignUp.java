@@ -20,6 +20,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import com.example.friendlychat.R;
+import com.example.friendlychat.databinding.FragmentSignUpBinding;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -28,8 +29,8 @@ public class FragmentSignUp extends Fragment implements TermsAndConditionsDialog
     private static final String TAG = FragmentSignUp.class.getSimpleName();
     private NavController mNavController;
     private String mUserName;
-    private CheckBox mTermsCheck;
     private View snackBarView;
+    private FragmentSignUpBinding mBinding;
     private  TermsAndConditionsDialogFragment termsAndConditionsDialogFragment;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -40,51 +41,43 @@ public class FragmentSignUp extends Fragment implements TermsAndConditionsDialog
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_sign_up, container, false);
+        mBinding = FragmentSignUpBinding.inflate(inflater, container, false);
+        View view = mBinding.getRoot();
         mNavController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
-        Toolbar toolbar = view.findViewById(R.id.toolbar_sign_up);
-        toolbar.setNavigationOnClickListener( navigationIcon -> {
+        mBinding.toolbarSignUp.setNavigationOnClickListener( navigationIcon -> {
             navigateUp(); // navigate back using the navigation icon
         });
-        TextView loginTextView = view.findViewById(R.id.text_view_login);
-        loginTextView.setOnClickListener(login -> navigateUp());
-        EditText firstNameTextView = view.findViewById(R.id.edit_text_first_name);
-        EditText lastNameTextView = view.findViewById(R.id.edit_text_last_name);
-        EditText emailTextView = view.findViewById(R.id.edit_text_email_address_sign_up);
-        EditText passwordTextView = view.findViewById(R.id.edit_text_password_sign_up);
-        EditText confirmPasswordTextView = view.findViewById(R.id.edit_text_confirm_password);
-        Button registerButton = view.findViewById(R.id.register_button);
+
         termsAndConditionsDialogFragment = new TermsAndConditionsDialogFragment(this);
-        mTermsCheck = view.findViewById(R.id.check_box_terms_condition);
-        mTermsCheck.setOnClickListener(termsListener -> {
-            if (mTermsCheck.isChecked()) {
+        mBinding.checkBoxTermsCondition.setOnClickListener(termsListener -> {
+            if (mBinding.checkBoxTermsCondition.isChecked()) {
                 termsAndConditionsDialogFragment.
                         show(requireActivity().getSupportFragmentManager(), "terms_conditions");
             }
         });
-        registerButton.setOnClickListener( registerButtonListener -> {
-            if (firstNameTextView.getText().toString().equals(""))
-                displayRequiredFieldSnackBar(firstNameTextView, "please enter you first name to register");
-            else if (lastNameTextView.getText().toString().equals(""))
-                displayRequiredFieldSnackBar(lastNameTextView, "please enter your last name to register");
-            else if (emailTextView.getText().toString().equals(""))
-                displayRequiredFieldSnackBar(emailTextView, "please enter your email address to register");
-            else if (passwordTextView.getText().toString().equals(""))
-                displayRequiredFieldSnackBar(passwordTextView, "please enter a password to register");
-            else if (confirmPasswordTextView.getText().toString().equals(""))
-                displayRequiredFieldSnackBar(confirmPasswordTextView, "please confirm the password to register");
-            else if (!confirmPasswordTextView.getText().toString().equals(passwordTextView.getText().toString()))
-                displayRequiredFieldSnackBar(confirmPasswordTextView, "please confirm password is different from the password above");
-            else if (!mTermsCheck.isChecked()){
+        mBinding.registerButton.setOnClickListener( registerButtonListener -> {
+            if (mBinding.editTextFirstName.getText().toString().equals(""))
+                displayRequiredFieldSnackBar(mBinding.editTextFirstName, "please enter you first name to register");
+            else if (mBinding.editTextLastName.getText().toString().equals(""))
+                displayRequiredFieldSnackBar(mBinding.editTextLastName, "please enter your last name to register");
+            else if (mBinding.editTextEmailAddressSignUp.getText().toString().equals(""))
+                displayRequiredFieldSnackBar(mBinding.editTextEmailAddressSignUp, "please enter your email address to register");
+            else if (mBinding.editTextPasswordSignUp.getText().toString().equals(""))
+                displayRequiredFieldSnackBar(mBinding.editTextPasswordSignUp, "please enter a password to register");
+            else if (mBinding.editTextConfirmPassword.getText().toString().equals(""))
+                displayRequiredFieldSnackBar(mBinding.editTextConfirmPassword, "please confirm the password to register");
+            else if (!mBinding.editTextConfirmPassword.getText().toString().equals(mBinding.editTextPasswordSignUp.getText().toString()))
+                displayRequiredFieldSnackBar(mBinding.editTextConfirmPassword, "please confirm password is different from the password above");
+            else if (!mBinding.checkBoxTermsCondition.isChecked()){
                 Snackbar.make(view, R.string.terms_and_conditions, BaseTransientBottomBar.LENGTH_LONG).show();
                 termsAndConditionsDialogFragment.show(requireActivity().getSupportFragmentManager(), "terms_conditions");
             }
             else{
                 Toast.makeText(requireContext(), "You are ready to register", Toast.LENGTH_SHORT).show();
-                String email = emailTextView.getText().toString();
-                String password = passwordTextView.getText().toString();
-                String firstName = firstNameTextView.getText().toString();
-                String lastName = lastNameTextView.getText().toString();
+                String email = mBinding.editTextEmailAddressSignUp.getText().toString();
+                String password = mBinding.editTextPasswordSignUp.getText().toString();
+                String firstName = mBinding.editTextFirstName.getText().toString();
+                String lastName = mBinding.editTextLastName.getText().toString();
                 mUserName = firstName +" "+ lastName;
                 signUp(email, password);
             }
@@ -106,11 +99,6 @@ public class FragmentSignUp extends Fragment implements TermsAndConditionsDialog
         mNavController.navigateUp();
     }
 
-    // this method is replaced by the one below it
-/*    private void displayRequiredFieldToast(EditText requiredField, String message) {
-        Toast.makeText(requireActivity(), message, Toast.LENGTH_SHORT).show();
-        requiredField.requestFocus();
-    }*/
     private void showKeyboardOnEditText (EditText editText){
         editText.requestFocus();
         InputMethodManager manager = (InputMethodManager) requireActivity().
@@ -127,6 +115,12 @@ public class FragmentSignUp extends Fragment implements TermsAndConditionsDialog
     }
     @Override
     public void onActionClick(boolean isAgree) {
-        mTermsCheck.setChecked(isAgree);
+        mBinding.checkBoxTermsCondition.setChecked(isAgree);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mBinding = null;
     }
 }

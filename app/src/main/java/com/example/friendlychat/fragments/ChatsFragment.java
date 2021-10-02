@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
@@ -18,12 +20,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -38,18 +37,18 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.FragmentNavigator;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.aghajari.emojiview.view.AXEmojiPopupLayout;
 import com.aghajari.emojiview.view.AXEmojiView;
-import com.example.friendlychat.Adapters.MessagesAdapter;
+import com.example.friendlychat.Adapters.MessagesListAdapter;
 import com.example.friendlychat.Module.FileUtil;
 import com.example.friendlychat.Module.FullImageData;
 import com.example.friendlychat.Module.Message;
 import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.User;
 import com.example.friendlychat.R;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.example.friendlychat.databinding.ChatsFragmentBinding;
+import com.example.friendlychat.databinding.ToolbarConversationBinding;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.database.ChildEventListener;
@@ -72,10 +71,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 import id.zelory.compressor.Compressor;
 
-public class ChatsFragment extends Fragment implements MessagesAdapter.MessageClick{
+public class ChatsFragment extends Fragment implements MessagesListAdapter.MessageClick {
+    // root class
+    private ChatsFragmentBinding mBinding;
+    private ToolbarConversationBinding mToolbarBinding;
     /*real time permission*/
     private ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
@@ -93,22 +96,16 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
     public static final String ANONYMOUS = "anonymous";
     // max number of characters with a single message.
     public static final int DEFAULT_MSG_LENGTH_LIMIT = 1000;
-    // views
-    private RecyclerView mMessageRecyclerView;
-    private EditText mMessageEditText;
-    private FloatingActionButton mSendButton;
+
     // functionality
     private List<Message> messages;
-    private MessagesAdapter messagesAdapter;
+
+    private MessagesListAdapter messagesListAdapter;
     private String mUsername;
     // firestore to get the user state wheater they're active or not
     private FirebaseFirestore mFirebasestore;
     // for sending and receiving photos
     private StorageReference mRootRef;
-    /*toolbar views to display target user info*/
-    private ImageView chat_image;
-    private TextView chat_title;
-    private TextView chat_last_seen;
     // this tracker is used to invoke the method of the realtime database to update the user is writing once
     private int tracker = 0;
 
@@ -127,10 +124,7 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
     private boolean isActive;
     private long lastTimeSeen;
     /*---------------------*/
-    /* progress bar to show loading of messages*/
-    private ProgressBar mProgressBar;
-    // ok this is a perfi
-    /*pick picture via calling picPic.launch() method*/
+
 
     // firebase realtime database
     private DatabaseReference mCurrentUserRoomReference;
@@ -140,10 +134,9 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
     private String currentUserName;
     private String currentPhotoUrl;
 
-
-    private View snackbarView;
+    private boolean USER_EXPECT_TO_RETURN = false;
     private ActivityResultLauncher<String> pickPic = registerForActivityResult(
-            new ActivityResultContracts.GetContent(){
+            new ActivityResultContracts.GetContent() {
                 @NonNull
                 @Override
                 public Intent createIntent(@NonNull Context context, @NonNull String input) {
@@ -154,11 +147,12 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
 
     // rooms listeners
     private CurrentRoomListener mCurrentRoomListener;
-    private TargettRoomListener mTargetRoomListener;
+    private TargetRoomListener mTargetRoomListener;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        messages = new ArrayList<>();
         setHasOptionsMenu(true);
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
         /*firebase storage and its references*/
@@ -169,20 +163,20 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
         mFirebasestore = FirebaseFirestore.getInstance();
         /*app UI functionality*/
         mUsername = ANONYMOUS;
-        messages = new ArrayList<>();
+
         targetUserData = getArguments();
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-       if (targetUserData != null) {
-           targetUserId = targetUserData.getString("target_user_id", "id for target user");
-           // rooms references
-           currentUserId =  MessagesPreference.getUserId(requireContext());
-           mCurrentUserRoomReference = database.getReference("rooms").child(currentUserId)
-                   .child(currentUserId + targetUserId);
-           mTargetUserRoomReference = database.getReference("rooms").child(targetUserId)
-                   .child(targetUserId + currentUserId);
-       }else{
-           Toast.makeText(requireContext(), "Data is null", Toast.LENGTH_SHORT).show();
-       }
+        if (targetUserData != null) {
+            targetUserId = targetUserData.getString("target_user_id", "id for target user");
+            // rooms references
+            currentUserId = MessagesPreference.getUserId(requireContext());
+            mCurrentUserRoomReference = database.getReference("rooms").child(currentUserId)
+                    .child(currentUserId + targetUserId);
+            mTargetUserRoomReference = database.getReference("rooms").child(targetUserId)
+                    .child(targetUserId + currentUserId);
+        } else {
+            Toast.makeText(requireContext(), "Data is null", Toast.LENGTH_SHORT).show();
+        }
 
         currentUserName = MessagesPreference.getUserName(requireContext());
         currentPhotoUrl = MessagesPreference.getUsePhoto(requireContext());
@@ -191,25 +185,26 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.chats_fragment, container, false);
+        mBinding = ChatsFragmentBinding.inflate(inflater, container, false);
+        View view = mBinding.getRoot();
+        Log.d(TAG, "onCreateView: ");
         // listeners
         mCurrentRoomListener = new CurrentRoomListener();
-        mTargetRoomListener = new TargettRoomListener();
-         navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
-        Toolbar tb = view.findViewById(R.id.toolbar_frag);
+        mTargetRoomListener = new TargetRoomListener();
+        navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+        Toolbar tb = mBinding.toolbarFrag;
         ((AppCompatActivity) requireActivity()).setSupportActionBar(tb);
-        
-        chat_image = view.findViewById(R.id.chat_conversation_profile);
-        chat_title = view.findViewById(R.id.chat_title);
-        chat_last_seen = view.findViewById(R.id.chat_last_seen);
+        mToolbarBinding = mBinding.toolbarTargetUserInfo;
+
         LinearLayout layout = view.findViewById(R.id.go_back);
-        layout.setOnClickListener( v -> {
+        layout.setOnClickListener(v -> {
             Log.d(TAG, "onCreateView: navigate to the back stack through the navigation components");
             navController.navigateUp();
         });
-        LinearLayout targetUserLayout = view.findViewById(R.id.conversationToolbarUserInfo);
-        targetUserLayout.setOnClickListener(targetUserLayoutListener ->{
 
+        mToolbarBinding.conversationToolbarUserInfo.setOnClickListener(targetUserLayoutListener -> {
+
+            USER_EXPECT_TO_RETURN = true;
             Log.d(TAG, "onCreateView: target photo Url : " + targetUserData.getString("target_user_photo_url"));
             /*messages.clear();*/ // clean the list to ensure it will not contain duplicated data
             navController.navigate(R.id.action_chatsFragment_to_userProfileFragment,
@@ -217,20 +212,16 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
 
         });
         setChatInfo();
-        mMessageRecyclerView = view.findViewById(R.id.messageRecyclerView);
-        mProgressBar = view.findViewById(R.id.progressBar);
-        ImageButton mPhotoPickerButton = view.findViewById(R.id.photoPickerButton);
-        ImageButton emijiImageButton = view.findViewById(R.id.send_emoji_btn);
-        mMessageEditText = view.findViewById(R.id.messageEditText);
-        mSendButton = view.findViewById(R.id.sendButton);
-        mProgressBar.setVisibility(ProgressBar.VISIBLE);
+
+        mBinding.progressBar.setVisibility(ProgressBar.VISIBLE);
 
         /*implementing Messages Adapter for the RecyclerView*/
-        messagesAdapter = new MessagesAdapter(requireContext(), messages, this);
-        mMessageRecyclerView.setAdapter(messagesAdapter);
-        mMessageRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        /*messagesAdapter = new MessagesAdapter(requireContext(), messages, this);*/
+        messagesListAdapter = new MessagesListAdapter(messages, requireContext(), this, false);
+        mBinding.messageRecyclerView.setAdapter(messagesListAdapter);
+        mBinding.messageRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         // ImagePickerButton shows an image picker to upload a image for a message
-        mPhotoPickerButton.setOnClickListener(v -> {
+        mBinding.photoPickerButton.setOnClickListener(v -> {
             if (ContextCompat.checkSelfPermission(
                     requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) ==
                     PackageManager.PERMISSION_GRANTED) {
@@ -246,32 +237,31 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
         });
 
         AXEmojiView emojiView = new AXEmojiView(requireContext());
-        emojiView.setEditText(mMessageEditText);
+        emojiView.setEditText(mBinding.messageEditText);
         AXEmojiPopupLayout emojiPopupLayout = view.findViewById(R.id.emoji_keyboard_popup);
         emojiPopupLayout.initPopupView(emojiView);
         emojiPopupLayout.hideAndOpenKeyboard();
-        mMessageEditText.setOnClickListener( editTextView ->{
+        mBinding.messageEditText.setOnClickListener(editTextView -> {
             emojiPopupLayout.openKeyboard();
             emojiPopupLayout.setVisibility(View.GONE);
             Log.d(TAG, "onCreateView: mMessageEditTextClick");
             Toast.makeText(requireContext(), "click", Toast.LENGTH_SHORT).show();
         });
-        emijiImageButton.setOnClickListener(emojiPopupListener -> {
+        mBinding.sendEmojiBtn.setOnClickListener(emojiPopupListener -> {
             if (emojiPopupLayout.isShowing()) {
                 emojiPopupLayout.openKeyboard();
                 emojiPopupLayout.dismiss();
                 emojiPopupLayout.setVisibility(View.GONE);
-                emijiImageButton.setImageResource(R.drawable.ic_baseline_emoji_emotions_24_50_gray);
-            }
-            else {
+                mBinding.sendEmojiBtn.setImageResource(R.drawable.ic_baseline_emoji_emotions_24_50_gray);
+            } else {
                 emojiPopupLayout.setVisibility(View.VISIBLE);
                 emojiPopupLayout.show();
-                emijiImageButton.setImageResource(R.drawable.ic_baseline_keyboard_24);
+                mBinding.sendEmojiBtn.setImageResource(R.drawable.ic_baseline_keyboard_24);
             }
         });
 
         // Enable Send button when there's text to send
-        mMessageEditText.addTextChangedListener(new TextWatcher() {
+        mBinding.messageEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 Log.d(TAG, "beforeTextChanged");
@@ -281,9 +271,9 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 if (charSequence.toString().trim().length() > 0) {
-                    mSendButton.setEnabled(true);
+                    mBinding.sendButton.setEnabled(true);
                 } else {
-                    mSendButton.setEnabled(false);
+                    mBinding.sendButton.setEnabled(false);
                     setUserIsNotWriting();
                     tracker = 0;
                 }
@@ -294,9 +284,9 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
                 Log.d(TAG, "afterTextChanged");
             }
         });
-        mMessageEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(DEFAULT_MSG_LENGTH_LIMIT)});
+        mBinding.messageEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(DEFAULT_MSG_LENGTH_LIMIT)});
 
-        mSendButton.setOnClickListener( v -> {
+        mBinding.sendButton.setOnClickListener(v -> {
 
             long dateInLocalTime = System.currentTimeMillis();
             long dateFromDateClass = new Date().getTime();
@@ -305,14 +295,14 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
             Log.d(TAG, "Date in Local (Date().getTime()) " + dateFromDateClass);
             if (dateInLocalTime == dateFromDateClass)
                 Log.d(TAG, "Date from System and Date from date are the same");
-            SimpleDateFormat sdf = new SimpleDateFormat("EEEE, MMM dd. yyyy. -- H:mm aa zzzz" , Locale.getDefault());
+            SimpleDateFormat sdf = new SimpleDateFormat("EEEE, MMM dd. yyyy. -- H:mm aa zzzz", Locale.getDefault());
             Log.d(TAG, "---------------------------------------------------------------------------");
 
             Log.d(TAG, "Date in Local (System.currentTimeMillis() ) " + sdf.format(dateInLocalTime));
             Log.d(TAG, "Date in Local (Date().getTime()) " + sdf.format(dateFromDateClass));
 
 
-            String text = mMessageEditText.getText().toString();
+            String text = Objects.requireNonNull(mBinding.messageEditText.getText()).toString();
             Message currentUserMsg = new Message(text, "", dateFromDateClass, currentUserId, currentUserId,
                     mUsername, currentUserName, currentPhotoUrl, false);
             Message targetUserMsg = new Message(text, "", dateFromDateClass, currentUserId, targetUserId,
@@ -322,12 +312,11 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
 
         if (messages.size() == 0)
             initializeUserAndData();
-        else
-            mProgressBar.setVisibility(View.GONE);
+        else {
+            mBinding.progressBar.setVisibility(View.GONE);
+            messagesListAdapter.submitList(messages);
+        }
 
-
-
-        snackbarView = view;
         checkUserConnection();
         return view;
     }
@@ -338,15 +327,17 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
         connectedRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                boolean connected = snapshot.getValue(Boolean.class);
-                if (connected) {
-                    Log.d(TAG, "connected");
-                } else {
-                    Log.d(TAG, "not connected");
-                    Snackbar.make(snackbarView, R.string.user_ofline_msg, BaseTransientBottomBar.LENGTH_LONG).setAnchorView(R.id.linearLayout).show();
-                }
+                Object o = snapshot.getValue(Boolean.class);
+                if (o != null) {
+                    boolean connected = (boolean) o;
+                    if (connected) {
+                        Log.d(TAG, "connected");
+                    } else {
+                        Log.d(TAG, "not connected");
+                        Snackbar.make(mBinding.getRoot(), R.string.user_ofline_msg, BaseTransientBottomBar.LENGTH_LONG).setAnchorView(R.id.linearLayout).show();
+                    }
+                }else Log.d(TAG, "onDataChange: object is null");
             }
-
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 Log.w(TAG, "Listener was cancelled");
@@ -355,16 +346,16 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
     }
 
     private void setUserIsNotWriting() {
-           mCurrentUserRoomReference.child("isWriting").setValue(false);
-           // when the user has no internet connection we set the value of the isWriting to be false
-           mCurrentUserRoomReference.child("isWriting").onDisconnect().setValue(false);
-            Log.d(TAG, "set user is not writing");
+        mCurrentUserRoomReference.child("isWriting").setValue(false);
+        // when the user has no internet connection we set the value of the isWriting to be false
+        mCurrentUserRoomReference.child("isWriting").onDisconnect().setValue(false);
+        Log.d(TAG, "set user is not writing");
     }
 
     private void setUserIsWriting() {
 
         Log.d(TAG, "set user is writing");
-        if (tracker == 0){
+        if (tracker == 0) {
             mCurrentUserRoomReference.child("isWriting")
                     .setValue(true);
             /*messageSingleRef.document("isWriting")
@@ -382,8 +373,8 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
             if (user != null) {
                 targetUserPhotoUrl = user.getPhotoUrl();
                 targetUserName = user.getUserName();
-                chat_title.setText(targetUserName);
-                Picasso.get().load(targetUserPhotoUrl).placeholder(R.drawable.ic_baseline_emoji_emotions_24).into(chat_image);
+                mToolbarBinding.chatTitle.setText(targetUserName);
+                Picasso.get().load(targetUserPhotoUrl).placeholder(R.drawable.ic_baseline_emoji_emotions_24).into(mToolbarBinding.chatConversationProfile);
                 isActive = user.getIsActive();
                 lastTimeSeen = user.getLastTimeSeen();
                 updateChatInfo();
@@ -411,12 +402,12 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
 
     private void listenToChange(String targetUserId) {
         mFirebasestore.collection("rooms").document(targetUserId)
-                .addSnapshotListener( ((value, error) -> {
+                .addSnapshotListener(((value, error) -> {
                     assert value != null;
                     User user = value.toObject(User.class);
                     String source =
                             value.getMetadata().isFromCache() ?
-                            "local cache" : "server";
+                                    "local cache" : "server";
                     Log.d(TAG, "Data fetched from " + source);
                     assert user != null;
                     isActive = user.getIsActive();
@@ -432,28 +423,26 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
     /*this method will update the chat info int the toolbar in real time!*/
     private void updateChatInfo() {
         Log.d(TAG, "updateChatInfo: ");
-        if (getContext() != null){
-            if (isWriting){
-                chat_last_seen.setText(getResources().getString(R.string.isWriting));
-                chat_last_seen.setTextColor(getResources().getColor(R.color.colorAccent));
-            }
-            else if (isActive) {
+        if (getContext() != null) {
+            if (isWriting) {
+                mToolbarBinding.chatLastSeen.setText(getResources().getString(R.string.isWriting));
+                mToolbarBinding.chatLastSeen.setTextColor(getResources().getColor(R.color.colorAccent));
+            } else if (isActive) {
 
-                chat_last_seen.setText(getResources().getString(R.string.online));
-                chat_last_seen.setTextColor(getResources().getColor(R.color.colorTitle));
-            }
-            else {
+                mToolbarBinding.chatLastSeen.setText(getResources().getString(R.string.online));
+                mToolbarBinding.chatLastSeen.setTextColor(getResources().getColor(R.color.colorTitle));
+            } else {
                 SimpleDateFormat df = new SimpleDateFormat("EEE, MMM d", Locale.getDefault());
                 String lastTimeSeenText = df.format(lastTimeSeen);
                 SimpleDateFormat df2 = new SimpleDateFormat("h:mm a", Locale.getDefault());
                 String text2 = df2.format(lastTimeSeen);
-                String lastTimeSeenToDisplay = lastTimeSeenText +", "+ text2;
-                chat_last_seen.setText(lastTimeSeenToDisplay);
+                String lastTimeSeenToDisplay = lastTimeSeenText + ", " + text2;
+                mToolbarBinding.chatLastSeen.setText(lastTimeSeenToDisplay);
             }
         }
     }
 
-    private void putIntoImage(Uri uri)  {
+    private void putIntoImage(Uri uri) {
 
         if (uri != null) {
             try {
@@ -499,7 +488,7 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
                 Toast.makeText(requireContext(), "Error occurs", Toast.LENGTH_SHORT).show();
             }
             // if the user hit the back button before choosing an image to send the code below will be executed.
-        }else{
+        } else {
             Toast.makeText(requireContext(), "Sending image operation canceled", Toast.LENGTH_SHORT).show();
         }
 
@@ -508,18 +497,24 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
     // these overriding methods for debugging only and will be cleaned up in the future.
     @Override
     public void onDestroyView() {
+
         super.onDestroyView();
-        // remove the listener when the view is no longer visilbe for the user
-        mCurrentUserRoomReference.removeEventListener(mCurrentRoomListener);
-        mTargetUserRoomReference.removeEventListener(mTargetRoomListener);
-        Log.d(TAG, "onDestroyView: ");
+        Log.d(TAG, "onDestroyView: "); // for logging
+        Log.d(TAG, "onDestroyView: expect user to return " + USER_EXPECT_TO_RETURN);
+
+        if (!USER_EXPECT_TO_RETURN) {
+            Log.d(TAG, "onDestroyView: going to clean up");
+            // remove the listener when the view is no longer visilbe for the user
+            mCurrentUserRoomReference.removeEventListener(mCurrentRoomListener);
+            mTargetUserRoomReference.removeEventListener(mTargetRoomListener);
+            // clean up views
+            mBinding = null;
+            mToolbarBinding = null;
+            messages.clear();
+        } else Log.d(TAG, "onDestroyView: should not clean up the data");
+
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        Log.d(TAG, "onDestroy: ");
-    }
 
     private void sendMessage(Message currentUserMsg, Message targetUserMsg) {
 
@@ -530,14 +525,18 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
         mCurrentUserRoomReference.child(key).setValue(targetUserMsg).addOnSuccessListener(success ->
                 mTargetUserRoomReference.child(key).setValue(currentUserMsg)).addOnFailureListener(exception ->
                 Log.d(TAG, "sendMessage: exception msg: " + exception.getMessage()));
-        mMessageEditText.setText("");
+        mBinding.messageEditText.setText("");
 
     }
 
 
-
     private void pickImageFromGallery() {
-        pickPic.launch("image/*");
+        ConnectivityManager cm = (ConnectivityManager) requireContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+        InternetConnectionDialog internetDialog = new InternetConnectionDialog();
+        if (!isConnected) internetDialog.show(requireActivity().getSupportFragmentManager(), "internet_alert");
+        else pickPic.launch("image/*");
     }
 
 
@@ -545,29 +544,31 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
 
         /*read all messages form the database and add any new messages with notifying the Adapter after that*/
         mUsername = MessagesPreference.getUserName(requireContext());
-       /* mCurrentUserRoomReference.get().addOnSuccessListener(this::insertMessagesInAdapter);*/
+        /* mCurrentUserRoomReference.get().addOnSuccessListener(this::insertMessagesInAdapter);*/
 
         mCurrentUserRoomReference.addChildEventListener(mCurrentRoomListener);
         mTargetUserRoomReference.addChildEventListener(mTargetRoomListener);
-        mProgressBar.setVisibility(View.GONE);
+        mBinding.progressBar.setVisibility(View.GONE);
     }
 
 
-
     /* this method is used in two functionality, for getting all the messages from a special room
-    * and for adding new messages as the user sends. */
+     * and for adding new messages as the user sends. */
     private void addNewMessage(DataSnapshot value) {
-        mProgressBar.setVisibility(View.INVISIBLE);
+        Log.d(TAG, "addNewMessage: ");
+        mBinding.progressBar.setVisibility(View.INVISIBLE);
         try {
             Message newMessage = value.getValue(Message.class);
-            if (!newMessage.getIsRead() && !newMessage.getSenderId().equals(currentUserId))
-                markMessageAsRead(value, newMessage);
+            assert newMessage != null;
             messages.add(newMessage);
             if (messages.size() > 0) {
-                messagesAdapter.notifyDataSetChanged();
-                mMessageRecyclerView.scrollToPosition(messages.size() - 1);
+                Log.d(TAG, "addNewMessage: messges size is: " + messages.size());
+                messagesListAdapter.submitList(messages);
+                mBinding.messageRecyclerView.scrollToPosition(messages.size() - 1);
+                if (!newMessage.getIsRead() && !newMessage.getSenderId().equals(currentUserId))
+                    markMessageAsRead(value, newMessage);
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             Log.d(TAG, "addNewMessage: exception " + e.getMessage());
         }
     }
@@ -575,6 +576,7 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
     private void markMessageAsRead(DataSnapshot snapshotMessageTobeUpdated, Message messageToUpdate) {
 
 
+        Log.d(TAG, "markMessageAsRead: ");
         String key = snapshotMessageTobeUpdated.getKey();
         Log.d(TAG, "markMessageAsRead: the key of the message to be updated is: " + key);
         Map<String, Object> originalMessage = messageToUpdate.toMap();
@@ -601,7 +603,7 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
         int id = item.getItemId();
         switch (id) {
             case R.id.profile:
-                Toast.makeText(requireContext(), "Go to Profile", Toast.LENGTH_SHORT).show(); // will be implemented in the future
+                Navigation.findNavController(mBinding.getRoot()).navigate(R.id.action_chatsFragment_to_userProfileFragment, targetUserData);
                 break;
             case R.id.make_video_call:
             case R.id.make_normal_call:
@@ -615,13 +617,13 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         inflater.inflate(R.menu.chats_menu, menu);
     }
-    private void displayFutureFeature(){
+
+    private void displayFutureFeature() {
         Toast.makeText(requireContext(), "This feature wil be added the next next version of the app", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onMessageClick(View view, int position) {
-        Toast.makeText(requireContext(), "You click a view", Toast.LENGTH_SHORT).show();
         Message message = messages.get(position);
         String senderName = message.getSenderName();
         SimpleDateFormat d = new SimpleDateFormat("EEE, MMM d", Locale.getDefault());
@@ -631,7 +633,6 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
         /*imageView.setDrawingCacheEnabled(true);*/
         BitmapDrawable bitmapDrawable = (BitmapDrawable) imageView.getDrawable();
         Bitmap bitmap = bitmapDrawable.getBitmap();
-        // checking if the bitmap is correct first by the following code:
 
         /* after initializing these 3 arguments, let's use them*/
         FullImageData imageData = new FullImageData(senderName, formattedDate, bitmap);
@@ -641,14 +642,11 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
                 .addSharedElement(view, "root_view_full_image_fragment")
                 .build();
 
-
+        USER_EXPECT_TO_RETURN = true;
         /*NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);*/
         navController.navigate(actionToFullImageFragment, extras);
 
     }
-
-
-
 
 
     private void refreshData() {
@@ -660,17 +658,20 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
                 for (DataSnapshot messageSnapShot : meessagesIterable) {
                     if (!messageSnapShot.getKey().equals("isWriting")) {
                         Message msg = messageSnapShot.getValue(Message.class);
+                        assert msg != null;
+                        Log.d(TAG, "refreshData: isRead: " + msg.getIsRead());
                         messages.add(msg);
                     }
                 }
-                messagesAdapter.notifyDataSetChanged();
+                messagesListAdapter.submitList(messages);
+                messagesListAdapter.notifyDataSetChanged();
             });
-        }catch (Exception e){
-            Log.d(TAG, "refreshData: " +e.getMessage());
+        } catch (Exception e) {
+            Log.d(TAG, "refreshData: " + e.getMessage());
         }
     }
 
-    class CurrentRoomListener implements ChildEventListener{
+    class CurrentRoomListener implements ChildEventListener {
 
         @Override
         public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
@@ -680,6 +681,7 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
 
         @Override
         public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+            Log.d(TAG, "onChildChanged: ");
             if (!snapshot.getKey().equals("isWriting"))
                 refreshData();
         }
@@ -700,7 +702,7 @@ public class ChatsFragment extends Fragment implements MessagesAdapter.MessageCl
         }
     }
 
-    class TargettRoomListener implements ChildEventListener{
+    class TargetRoomListener implements ChildEventListener {
 
         @Override
         public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {

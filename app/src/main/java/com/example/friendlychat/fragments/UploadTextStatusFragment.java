@@ -26,6 +26,7 @@ import com.aghajari.emojiview.view.AXEmojiView;
 import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.Status;
 import com.example.friendlychat.R;
+import com.example.friendlychat.databinding.UploadTextStatusFragmentBinding;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -46,7 +47,7 @@ public class UploadTextStatusFragment extends Fragment {
 
     private static final String TAG = UploadTextStatusFragment.class.getSimpleName();
     private static final int DEFAULT_STATUS_LENGTH_LIMIT = 400;
-    private FloatingActionButton mUploadFab;
+    private UploadTextStatusFragmentBinding mBinding;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,54 +57,51 @@ public class UploadTextStatusFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view =  inflater.inflate(R.layout.upload_text_status_fragment, container, false);
-        EditText statusEditText = view.findViewById(R.id.editTextUploadStatus);
-
+        mBinding = UploadTextStatusFragmentBinding.inflate(inflater, container, false);
+        View view =  mBinding.getRoot();
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference("status");
         DatabaseReference userRef = reference.child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid()));
-        mUploadFab = view.findViewById(R.id.uploadTextStatusFragmentFab);
-        mUploadFab.setOnClickListener( uploadFab -> {
+        mBinding.uploadTextStatusFragmentFab.setOnClickListener( uploadFab -> {
             Toast.makeText(requireActivity(), "Upload Text", Toast.LENGTH_SHORT).show();
             Status textStatus = new Status(MessagesPreference.getUserName(requireContext()),
                     MessagesPreference.getUsePhoneNumber(requireContext()),
-                    "", statusEditText.getText().toString(),
+                    "", Objects.requireNonNull(mBinding.editTextUploadStatus.getText()).toString(),
                     new Date().getTime(),
                     0);
 
-            //
-            if (statusEditText.getText().toString().equals("")) {
+            if (mBinding.editTextUploadStatus.getText().toString().equals("")) {
                 Toast.makeText(requireContext(), "Enter text first", Toast.LENGTH_SHORT).show();
             }else{
-                userRef.push().setValue(textStatus).addOnCompleteListener(task -> {
-                    Navigation.findNavController(view).navigateUp();
-                }).addOnFailureListener(exception -> {
+                userRef.push().setValue(textStatus).addOnCompleteListener(task -> Navigation.findNavController(view).navigateUp()).addOnFailureListener(exception -> {
                     Log.d(TAG, "onCreateView: upload text status exception " + exception.getMessage());
                     Toast.makeText(requireActivity(), "Error uploading status, check out your internet connection", Toast.LENGTH_SHORT).show();
                 });
             }
         });
+        // the reason that I replaced the global views is for easily free up the view by just set mBinding = null
         AXEmojiView emojiView = new AXEmojiView(requireContext());
-        emojiView.setEditText(statusEditText);
-        AXEmojiPopupLayout emojiPopupLayout = view.findViewById(R.id.status_edit_text_poppup_layout);
-        emojiPopupLayout.initPopupView(emojiView);
-        emojiPopupLayout.hideAndOpenKeyboard();
-        statusEditText.setOnClickListener(listener-> {
-            emojiPopupLayout.openKeyboard();
-            emojiPopupLayout.setVisibility(View.GONE);
+        emojiView.setEditText(mBinding.editTextUploadStatus);
+        mBinding.statusEditTextPoppupLayout.initPopupView(emojiView);
+        mBinding.statusEditTextPoppupLayout.hideAndOpenKeyboard();
+
+        mBinding.editTextUploadStatus.setOnClickListener(listener-> {
+            mBinding.statusEditTextPoppupLayout.openKeyboard();
+            mBinding.statusEditTextPoppupLayout.setVisibility(View.GONE);
         });
-        statusEditText.setOnLongClickListener(longListener-> {
-            if (emojiPopupLayout.isShowing()) {
-                emojiPopupLayout.openKeyboard();
-                emojiPopupLayout.dismiss();
-                emojiPopupLayout.setVisibility(View.GONE);
+
+        mBinding.editTextUploadStatus.setOnLongClickListener(longListener-> {
+            if (mBinding.statusEditTextPoppupLayout.isShowing()) {
+                mBinding.statusEditTextPoppupLayout.openKeyboard();
+                mBinding.statusEditTextPoppupLayout.dismiss();
+                mBinding.statusEditTextPoppupLayout.setVisibility(View.GONE);
             }
             else {
-                emojiPopupLayout.setVisibility(View.VISIBLE);
-                emojiPopupLayout.show();
+                mBinding.statusEditTextPoppupLayout.setVisibility(View.VISIBLE);
+                mBinding.statusEditTextPoppupLayout.show();
             }
             return true;
         });
-        statusEditText.addTextChangedListener(new TextWatcher() {
+        mBinding.editTextUploadStatus.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 Log.d(TAG, "beforeTextChanged");
@@ -123,16 +121,16 @@ public class UploadTextStatusFragment extends Fragment {
                 Log.d(TAG, "afterTextChanged");
             }
         });
-        statusEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(DEFAULT_STATUS_LENGTH_LIMIT)});
+        mBinding.editTextUploadStatus.setFilters(new InputFilter[]{new InputFilter.LengthFilter(DEFAULT_STATUS_LENGTH_LIMIT)});
 
         return view;
     }
 
     private void hideSendFab() {
-        mUploadFab.setVisibility(View.INVISIBLE);
+        mBinding.uploadTextStatusFragmentFab.setVisibility(View.INVISIBLE);
     }
 
     private void displaySendFab() {
-        mUploadFab.setVisibility(View.VISIBLE);
+        mBinding.uploadTextStatusFragmentFab.setVisibility(View.VISIBLE);
     }
 }

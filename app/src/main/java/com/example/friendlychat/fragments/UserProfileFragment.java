@@ -1,20 +1,14 @@
 package com.example.friendlychat.fragments;
 
 import android.content.Context;
-import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -22,6 +16,7 @@ import androidx.navigation.Navigation;
 import com.example.friendlychat.Module.MessagesPreference;
 import com.example.friendlychat.Module.SharedPreferenceUtils;
 import com.example.friendlychat.R;
+import com.example.friendlychat.databinding.UserProfileFragmentBinding;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Callback;
@@ -29,8 +24,11 @@ import com.squareup.picasso.Picasso;
 
 public class UserProfileFragment extends Fragment {
 
+    private UserProfileFragmentBinding mBinding;
+
     private static final String TAG = UserProfileFragment.class.getSimpleName();
     private String phoneNumber;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
 
@@ -42,38 +40,23 @@ public class UserProfileFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.user_profile_fragment, container, false);
-        Toolbar toolbar = view.findViewById(R.id.toolbar_user_profile);
+        mBinding = UserProfileFragmentBinding.inflate(inflater, container, false);
+        View view = mBinding.getRoot();
         NavController controller = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
-        toolbar.setNavigationOnClickListener(clickListener -> {
-            controller.navigateUp();
-        });
+        mBinding.toolbarUserProfile.setNavigationOnClickListener(clickListener -> controller.navigateUp());
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
-        // init views
-        ImageView profileImage = view.findViewById(R.id.userProfileImageView);
-        ProgressBar progressBar = view.findViewById(R.id.userProfileProgressBar);
-        TextView userNameTextView = view.findViewById(R.id.userNameProfileTextView);
-        TextView statusTextView = view.findViewById(R.id.statusOfUserTextVIew);
-        TextView emailTextView = view.findViewById(R.id.userEmailProfileTextView);
-        TextView userIdTextView = view.findViewById(R.id.userIdTextView);
-        TextView lastTimeSeenTextView = view.findViewById(R.id.userProfileLastTimeSeen);
-        Button edit = view.findViewById(R.id.editProfileButton);
-        Button logout = view.findViewById(R.id.logoutButtonUserProfile);
-        /*------------------------------------------------------------------------------*/
-
 
         // user information
-
-        String userName ;
-        String userPhotoUrl ;
-        String userId ;
-        String status ;
+        String userName;
+        String userPhotoUrl;
+        String userId;
+        String status;
         String email;
         String lastTimeSeen = requireContext().getResources().getString(R.string.online);
         Bundle userInfo = getArguments();
-        if (userInfo != null){
-            edit.setVisibility(View.GONE);
-            logout.setVisibility(View.GONE);
+        if (userInfo != null) {
+            mBinding.editProfileButton.setVisibility(View.GONE);
+            mBinding.logoutButtonUserProfile.setVisibility(View.GONE);
             userPhotoUrl = userInfo.getString("target_user_photo_url");
             userName = userInfo.getString("target_user_name");
             status = userInfo.getString("target_user_status");
@@ -82,9 +65,9 @@ public class UserProfileFragment extends Fragment {
             boolean isActive = userInfo.getBoolean("isActive");
             if (!isActive)
                 lastTimeSeen = getReadableLastTimeSeen(userInfo.getLong("target_user_last_time_seen"));
-        }else{
-            edit.setVisibility(View.VISIBLE);
-            logout.setVisibility(View.VISIBLE);
+        } else {
+            mBinding.editProfileButton.setVisibility(View.VISIBLE);
+            mBinding.logoutButtonUserProfile.setVisibility(View.VISIBLE);
             Context context = requireContext();
             userName = MessagesPreference.getUserName(context);
             userPhotoUrl = MessagesPreference.getUsePhoto(context);
@@ -100,13 +83,12 @@ public class UserProfileFragment extends Fragment {
             }
         }
 
-
         // populate the UI with the data
         Picasso.get().load(userPhotoUrl).placeholder(R.drawable.ic_round_person_24)
-                .into(profileImage, new Callback() {
+                .into(mBinding.userProfileImageView, new Callback() {
                     @Override
                     public void onSuccess() {
-                        progressBar.setVisibility(View.GONE);
+                        mBinding.userProfileProgressBar.setVisibility(View.GONE);
                     }
 
                     @Override
@@ -116,15 +98,15 @@ public class UserProfileFragment extends Fragment {
                 });
         // user info from bundle, this will override the above fields if it's not null
 
-        userNameTextView.setText(userName);
-        emailTextView.setText(email);
-        statusTextView.setText(status);
-        userIdTextView.setText(userId);
-        lastTimeSeenTextView.setText(lastTimeSeen);
+        mBinding.userNameProfileTextView.setText(userName);
+        mBinding.userEmailProfileTextView.setText(email);
+        mBinding.statusOfUserTextVIew.setText(status);
+        mBinding.userIdTextView.setText(userId);
+        mBinding.userProfileLastTimeSeen.setText(lastTimeSeen);
         /*------------------------------------------------------------------------------*/
 
         // invoke listeners
-        edit.setOnClickListener(editProfile -> {
+        mBinding.editProfileButton.setOnClickListener(editProfile -> {
             // prepare data in bundle to send to the destination
             Bundle userData = new Bundle();
             userData.putString("photo_url", userPhotoUrl);
@@ -135,8 +117,7 @@ public class UserProfileFragment extends Fragment {
                     .navigate(R.id.action_userProfileFragment_to_editProfileFragment, userData);
         });
 
-        logout.setVisibility(View.VISIBLE);
-        logout.setOnClickListener(logoutOnClickListener -> {
+        mBinding.logoutButtonUserProfile.setOnClickListener(logoutOnClickListener -> {
             FirebaseAuth.getInstance().signOut();
             SharedPreferenceUtils.saveUserSignOut(requireContext());
             controller.navigate(R.id.action_userProfileFragment_to_fragmentSignIn);
@@ -145,7 +126,7 @@ public class UserProfileFragment extends Fragment {
         return view;
     }
 
-    private String getReadableLastTimeSeen (long lastTimeUserWasActive) {
+    private String getReadableLastTimeSeen(long lastTimeUserWasActive) {
         long diff = System.currentTimeMillis() - lastTimeUserWasActive;
         long seconds = diff / 1000;
         long minutes = seconds / 60;
@@ -162,15 +143,15 @@ public class UserProfileFragment extends Fragment {
         String hoursLabel = context.getString(R.string.hours_label);
         String lastTimeSeenLabel = requireContext().getResources()
                 .getString(R.string.last_time_seen);
-        String and =  context.getResources().getString(R.string.and);
+        String and = context.getResources().getString(R.string.and);
 
-        if (days > 1){
+        if (days > 1) {
             hours -= days * 24;
             return formattedDiff.append(lastTimeSeenLabel).append(" ").append(days).append(" ")
                     .append(daysLabel).append(" ").append(and).append(" ").append(hours).append(" ")
                     .append(context.getResources().getString(R.string.hours_ago)).toString();
         }
-        if (days == 1){
+        if (days == 1) {
             hours -= days * 24;
             return formattedDiff.append(lastTimeSeenLabel).append(" ").append(context.getResources()
                     .getString(R.string.one_day)).append(" ").append(and).append(" ").append(hours).append(" ")
@@ -182,7 +163,7 @@ public class UserProfileFragment extends Fragment {
                     .append(" ").append(and).append(" ").append(minutes)
                     .append(" ").append(context.getResources().getString(R.string.minutes_ago)).toString();
         }
-        if (hours == 1){
+        if (hours == 1) {
             minutes -= hours * 60;
             return formattedDiff.append(lastTimeSeenLabel).append(" ").append(context.getResources()
                     .getString(R.string.one_hour)).append(and).append(" ").append(minutes).append(" ")

@@ -29,6 +29,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:itemTextColor="@color/bottom_nav_style"
+        app:labelVisibilityMode="selected"
         app:itemTextAppearanceActive="?android:textAppearanceMedium"
         app:itemIconTint="@color/bottom_nav_style"
         app:menu="@menu/menu_bottom_nav" />
