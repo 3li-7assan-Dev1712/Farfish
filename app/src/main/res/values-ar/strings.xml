@@ -104,4 +104,5 @@
     <string name="return_greet_msg">أهلا بعودك</string>
     <string name="leave_greet_msg">مع السلامة</string>
     <string name="confirm_password_first">الرجاء التأكد من تطابق كلمات المرور</string>
+    <string name="same_img_msg">لقد قمت بإختيار الصورة نفسهاـ لم يحدث ايي تغيير!</string>
 </resources>

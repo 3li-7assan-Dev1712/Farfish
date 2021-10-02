@@ -115,6 +115,7 @@
     <string name="return_greet_msg">Welcome back</string>
     <string name="leave_greet_msg">Goodbye</string>
     <string name="confirm_password_first">please confirm password is not different from the password above</string>
+    <string name="same_img_msg">You have selected the same image, nothing will be updated!</string>
 
 
 </resources>

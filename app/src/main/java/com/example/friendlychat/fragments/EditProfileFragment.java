@@ -278,8 +278,11 @@ public class EditProfileFragment extends Fragment {
             // delete the old profile
             if (!imageNameInTheServer.equals("") && oldProfileReference != null)
                 deleteOldProfile(oldProfileReference);
-        } else
-            Log.d(TAG, "checkIfUserSelectTheSameImageAndContinueIfNot: the user seletect the same image");
+        } else {
+            Log.d(TAG, "checkIfUserSelectTheSameImageAndContinueIfNot: the user select the same image");
+            Snackbar.make(mBinding.getRoot(), R.string.same_img_msg, BaseTransientBottomBar.LENGTH_LONG).show();
+            mBinding.editProfileHorizontalProgressBar.setVisibility(View.GONE);
+        }
 
     }
 
