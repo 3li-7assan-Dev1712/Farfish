@@ -21,7 +21,15 @@ in addition the app also checks for the old messages that are older than 3 month
 the reason that the app only save user's messages for 3 months is that the server can afford up to 20M messages, which is limited:)</br>
 <h2>Telegram Emojis</h2>
 the app uses a special library to provide telegram's emojis which really gives users a great user-experience,
-and it is also a background compatible unit (API 4.1).
+and it is also a background compatible unit (API 4.1). </br>
+<h2>Filter Users!<h2>
+This is one of the most enjoyable and complex part of the app functionality, it's simply let the user filter whom will be visible </br>
+for him in the users destination, do to so the app go and takes a realtime permission asking for access the user's phone contacts
+after the user grant this permission, the app reads those contacts save it in a SharedPreference, compare those phone numbers with
+the those in the server, then display only the users with the same phone number. </br>
+In addition, the user also have an option to disable the filter to use every public user, which will in tern get all
+public users and replace them with common user list in a smooth and friendly animation, and that happens with
+the help of the amazing combination of ListAdapter & DiffUtill class.
 </br></br>
 Note: This is just a temporary Readme and will be rewritten again
 after the app enroll the release and stable state :)
