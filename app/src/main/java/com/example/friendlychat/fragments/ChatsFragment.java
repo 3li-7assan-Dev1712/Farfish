@@ -542,7 +542,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
             if (messages.size() > 0) {
                 Log.d(TAG, "addNewMessage: messges size is: " + messages.size());
                 messagesListAdapter.submitList(messages);
-                mBinding.messageRecyclerView.smoothScrollToPosition(messages.size() - 1);
+                mBinding.messageRecyclerView.scrollToPosition(messages.size() - 1);
                 if (!newMessage.getIsRead() && !newMessage.getSenderId().equals(currentUserId))
                     markMessageAsRead(value, newMessage);
             }

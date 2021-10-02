@@ -7,7 +7,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.view.ViewCompat;
+import androidx.recyclerview.widget.AsyncListDiffer;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
@@ -44,11 +46,14 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
     public interface MessageClick {
         void onMessageClick(View view, int position);
     }
+
     public interface ChatClick {
         void onChatClick(int position);
     }
+
     static MessagesListAdapter.MessageClick mMessageInterface;
-    static  ChatClick mChatClick;
+    static ChatClick mChatClick;
+
     public MessagesListAdapter(List<Message> messages, Context context, MessageClick messageClick, boolean isGeneral) {
         super(MessagesListAdapter.Diff);
         this.mMessages = messages;
@@ -56,11 +61,12 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
         mMessageInterface = messageClick;
         this.mIsGeneral = isGeneral;
     }
+
     public MessagesListAdapter(List<Message> messages, Context context, ChatClick chatClick, boolean isGeneral) {
         super(MessagesListAdapter.Diff);
         this.mMessages = messages;
         this.mContext = context;
-         mChatClick = chatClick;
+        mChatClick = chatClick;
         this.mIsGeneral = isGeneral;
     }
 
@@ -68,8 +74,8 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
     public int getItemViewType(int position) {
         if (mIsGeneral)
             return USE_PARENT_VIEW_HOLDER;
-        String senderId = mMessages.get(position).getSenderId();
-        String photoUrl = mMessages.get(position).getPhotoUrl();
+        String senderId = mDiffer.getCurrentList().get(position).getSenderId();
+        String photoUrl = mDiffer.getCurrentList().get(position).getPhotoUrl();
         if (mMessages == null) {
             throw new NullPointerException("From getItemViewType message is null");
         }
@@ -117,13 +123,8 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
     }
 
     @Override
-    public int getItemCount() {
-        return mMessages.size();
-    }
-
-    @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        Message message = mMessages.get(position);
+        Message message = mDiffer.getCurrentList().get(position);
         switch (holder.getItemViewType()) {
             case USE_PARENT_VIEW_HOLDER:
                 UserChatsViewHolder chatsViewHolder = (UserChatsViewHolder) holder;
@@ -327,5 +328,15 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
         }
     };
 
+    private final AsyncListDiffer<Message> mDiffer = new AsyncListDiffer<>(this, Diff);
 
+    @Override
+    public int getItemCount() {
+        return mDiffer.getCurrentList().size();
+    }
+
+    @Override
+    public void submitList(@Nullable List<Message> list) {
+        mDiffer.submitList(list);
+    }
 }
