@@ -349,7 +349,7 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
         switch (id) {
             case R.id.sign_out:
                 mAuth.signOut();
-                Toast.makeText(requireContext(), "Signed out successfully", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), requireContext().getString(R.string.sign_out_msg), Toast.LENGTH_SHORT).show();
                 SharedPreferenceUtils.saveUserSignOut(requireContext());
                 mNavController.navigate(R.id.action_usersFragment_to_fragmentSignIn);
                 break;

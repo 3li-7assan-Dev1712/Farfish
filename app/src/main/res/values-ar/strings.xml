@@ -87,4 +87,8 @@
     <string name="network_state_msg">للمواصلة يجب ان نوافق على التصريح المطلوب</string>
     <string name="ok_try_again">جيد, فقط اضغط تسجيل الدخول للمواصلة</string>
     <string name="sign_in_success_msg">تم التسجيل بنجاح</string>
+    <string name="sign_out_msg">تم تسجيل الخروج بنجاح</string>
+    <string name="sending_img_msg">جار إرسال الصورة</string>
+    <string name="cancel_sending_img">لم تثم بإختيار صورة، تم ألغاء لارسال</string>
+    <string name="future_msg">هذه الميزة سوف تكون متاحة في النسخ القادمة من التظبيق إن شاء الله</string>
 </resources>

@@ -97,6 +97,10 @@
     <string name="network_state_msg">In order to continue you must except for the app the detect you connection</string>
     <string name="ok_try_again">Perfect, now press the button again to continue</string>
     <string name="sign_in_success_msg">You\'ve signed in successflly</string>
+    <string name="sign_out_msg">Sign out successfully</string>
+    <string name="sending_img_msg">Sending the image please wait for seconds</string>
+    <string name="cancel_sending_img">Sending image operation canceled</string>
+    <string name="future_msg">This feature wil be added the next version of the app</string>
 
 
 </resources>
