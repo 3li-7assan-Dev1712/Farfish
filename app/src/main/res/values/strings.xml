@@ -5,19 +5,19 @@
     <string name="edit_text_hint">Type a message…</string>
     <string name="sign_out">Sign Out</string>
     <string name="menu_action">always</string>
-    <string name="message_image_des">Image to be sent to users</string>
-    <string name="profile_image">profile image</string>
+    <string name="message_image_des" translatable="false">Image to be sent to users</string>
+    <string name="profile_image" translatable="false">profile image</string>
     <string name="today">Today</string>
     <string name="yesterday">Yesterday</string>
     <string name="online">Online</string>
     <string name="last_time_seen">last time seen</string>
-    <string name="targetUidKey">targetId</string>
-    <string name="chat_title">chatTitle</string>
+    <string name="targetUidKey" translatable="false">targetId</string>
+    <string name="chat_title" translatable="false">chatTitle</string>
     <string name="isWriting">is writing…</string>
     <string name="go_to_contacts">See all users</string>
-    <string name="photoUrl">photoUrl</string>
+    <string name="photoUrl" translatable="false">photoUrl</string>
     <string name="new_photo_view_holder">new photo</string>
-    <string name="notification_utils_farfish">notification_utils_in_farfish</string>
+    <string name="notification_utils_farfish" translatable="false">notification_utils_in_farfish</string>
     <string name="enter_email_address_hint">Enter your e-mail address</string>
     <string name="password_sign_in">Password</string>
     <string name="login">LOGIN</string>
@@ -25,7 +25,7 @@
     <string name="don_t_have_an_account">Don\'t have an account?</string>
     <string name="register">Register</string>
     <string name="farfish">Farfish</string>
-    <string name="unique_logo_for_the_app">unique logo for the app</string>
+    <string name="unique_logo_for_the_app" translatable="false">unique logo for the app</string>
     <string name="first_name">First name</string>
     <string name="last_name">Last name</string>
     <string name="name">Name</string>
@@ -33,16 +33,16 @@
     <string name="confirm_password">Confirm password</string>
     <string name="i_agree_to_the_terms_conditions"><![CDATA[I Agree To The Terms & Conditions]]></string>
     <string name="already_have_an_account">already have an account?</string>
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="hello_blank_fragment" translatable="false">Hello blank fragment</string>
     <string name="chats">chats</string>
     <string name="status">status</string>
     <string name="users">Users</string>
-    <string name="all_people">All People Use The App</string>
+    <string name="all_people" translatable="false">All People Use The App</string>
     <string name="status_cap">Status</string>
     <string name="type_a_status">Type a status</string>
     <string name="sign_up">Sign up</string>
-    <string name="sign_in_customUI">Sign in with custom UI</string>
-    <string name="sign_in_firebaseUI">Sign in with firebase UI</string>
+    <string name="sign_in_customUI" translatable="false">Sign in with custom UI</string>
+    <string name="sign_in_firebaseUI" translatable="false">Sign in with firebase UI</string>
     <string name="phone_number_optional">phone number (required)</string>
     <string name="continue_regestration">Continue</string>
     <string name="try_another_way">Try another way</string>
@@ -56,7 +56,7 @@
     <string name="already_registered">You aleady registered</string>
     <string name="enter_email">Insert email first</string>
     <string name="insert_email">insert email</string>
-    <string name="user_profile_image_description">ImageView where the user can see and update their image</string>
+    <string name="user_profile_image_description" translatable="false">ImageView where the user can see and update their image</string>
     <string name="edit">edit</string>
     <string name="logout">logout</string>
     <string name="profile">Profile</string>

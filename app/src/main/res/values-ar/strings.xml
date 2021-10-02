@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">فرفش</string>
+    <string name="image_button_description">خلفيات للازرار</string>
+    <string name="send_button_label">ارسل</string>
+    <string name="edit_text_hint">اكتب رسالة للارسال</string>
+    <string name="sign_out">تسجيل اللخروج</string>
+    <string name="menu_action">دائما</string>
+    <string name="today">اليوم</string>
+    <string name="yesterday">البارحة</string>
+    <string name="online">متصل</string>
+    <string name="last_time_seen">"أخر ظهور كان "</string>
+    <string name="isWriting">بكتب الآن…</string>
+    <string name="go_to_contacts">اظهار كل المستخدمين</string>
+    <string name="new_photo_view_holder">"صورة جديدة لم تراها بعد "</string>
+    <string name="enter_email_address_hint">ادخل بريدك الالكتروني</string>
+    <string name="password_sign_in">كلمة السر</string>
+    <string name="login">تسجيل الدخول</string>
+    <string name="foregot_password">نسيت كلمة السر؟</string>
+    <string name="don_t_have_an_account">اول مرة تسجيل في التطبيق؟</string>
+    <string name="register">تسجيل</string>
+    <string name="farfish">فرفش</string>
+    <string name="first_name">الإسم الأول (إسمك)</string>
+    <string name="last_name">الإسم الثاني (إسم الوالد)</string>
+    <string name="name">الأسم</string>
+    <string name="e_mail">البريد الالكتروني</string>
+    <string name="confirm_password">تأكيد كلمة المرور</string>
+    <string name="i_agree_to_the_terms_conditions">أنا اوافق على شروط استخدام التطبيق</string>
+    <string name="already_have_an_account">بالفعل لديك حساب؟</string>
+    <string name="chats">الدردشة</string>
+    <string name="status">الحالات</string>
+    <string name="users">المستخدمين</string>
+    <string name="status_cap">الحالة</string>
+    <string name="type_a_status">اكتب حالة…</string>
+    <string name="sign_up">إنشاء حساب</string>
+    <string name="phone_number_optional">رقم الهاتف (مطلوب)</string>
+    <string name="continue_regestration">إنشاء الحساب</string>
+    <string name="try_another_way">حاول بظريقة أخرى</string>
+    <string name="notRegsitered">انت غير مسجل اذهب وسجل اولا</string>
+    <string name="wrong_email">"هذا الايميل غير صالح "</string>
+    <string name="modify">تعديل</string>
+    <string name="wrong_password">خطأ في كلمة السر</string>
+    <string name="return_fix">إصلاح</string>
+    <string name="sign_in">تسجيل</string>
+    <string name="weak_password">كملة السر هذه ضعيفة</string>
+    <string name="already_registered">انت مسجل بالفعل</string>
+    <string name="enter_email">أدخل البريد الالكتروني اولا</string>
+    <string name="insert_email">ادخل</string>
+    <string name="edit">تعديل</string>
+    <string name="logout">تسجيل الخروج</string>
+    <string name="profile">الملف الشخصي</string>
+    <string name="report_issue">إبلاغ عن مشكلة</string>
+    <string name="save">حفظ</string>
+    <string name="days">ايام</string>
+    <string name="hours_label">ساعات</string>
+    <string name="hours_ago">ساعات من الأن</string>
+    <string name="minutes_label">دقائق</string>
+    <string name="minutes_ago">قبل دقائق</string>
+    <string name="a_day_ago">قبل يوم واحد</string>
+    <string name="one_hour">ساعة</string>
+    <string name="and">و</string>
+    <string name="seconds_ago">ثواني من الأن</string>
+    <string name="last_time_seen_was_seconds_ago">أخر ظهور كان قبل ثواني</string>
+    <string name="one_day">يوم واحد</string>
+    <string name="user_ofline_msg">انت غير متصل</string>
+    <string name="profile_updated_successully">تم تعديل الملف الشخصي بنجاح</string>
+    <string name="ok">حسنا</string>
+    <string name="private_btn">خاص</string>
+    <string name="terms_and_conditions">"يحتاج تظبيق فرفش ان يتوصل الى ارقام هاتفك وذلك بغرض اظهار المستخدمين الذين قد تعرفهم. وهم الذين انت سجلتهم في هاتفك وقاموا بالتسجيل في فرفش بالقعل n\
+        يجب ايضا ان تكون على علم بهذه البنود: n\
+        -أولا: تبقى الرسائل فترة قدرها ثلالثة شهور ثم تمسح باكامل، وهذا بغرض الحافظة على اداء خادم التطبيق بالاضافة الي ذالك فان المساحة التخزينية السحابية مكلفة بعض الشئ. n\
+        -ثانيا: الحالات التي تقوم بمشاركتها كذلك تبقى فتىرة يومين فقظ لنفس الاسباب التي ذكرت في البند الاول. n\
+        -ثالثا: لن يقوم هذا التطبيق بمشاركة ايي معلومات عنكــ، وفي هذه النسخة لن تكون هنالك ايي إعلانات الي حين اصدار اعلان جديد. n\
+        ----تحتاج الي الموافقة على هذه البنود للمواصلة ومرحبا بك في عالم فرفش!
+        "</string>
+    <string name="agree">أوفق</string>
+    <string name="dont_agree">لا أوافق</string>
+    <string name="terms_and_conditions_title">الشروط والاستخدام</string>
+    <string name="agree_message">ممتاز, انت الأن قادر على التسجيل</string>
+    <string name="not_agree_message">لا يمكنك ان تواصل إذا لم توافق على الشروط والاستخدام</string>
+    <string name="fix">إصلاح</string>
+    <string name="public_btn">عام</string>
+    <string name="no_connection">مشكلة في الاتصال</string>
+    <string name="no_connection_msg">يبدو انك غير متصل بالانترنت. الرجاء التحقق اولا ثم المواصلة</string>
+    <string name="phone_number_required_msg">تأكد من صلاحية رقم الهاتف هذا</string>
+    <string name="img_required_msg">الرجاء تعيين صورة لملفك اولا</string>
+    <string name="network_state_msg">للمواصلة يجب ان نوافق على التصريح المطلوب</string>
+    <string name="ok_try_again">جيد, فقط اضغط تسجيل الدخول للمواصلة</string>
+</resources>
