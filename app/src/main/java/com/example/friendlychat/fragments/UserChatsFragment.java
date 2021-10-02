@@ -24,8 +24,6 @@ import androidx.work.NetworkType;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
-import com.example.friendlychat.Adapters.ContactsAdapter;
-import com.example.friendlychat.Adapters.ContactsListAdapter;
 import com.example.friendlychat.Adapters.MessagesListAdapter;
 import com.example.friendlychat.Module.Message;
 import com.example.friendlychat.Module.MessagesPreference;
@@ -48,7 +46,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 
-public class UserChatsFragment extends Fragment implements MessagesListAdapter.MessageClick, ValueEventListener {
+public class UserChatsFragment extends Fragment implements MessagesListAdapter.ChatClick, ValueEventListener {
 
     private FirebaseAuth mAuth;
     private static final String TAG = UserChatsFragment.class.getSimpleName();
@@ -156,7 +154,6 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.M
     }
 
 
-
     @Override
     public void onDataChange(@NonNull DataSnapshot snapshot) {
         messages.clear();
@@ -183,7 +180,7 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.M
         }
         if (mBinding != null)
             mBinding.userChatsProgressBar.setVisibility(View.GONE);
-        mListAdapter.submitList(messages);
+        mListAdapter.submitList(new ArrayList<>(messages));
 
     }
 
@@ -260,7 +257,7 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.M
     }
 
     @Override
-    public void onMessageClick(View view, int position) {
+    public void onChatClick(int position) {
         String targetUserId = messages.get(position).getTargetId();
         Bundle primaryDataBundle = new Bundle();
         primaryDataBundle.putString("target_user_id", targetUserId);

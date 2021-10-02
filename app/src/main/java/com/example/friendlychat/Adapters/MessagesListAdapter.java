@@ -44,9 +44,11 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
     public interface MessageClick {
         void onMessageClick(View view, int position);
     }
-
+    public interface ChatClick {
+        void onChatClick(int position);
+    }
     static MessagesListAdapter.MessageClick mMessageInterface;
-
+    static  ChatClick mChatClick;
     public MessagesListAdapter(List<Message> messages, Context context, MessageClick messageClick, boolean isGeneral) {
         super(MessagesListAdapter.Diff);
         this.mMessages = messages;
@@ -54,7 +56,13 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
         mMessageInterface = messageClick;
         this.mIsGeneral = isGeneral;
     }
-
+    public MessagesListAdapter(List<Message> messages, Context context, ChatClick chatClick, boolean isGeneral) {
+        super(MessagesListAdapter.Diff);
+        this.mMessages = messages;
+        this.mContext = context;
+         mChatClick = chatClick;
+        this.mIsGeneral = isGeneral;
+    }
 
     @Override
     public int getItemViewType(int position) {
@@ -110,7 +118,7 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
 
     @Override
     public int getItemCount() {
-        return (mMessages != null) ? mMessages.size() : 0;
+        return mMessages.size();
     }
 
     @Override
@@ -147,9 +155,7 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
         public LocalMessageViewHolder(@NonNull LocalMessageViewHolderBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
-            this.binding.photoImageView.setOnClickListener(view -> {
-                /*mMessageInterface.onMessageClick(view, getBindingAdapterPosition());*/
-            });
+
         }
 
         public void bind(Message message) {
@@ -254,7 +260,7 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
             super(binding.getRoot());
             this.binding = binding;
             this.binding.getRoot().setOnClickListener(listener -> {
-                mMessageInterface.onMessageClick(listener, getBindingAdapterPosition());
+                mChatClick.onChatClick(getBindingAdapterPosition());
             });
 
         }
@@ -320,5 +326,6 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
             return oldItem.equals(newItem);
         }
     };
+
 
 }

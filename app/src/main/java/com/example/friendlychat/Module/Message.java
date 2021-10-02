@@ -138,6 +138,7 @@ public class Message {
                 this.senderName.equals(msg.senderName) &&
                 this.targetName.equals(msg.targetName) &&
                 this.targetPhotoUrl.equals(msg.targetPhotoUrl) &&
-                this.isRead == msg.getIsRead();
+                this.isRead == msg.getIsRead() &&
+                this.newMessagesCount == msg.getNewMessagesCount();
     }
 }
