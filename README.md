@@ -33,6 +33,7 @@ the those in the server, then display only the users with the same phone number.
 In addition, the user also have an option to disable the filter to use every public user, which will in tern get all
 public users and replace them with common user list in a smooth and friendly animation, and that happens with
 the help of the amazing combination of ListAdapter & DiffUtill class.
+finally another cool feature this app has, is the robust interactivity, in all its destinations
+using simple SnackBars to provide a reasoning feedback along with the solution, users notice that when they use the app.
 </br></br>
-Note: This is just a temporary Readme and will be rewritten again
-after the app enroll the release and stable state :)
+..developed by Ali Hassan Ibrahim Al-Zubair..
