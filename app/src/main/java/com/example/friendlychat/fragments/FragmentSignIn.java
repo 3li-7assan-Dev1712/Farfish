@@ -3,6 +3,8 @@ package com.example.friendlychat.fragments;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -63,6 +65,8 @@ public class FragmentSignIn extends Fragment {
 
     // Root class that contains al the views
     private FragmentSignInBinding mBinding;
+
+    private boolean mConnected;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
 
@@ -85,6 +89,11 @@ public class FragmentSignIn extends Fragment {
         snackBarView = view;
         mNavController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
+        // for checking internet connection
+        ConnectivityManager cm = (ConnectivityManager) requireContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        mConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+        InternetConnectionDialog internetDialog = new InternetConnectionDialog();
         mBinding.buttonLogin.setOnClickListener( loginButtonListener -> {
 
             String email = mBinding.editTextEmailSignIn.getText().toString();
@@ -93,6 +102,8 @@ public class FragmentSignIn extends Fragment {
                 displayRequiredFieldToast("Please enter you e-mail address to sign in");
             else if (password.equals(""))
                 displayRequiredFieldToast("Please enter you password to sign in");
+            else if (!mConnected)
+                internetDialog.show(requireActivity().getSupportFragmentManager(), "internet_alert");
             else{
                 showHorizontalProgressBar(true);
                 // sign in functionality
@@ -109,7 +120,9 @@ public class FragmentSignIn extends Fragment {
                 Snackbar.make(snackBarView, R.string.enter_email, Snackbar.LENGTH_LONG)
                         .setAction(R.string.insert_email, actionFocus -> showKeyboardOnEditText(mBinding.editTextEmailSignIn)).show();
                 showHorizontalProgressBar(false);
-            }else{
+            }
+            else if (!mConnected)  internetDialog.show(requireActivity().getSupportFragmentManager(), "internet_alert");
+            else{
                 mAuth.sendPasswordResetEmail(email)
                         .addOnSuccessListener(message -> {
                             Log.d(TAG, "onCreateView: " + message);

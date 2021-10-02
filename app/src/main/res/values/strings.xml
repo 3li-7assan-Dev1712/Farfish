@@ -90,6 +90,8 @@
     <string name="not_agree_message">you cannot continue if you don\'t agree on the the terms and conditions</string>
     <string name="fix">fix</string>
     <string name="public_btn">Public</string>
+    <string name="no_connection">Connection Alert!</string>
+    <string name="no_connection_msg">It seems like you are not conneccted the internet! \n check out your internet first and try again!</string>
 
 
 </resources>
