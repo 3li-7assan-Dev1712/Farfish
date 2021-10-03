@@ -74,8 +74,6 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
 
     private String[] serverPhoneNumbers;
 
-    // for WorkManager functionality
-    private OneTimeWorkRequest contactsWork;
     private WorkManager mWorkManager;
 
     @Override
@@ -121,9 +119,11 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
                 // check if we have the phone numbers already
                 Set<String> contacts = MessagesPreference.getUserContacts(requireContext());
                 if (contacts == null) {
-                    contactsWork = new OneTimeWorkRequest.Builder(ReadContactsWorker.class)
-                            .build();
-                    mWorkManager.enqueueUniqueWork("read_contacts_work", ExistingWorkPolicy.KEEP, contactsWork);
+                    Log.d(TAG, "onCreateView: contacts is null");
+
+                   /* ListenableFuture<Void> listenableFuture =
+                            mWorkManager.beginUniqueWork("read_contacts_work", ExistingWorkPolicy.KEEP, contactsWork).enqueue();
+                    */
                     initializeUserAndData();
                 } else {
                     initializeDataDirectly(contacts);
@@ -225,12 +225,19 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
                     if (getFilterState()) mUserListAdapter.submitList(usersUserKnow);
                     else mUserListAdapter.submitList(publicUsers);
                 }).addOnFailureListener(exception -> Log.d(TAG, "initializeUserAndData: the exception in the new query caused by" +
-                exception.getMessage()));
+                exception.getMessage())).addOnCompleteListener(c -> {
+
+        });
 
     }
 
     private void fetchDataInUsersUserKnowList() {
         if (usersUserKnow.size() == 0) {
+
+            // for WorkManager functionality
+            OneTimeWorkRequest contactsWork = new OneTimeWorkRequest.Builder(ReadContactsWorker.class)
+                    .build();
+            mWorkManager.enqueueUniqueWork("read_contacts_work", ExistingWorkPolicy.KEEP, contactsWork);
             mWorkManager.getWorkInfoByIdLiveData(contactsWork.getId())
                     .observe(getViewLifecycleOwner(), info -> {
                         if (info != null && info.getState().isFinished()) {
@@ -247,7 +254,6 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
                             filterUsers(commonContactsWorker);
                         }
                     });
-
         }
     }
 
@@ -269,10 +275,8 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
                         }
                         // hide the progress bar and hide the progress bar
                         mBinding.loadUsersProgressBar.setVisibility(View.GONE);
-                        if (getFilterState())
-                            mUserListAdapter.submitList(usersUserKnow);
-                        else
-                            mUserListAdapter.submitList(publicUsers);
+                        FilterPreferenceUtils.disableUsersFilter(requireContext());
+
                     }
                 });
     }
