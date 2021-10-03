@@ -1,10 +1,8 @@
 package com.example.friendlychat.fragments;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -20,10 +18,8 @@ import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -60,17 +56,7 @@ public class FragmentSignIn extends Fragment {
             new FirebaseAuthUIActivityResultContract(),
             this::onSignInResult
     );
-    // access internet state
-    private ActivityResultLauncher<String> requestPermissionToAccessInternetState =
-            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                if (isGranted) {
-                    Toast.makeText(requireActivity(), getString(R.string.ok_try_again), Toast.LENGTH_LONG).show();
-                } else {
-                    Toast.makeText(requireContext(),
-                            getString(R.string.network_state_msg), Toast.LENGTH_LONG).show();
 
-                }
-            });
     // firebase auth
     private FirebaseAuth mAuth;
     /*Navigation*/
@@ -81,7 +67,6 @@ public class FragmentSignIn extends Fragment {
     // Root class that contains al the views
     private FragmentSignInBinding mBinding;
 
-    private boolean mConnected;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -107,70 +92,67 @@ public class FragmentSignIn extends Fragment {
         mNavController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
         // this will check the permission first
-        boolean accessNetworkState = ContextCompat.checkSelfPermission(
-                requireContext(), Manifest.permission.READ_CONTACTS) ==
-                PackageManager.PERMISSION_GRANTED;
-
-        // for checking internet connection
-        ConnectivityManager cm = (ConnectivityManager) requireContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        mConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
         InternetConnectionDialog internetDialog = new InternetConnectionDialog();
         mBinding.buttonLogin.setOnClickListener(loginButtonListener -> {
 
-            if (accessNetworkState) {
-                String email = mBinding.editTextEmailSignIn.getText().toString();
-                String password = mBinding.editTextPasswordSignIn.getText().toString();
-                if (email.equals(""))
-                    displayRequiredFieldToast(getString(R.string.required_field_email));
-                else if (password.equals(""))
-                    displayRequiredFieldToast(getString(R.string.required_field_password));
-                else if (!mConnected)
-                    internetDialog.show(requireActivity().getSupportFragmentManager(), "internet_alert");
-                else {
-                    showHorizontalProgressBar(true);
-                    // sign in functionality
-                    Toast.makeText(requireContext(), requireContext().getString(R.string.agree_message), Toast.LENGTH_SHORT).show();
-                    signIn(email, password);
-                }
-            } else
-                requestPermissionToAccessInternetState.launch(Manifest.permission.ACCESS_NETWORK_STATE);
+            /* the reason that the app don't reuse the result of the code that checks the internet connection
+             * is that the internet connection can change in any moment*/
+            // for checking internet connection
+            ConnectivityManager cm = (ConnectivityManager) requireContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+            boolean mConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+
+            String email = mBinding.editTextEmailSignIn.getText().toString();
+            String password = mBinding.editTextPasswordSignIn.getText().toString();
+            Log.d(TAG, "onCreateView: email is: " + email);
+            Log.d(TAG, "onCreateView: password is: " + password);
+            if (email.equals(""))
+                displayRequiredFieldToast(getString(R.string.required_field_email));
+            else if (password.equals(""))
+                displayRequiredFieldToast(getString(R.string.required_field_password));
+            else if (!mConnected)
+                internetDialog.show(requireActivity().getSupportFragmentManager(), "internet_alert");
+            else {
+                showHorizontalProgressBar(true);
+                // sign in functionality
+                Toast.makeText(requireContext(), requireContext().getString(R.string.agree_message), Toast.LENGTH_SHORT).show();
+                signIn(email, password);
+            }
+
         });
 
         // when user forgot their password
-        mBinding.forgotPasswordSignIn.setOnClickListener(forgotPassWordListener -> {
-            if (accessNetworkState) {
-                // forgot password functionality
-                showHorizontalProgressBar(true);
-                String email = mBinding.editTextEmailSignIn.getText().toString();
-                if (email.equals("")) {
-                    Snackbar.make(snackBarView, R.string.enter_email, Snackbar.LENGTH_LONG)
-                            .setAction(R.string.insert_email, actionFocus -> showKeyboardOnEditText(mBinding.editTextEmailSignIn)).show();
-                    showHorizontalProgressBar(false);
-                } else if (!mConnected)
-                    internetDialog.show(requireActivity().getSupportFragmentManager(), "internet_alert");
-                else {
-                    mAuth.sendPasswordResetEmail(email)
-                            .addOnSuccessListener(message -> {
-                                Log.d(TAG, "onCreateView: " + message);
-                                showHorizontalProgressBar(false);
-                                Toast.makeText(requireActivity(), getString(R.string.foregot_password_msg), Toast.LENGTH_SHORT).show();
-                            }).addOnFailureListener(exc -> {
-                                showHorizontalProgressBar(false);
-                                Log.d(TAG, "onCreateView: forgot password exception: " + exc.getMessage());
-                            }
-                    );
-                }
-            } else
-                requestPermissionToAccessInternetState.launch(Manifest.permission.ACCESS_NETWORK_STATE);
-
+        mBinding.forgotPasswordSignIn.setOnClickListener(forgotPassWordListener ->
+        {
+            // for checking internet connection
+            ConnectivityManager cm = (ConnectivityManager) requireContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+            boolean mConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+            // forgot password functionality
+            showHorizontalProgressBar(true);
+            String email = mBinding.editTextEmailSignIn.getText().toString();
+            if (email.equals("")) {
+                Snackbar.make(snackBarView, R.string.enter_email, Snackbar.LENGTH_LONG)
+                        .setAction(R.string.insert_email, actionFocus -> showKeyboardOnEditText(mBinding.editTextEmailSignIn)).show();
+                showHorizontalProgressBar(false);
+            } else if (!mConnected)
+                internetDialog.show(requireActivity().getSupportFragmentManager(), "internet_alert");
+            else {
+                mAuth.sendPasswordResetEmail(email)
+                        .addOnSuccessListener(message -> {
+                            Log.d(TAG, "onCreateView: " + message);
+                            showHorizontalProgressBar(false);
+                            Toast.makeText(requireActivity(), getString(R.string.foregot_password_msg), Toast.LENGTH_SHORT).show();
+                        }).addOnFailureListener(exc -> {
+                            showHorizontalProgressBar(false);
+                            Log.d(TAG, "onCreateView: forgot password exception: " + exc.getMessage());
+                        }
+                );
+            }
         });
         TextView register = view.findViewById(R.id.register_sign_in);
-        register.setOnClickListener(registerTextView -> {
-            if (accessNetworkState)
-                mNavController.navigate(FragmentSignInDirections.actionFragmentSignInToFragmentSignUp());
-            else requestPermissionToAccessInternetState.launch(Manifest.permission.ACCESS_NETWORK_STATE);
-                });
+        register.setOnClickListener(registerTextView ->
+                mNavController.navigate(FragmentSignInDirections.actionFragmentSignInToFragmentSignUp()));
         return view;
     }
 

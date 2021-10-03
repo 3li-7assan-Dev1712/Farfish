@@ -102,7 +102,9 @@ public class ProfileImageFragment extends Fragment {
             phoneNumber = mBinding.profileImagePhoneNumber.getText().toString();
             if (imageUriFromGallery == null)
                 Toast.makeText(requireActivity(), getString(R.string.img_required_msg), Toast.LENGTH_SHORT).show();
-            else if (phoneNumber.equals("") || phoneNumber.length() > 10)
+            else if (phoneNumber.equals(""))
+                Toast.makeText(requireContext(), getString(R.string.phone_number_required_msg), Toast.LENGTH_SHORT).show();
+            else if ( phoneNumber.charAt(0) != 0 &&  phoneNumber.length() != 10 )
                 Toast.makeText(requireContext(), getString(R.string.phone_number_required_msg), Toast.LENGTH_SHORT).show();
             else if (!isConnected) internetDialog.show(requireActivity().getSupportFragmentManager(), "internet_alert");
             else {
