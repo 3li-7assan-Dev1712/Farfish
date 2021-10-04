@@ -108,4 +108,5 @@
     <string name="report_issue_email">إبلاغ عن مشكة في التطبيق</string>
     <string name="choose_app_to_send_emial">أرسال الإيميل بإستخدام…</string>
     <string name="no_app_found">لا يوجد تطبيق في هاتفك لارسال هذا الإيميل</string>
+    <string name="type_your_issue">ماهي المشكة التي واجهتك في التطبيق؟</string>
 </resources>
