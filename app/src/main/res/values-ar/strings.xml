@@ -105,4 +105,7 @@
     <string name="leave_greet_msg">مع السلامة</string>
     <string name="confirm_password_first">الرجاء التأكد من تطابق كلمات المرور</string>
     <string name="same_img_msg">لقد قمت بإختيار الصورة نفسهاـ لم يحدث ايي تغيير!</string>
+    <string name="report_issue_email">إبلاغ عن مشكة في التطبيق</string>
+    <string name="choose_app_to_send_emial">أرسال الإيميل بإستخدام…</string>
+    <string name="no_app_found">لا يوجد تطبيق في هاتفك لارسال هذا الإيميل</string>
 </resources>

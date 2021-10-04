@@ -116,6 +116,9 @@
     <string name="leave_greet_msg">Goodbye</string>
     <string name="confirm_password_first">please confirm password is not different from the password above</string>
     <string name="same_img_msg">You have selected the same image, nothing will be updated!</string>
+    <string name="report_issue_email">Report an the issue in the app</string>
+    <string name="choose_app_to_send_emial">Send email using…</string>
+    <string name="no_app_found">No email clients installed.</string>
 
 
 </resources>

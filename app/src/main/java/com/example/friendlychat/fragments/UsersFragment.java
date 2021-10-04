@@ -2,6 +2,8 @@ package com.example.friendlychat.fragments;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -360,12 +362,24 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
                 mNavController.navigate(R.id.action_usersFragment_to_userProfileFragment);
                 break;
             case R.id.report_issue:
-                // will be implemented...
+                sendEmailIssue();
                 break;
         }
         return true;
     }
 
+    private void sendEmailIssue() {
+        final Intent emailIntent = new Intent(Intent.ACTION_SEND);
+        emailIntent.setType("text/plain")
+                .putExtra(Intent.EXTRA_EMAIL, "alihassan17122002@gmail.com")
+                .putExtra(Intent.EXTRA_SUBJECT, getString(R.string.report_issue_email))
+                .putExtra(Intent.EXTRA_TEXT, "new issue");
+        try {
+            startActivity(Intent.createChooser(emailIntent, getString(R.string.choose_app_to_send_emial)));
+        }catch (ActivityNotFoundException ex){
+            Toast.makeText(requireActivity(), getString(R.string.no_app_found), Toast.LENGTH_SHORT).show();
+        }
+    }
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         inflater.inflate(R.menu.main, menu);
