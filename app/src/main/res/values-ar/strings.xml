@@ -4,7 +4,7 @@
     <string name="image_button_description">خلفيات للازرار</string>
     <string name="send_button_label">ارسل</string>
     <string name="edit_text_hint">اكتب رسالة للارسال</string>
-    <string name="sign_out">تسجيل اللخروج</string>
+    <string name="sign_out">تسجيل الخروج</string>
     <string name="menu_action">دائما</string>
     <string name="today">اليوم</string>
     <string name="yesterday">البارحة</string>
@@ -12,7 +12,7 @@
     <string name="last_time_seen">"أخر ظهور كان قبل "</string>
     <string name="isWriting">بكتب الآن…</string>
     <string name="go_to_contacts">اظهار كل المستخدمين</string>
-    <string name="new_photo_view_holder">"صورة جديدة لم تراها بعد "</string>
+    <string name="new_photo_view_holder">"صورة "</string>
     <string name="enter_email_address_hint">ادخل بريدك الالكتروني</string>
     <string name="password_sign_in">كلمة السر</string>
     <string name="login">تسجيل الدخول</string>

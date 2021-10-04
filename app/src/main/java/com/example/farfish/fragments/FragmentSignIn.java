@@ -135,9 +135,10 @@ public class FragmentSignIn extends Fragment {
                 Snackbar.make(snackBarView, R.string.enter_email, Snackbar.LENGTH_LONG)
                         .setAction(R.string.insert_email, actionFocus -> showKeyboardOnEditText(mBinding.editTextEmailSignIn)).show();
                 showHorizontalProgressBar(false);
-            } else if (!mConnected)
+            } else if (!mConnected) {
                 internetDialog.show(requireActivity().getSupportFragmentManager(), "internet_alert");
-            else {
+                showHorizontalProgressBar(false);
+            } else {
                 mAuth.sendPasswordResetEmail(email)
                         .addOnSuccessListener(message -> {
                             Log.d(TAG, "onCreateView: " + message);
