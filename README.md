@@ -16,7 +16,6 @@ and read the brand new message all in real time.
 users can easily know when the other user have read the message or not through the doubled blue tick
 that indicate the target user has read the message, just like Whatsapp and Telegram.</br>
 With the help of the magic of the WorkManager the app checks every three hours for the new messages and statues and send a notification if so,
-in addition the app also checks for the old messages that are older than 3 months, deleting them to free up the realtime database.
 in addition the app also checks for the old messages that are older than 3 months, deleting them to free up the realtime database.</br>
 the reason that the app only save user's messages for 3 months is that the server can afford up to 20M messages, which is limited:)</br>
 <h2>Telegram Emojis</h2>
@@ -24,8 +23,8 @@ the app uses a special library to provide telegram's emojis which really gives u
 and it is also a background compatible unit (API 4.1). </br>
 The app support both English and Arabic as primary languages, and the
 language will be selected according to user's phone language.
-and it is also a background compatible unit (API 4.1). </br>
-<h2>Filter Users!<h2>
+</br>
+<h2>Filter Users!</h2>
 This is one of the most enjoyable and complex part of the app functionality, it's simply let the user filter whom will be visible </br>
 for him in the users destination, do to so the app go and takes a realtime permission asking for access the user's phone contacts
 after the user grant this permission, the app reads those contacts save it in a SharedPreference, compare those phone numbers with
