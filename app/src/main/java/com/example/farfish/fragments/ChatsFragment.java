@@ -634,7 +634,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
         Bitmap bitmap = bitmapDrawable.getBitmap();
 
         /* after initializing these 3 arguments, let's use them*/
-        /*FullImageData imageData = new FullImageData(senderName, formattedDate, bitmap);
+        FullImageData imageData = new FullImageData(senderName, formattedDate, bitmap);
         ChatsFragmentDirections.ActionChatsFragmentToFullImageFragment actionToFullImageFragment =
                 ChatsFragmentDirections.actionChatsFragmentToFullImageFragment(imageData);
         FragmentNavigator.Extras extras = new FragmentNavigator.Extras.Builder()
@@ -642,8 +642,8 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
                 .build();
 
         USER_EXPECT_TO_RETURN = true;
-        *//*NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);*//*
-        navController.navigate(actionToFullImageFragment, extras);*/
+        NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+        navController.navigate(actionToFullImageFragment, extras);
 
     }
 
