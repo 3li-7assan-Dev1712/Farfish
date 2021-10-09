@@ -118,8 +118,8 @@ public class UserProfileFragment extends Fragment {
         });
 
         mBinding.logoutButtonUserProfile.setOnClickListener(logoutOnClickListener -> {
-            FirebaseAuth.getInstance().signOut();
             SharedPreferenceUtils.saveUserSignOut(requireContext());
+            FirebaseAuth.getInstance().signOut();
             controller.navigate(R.id.action_userProfileFragment_to_fragmentSignIn);
         });
         /*----------------------------------------------------------------------------*/

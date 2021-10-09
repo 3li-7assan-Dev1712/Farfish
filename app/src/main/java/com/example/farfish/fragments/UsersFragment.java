@@ -120,18 +120,7 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
                     requireContext(), Manifest.permission.READ_CONTACTS) ==
                     PackageManager.PERMISSION_GRANTED) {
                 // check if we have the phone numbers already
-                Set<String> contacts = MessagesPreference.getUserContacts(requireContext());
-                if (contacts == null) {
-                    Log.d(TAG, "onCreateView: contacts is null");
-
-                   /* ListenableFuture<Void> listenableFuture =
-                            mWorkManager.beginUniqueWork("read_contacts_work", ExistingWorkPolicy.KEEP, contactsWork).enqueue();
-                    */
-                    initializeUserAndData();
-                } else {
-                    initializeDataDirectly(contacts);
-                }
-
+                initializeUserAndData();
             } else {
                 requestPermissionToReadContacts.launch(Manifest.permission.READ_CONTACTS);
             }
