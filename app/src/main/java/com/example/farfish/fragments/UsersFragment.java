@@ -34,6 +34,7 @@ import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
 
 import com.example.farfish.Adapters.ContactsListAdapter;
+import com.example.farfish.Module.Connection;
 import com.example.farfish.Module.FilterPreferenceUtils;
 import com.example.farfish.Module.MessagesPreference;
 import com.example.farfish.Module.SharedPreferenceUtils;
@@ -402,26 +403,10 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
     }
 
     private void checkUserConnection() {
-
-        DatabaseReference connectedRef = FirebaseDatabase.getInstance().getReference(".info/connected");
-        connectedRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                boolean connected = snapshot.getValue(Boolean.class);
-                if (connected) {
-                    Log.d(TAG, "connected");
-                } else {
-                    Log.d(TAG, "not connected");
-                    Snackbar.make(mBinding.getRoot(), R.string.user_offline_msg, BaseTransientBottomBar.LENGTH_LONG)
-                            .setAnchorView(R.id.bottom_nav).show();
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.w(TAG, "Listener was cancelled");
-            }
-        });
+        if (!Connection.isUserConnected(requireContext())) {
+            Snackbar.make(requireActivity().findViewById(R.id.bottom_nav), R.string.user_offline_msg, BaseTransientBottomBar.LENGTH_LONG)
+                    .setAnchorView(R.id.bottom_nav).show();
+        }
     }
 
     /*

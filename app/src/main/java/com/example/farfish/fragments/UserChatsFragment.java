@@ -27,6 +27,7 @@ import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
 import com.example.farfish.Adapters.MessagesListAdapter;
+import com.example.farfish.Module.Connection;
 import com.example.farfish.Module.Message;
 import com.example.farfish.Module.MessagesPreference;
 import com.example.farfish.Module.NotificationUtils;
@@ -223,25 +224,11 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
 
     private void checkUserConnection() {
 
-        DatabaseReference connectedRef = FirebaseDatabase.getInstance().getReference(".info/connected");
-        connectedRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                boolean connected = snapshot.getValue(Boolean.class);
-                if (connected) {
-                    Log.d(TAG, "connected");
-                } else {
-                    Log.d(TAG, "not connected");
-                    Snackbar.make(requireActivity().findViewById(R.id.bottom_nav), R.string.user_offline_msg, BaseTransientBottomBar.LENGTH_LONG)
-                            .setAnchorView(R.id.bottom_nav).show();
-                }
-            }
+        if (!Connection.isUserConnected(requireContext())) {
+            Snackbar.make(requireActivity().findViewById(R.id.bottom_nav), R.string.user_offline_msg, BaseTransientBottomBar.LENGTH_LONG)
+                    .setAnchorView(R.id.bottom_nav).show();
+        }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.w(TAG, "Listener was cancelled");
-            }
-        });
     }
 
     private void uniquelyScheduleCleanUPWorker() {
