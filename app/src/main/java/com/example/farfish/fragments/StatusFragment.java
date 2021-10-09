@@ -137,6 +137,8 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
             /*@RequiresApi(api = Build.VERSION_CODES.N)*/
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (mBinding != null)
+                    mBinding.statusProgressBar.setVisibility(View.VISIBLE);
                 Log.d(TAG, "onDataChange: generally");
               /*  List<Status> statuses = snapshot.child(FirebaseAuth.getInstance().getUid()).getValue(StatusLists.class).getStatusLists();
                 mStatusLists.add(statuses);*/
@@ -163,6 +165,8 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
                     }
 
                 }
+                if (mBinding != null)
+                    mBinding.statusProgressBar.setVisibility(View.GONE);
                 mStatusLists.clear();
                 mStatusLists.addAll(allUsersStatues);
                 mStatusAdapter.notifyDataSetChanged();
@@ -176,7 +180,7 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
     }
 
     private void putIntoImage(Uri uri) {
-
+        mBinding.statusProgressBar.setVisibility(View.VISIBLE);
         if (uri != null) {
             try {
                 File galleryFile = FileUtil.from(requireContext(), uri);
@@ -218,7 +222,10 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
     }
 
     private void uploadNewStatus(Status newStatus) {
-        mUserReference.push().setValue(newStatus);
+        mUserReference.push().setValue(newStatus).addOnSuccessListener(listen -> {
+            if (mBinding.statusProgressBar.getVisibility() == View.VISIBLE)
+                mBinding.statusProgressBar.setVisibility(View.GONE);
+        });
     }
 
     private void pickImageFromGallery() {

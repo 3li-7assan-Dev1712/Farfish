@@ -57,7 +57,9 @@ public class UploadTextStatusFragment extends Fragment {
             if (mBinding.editTextUploadStatus.getText().toString().equals("")) {
                 Toast.makeText(requireContext(), getString(R.string.input_field_first), Toast.LENGTH_SHORT).show();
             } else {
-                userRef.push().setValue(textStatus).addOnCompleteListener(task -> Navigation.findNavController(view).navigateUp()).addOnFailureListener(exception -> {
+                userRef.push().setValue(textStatus)
+                        .addOnSuccessListener(sListener ->Navigation.findNavController(view).navigateUp() )
+                        .addOnFailureListener(exception -> {
                     Log.d(TAG, "onCreateView: upload text status exception " + exception.getMessage());
                 });
             }
