@@ -1,5 +1,7 @@
 package com.example.farfish.fragments;
 
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.transition.Transition;
@@ -11,6 +13,7 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
@@ -32,10 +35,13 @@ public class FullImageFragment extends Fragment {
         super.onCreate(savedInstanceState);
     }
 
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mBinding = FullImageFragmentBinding.inflate(inflater, container, false);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+            requireActivity().getWindow().setStatusBarColor(requireContext().getResources().getColor(R.color.brown));
         View view = mBinding.getRoot();
         ViewCompat.setTransitionName(view, "root_view_full_image_fragment");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
@@ -54,6 +60,13 @@ public class FullImageFragment extends Fragment {
             fullImage.setImageBitmap(mFullImageData.getBitmap());
         }
         return view;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+            requireActivity().getWindow().setStatusBarColor(requireContext().getResources().getColor(R.color.colorPrimaryDark));
     }
 
     private void navigateBack() {

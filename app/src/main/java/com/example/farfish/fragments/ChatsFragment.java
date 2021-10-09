@@ -630,20 +630,21 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
         /* enable the drawing cache for the image view to derive a bitmap from it*/
         /*imageView.setDrawingCacheEnabled(true);*/
         BitmapDrawable bitmapDrawable = (BitmapDrawable) imageView.getDrawable();
-        Bitmap bitmap = bitmapDrawable.getBitmap();
+        if (bitmapDrawable != null) {
+            Bitmap bitmap = bitmapDrawable.getBitmap();
 
-        /* after initializing these 3 arguments, let's use them*/
-        FullImageData imageData = new FullImageData(senderName, formattedDate, bitmap);
-        ChatsFragmentDirections.ActionChatsFragmentToFullImageFragment actionToFullImageFragment =
-                ChatsFragmentDirections.actionChatsFragmentToFullImageFragment(imageData);
-        FragmentNavigator.Extras extras = new FragmentNavigator.Extras.Builder()
-                .addSharedElement(view, "root_view_full_image_fragment")
-                .build();
+            /* after initializing these 3 arguments, let's use them*/
+            FullImageData imageData = new FullImageData(senderName, formattedDate, bitmap);
+            ChatsFragmentDirections.ActionChatsFragmentToFullImageFragment actionToFullImageFragment =
+                    ChatsFragmentDirections.actionChatsFragmentToFullImageFragment(imageData);
+            FragmentNavigator.Extras extras = new FragmentNavigator.Extras.Builder()
+                    .addSharedElement(view, "root_view_full_image_fragment")
+                    .build();
 
-        USER_EXPECT_TO_RETURN = true;
-        NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
-        navController.navigate(actionToFullImageFragment, extras);
-
+            USER_EXPECT_TO_RETURN = true;
+            NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+            navController.navigate(actionToFullImageFragment, extras);
+        }
     }
 
 

@@ -1,5 +1,8 @@
 package com.example.farfish.fragments;
 
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
@@ -43,6 +46,8 @@ public class UploadTextStatusFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mBinding = UploadTextStatusFragmentBinding.inflate(inflater, container, false);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+            requireActivity().getWindow().setStatusBarColor(requireContext().getResources().getColor(R.color.secondaryDarkColor));
         View view = mBinding.getRoot();
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference("status");
         DatabaseReference userRef = reference.child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid()));
@@ -113,6 +118,13 @@ public class UploadTextStatusFragment extends Fragment {
 
     private void hideSendFab() {
         mBinding.uploadTextStatusFragmentFab.setVisibility(View.INVISIBLE);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+            requireActivity().getWindow().setStatusBarColor(requireContext().getResources().getColor(R.color.colorPrimaryDark));
     }
 
     private void displaySendFab() {

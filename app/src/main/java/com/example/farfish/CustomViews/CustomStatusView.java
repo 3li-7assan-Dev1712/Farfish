@@ -1,5 +1,6 @@
 package com.example.farfish.CustomViews;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -14,6 +15,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.DialogFragment;
@@ -91,7 +93,8 @@ public class CustomStatusView extends DialogFragment implements StoriesProgressV
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         getDialog().getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        return inflater.inflate(R.layout.dialog_stories, container);
+        View view =  inflater.inflate(R.layout.dialog_stories, container);
+        return view;
     }
 
     @Override
@@ -105,6 +108,7 @@ public class CustomStatusView extends DialogFragment implements StoriesProgressV
         setupViews(view);
         readArguments();
         setupStories();
+
     }
 
     private void setupStories() {

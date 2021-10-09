@@ -41,4 +41,5 @@
 
   <color name="darkerGray">@android:color/darker_gray</color>
   <color name="red">#E64A19</color>
+  <color name="brown">#80000000</color>
 </resources>
