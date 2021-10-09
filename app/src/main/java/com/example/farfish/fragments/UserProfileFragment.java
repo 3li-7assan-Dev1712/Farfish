@@ -166,7 +166,7 @@ public class UserProfileFragment extends Fragment {
         if (hours == 1) {
             minutes -= hours * 60;
             return formattedDiff.append(lastTimeSeenLabel).append(" ").append(context.getResources()
-                    .getString(R.string.one_hour)).append(and).append(" ").append(minutes).append(" ")
+                    .getString(R.string.one_hour)).append(" ").append(and).append(" ").append(minutes).append(" ")
                     .append(context.getResources().getString(R.string.minutes_ago)).toString();
         }
         if (minutes > 1) {
