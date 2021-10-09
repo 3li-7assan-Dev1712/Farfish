@@ -438,6 +438,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
 
     private void putIntoImage(Uri uri) {
 
+        mBinding.progressBar.setVisibility(View.VISIBLE);
         if (uri != null) {
             try {
                 File galleryFile = FileUtil.from(requireContext(), uri);
@@ -515,8 +516,12 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
         Log.d(TAG, "sendMessage: the key of the new two messages is: " + key);
         if (key == null)
             throw new NullPointerException("the key of the new messages should not be null");
-        mCurrentUserRoomReference.child(key).setValue(targetUserMsg).addOnSuccessListener(success ->
-                mTargetUserRoomReference.child(key).setValue(currentUserMsg)).addOnFailureListener(exception ->
+        mCurrentUserRoomReference.child(key).setValue(targetUserMsg).addOnSuccessListener(success -> {
+            if (mBinding.progressBar.getVisibility() == View.VISIBLE)
+                mBinding.progressBar.setVisibility(View.GONE);
+            mTargetUserRoomReference.child(key).setValue(currentUserMsg);
+                }
+                ).addOnFailureListener(exception ->
                 Log.d(TAG, "sendMessage: exception msg: " + exception.getMessage()));
         mBinding.messageEditText.setText("");
 
