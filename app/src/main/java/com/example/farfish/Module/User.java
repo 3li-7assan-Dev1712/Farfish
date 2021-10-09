@@ -1,6 +1,7 @@
 package com.example.farfish.Module;
 
 import android.telephony.PhoneNumberUtils;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 
@@ -59,6 +60,7 @@ public class User {
         this.isPublic = isPublic;
         this.lastTimeSeen = lastTimeSeen;
     }
+
     public String getUserName() {
         return userName;
     }
@@ -84,7 +86,9 @@ public class User {
         return lastTimeSeen;
     }
 
-    public boolean getIsPublic(){ return this.isPublic; }
+    public boolean getIsPublic() {
+        return this.isPublic;
+    }
 
     public String getEmail() {
         return email;
@@ -94,14 +98,21 @@ public class User {
     public boolean equals(@Nullable Object obj) {
         User user = (User) obj;
         assert user != null;
-        return this.userName.equals(user.getUserName()) &&
-                this.email.equals(user.getEmail()) &&
-                PhoneNumberUtils.compare(this.phoneNumber, user.getPhoneNumber()) &&
-                this.photoUrl.equals(user.getPhotoUrl()) &&
-                this.userId.equals(user.getUserId()) &&
-                this.status.equals(user.getStatus()) &&
-                this.isActive == user.getIsActive() &&
-                this.isPublic == user.getIsPublic() &&
-                this.lastTimeSeen == user.getLastTimeSeen();
+
+        try {
+            return this.userName.equals(user.getUserName()) &&
+                    this.email.equals(user.getEmail()) &&
+                    PhoneNumberUtils.compare(this.phoneNumber, user.getPhoneNumber()) &&
+                    this.photoUrl.equals(user.getPhotoUrl()) &&
+                    this.userId.equals(user.getUserId()) &&
+                    this.status.equals(user.getStatus()) &&
+                    this.isActive == user.getIsActive() &&
+                    this.isPublic == user.getIsPublic() &&
+                    this.lastTimeSeen == user.getLastTimeSeen();
+        }catch (Exception ex){
+            Log.d("TAG", "equals: exception message: " + ex.getMessage());
+            return false;
+        }
+
     }
 }

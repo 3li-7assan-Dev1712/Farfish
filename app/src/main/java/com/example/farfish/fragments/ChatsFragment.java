@@ -407,8 +407,12 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
                     isActive = user.getIsActive();
                     targetUserData.putBoolean("isActive", isActive);
                     lastTimeSeen = user.getLastTimeSeen();
-                    if (!source.equals("server"))
-                        isActive = false;
+                    try {
+                        if (!Connection.isUserConnected(requireContext()))
+                            isActive = false;
+                    }catch (Exception ex){
+
+                    }
                     updateChatInfo();
                 }));
 
