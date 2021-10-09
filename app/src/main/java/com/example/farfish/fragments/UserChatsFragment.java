@@ -53,7 +53,7 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
 
     private FirebaseAuth mAuth;
     private static final String TAG = UserChatsFragment.class.getSimpleName();
-    private List<Message> messages;
+    private static List<Message> messages;
     private MessagesListAdapter mListAdapter;
     private DatabaseReference mCurrentUserRoomReference;
     private NavController mNavController;
@@ -263,5 +263,9 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
         Bundle primaryDataBundle = new Bundle();
         primaryDataBundle.putString("target_user_id", targetUserId);
         mNavController.navigate(R.id.chatsFragment, primaryDataBundle);
+    }
+
+    public static List<Message> getMessages() {
+        return messages;
     }
 }
