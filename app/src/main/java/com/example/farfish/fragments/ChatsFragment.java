@@ -299,26 +299,30 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
 
         mBinding.sendButton.setOnClickListener(v -> {
 
-            long dateInLocalTime = System.currentTimeMillis();
-            long dateFromDateClass = new Date().getTime();
+            if (Connection.isUserConnected(requireContext())) {
+                long dateInLocalTime = System.currentTimeMillis();
+                long dateFromDateClass = new Date().getTime();
 
-            Log.d(TAG, "Date in Local (System.currentTimeMillis() ) " + dateInLocalTime);
-            Log.d(TAG, "Date in Local (Date().getTime()) " + dateFromDateClass);
-            if (dateInLocalTime == dateFromDateClass)
-                Log.d(TAG, "Date from System and Date from date are the same");
-            SimpleDateFormat sdf = new SimpleDateFormat("EEEE, MMM dd. yyyy. -- H:mm aa zzzz", Locale.getDefault());
-            Log.d(TAG, "---------------------------------------------------------------------------");
+                Log.d(TAG, "Date in Local (System.currentTimeMillis() ) " + dateInLocalTime);
+                Log.d(TAG, "Date in Local (Date().getTime()) " + dateFromDateClass);
+                if (dateInLocalTime == dateFromDateClass)
+                    Log.d(TAG, "Date from System and Date from date are the same");
+                SimpleDateFormat sdf = new SimpleDateFormat("EEEE, MMM dd. yyyy. -- H:mm aa zzzz", Locale.getDefault());
+                Log.d(TAG, "---------------------------------------------------------------------------");
 
-            Log.d(TAG, "Date in Local (System.currentTimeMillis() ) " + sdf.format(dateInLocalTime));
-            Log.d(TAG, "Date in Local (Date().getTime()) " + sdf.format(dateFromDateClass));
+                Log.d(TAG, "Date in Local (System.currentTimeMillis() ) " + sdf.format(dateInLocalTime));
+                Log.d(TAG, "Date in Local (Date().getTime()) " + sdf.format(dateFromDateClass));
 
+                String text = Objects.requireNonNull(mBinding.messageEditText.getText()).toString();
+                Message currentUserMsg = new Message(text, "", dateFromDateClass, currentUserId, currentUserId,
+                        mUsername, currentUserName, currentPhotoUrl, false);
+                Message targetUserMsg = new Message(text, "", dateFromDateClass, currentUserId, targetUserId,
+                        mUsername, targetUserName, targetUserPhotoUrl, false);
+                sendMessage(currentUserMsg, targetUserMsg);
+            }else{
+                new InternetConnectionDialog().show(requireActivity().getSupportFragmentManager(), "internet_dialog");
+            }
 
-            String text = Objects.requireNonNull(mBinding.messageEditText.getText()).toString();
-            Message currentUserMsg = new Message(text, "", dateFromDateClass, currentUserId, currentUserId,
-                    mUsername, currentUserName, currentPhotoUrl, false);
-            Message targetUserMsg = new Message(text, "", dateFromDateClass, currentUserId, targetUserId,
-                    mUsername, targetUserName, targetUserPhotoUrl, false);
-            sendMessage(currentUserMsg, targetUserMsg);
         });
 
         if (messages.size() == 0)
