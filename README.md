@@ -33,6 +33,15 @@ In addition, the user also have an option to disable the filter to use every pub
 public users and replace them with common user list in a smooth and friendly animation, and that happens with
 the help of the amazing combination of ListAdapter & DiffUtill class.
 finally another cool feature this app has, is the robust interactivity, in all its destinations
-using simple SnackBars to provide a reasoning feedback along with the solution, users notice that when they use the app.
+using simple SnackBars to provide a reasoning feedback along with the solution, users notice that when they use the app.</br>
+
+ <b>Screenshots</b></br>
+ <img src="https://github.com/3li-7assan-Dev1712/Farfish/blob/master/1.png" alt="Farfish Screenshot">
+ <img src="https://github.com/3li-7assan-Dev1712/Farfish/blob/master/2.png" alt="Farfish Screenshot">
+ <img src="https://github.com/3li-7assan-Dev1712/Farfish/blob/master/3.png" alt="Farfish Screenshot">
+ <img src="https://github.com/3li-7assan-Dev1712/Farfish/blob/master/4.png" alt="Farfish Screenshot">
+ <img src="https://github.com/3li-7assan-Dev1712/Farfish/blob/master/5.png" alt="Farfish Screenshot">
+ <img src="https://github.com/3li-7assan-Dev1712/Farfish/blob/master/6.png" alt="Farfish Screenshot">
+ <img src="https://github.com/3li-7assan-Dev1712/Farfish/blob/master/7.png" alt="Farfish Screenshot"></br>
 </br></br>
-..developed by Ali Hassan Ibrahim Al-Zubair..
+    .developed by Ali Hassan Ibrahim Al-Zubair.
