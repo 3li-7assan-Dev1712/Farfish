@@ -3,8 +3,13 @@ Farfish is a social media app. With Farfish you can easily communicate
 with your friends and family, sending photos, and messages in realtime!.
 just download the app and sign in and enjoy with it.</br></br>
 <h2>Technologies the app demonstrates:</h2></br>
-The app uses the most of the jetpack libraries like: WorkManager, Navigation component
-and I will use the rest of the libraries by the time.</br>
+- WorkManager </br>
+- Navigation component </br>
+- Application lifecycle</br>
+- ViewBinding</br>
+- Firebase (Authentication, Realtime database, Firestore and Storage) </br>
+- Special library for compressing photos, and special one for emojis as well as some other small libraries.</br>
+
 <h2>About the app</h2> </br>
 As mentioned before it's a social media app, users use the app to communicate and chat
 with one another in real time with high security functionality.</br>
