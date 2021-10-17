@@ -18,6 +18,7 @@ import androidx.work.WorkRequest;
 import com.example.farfish.Module.User;
 import com.example.farfish.Module.workers.ReadContactsWorker;
 import com.example.farfish.Module.workers.ReadDataFromServerWorker;
+import com.example.farfish.data.repositories.UsersRepository;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -42,7 +43,7 @@ public class MainViewModel extends AndroidViewModel {
     // observers
     public LiveData<WorkInfo> deviceContactsObserver;
     public LiveData<WorkInfo> commonContactsObserver;
-
+    private UsersRepository usersRepository;
     private InvokeObservers invokeObservers;
 
     public void setObservers(InvokeObservers observers) {
@@ -51,13 +52,18 @@ public class MainViewModel extends AndroidViewModel {
 
     public MainViewModel(@NonNull Application application) {
         super(application);
+        usersRepository = new UsersRepository(application.getApplicationContext());
         workManager = WorkManager.getInstance(getApplication().getApplicationContext());
+    }
+
+    public UsersRepository getUsersRepository() {
+        return usersRepository;
     }
 
     public LiveData<List<User>> getAllUsers() {
         if (allUsers == null) {
             allUsers = new MutableLiveData<>(contactUsers);
-            loadUsers();
+            usersRepository.loadUsers();
         }
         Log.d(TAG, "getAllUsers: allUsers: " + Objects.requireNonNull(allUsers.getValue()).size());
         return allUsers;
@@ -149,10 +155,7 @@ public class MainViewModel extends AndroidViewModel {
 
     public void updateUsers(boolean fromContacts) {
         Log.d(TAG, "updateUsers: userUserKnowList size: " + usersUserKnowList.size());
-        if (fromContacts)
-            allUsers.setValue(usersUserKnowList);
-        else
-            allUsers.setValue(allUsersList);
+        allUsers.setValue(usersRepository.getUsers(fromContacts));
     }
 
     public interface InvokeObservers {

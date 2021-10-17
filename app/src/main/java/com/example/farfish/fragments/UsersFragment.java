@@ -35,13 +35,14 @@ import com.example.farfish.Module.SharedPreferenceUtils;
 import com.example.farfish.Module.User;
 import com.example.farfish.R;
 import com.example.farfish.data.MainViewModel;
+import com.example.farfish.data.repositories.UsersRepository;
 import com.example.farfish.databinding.UsersFragmentBinding;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class UsersFragment extends Fragment implements ContactsListAdapter.OnChatClicked,
-        SharedPreferences.OnSharedPreferenceChangeListener, MainViewModel.InvokeObservers {
+        SharedPreferences.OnSharedPreferenceChangeListener, UsersRepository.InvokeObservers {
     private static final String TAG = UsersFragment.class.getSimpleName();
     // users view model
     private MainViewModel mModel;
@@ -81,7 +82,7 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.VISIBLE);
         View view = mBinding.getRoot();
         mModel = new ViewModelProvider(this).get(MainViewModel.class);
-        mModel.setObservers(this);
+        mModel.getUsersRepository().setObservers(this);
         if (mBinding != null) mBinding.loadUsersProgressBar.setVisibility(View.VISIBLE);
         if (ContextCompat.checkSelfPermission(
                 requireContext(), Manifest.permission.READ_CONTACTS) ==
@@ -146,7 +147,7 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
         String userStatus;
         String targetUserId;
         long lastTimeSeen;
-        User selectedUser = mModel.getUserInPosition(position, getFilterState());
+        User selectedUser = mModel.getUsersRepository().getUserInPosition(position, getFilterState());
         targetUserName = selectedUser.getUserName();
         photoUrl = selectedUser.getPhotoUrl();
         targetUserEmail = selectedUser.getEmail();
@@ -223,10 +224,10 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
 
     @Override
     public void invokeObservers() {
-        mModel.deviceContactsObserver.observe(getViewLifecycleOwner(), workInfo -> {
+        mModel.getUsersRepository().deviceContactsObserver.observe(getViewLifecycleOwner(), workInfo -> {
             if (workInfo != null && workInfo.getState().isFinished()) {
                 String[] deviceContacts = workInfo.getOutputData().getStringArray("contacts");
-                mModel.readContactsWorkerEnd(deviceContacts);
+                mModel.getUsersRepository().readContactsWorkerEnd(deviceContacts);
             }
         });
 
@@ -235,11 +236,11 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
     @Override
     public void observeCommonContacts() {
         Log.d(TAG, "observeCommonContacts: ");
-        mModel.commonContactsObserver.observe(getViewLifecycleOwner(), commonWorkInfo -> {
+        mModel.getUsersRepository().commonContactsObserver.observe(getViewLifecycleOwner(), commonWorkInfo -> {
             if (commonWorkInfo != null && commonWorkInfo.getState().isFinished()) {
                 String[] commonContacts = commonWorkInfo.getOutputData().getStringArray("common_phone_numbers");
                 if (commonContacts != null)
-                    mModel.prepareUserUserKnowList(commonContacts);
+                    mModel.getUsersRepository().prepareUserUserKnowList(commonContacts);
                 else
                     Log.d(TAG, "observeCommonContacts: common contacts is null");
             }

@@ -44,7 +44,7 @@ public class UsersRepository {
         this.invokeObservers = observers;
     }
 
-    private void loadUsers() {
+    public void loadUsers() {
         // Do an asynchronous operation to fetch users.
         fetchDataInUsersUserKnowList();
         FirebaseFirestore.getInstance().collection("rooms").get()
@@ -107,6 +107,7 @@ public class UsersRepository {
             }
         }
         Log.d(TAG, "prepareUserUserKnowList: userUserKnowList size is: " + usersUserKnowList.size());
+
         invokeObservers.prepareDataFinished();
     }
 
@@ -119,7 +120,19 @@ public class UsersRepository {
         deviceContactsObserver = workManager.getWorkInfoByIdLiveData(contactsWork.getId());
 
     }
-
+    public User getUserInPosition(int position, boolean fromContacts) {
+        if (fromContacts)
+            return usersUserKnowList.get(position);
+        else
+            return allUsersList.get(position);
+    }
+    public List<User> getUsers(boolean fromContacts) {
+        Log.d(TAG, "updateUsers: userUserKnowList size: " + usersUserKnowList.size());
+        if (fromContacts)
+            return usersUserKnowList;
+        else
+            return allUsersList;
+    }
     public interface InvokeObservers {
         void invokeObservers();
 
