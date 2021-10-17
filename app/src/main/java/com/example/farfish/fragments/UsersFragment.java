@@ -419,6 +419,10 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
         });
     }
 
+    @Override
+    public void prepareDataFinished() {
+        mModel.updateUsers(getFilterState());
+    }
     /*
      * that's it it's super easy to create and to migrate from normal Adapter into ListAdapter
      * this functionality real give the app better performance and make even faster

@@ -19,7 +19,6 @@ import com.example.farfish.Module.User;
 import com.example.farfish.Module.workers.ReadContactsWorker;
 import com.example.farfish.Module.workers.ReadDataFromServerWorker;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -57,7 +56,7 @@ public class MainViewModel extends AndroidViewModel {
 
     public LiveData<List<User>> getAllUsers() {
         if (allUsers == null) {
-            allUsers = new MutableLiveData<>(usersUserKnowList);
+            allUsers = new MutableLiveData<>(contactUsers);
             loadUsers();
         }
         Log.d(TAG, "getAllUsers: allUsers: " + Objects.requireNonNull(allUsers.getValue()).size());
@@ -133,21 +132,21 @@ public class MainViewModel extends AndroidViewModel {
             }
         }
         Log.d(TAG, "prepareUserUserKnowList: userUserKnowList size is: " + usersUserKnowList.size());
-        allUsers.setValue(usersUserKnowList);
+        invokeObservers.prepareDataFinished();
     }
 
     private void fetchDataInUsersUserKnowList() {
 
-        if (usersUserKnowList.size() == 0) {
-            // for WorkManager functionality
-            OneTimeWorkRequest contactsWork = new OneTimeWorkRequest.Builder(ReadContactsWorker.class)
-                    .build();
-            workManager.enqueueUniqueWork("read_contacts_work", ExistingWorkPolicy.KEEP, contactsWork);
-            deviceContactsObserver = workManager.getWorkInfoByIdLiveData(contactsWork.getId());
-        }
+        // for WorkManager functionality
+        OneTimeWorkRequest contactsWork = new OneTimeWorkRequest.Builder(ReadContactsWorker.class)
+                .build();
+        workManager.enqueueUniqueWork("read_contacts_work", ExistingWorkPolicy.KEEP, contactsWork);
+        deviceContactsObserver = workManager.getWorkInfoByIdLiveData(contactsWork.getId());
+
     }
 
     public void updateUsers(boolean fromContacts) {
+        Log.d(TAG, "updateUsers: userUserKnowList size: " + usersUserKnowList.size());
         if (fromContacts)
             allUsers.setValue(usersUserKnowList);
         else
@@ -158,5 +157,7 @@ public class MainViewModel extends AndroidViewModel {
         void invokeObservers();
 
         void observeCommonContacts();
+
+        void prepareDataFinished();
     }
 }
