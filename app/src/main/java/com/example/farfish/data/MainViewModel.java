@@ -2,6 +2,7 @@ package com.example.farfish.data;
 
 import android.app.Application;
 import android.telephony.PhoneNumberUtils;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -14,7 +15,6 @@ import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
 
-import com.example.farfish.Module.FilterPreferenceUtils;
 import com.example.farfish.Module.User;
 import com.example.farfish.Module.workers.ReadContactsWorker;
 import com.example.farfish.Module.workers.ReadDataFromServerWorker;
@@ -28,6 +28,7 @@ import java.util.List;
 
 public class MainViewModel extends AndroidViewModel {
 
+    private static final String TAG = MainViewModel.class.getSimpleName();
     private WorkManager workManager;
     private MutableLiveData<List<User>> allUsers;
     private List<User> allUsersList = new ArrayList<>();
@@ -61,17 +62,31 @@ public class MainViewModel extends AndroidViewModel {
 
     private void loadUsers() {
         // Do an asynchronous operation to fetch users.
+        fetchDataInUsersUserKnowList();
         FirebaseFirestore.getInstance().collection("room").get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     fetchPrimaryData(queryDocumentSnapshots);
-                    fetchDataInUsersUserKnowList();
                 }).addOnCompleteListener(listener -> {
+                    
                     invokeObservers.invokeObservers();
         });
     }
 
-    public static interface InvokeObservers{
-        void invokeObservers();
+    public void readContactsWorkerEnd(String[] deviceContacts) {
+        Log.d(TAG, "readContactsWorkerEnd: ");
+        if (deviceContacts != null) {
+            Data input = new Data.Builder()
+                    .putStringArray("device_contacts", deviceContacts)
+                    .putStringArray("server_contacts", arrayServerPhoneNumbers)
+                    .build();
+            WorkRequest commonContactsWorker = new OneTimeWorkRequest.Builder(ReadDataFromServerWorker.class)
+                    .setInputData(input)
+                    .build();
+            workManager.enqueue(commonContactsWorker);
+            commonContactsObserver = workManager.getWorkInfoByIdLiveData(commonContactsWorker.getId());
+            invokeObservers.observeCommonContacts();
+        }else Log.d(TAG, "readContactsWorkerEnd: deviceContacts is null");
+
     }
 
 
@@ -124,17 +139,9 @@ public class MainViewModel extends AndroidViewModel {
         }
     }
 
-    public void readContactsWorkerEnd(String[] deviceContacts) {
-        assert deviceContacts != null;
-        Data input = new Data.Builder()
-                .putStringArray("device_contacts", deviceContacts)
-                .putStringArray("server_contacts", arrayServerPhoneNumbers)
-                .build();
-        WorkRequest commonContactsWorker = new OneTimeWorkRequest.Builder(ReadDataFromServerWorker.class)
-                .setInputData(input)
-                .build();
-        workManager.enqueue(commonContactsWorker);
-        commonContactsObserver = workManager.getWorkInfoByIdLiveData(commonContactsWorker.getId());
+    public interface InvokeObservers{
+        void invokeObservers();
+        void observeCommonContacts();
     }
 
     public void updateUsers (boolean fromContacts) {

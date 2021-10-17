@@ -121,6 +121,7 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
             // check if we have the phone numbers already
             mModel = new ViewModelProvider(this).get(MainViewModel.class);
             mModel.getAllUsers().observe(getViewLifecycleOwner(), users -> {
+                Log.d(TAG, "onCreateView: users size is: " + users.size());
                 mUserListAdapter.submitList(users);
                 mBinding.loadUsersProgressBar.setVisibility(View.GONE);
             });
@@ -402,6 +403,11 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
                 mModel.readContactsWorkerEnd(deviceContacts);
             }
         });
+
+    }
+
+    @Override
+    public void observeCommonContacts() {
         mModel.commonContactsObserver.observe(getViewLifecycleOwner(), commonWorkInfo -> {
             if (commonWorkInfo != null && commonWorkInfo.getState().isFinished()) {
                 String[] commonContacts = commonWorkInfo.getOutputData().getStringArray("common_phone_numbers");
