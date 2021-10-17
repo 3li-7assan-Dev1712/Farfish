@@ -114,12 +114,12 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
         mBinding = UsersFragmentBinding.inflate(inflater, container, false);
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.VISIBLE);
         View view = mBinding.getRoot();
-
+        mModel = new ViewModelProvider(this).get(MainViewModel.class);
+        mModel.setObservers(this);
         if (ContextCompat.checkSelfPermission(
                 requireContext(), Manifest.permission.READ_CONTACTS) ==
                 PackageManager.PERMISSION_GRANTED) {
             // check if we have the phone numbers already
-            mModel = new ViewModelProvider(this).get(MainViewModel.class);
             mModel.getAllUsers().observe(getViewLifecycleOwner(), users -> {
                 Log.d(TAG, "onCreateView: users size is: " + users.size());
                 mUserListAdapter.submitList(users);
@@ -128,7 +128,6 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
         } else {
             requestPermissionToReadContacts.launch(Manifest.permission.READ_CONTACTS);
         }
-        mModel.setObservers(this);
 
         requireActivity().getSharedPreferences("filter_utils", Activity.MODE_PRIVATE).
                 registerOnSharedPreferenceChangeListener(this);
@@ -408,11 +407,14 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
 
     @Override
     public void observeCommonContacts() {
+        Log.d(TAG, "observeCommonContacts: ");
         mModel.commonContactsObserver.observe(getViewLifecycleOwner(), commonWorkInfo -> {
             if (commonWorkInfo != null && commonWorkInfo.getState().isFinished()) {
                 String[] commonContacts = commonWorkInfo.getOutputData().getStringArray("common_phone_numbers");
                 if (commonContacts != null)
                     mModel.prepareUserUserKnowList(commonContacts);
+                else
+                    Log.d(TAG, "observeCommonContacts: common contacts is null");
             }
         });
     }

@@ -20,11 +20,13 @@ import com.example.farfish.Module.workers.ReadContactsWorker;
 import com.example.farfish.Module.workers.ReadDataFromServerWorker;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class MainViewModel extends AndroidViewModel {
 
@@ -47,6 +49,7 @@ public class MainViewModel extends AndroidViewModel {
     public void setObservers(InvokeObservers observers) {
         this.invokeObservers = observers;
     }
+
     public MainViewModel(@NonNull Application application) {
         super(application);
         workManager = WorkManager.getInstance(getApplication().getApplicationContext());
@@ -57,18 +60,19 @@ public class MainViewModel extends AndroidViewModel {
             allUsers = new MutableLiveData<>(usersUserKnowList);
             loadUsers();
         }
+        Log.d(TAG, "getAllUsers: allUsers: " + Objects.requireNonNull(allUsers.getValue()).size());
         return allUsers;
     }
 
     private void loadUsers() {
         // Do an asynchronous operation to fetch users.
         fetchDataInUsersUserKnowList();
-        FirebaseFirestore.getInstance().collection("room").get()
+        FirebaseFirestore.getInstance().collection("rooms").get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     fetchPrimaryData(queryDocumentSnapshots);
                 }).addOnCompleteListener(listener -> {
-                    
-                    invokeObservers.invokeObservers();
+
+            invokeObservers.invokeObservers();
         });
     }
 
@@ -84,47 +88,51 @@ public class MainViewModel extends AndroidViewModel {
                     .build();
             workManager.enqueue(commonContactsWorker);
             commonContactsObserver = workManager.getWorkInfoByIdLiveData(commonContactsWorker.getId());
+            Log.d(TAG, "readContactsWorkerEnd: enqueue the work successfully");
             invokeObservers.observeCommonContacts();
-        }else Log.d(TAG, "readContactsWorkerEnd: deviceContacts is null");
+        } else Log.d(TAG, "readContactsWorkerEnd: deviceContacts is null");
 
     }
 
 
     private void fetchPrimaryData(QuerySnapshot queryDocumentSnapshots) {
-        if (allUsersList.size() == 0) {
-            for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
-                User user = dc.getDocument().toObject(User.class);
-                String currentUserId = FirebaseAuth.getInstance().getUid();
-                String phoneNumber = user.getPhoneNumber();
-                if (phoneNumber != null) {
-                    if (!phoneNumber.equals("")) {
-                        listServerPhoneNumber.add(phoneNumber);
-                    }
+        Log.d(TAG, "fetchPrimaryData: ");
+        for (DocumentSnapshot ds : queryDocumentSnapshots.getDocuments()) {
+            User user = ds.toObject(User.class);
+            Log.d(TAG, "fetchPrimaryData: userName: " + user.getUserName());
+            String currentUserId = FirebaseAuth.getInstance().getUid();
+            String phoneNumber = user.getPhoneNumber();
+            if (phoneNumber != null) {
+                if (!phoneNumber.equals("")) {
+                    listServerPhoneNumber.add(phoneNumber);
                 }
-                assert currentUserId != null;
-                if (!currentUserId.equals(user.getUserId()) && user.getIsPublic())
-                    allUsersList.add(user);
-                if (!currentUserId.equals(user.getUserId()))
-                    contactUsers.add(user);
             }
-            // converting from list to array
-            arrayServerPhoneNumbers = new String[listServerPhoneNumber.size()];
-            for (int i = 0; i < listServerPhoneNumber.size(); i++) {
-                arrayServerPhoneNumbers[i] = listServerPhoneNumber.get(i);
-            }
+            assert currentUserId != null;
+            if (!currentUserId.equals(user.getUserId()) && user.getIsPublic())
+                allUsersList.add(user);
+            if (!currentUserId.equals(user.getUserId()))
+                contactUsers.add(user);
         }
+        // converting from list to array
+        arrayServerPhoneNumbers = new String[listServerPhoneNumber.size()];
+        for (int i = 0; i < listServerPhoneNumber.size(); i++) {
+            arrayServerPhoneNumbers[i] = listServerPhoneNumber.get(i);
+        }
+
     }
 
-    public void prepareUserUserKnowList(String [] userContacts) {
+    public void prepareUserUserKnowList(String[] userContacts) {
         assert userContacts != null;
         for (String commonPhoneNumber : userContacts) {
             for (User userUserKnow : contactUsers) {
                 String localUserPhoneNumber = userUserKnow.getPhoneNumber();
                 if (PhoneNumberUtils.compare(commonPhoneNumber, localUserPhoneNumber)) {
+                    Log.d(TAG, "prepareUserUserKnowList: common number: " + commonPhoneNumber);
                     usersUserKnowList.add(userUserKnow);
                 }
             }
         }
+        Log.d(TAG, "prepareUserUserKnowList: userUserKnowList size is: " + usersUserKnowList.size());
         allUsers.setValue(usersUserKnowList);
     }
 
@@ -139,15 +147,16 @@ public class MainViewModel extends AndroidViewModel {
         }
     }
 
-    public interface InvokeObservers{
-        void invokeObservers();
-        void observeCommonContacts();
-    }
-
-    public void updateUsers (boolean fromContacts) {
+    public void updateUsers(boolean fromContacts) {
         if (fromContacts)
             allUsers.setValue(usersUserKnowList);
         else
             allUsers.setValue(allUsersList);
+    }
+
+    public interface InvokeObservers {
+        void invokeObservers();
+
+        void observeCommonContacts();
     }
 }
