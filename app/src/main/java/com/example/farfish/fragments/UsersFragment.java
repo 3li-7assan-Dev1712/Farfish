@@ -58,7 +58,7 @@ import java.util.List;
 import java.util.Set;
 
 public class UsersFragment extends Fragment implements ContactsListAdapter.OnChatClicked,
-        SharedPreferences.OnSharedPreferenceChangeListener {
+        SharedPreferences.OnSharedPreferenceChangeListener, MainViewModel.InvokeObservers {
     private static final String TAG = UsersFragment.class.getSimpleName();
     // users view model
     private MainViewModel mModel;
@@ -127,20 +127,7 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
         } else {
             requestPermissionToReadContacts.launch(Manifest.permission.READ_CONTACTS);
         }
-        mModel.deviceContactsObserver.observe(getViewLifecycleOwner(), workInfo -> {
-            if (workInfo != null && workInfo.getState().isFinished()) {
-                String[] deviceContacts = workInfo.getOutputData().getStringArray("contacts");
-                mModel.readContactsWorkerEnd(deviceContacts);
-            }
-        });
-        mModel.commonContactsObserver.observe(getViewLifecycleOwner(), commonWorkInfo -> {
-            if (commonWorkInfo != null && commonWorkInfo.getState().isFinished()) {
-                String[] commonContacts = commonWorkInfo.getOutputData().getStringArray("common_phone_numbers");
-                if (commonContacts != null)
-                    mModel.prepareUserUserKnowList(commonContacts);
-            }
-        });
-
+        mModel.setObservers(this);
 
         requireActivity().getSharedPreferences("filter_utils", Activity.MODE_PRIVATE).
                 registerOnSharedPreferenceChangeListener(this);
@@ -405,6 +392,23 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
             Snackbar.make(requireActivity().findViewById(R.id.bottom_nav), R.string.user_offline_msg, BaseTransientBottomBar.LENGTH_LONG)
                     .setAnchorView(R.id.bottom_nav).show();
         }
+    }
+
+    @Override
+    public void invokeObservers() {
+        mModel.deviceContactsObserver.observe(getViewLifecycleOwner(), workInfo -> {
+            if (workInfo != null && workInfo.getState().isFinished()) {
+                String[] deviceContacts = workInfo.getOutputData().getStringArray("contacts");
+                mModel.readContactsWorkerEnd(deviceContacts);
+            }
+        });
+        mModel.commonContactsObserver.observe(getViewLifecycleOwner(), commonWorkInfo -> {
+            if (commonWorkInfo != null && commonWorkInfo.getState().isFinished()) {
+                String[] commonContacts = commonWorkInfo.getOutputData().getStringArray("common_phone_numbers");
+                if (commonContacts != null)
+                    mModel.prepareUserUserKnowList(commonContacts);
+            }
+        });
     }
 
     /*

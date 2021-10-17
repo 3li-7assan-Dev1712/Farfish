@@ -40,15 +40,20 @@ public class MainViewModel extends AndroidViewModel {
     // observers
     public LiveData<WorkInfo> deviceContactsObserver;
     public LiveData<WorkInfo> commonContactsObserver;
+
+    private InvokeObservers invokeObservers;
+
+    public void setObservers(InvokeObservers observers) {
+        this.invokeObservers = observers;
+    }
     public MainViewModel(@NonNull Application application) {
         super(application);
         workManager = WorkManager.getInstance(getApplication().getApplicationContext());
-
     }
 
     public LiveData<List<User>> getAllUsers() {
         if (allUsers == null) {
-            allUsers = new MutableLiveData<>();
+            allUsers = new MutableLiveData<>(usersUserKnowList);
             loadUsers();
         }
         return allUsers;
@@ -60,7 +65,13 @@ public class MainViewModel extends AndroidViewModel {
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     fetchPrimaryData(queryDocumentSnapshots);
                     fetchDataInUsersUserKnowList();
-                });
+                }).addOnCompleteListener(listener -> {
+                    invokeObservers.invokeObservers();
+        });
+    }
+
+    public static interface InvokeObservers{
+        void invokeObservers();
     }
 
 
