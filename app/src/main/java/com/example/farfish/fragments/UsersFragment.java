@@ -91,6 +91,7 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
             mModel.getAllUsers().observe(getViewLifecycleOwner(), users -> {
                 Log.d(TAG, "onCreateView: users size is: " + users.size());
                 mUserListAdapter.submitList(users);
+                mBinding.loadUsersProgressBar.setVisibility(View.GONE);
             });
         } else {
             requestPermissionToReadContacts.launch(Manifest.permission.READ_CONTACTS);
@@ -141,27 +142,10 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
     @Override
     public void onChatClicked(int position) {
 
-        String targetUserName;
-        String photoUrl;
-        String targetUserEmail;
-        String userStatus;
-        String targetUserId;
-        long lastTimeSeen;
         User selectedUser = mModel.getUsersRepository().getUserInPosition(position, getFilterState());
-        targetUserName = selectedUser.getUserName();
-        photoUrl = selectedUser.getPhotoUrl();
-        targetUserEmail = selectedUser.getEmail();
-        userStatus = selectedUser.getStatus();
-        targetUserId = selectedUser.getUserId();
-        lastTimeSeen = selectedUser.getLastTimeSeen();
+        String targetUserId = selectedUser.getUserId();
         Bundle primaryDataBundle = new Bundle();
-        primaryDataBundle.putString("target_user_name", targetUserName);
-        primaryDataBundle.putString("target_user_photo_url", photoUrl);
         primaryDataBundle.putString("target_user_id", targetUserId);
-        primaryDataBundle.putString("target_user_email", targetUserEmail);
-        primaryDataBundle.putString("target_user_status", userStatus);
-        primaryDataBundle.putLong("target_user_last_time_seen", lastTimeSeen);
-
         NavController controller = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         controller.navigate(R.id.action_usersFragment_to_chatsFragment, primaryDataBundle);
     }
