@@ -63,16 +63,18 @@ public class MainViewModel extends AndroidViewModel {
         return allUsers;
     }
 
+    public User getUserInPosition(int position, boolean fromContacts) {
+        if (fromContacts)
+            return usersUserKnowList.get(position);
+        else
+            return allUsersList.get(position);
+    }
+
     private void loadUsers() {
         // Do an asynchronous operation to fetch users.
         fetchDataInUsersUserKnowList();
         FirebaseFirestore.getInstance().collection("rooms").get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    fetchPrimaryData(queryDocumentSnapshots);
-                }).addOnCompleteListener(listener -> {
-
-            invokeObservers.invokeObservers();
-        });
+                .addOnSuccessListener(this::fetchPrimaryData).addOnCompleteListener(listener -> invokeObservers.invokeObservers());
     }
 
     public void readContactsWorkerEnd(String[] deviceContacts) {
@@ -98,8 +100,8 @@ public class MainViewModel extends AndroidViewModel {
         Log.d(TAG, "fetchPrimaryData: ");
         for (DocumentSnapshot ds : queryDocumentSnapshots.getDocuments()) {
             User user = ds.toObject(User.class);
-            Log.d(TAG, "fetchPrimaryData: userName: " + user.getUserName());
             String currentUserId = FirebaseAuth.getInstance().getUid();
+            assert user != null;
             String phoneNumber = user.getPhoneNumber();
             if (phoneNumber != null) {
                 if (!phoneNumber.equals("")) {

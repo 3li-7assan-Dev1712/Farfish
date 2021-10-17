@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.telephony.PhoneNumberUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -28,34 +27,18 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.work.Data;
-import androidx.work.ExistingWorkPolicy;
-import androidx.work.OneTimeWorkRequest;
-import androidx.work.WorkManager;
-import androidx.work.WorkRequest;
 
 import com.example.farfish.Adapters.ContactsListAdapter;
 import com.example.farfish.Module.Connection;
 import com.example.farfish.Module.FilterPreferenceUtils;
-import com.example.farfish.Module.MessagesPreference;
 import com.example.farfish.Module.SharedPreferenceUtils;
 import com.example.farfish.Module.User;
-import com.example.farfish.Module.workers.ReadContactsWorker;
-import com.example.farfish.Module.workers.ReadDataFromServerWorker;
 import com.example.farfish.R;
 import com.example.farfish.data.MainViewModel;
 import com.example.farfish.databinding.UsersFragmentBinding;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentChange;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 public class UsersFragment extends Fragment implements ContactsListAdapter.OnChatClicked,
         SharedPreferences.OnSharedPreferenceChangeListener, MainViewModel.InvokeObservers {
@@ -64,32 +47,17 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
     private MainViewModel mModel;
     private UsersFragmentBinding mBinding;
     private FirebaseAuth mAuth;
-    private List<User> publicUsers;
-    private List<User> contactUsers;
-    private List<User> usersUserKnow;
     /*private ContactsAdapter usersAdapter;*/
     private ContactsListAdapter mUserListAdapter;
-    private FirebaseFirestore mFirestore;
     private NavController mNavController;
-
-    private List<String> mPhonNumbersFromServer = new ArrayList<>();
-
-    private String[] serverPhoneNumbers;
-
-    private WorkManager mWorkManager;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         setHasOptionsMenu(true);
-        mFirestore = FirebaseFirestore.getInstance();
-        publicUsers = new ArrayList<>();
-        contactUsers = new ArrayList<>();
-        usersUserKnow = new ArrayList<>();
         /*usersAdapter = new ContactsAdapter(requireContext(), publicUsers, this);*/
         mUserListAdapter = new ContactsListAdapter(this);
         /*firebase database & auth*/
         mAuth = FirebaseAuth.getInstance();
-        mWorkManager = WorkManager.getInstance(requireContext());
         super.onCreate(savedInstanceState);
     }
 
@@ -97,10 +65,8 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
     private ActivityResultLauncher<String> requestPermissionToReadContacts =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
-                    mModel.getAllUsers().observe(getViewLifecycleOwner(), users -> {
-                        mUserListAdapter.submitList(users);
-                        mBinding.loadUsersProgressBar.setVisibility(View.GONE);
-                    });
+                    mModel.getAllUsers().observe(getViewLifecycleOwner(), users ->
+                            mUserListAdapter.submitList(users));
                 } else {
                     Toast.makeText(requireContext(),
                             getString(R.string.access_contacts_permission_msg), Toast.LENGTH_LONG).show();
@@ -116,6 +82,7 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
         View view = mBinding.getRoot();
         mModel = new ViewModelProvider(this).get(MainViewModel.class);
         mModel.setObservers(this);
+        if (mBinding != null) mBinding.loadUsersProgressBar.setVisibility(View.VISIBLE);
         if (ContextCompat.checkSelfPermission(
                 requireContext(), Manifest.permission.READ_CONTACTS) ==
                 PackageManager.PERMISSION_GRANTED) {
@@ -123,7 +90,6 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
             mModel.getAllUsers().observe(getViewLifecycleOwner(), users -> {
                 Log.d(TAG, "onCreateView: users size is: " + users.size());
                 mUserListAdapter.submitList(users);
-                mBinding.loadUsersProgressBar.setVisibility(View.GONE);
             });
         } else {
             requestPermissionToReadContacts.launch(Manifest.permission.READ_CONTACTS);
@@ -153,38 +119,6 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
         return view;
     }
 
-    private void initializeDataDirectly(Set<String> commonContacts) {
-        String currentId = MessagesPreference.getUserId(requireContext());
-        mFirestore.collection("rooms").get().addOnSuccessListener(queryDocumentSnapshots -> {
-            if (publicUsers.size() == 0) {
-                for (DocumentSnapshot userSnapshot : queryDocumentSnapshots.getDocuments()) {
-                    User user = userSnapshot.toObject(User.class);
-                    assert user != null;
-                    String userId = user.getUserId();
-                    if (!userId.equals(currentId) && user.getIsPublic()) {
-                        publicUsers.add(user);
-                    }
-                    // even if the user's privacy is private they will be visible for the contacts, as the the user
-                    // expects
-                    if (!userId.equals(currentId)) {
-                        contactUsers.add(user);
-                    }
-                    String userPhoneNumber = user.getPhoneNumber();
-                    Log.d(TAG, "initializeDataDirectly: user id from shared preferences" + currentId);
-                    Log.d(TAG, "initializeDataDirectly: user id from server: " + currentId);
-                    for (String number : commonContacts) {
-                        if (PhoneNumberUtils.compare(number, userPhoneNumber) && !currentId.equals(userId))
-                            usersUserKnow.add(user);
-                    }
-                }
-            }
-        }).addOnCompleteListener(comp -> {
-            mBinding.loadUsersProgressBar.setVisibility(View.GONE);
-            if (getFilterState()) mUserListAdapter.submitList(usersUserKnow);
-            else mUserListAdapter.submitList(publicUsers);
-
-        });
-    }
 
     private void updateFilterImageResoucre() {
         if (getFilterState())
@@ -202,104 +136,6 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
         mBinding = null;
     }
 
-    private void initializeUserAndData() {
-        /*makeUserActive();*/
-        Log.d(TAG, "initializeUserAndData: start getting data");
-        mFirestore.collection("rooms")
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    // this method will fetch the primary data (insert all users inside users list)
-                    fetchPrimaryData(queryDocumentSnapshots);
-                    // this method will use the users list from above and filter it to users whom current user have in contacts
-                    fetchDataInUsersUserKnowList();
-                    // save it in a SharedPreference
-                    // check for the filter state then populate the ui
-                    if (getFilterState()) mUserListAdapter.submitList(usersUserKnow);
-                    else mUserListAdapter.submitList(publicUsers);
-                }).addOnFailureListener(exception -> Log.d(TAG, "initializeUserAndData: the exception in the new query caused by" +
-                exception.getMessage())).addOnCompleteListener(c -> {
-
-        });
-
-    }
-
-    private void fetchDataInUsersUserKnowList() {
-        if (usersUserKnow.size() == 0) {
-
-            // for WorkManager functionality
-            OneTimeWorkRequest contactsWork = new OneTimeWorkRequest.Builder(ReadContactsWorker.class)
-                    .build();
-            mWorkManager.enqueueUniqueWork("read_contacts_work", ExistingWorkPolicy.KEEP, contactsWork);
-            mWorkManager.getWorkInfoByIdLiveData(contactsWork.getId())
-                    .observe(getViewLifecycleOwner(), info -> {
-                        if (info != null && info.getState().isFinished()) {
-                            String[] userContacts = info.getOutputData().getStringArray("contacts");
-                            assert userContacts != null;
-                            Data input = new Data.Builder()
-                                    .putStringArray("device_contacts", userContacts)
-                                    .putStringArray("server_contacts", serverPhoneNumbers)
-                                    .build();
-                            WorkRequest commonContactsWorker = new OneTimeWorkRequest.Builder(ReadDataFromServerWorker.class)
-                                    .setInputData(input)
-                                    .build();
-                            mWorkManager.enqueue(commonContactsWorker);
-                            filterUsers(commonContactsWorker);
-                        }
-                    });
-        }
-    }
-
-    private void filterUsers(WorkRequest commonContactsWorker) {
-        mWorkManager.getWorkInfoByIdLiveData(commonContactsWorker.getId())
-                .observe(getViewLifecycleOwner(), info -> {
-                    if (info != null && info.getState().isFinished()) {
-                        String[] userContacts = info.getOutputData().getStringArray("common_phone_numbers");
-                        assert userContacts != null;
-                        for (String commonPhoneNumber : userContacts) {
-                            Log.d(TAG, "initializeUserAndData: common phone number is: " +
-                                    commonPhoneNumber);
-                            for (User userUserKnow : contactUsers) {
-                                String localUserPhoneNumber = userUserKnow.getPhoneNumber();
-                                if (PhoneNumberUtils.compare(commonPhoneNumber, localUserPhoneNumber)) {
-                                    usersUserKnow.add(userUserKnow);
-                                }
-                            }
-                        }
-                        // hide the progress bar and hide the progress bar
-                        mBinding.loadUsersProgressBar.setVisibility(View.GONE);
-                        FilterPreferenceUtils.disableUsersFilter(requireContext());
-
-                    }
-                });
-    }
-
-    private void fetchPrimaryData(QuerySnapshot queryDocumentSnapshots) {
-        if (publicUsers.size() == 0) {
-            for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
-                User user = dc.getDocument().toObject(User.class);
-                String currentUserId = mAuth.getUid();
-                Log.d(TAG, "initializeUserAndData: mildle");
-                String phoneNumber = user.getPhoneNumber();
-                Log.d(TAG, "initializeUserAndData: phoneNumberSever: " + phoneNumber);
-                if (phoneNumber != null) {
-                    if (!phoneNumber.equals("")) {
-                        mPhonNumbersFromServer.add(phoneNumber);
-                    }
-                }
-                assert currentUserId != null;
-                if (!currentUserId.equals(user.getUserId()) && user.getIsPublic())
-                    publicUsers.add(user);
-                if (!currentUserId.equals(user.getUserId()))
-                    contactUsers.add(user);
-            }
-            serverPhoneNumbers = new String[mPhonNumbersFromServer.size()];
-            for (int i = 0; i < mPhonNumbersFromServer.size(); i++) {
-                serverPhoneNumbers[i] = mPhonNumbersFromServer.get(i);
-            }
-        }
-        Log.d(TAG, "fetchPrimaryData: uses list size: " + publicUsers.size());
-    }
-
 
     @Override
     public void onChatClicked(int position) {
@@ -310,22 +146,13 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
         String userStatus;
         String targetUserId;
         long lastTimeSeen;
-
-        if (getFilterState()) {
-            targetUserName = usersUserKnow.get(position).getUserName();
-            photoUrl = usersUserKnow.get(position).getPhotoUrl();
-            targetUserEmail = usersUserKnow.get(position).getEmail();
-            userStatus = usersUserKnow.get(position).getStatus();
-            targetUserId = usersUserKnow.get(position).getUserId();
-            lastTimeSeen = usersUserKnow.get(position).getLastTimeSeen();
-        } else {
-            targetUserName = publicUsers.get(position).getUserName();
-            photoUrl = publicUsers.get(position).getPhotoUrl();
-            targetUserEmail = publicUsers.get(position).getEmail();
-            userStatus = publicUsers.get(position).getStatus();
-            lastTimeSeen = publicUsers.get(position).getLastTimeSeen();
-            targetUserId = publicUsers.get(position).getUserId();
-        }
+        User selectedUser = mModel.getUserInPosition(position, getFilterState());
+        targetUserName = selectedUser.getUserName();
+        photoUrl = selectedUser.getPhotoUrl();
+        targetUserEmail = selectedUser.getEmail();
+        userStatus = selectedUser.getStatus();
+        targetUserId = selectedUser.getUserId();
+        lastTimeSeen = selectedUser.getLastTimeSeen();
         Bundle primaryDataBundle = new Bundle();
         primaryDataBundle.putString("target_user_name", targetUserName);
         primaryDataBundle.putString("target_user_photo_url", photoUrl);
@@ -422,14 +249,7 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
     @Override
     public void prepareDataFinished() {
         mModel.updateUsers(getFilterState());
+        mBinding.loadUsersProgressBar.setVisibility(View.GONE);
     }
-    /*
-     * that's it it's super easy to create and to migrate from normal Adapter into ListAdapter
-     * this functionality real give the app better performance and make even faster
-     *
-     * know it's time for testing
-     *
-     * It was Ali Hassan Ibrahim Alzubair
-     * Android Developer @farfish
-     * */
+
 }
