@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
@@ -42,15 +43,11 @@ import com.example.farfish.Module.User;
 import com.example.farfish.Module.workers.ReadContactsWorker;
 import com.example.farfish.Module.workers.ReadDataFromServerWorker;
 import com.example.farfish.R;
+import com.example.farfish.data.MainViewModel;
 import com.example.farfish.databinding.UsersFragmentBinding;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -63,6 +60,8 @@ import java.util.Set;
 public class UsersFragment extends Fragment implements ContactsListAdapter.OnChatClicked,
         SharedPreferences.OnSharedPreferenceChangeListener {
     private static final String TAG = UsersFragment.class.getSimpleName();
+    // users view model
+    private MainViewModel mModel;
     private UsersFragmentBinding mBinding;
     private FirebaseAuth mAuth;
     private List<User> publicUsers;
@@ -98,7 +97,10 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
     private ActivityResultLauncher<String> requestPermissionToReadContacts =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
-                    initializeUserAndData();
+                    mModel.getAllUsers().observe(getViewLifecycleOwner(), users -> {
+                        mUserListAdapter.submitList(users);
+                        mBinding.loadUsersProgressBar.setVisibility(View.GONE);
+                    });
                 } else {
                     Toast.makeText(requireContext(),
                             getString(R.string.access_contacts_permission_msg), Toast.LENGTH_LONG).show();
@@ -111,22 +113,33 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mBinding = UsersFragmentBinding.inflate(inflater, container, false);
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.VISIBLE);
-
         View view = mBinding.getRoot();
 
-        if (publicUsers.size() == 0) {
-            // check for the contacts permission if it's granted or not
-            if (ContextCompat.checkSelfPermission(
-                    requireContext(), Manifest.permission.READ_CONTACTS) ==
-                    PackageManager.PERMISSION_GRANTED) {
-                // check if we have the phone numbers already
-                initializeUserAndData();
-            } else {
-                requestPermissionToReadContacts.launch(Manifest.permission.READ_CONTACTS);
-            }
+        if (ContextCompat.checkSelfPermission(
+                requireContext(), Manifest.permission.READ_CONTACTS) ==
+                PackageManager.PERMISSION_GRANTED) {
+            // check if we have the phone numbers already
+            mModel = new ViewModelProvider(this).get(MainViewModel.class);
+            mModel.getAllUsers().observe(getViewLifecycleOwner(), users -> {
+                mUserListAdapter.submitList(users);
+                mBinding.loadUsersProgressBar.setVisibility(View.GONE);
+            });
         } else {
-            mBinding.loadUsersProgressBar.setVisibility(View.GONE);
+            requestPermissionToReadContacts.launch(Manifest.permission.READ_CONTACTS);
         }
+        mModel.deviceContactsObserver.observe(getViewLifecycleOwner(), workInfo -> {
+            if (workInfo != null && workInfo.getState().isFinished()) {
+                String[] deviceContacts = workInfo.getOutputData().getStringArray("contacts");
+                mModel.readContactsWorkerEnd(deviceContacts);
+            }
+        });
+        mModel.commonContactsObserver.observe(getViewLifecycleOwner(), commonWorkInfo -> {
+            if (commonWorkInfo != null && commonWorkInfo.getState().isFinished()) {
+                String[] commonContacts = commonWorkInfo.getOutputData().getStringArray("common_phone_numbers");
+                if (commonContacts != null)
+                    mModel.prepareUserUserKnowList(commonContacts);
+            }
+        });
 
 
         requireActivity().getSharedPreferences("filter_utils", Activity.MODE_PRIVATE).
@@ -366,10 +379,11 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
                 .putExtra(Intent.EXTRA_TEXT, getString(R.string.type_your_issue));
         try {
             startActivity(Intent.createChooser(emailIntent, getString(R.string.choose_app_to_send_emial)));
-        }catch (ActivityNotFoundException ex){
+        } catch (ActivityNotFoundException ex) {
             Toast.makeText(requireActivity(), getString(R.string.no_app_found), Toast.LENGTH_SHORT).show();
         }
     }
+
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         inflater.inflate(R.menu.main, menu);
@@ -379,12 +393,7 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         boolean activeFilter = sharedPreferences.getBoolean(key, true);
         Log.d(TAG, "onSharedPreferenceChanged: filter state: " + activeFilter);
-        if (activeFilter) {
-            mUserListAdapter.submitList(usersUserKnow);
-        } else {
-            mUserListAdapter.submitList(publicUsers);
-            Log.d(TAG, "onSharedPreferenceChanged: list of users size is: " + publicUsers.size());
-        }
+        mModel.updateUsers(activeFilter);
     }
 
     private Boolean getFilterState() {

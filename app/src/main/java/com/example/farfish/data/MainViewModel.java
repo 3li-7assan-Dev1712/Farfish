@@ -10,6 +10,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
 
@@ -36,9 +37,13 @@ public class MainViewModel extends AndroidViewModel {
     private List<String> listServerPhoneNumber = new ArrayList<>();
     private String[] arrayServerPhoneNumbers;
 
+    // observers
+    public LiveData<WorkInfo> deviceContactsObserver;
+    public LiveData<WorkInfo> commonContactsObserver;
     public MainViewModel(@NonNull Application application) {
         super(application);
         workManager = WorkManager.getInstance(getApplication().getApplicationContext());
+
     }
 
     public LiveData<List<User>> getAllUsers() {
@@ -56,7 +61,6 @@ public class MainViewModel extends AndroidViewModel {
                     fetchPrimaryData(queryDocumentSnapshots);
                     fetchDataInUsersUserKnowList();
                 });
-
     }
 
 
@@ -85,7 +89,7 @@ public class MainViewModel extends AndroidViewModel {
         }
     }
 
-    private void prepareUserUserKnowList(String [] userContacts) {
+    public void prepareUserUserKnowList(String [] userContacts) {
         assert userContacts != null;
         for (String commonPhoneNumber : userContacts) {
             for (User userUserKnow : contactUsers) {
@@ -95,55 +99,37 @@ public class MainViewModel extends AndroidViewModel {
                 }
             }
         }
+        allUsers.setValue(usersUserKnowList);
     }
+
     private void fetchDataInUsersUserKnowList() {
 
         if (usersUserKnowList.size() == 0) {
             // for WorkManager functionality
             OneTimeWorkRequest contactsWork = new OneTimeWorkRequest.Builder(ReadContactsWorker.class)
                     .build();
-
             workManager.enqueueUniqueWork("read_contacts_work", ExistingWorkPolicy.KEEP, contactsWork);
-            workManager.getWorkInfoByIdLiveData(contactsWork.getId())
-                    .observe(() -> {
-                        return null;
-                    }, info -> {
-                        if (info != null && info.getState().isFinished()) {
-                            String[] userContacts = info.getOutputData().getStringArray("contacts");
-                            assert userContacts != null;
-                            Data input = new Data.Builder()
-                                    .putStringArray("device_contacts", userContacts)
-                                    .putStringArray("server_contacts", arrayServerPhoneNumbers)
-                                    .build();
-                            WorkRequest commonContactsWorker = new OneTimeWorkRequest.Builder(ReadDataFromServerWorker.class)
-                                    .setInputData(input)
-                                    .build();
-                            workManager.enqueue(commonContactsWorker);
-                            filterUsers(commonContactsWorker);
-                        }
-                    });
+            deviceContactsObserver = workManager.getWorkInfoByIdLiveData(contactsWork.getId());
         }
     }
 
-    private void filterUsers(WorkRequest commonContactsWorker) {
-        workManager.getWorkInfoByIdLiveData(commonContactsWorker.getId())
-                .observe(() -> {
-                    return null;
-                }, info -> {
-                    if (info != null && info.getState().isFinished()) {
-                        String[] userContacts = info.getOutputData().getStringArray("common_phone_numbers");
-                        assert userContacts != null;
-                        for (String commonPhoneNumber : userContacts) {
-                            for (User userUserKnow : contactUsers) {
-                                String localUserPhoneNumber = userUserKnow.getPhoneNumber();
-                                if (PhoneNumberUtils.compare(commonPhoneNumber, localUserPhoneNumber)) {
-                                    usersUserKnowList.add(userUserKnow);
-                                }
-                            }
-                        }
-                        FilterPreferenceUtils.disableUsersFilter(getApplication().getApplicationContext());
-                    }
-                });
+    public void readContactsWorkerEnd(String[] deviceContacts) {
+        assert deviceContacts != null;
+        Data input = new Data.Builder()
+                .putStringArray("device_contacts", deviceContacts)
+                .putStringArray("server_contacts", arrayServerPhoneNumbers)
+                .build();
+        WorkRequest commonContactsWorker = new OneTimeWorkRequest.Builder(ReadDataFromServerWorker.class)
+                .setInputData(input)
+                .build();
+        workManager.enqueue(commonContactsWorker);
+        commonContactsObserver = workManager.getWorkInfoByIdLiveData(commonContactsWorker.getId());
     }
 
+    public void updateUsers (boolean fromContacts) {
+        if (fromContacts)
+            allUsers.setValue(usersUserKnowList);
+        else
+            allUsers.setValue(allUsersList);
+    }
 }
