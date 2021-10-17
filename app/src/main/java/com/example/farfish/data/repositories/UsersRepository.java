@@ -88,6 +88,7 @@ public class UsersRepository {
                 contactUsers.add(user);
         }
         // converting from list to array
+
         arrayServerPhoneNumbers = new String[listServerPhoneNumber.size()];
         for (int i = 0; i < listServerPhoneNumber.size(); i++) {
             arrayServerPhoneNumbers[i] = listServerPhoneNumber.get(i);
