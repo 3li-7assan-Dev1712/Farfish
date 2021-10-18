@@ -61,15 +61,15 @@ public class UsersRepository {
 
     }
 
-    public void readContactsWorkerEnd(String[] deviceContacts) {
+    public void readContactsWorkerEnd(List<String> deviceContacts) {
         Log.d(TAG, "readContactsWorkerEnd: ");
         if (deviceContacts != null) {
-            Data input = new Data.Builder()
+            /*Data input = new Data.Builder()
                     .putStringArray("device_contacts", deviceContacts)
                     .putStringArray("server_contacts", arrayServerPhoneNumbers)
-                    .build();
+                    .build();*/
+            ReadDataFromServerWorker.setLists(deviceContacts, listServerPhoneNumber);
             WorkRequest commonContactsWorker = new OneTimeWorkRequest.Builder(ReadDataFromServerWorker.class)
-                    .setInputData(input)
                     .build();
             workManager.enqueue(commonContactsWorker);
             commonContactsObserver = workManager.getWorkInfoByIdLiveData(commonContactsWorker.getId());
@@ -106,9 +106,9 @@ public class UsersRepository {
 
     }
 
-    public void prepareUserUserKnowList(String[] userContacts) {
-        assert userContacts != null;
-        for (String commonPhoneNumber : userContacts) {
+    public void prepareUserUserKnowList(List<String> commonContacts) {
+        assert commonContacts != null;
+        for (String commonPhoneNumber : commonContacts) {
             for (User userUserKnow : contactUsers) {
                 String localUserPhoneNumber = userUserKnow.getPhoneNumber();
                 if (PhoneNumberUtils.compare(commonPhoneNumber, localUserPhoneNumber)) {

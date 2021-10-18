@@ -14,6 +14,7 @@ import java.util.List;
 
 public class ReadContactsWorker extends Worker {
 
+    public static List<String> contactsList = new ArrayList<>();
     public ReadContactsWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
     }
@@ -23,7 +24,7 @@ public class ReadContactsWorker extends Worker {
     public Result doWork() {
         // background thread
 
-        List<String> contactsList = new ArrayList<>();
+
 
         Cursor contactsCursor = getApplicationContext().getContentResolver()
                 .query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
@@ -42,6 +43,7 @@ public class ReadContactsWorker extends Worker {
             numbers[i] = contactsList.get(i);
 
         }
+
         Data output = new Data.Builder()
                 .putStringArray("contacts", numbers)
                 .build();
@@ -61,5 +63,9 @@ WorkManager
 
 
         * */
+    }
+
+    public List<String> getContactsList() {
+        return contactsList;
     }
 }

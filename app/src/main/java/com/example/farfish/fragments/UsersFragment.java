@@ -33,6 +33,8 @@ import com.example.farfish.Module.Connection;
 import com.example.farfish.Module.FilterPreferenceUtils;
 import com.example.farfish.Module.SharedPreferenceUtils;
 import com.example.farfish.Module.User;
+import com.example.farfish.Module.workers.ReadContactsWorker;
+import com.example.farfish.Module.workers.ReadDataFromServerWorker;
 import com.example.farfish.R;
 import com.example.farfish.data.MainViewModel;
 import com.example.farfish.data.repositories.UsersRepository;
@@ -40,6 +42,8 @@ import com.example.farfish.databinding.UsersFragmentBinding;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
+
+import java.util.List;
 
 public class UsersFragment extends Fragment implements ContactsListAdapter.OnChatClicked,
         SharedPreferences.OnSharedPreferenceChangeListener, UsersRepository.InvokeObservers {
@@ -209,7 +213,8 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
     public void invokeObservers() {
         mModel.getUsersRepository().deviceContactsObserver.observe(getViewLifecycleOwner(), workInfo -> {
             if (workInfo != null && workInfo.getState().isFinished()) {
-                String[] deviceContacts = workInfo.getOutputData().getStringArray("contacts");
+              /*  String[] deviceContacts = workInfo.getOutputData().getStringArray("contacts");*/
+                List<String> deviceContacts = ReadContactsWorker.contactsList;
                 mModel.getUsersRepository().readContactsWorkerEnd(deviceContacts);
             }
         });
@@ -221,7 +226,7 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
         Log.d(TAG, "observeCommonContacts: ");
         mModel.getUsersRepository().commonContactsObserver.observe(getViewLifecycleOwner(), commonWorkInfo -> {
             if (commonWorkInfo != null && commonWorkInfo.getState().isFinished()) {
-                String[] commonContacts = commonWorkInfo.getOutputData().getStringArray("common_phone_numbers");
+                List<String> commonContacts = ReadDataFromServerWorker.getCommonPhoneNumbers();
                 if (commonContacts != null)
                     mModel.getUsersRepository().prepareUserUserKnowList(commonContacts);
                 else
