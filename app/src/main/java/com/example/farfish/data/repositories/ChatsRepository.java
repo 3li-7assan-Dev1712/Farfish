@@ -13,19 +13,22 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ChatRepository implements ValueEventListener {
+public class ChatsRepository implements ValueEventListener {
     private DatabaseReference mChatsReference;
     private List<Message> mUserChats;
     private String mCurrentUserId;
     private Context mContext;
     private DataReadyInterface mDataReadyInterface;
-    public ChatRepository(Context context, DataReadyInterface dataReadyInterface) {
+    public ChatsRepository(Context context) {
         mUserChats = new ArrayList<>();
-        this.mDataReadyInterface = dataReadyInterface;
         mContext = context;
         mCurrentUserId = MessagesPreference.getUserId(context);
         mChatsReference = FirebaseDatabase.getInstance().getReference("rooms")
                 .child(mCurrentUserId);
+    }
+
+    public void setDataReadyInterface(DataReadyInterface mDataReadyInterface) {
+        this.mDataReadyInterface = mDataReadyInterface;
     }
 
     public void loadAllChats() {
@@ -76,4 +79,5 @@ public class ChatRepository implements ValueEventListener {
     public interface DataReadyInterface {
         void dataIsReady();
     }
+
 }

@@ -17,6 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
@@ -34,6 +35,8 @@ import com.example.farfish.Module.NotificationUtils;
 import com.example.farfish.Module.SharedPreferenceUtils;
 import com.example.farfish.Module.workers.CleanUpOldDataPeriodicWork;
 import com.example.farfish.R;
+import com.example.farfish.data.MainViewModel;
+import com.example.farfish.data.repositories.ChatsRepository;
 import com.example.farfish.databinding.FragmentUserChatsBinding;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
@@ -49,7 +52,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 
-public class UserChatsFragment extends Fragment implements MessagesListAdapter.ChatClick, ValueEventListener {
+public class UserChatsFragment extends Fragment implements MessagesListAdapter.ChatClick, ValueEventListener ,
+        ChatsRepository.DataReadyInterface {
 
     private FirebaseAuth mAuth;
     private static final String TAG = UserChatsFragment.class.getSimpleName();
@@ -59,6 +63,7 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
     private NavController mNavController;
     private String mCurrentUserId;
 
+    private MainViewModel mainViewModel;
 
     private FragmentUserChatsBinding mBinding;
 
@@ -117,6 +122,11 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
             initializeUserAndData();
         else
             mBinding.userChatsProgressBar.setVisibility(View.GONE);
+        mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
+        mainViewModel.getChatsRepository().setDataReadyInterface(this);
+        mainViewModel.getUserChats().observe(getViewLifecycleOwner(), userChats -> {
+            mListAdapter.submitList(userChats);
+        });
         checkUserConnection();
 
         return view;
@@ -267,5 +277,10 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
 
     public static List<Message> getMessages() {
         return messages;
+    }
+
+    @Override
+    public void dataIsReady() {
+        mainViewModel.updateChats();
     }
 }
