@@ -3,6 +3,7 @@ package com.example.farfish.Module;
 import android.telephony.PhoneNumberUtils;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
@@ -11,6 +12,7 @@ import androidx.room.PrimaryKey;
 public class User {
     private String userName, email, phoneNumber, photoUrl;
     @PrimaryKey
+    @NonNull
     private String userId;
     private String status;
     private boolean isActive, isPublic;
@@ -90,5 +92,41 @@ public class User {
             return false;
         }
 
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public void setPhotoUrl(String photoUrl) {
+        this.photoUrl = photoUrl;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
+    }
+
+    public void setPublic(boolean aPublic) {
+        isPublic = aPublic;
+    }
+
+    public void setLastTimeSeen(long lastTimeSeen) {
+        this.lastTimeSeen = lastTimeSeen;
     }
 }

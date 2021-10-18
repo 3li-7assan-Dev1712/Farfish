@@ -15,9 +15,8 @@ abstract public class AppDatabase extends RoomDatabase {
 
     // creating this abstract class is very expensive that's whey we should use the Single design pattern
     private static volatile AppDatabase instance;
-private AppDatabase() {}
 
-    static synchronized AppDatabase getInstance(Context context) {
+    public static synchronized AppDatabase getInstance(Context context) {
         if (instance == null) {
             instance = create(context);
         }
@@ -31,5 +30,5 @@ private AppDatabase() {}
                 DB_NAME).build();
     }
 
-    abstract UsersDao getUserDao();
+    public abstract UsersDao getUserDao();
 }

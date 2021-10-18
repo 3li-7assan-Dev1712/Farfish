@@ -1,5 +1,6 @@
 package com.example.farfish.data;
 
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
@@ -8,6 +9,7 @@ import androidx.room.Query;
 import com.example.farfish.Module.User;
 
 import java.util.List;
+import java.util.Set;
 
 import static androidx.room.OnConflictStrategy.REPLACE;
 
@@ -15,10 +17,10 @@ import static androidx.room.OnConflictStrategy.REPLACE;
 public interface UsersDao {
 
     @Query("SELECT * FROM User WHERE phoneNumber IN  (:numbers)  ORDER BY lastTimeSeen")
-    MutableLiveData<List<User>> getAllUsersUserMayKnow(List<String> numbers);
+    LiveData<List<User>> getAllUsersUserMayKnow(Set<String> numbers);
 
     @Query("SELECT * FROM User WHERE (isPublic = :isPublic) ORDER BY lastTimeSeen")
-    MutableLiveData<List<User>> getAllPublicUser(boolean isPublic);
+    LiveData<List<User>> getAllPublicUser(boolean isPublic);
 
     @Insert(onConflict = REPLACE)
     void saveAllUsers(List<User> allUsers);

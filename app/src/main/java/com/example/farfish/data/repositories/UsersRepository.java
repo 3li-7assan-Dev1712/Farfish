@@ -12,16 +12,20 @@ import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
 
+import com.example.farfish.Module.MessagesPreference;
 import com.example.farfish.Module.User;
 import com.example.farfish.Module.workers.ReadContactsWorker;
 import com.example.farfish.Module.workers.ReadDataFromServerWorker;
+import com.example.farfish.data.AppDatabase;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.Source;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class UsersRepository {
     private static final String TAG = UsersRepository.class.getSimpleName();
@@ -36,8 +40,10 @@ public class UsersRepository {
     // phone numbers
     private List<String> listServerPhoneNumber = new ArrayList<>();
     private String[] arrayServerPhoneNumbers;
+    private Context context;
     public UsersRepository(Context context) {
         workManager = WorkManager.getInstance(context);
+        this.context = context;
     }
 
     public void setObservers(UsersRepository.InvokeObservers observers) {
@@ -46,8 +52,15 @@ public class UsersRepository {
 
     public void loadUsers() {
         // Do an asynchronous operation to fetch users.
+       /* usersUserKnowList = AppDatabase.getInstance(context).getUserDao().getAllUsersUserMayKnow(MessagesPreference.getUserContacts(context)).getValue();
+        allUsersList = AppDatabase.getInstance(context).getUserDao().getAllPublicUser(true).getValue();
+        invokeObservers.prepareDataFinished();*/
+        refreshData();
+    }
+
+    private void refreshData() {
         fetchDataInUsersUserKnowList();
-        FirebaseFirestore.getInstance().collection("rooms").get()
+        FirebaseFirestore.getInstance().collection("rooms").get(Source.SERVER)
                 .addOnSuccessListener(this::fetchPrimaryData).addOnCompleteListener(listener -> invokeObservers.invokeObservers());
     }
 
@@ -88,7 +101,7 @@ public class UsersRepository {
                 contactUsers.add(user);
         }
         // converting from list to array
-
+        AppDatabase.getInstance(context).getUserDao().saveAllUsers(allUsersList);
         arrayServerPhoneNumbers = new String[listServerPhoneNumber.size()];
         for (int i = 0; i < listServerPhoneNumber.size(); i++) {
             arrayServerPhoneNumbers[i] = listServerPhoneNumber.get(i);
