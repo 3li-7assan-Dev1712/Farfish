@@ -32,12 +32,13 @@ public class MainViewModel extends AndroidViewModel {
             allUsers = new MutableLiveData<>(new ArrayList<>());
             usersRepository.loadUsers();
         }
-        Log.d(TAG, "getAllUsers: allUsers: " + Objects.requireNonNull(allUsers.getValue()).size());
         return allUsers;
     }
 
     public void updateUsers(boolean fromContacts) {
-        allUsers.setValue(usersRepository.getUsers(fromContacts));
+        List<User> freshData = usersRepository.getUsers(fromContacts);
+        if (freshData != null && freshData.size() > 0)
+            allUsers.setValue(freshData);
     }
 
 }

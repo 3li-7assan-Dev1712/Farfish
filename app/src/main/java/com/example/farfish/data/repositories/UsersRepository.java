@@ -1,6 +1,7 @@
 package com.example.farfish.data.repositories;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.telephony.PhoneNumberUtils;
 import android.util.Log;
 
@@ -52,9 +53,13 @@ public class UsersRepository {
 
     public void loadUsers() {
         // Do an asynchronous operation to fetch users.
-       /* usersUserKnowList = AppDatabase.getInstance(context).getUserDao().getAllUsersUserMayKnow(MessagesPreference.getUserContacts(context)).getValue();
-        allUsersList = AppDatabase.getInstance(context).getUserDao().getAllPublicUser(true).getValue();
-        invokeObservers.prepareDataFinished();*/
+        List<User> usersMayKnowCache =  AppDatabase.getInstance(context).getUserDao().getAllUsersUserMayKnow(MessagesPreference.getUserContacts(context)).getValue();
+        List<User> usersListCache =  AppDatabase.getInstance(context).getUserDao().getAllPublicUser(true).getValue();
+        if (usersMayKnowCache != null)
+            usersUserKnowList = usersMayKnowCache;
+        if (usersListCache != null)
+            allUsersList = usersListCache;
+        invokeObservers.prepareDataFinished();
         refreshData();
     }
 
@@ -101,7 +106,14 @@ public class UsersRepository {
                 contactUsers.add(user);
         }
         // converting from list to array
-        AppDatabase.getInstance(context).getUserDao().saveAllUsers(allUsersList);
+        new AsyncTask<Void, Void, Void>(){
+            @Override
+            protected Void doInBackground(Void... voids) {
+                AppDatabase.getInstance(context).getUserDao().saveAllUsers(allUsersList);
+                return null;
+            }
+        }.execute();
+
         arrayServerPhoneNumbers = new String[listServerPhoneNumber.size()];
         for (int i = 0; i < listServerPhoneNumber.size(); i++) {
             arrayServerPhoneNumbers[i] = listServerPhoneNumber.get(i);
@@ -141,7 +153,6 @@ public class UsersRepository {
             return allUsersList.get(position);
     }
     public List<User> getUsers(boolean fromContacts) {
-        Log.d(TAG, "updateUsers: userUserKnowList size: " + usersUserKnowList.size());
         if (fromContacts)
             return usersUserKnowList;
         else

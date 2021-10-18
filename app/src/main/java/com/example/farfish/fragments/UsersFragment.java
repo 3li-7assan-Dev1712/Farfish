@@ -89,7 +89,6 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
                 PackageManager.PERMISSION_GRANTED) {
             // check if we have the phone numbers already
             mModel.getAllUsers().observe(getViewLifecycleOwner(), users -> {
-                Log.d(TAG, "onCreateView: users size is: " + users.size());
                 mUserListAdapter.submitList(users);
                 mBinding.loadUsersProgressBar.setVisibility(View.GONE);
             });
