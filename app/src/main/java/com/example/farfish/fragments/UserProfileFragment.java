@@ -123,8 +123,7 @@ public class UserProfileFragment extends Fragment {
         mBinding.logoutButtonUserProfile.setOnClickListener(logoutOnClickListener -> {
             SharedPreferenceUtils.saveUserSignOut(requireContext());
             FirebaseAuth.getInstance().signOut();
-            List<Message> messages = UserChatsFragment.getMessages();
-            if (messages != null) messages.clear();
+            UserChatsFragment.getMessages().clear();
             controller.navigate(R.id.action_userProfileFragment_to_fragmentSignIn);
         });
         /*----------------------------------------------------------------------------*/

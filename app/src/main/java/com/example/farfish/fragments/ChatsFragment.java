@@ -25,7 +25,6 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -59,7 +58,6 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -319,7 +317,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
                 Message targetUserMsg = new Message(text, "", dateFromDateClass, currentUserId, targetUserId,
                         mUsername, targetUserName, targetUserPhotoUrl, false);
                 sendMessage(currentUserMsg, targetUserMsg);
-            }else{
+            } else {
                 new InternetConnectionDialog().show(requireActivity().getSupportFragmentManager(), "internet_dialog");
             }
 
@@ -414,7 +412,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
                     try {
                         if (!Connection.isUserConnected(requireContext()))
                             isActive = false;
-                    }catch (Exception ex){
+                    } catch (Exception ex) {
 
                     }
                     updateChatInfo();
@@ -525,11 +523,11 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
         if (key == null)
             throw new NullPointerException("the key of the new messages should not be null");
         mCurrentUserRoomReference.child(key).setValue(targetUserMsg).addOnSuccessListener(success -> {
-            if (mBinding.progressBar.getVisibility() == View.VISIBLE)
-                mBinding.progressBar.setVisibility(View.GONE);
-            mTargetUserRoomReference.child(key).setValue(currentUserMsg);
+                    if (mBinding.progressBar.getVisibility() == View.VISIBLE)
+                        mBinding.progressBar.setVisibility(View.GONE);
+                    mTargetUserRoomReference.child(key).setValue(currentUserMsg);
                 }
-                ).addOnFailureListener(exception ->
+        ).addOnFailureListener(exception ->
                 Log.d(TAG, "sendMessage: exception msg: " + exception.getMessage()));
         mBinding.messageEditText.setText("");
 
@@ -541,7 +539,8 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
         InternetConnectionDialog internetDialog = new InternetConnectionDialog();
-        if (!isConnected) internetDialog.show(requireActivity().getSupportFragmentManager(), "internet_alert");
+        if (!isConnected)
+            internetDialog.show(requireActivity().getSupportFragmentManager(), "internet_alert");
         else pickPic.launch("image/*");
     }
 
@@ -625,7 +624,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
     }
 
     private void displayFutureFeature() {
-        Toast.makeText(requireContext(),requireContext().getString(R.string.future_msg), Toast.LENGTH_SHORT).show();
+        Toast.makeText(requireContext(), requireContext().getString(R.string.future_msg), Toast.LENGTH_SHORT).show();
     }
 
     @Override

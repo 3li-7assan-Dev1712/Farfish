@@ -144,7 +144,6 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
 
     @Override
     public void onChatClicked(int position) {
-
         User selectedUser = mModel.getUsersRepository().getUserInPosition(position, getFilterState());
         String targetUserId = selectedUser.getUserId();
         Bundle primaryDataBundle = new Bundle();

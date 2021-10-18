@@ -31,7 +31,6 @@ import com.example.farfish.Adapters.MessagesListAdapter;
 import com.example.farfish.Module.Connection;
 import com.example.farfish.Module.Message;
 import com.example.farfish.Module.MessagesPreference;
-import com.example.farfish.Module.NotificationUtils;
 import com.example.farfish.Module.SharedPreferenceUtils;
 import com.example.farfish.Module.workers.CleanUpOldDataPeriodicWork;
 import com.example.farfish.R;
@@ -41,18 +40,15 @@ import com.example.farfish.databinding.FragmentUserChatsBinding;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 
-public class UserChatsFragment extends Fragment implements MessagesListAdapter.ChatClick, ValueEventListener ,
+public class UserChatsFragment extends Fragment implements MessagesListAdapter.ChatClick,
         ChatsRepository.DataReadyInterface {
 
     private FirebaseAuth mAuth;
@@ -63,7 +59,7 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
     private NavController mNavController;
     private String mCurrentUserId;
 
-    private MainViewModel mainViewModel;
+    private static MainViewModel mainViewModel;
 
     private FragmentUserChatsBinding mBinding;
 
@@ -86,56 +82,8 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
         navController.navigate(R.id.fragmentSignIn);
     }
 
-    private int tracker;
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        //prevent any orientation changes
-        requireActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.VISIBLE);
-        Log.d(TAG, "onCreateView: ");
-        mBinding = FragmentUserChatsBinding.inflate(inflater, container, false);
-        View view = mBinding.getRoot();
-        mCurrentUserId = MessagesPreference.getUserId(requireContext());
-        Log.d(TAG, "onCreate: ");
-        mCurrentUserRoomReference = FirebaseDatabase.getInstance().getReference("rooms")
-                .child(mCurrentUserId);
-        mAuth = FirebaseAuth.getInstance();
-        tracker = 1;
-        mNavController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
-        if (mAuth.getCurrentUser() == null) {
-            navigateToSignIn();
-        }
-        Toolbar tb = view.findViewById(R.id.mainToolbar_frag);
-        ((AppCompatActivity) requireActivity())
-                .setSupportActionBar(tb);
-        /*requireActivity().findViewById(R.id.nav_graph).setVisibility(View.VISIBLE);*/
-        RecyclerView contactsRecycler = view.findViewById(R.id.userContactsRecyclerView);
-
-
-        contactsRecycler.setAdapter(mListAdapter);
-        // start the periodic work
-        uniquelyScheduleCleanUPWorker();
-        Log.d(TAG, "onCreateView: messges size is: " + messages.size());
-        if (messages.size() == 0)
-            initializeUserAndData();
-        else
-            mBinding.userChatsProgressBar.setVisibility(View.GONE);
-        mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
-        mainViewModel.getChatsRepository().setDataReadyInterface(this);
-        mainViewModel.getUserChats().observe(getViewLifecycleOwner(), userChats -> {
-            mListAdapter.submitList(userChats);
-        });
-        checkUserConnection();
-
-        return view;
-    }
-
-
-    private void initializeUserAndData() {
-
-        mCurrentUserRoomReference.addValueEventListener(this);
+    public static List<Message> getMessages() {
+        return mainViewModel.getChatsRepository().getUserChats();
     }
 
 
@@ -180,55 +128,48 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
     }
 
     @Override
-    public void onDataChange(@NonNull DataSnapshot snapshot) {
-        messages.clear();
-        Iterable<DataSnapshot> roomsIterable = snapshot.getChildren();
-        for (DataSnapshot roomsSnapshot : roomsIterable) {
-
-            Iterable<DataSnapshot> messagesIterable = roomsSnapshot.getChildren();
-            Message lastMessage = null;
-            int newMessageCounter = 0;
-            for (DataSnapshot messageSnapShot : messagesIterable) {
-                if (!messageSnapShot.getKey().equals("isWriting")) {
-                    lastMessage = messageSnapShot.getValue(Message.class);
-                    if (!lastMessage.getIsRead())
-                        newMessageCounter++;
-                }
-            }
-            if (lastMessage != null) {
-                String senderId = lastMessage.getSenderId();
-                if (!senderId.equals(mCurrentUserId) && newMessageCounter != 0)
-                    lastMessage.setNewMessagesCount(newMessageCounter);
-                messages.add(lastMessage);
-                sendNotification(lastMessage);
-            }
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        //prevent any orientation changes
+        requireActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.VISIBLE);
+        Log.d(TAG, "onCreateView: ");
+        mBinding = FragmentUserChatsBinding.inflate(inflater, container, false);
+        View view = mBinding.getRoot();
+        mCurrentUserId = MessagesPreference.getUserId(requireContext());
+        Log.d(TAG, "onCreate: ");
+        mCurrentUserRoomReference = FirebaseDatabase.getInstance().getReference("rooms")
+                .child(mCurrentUserId);
+        mAuth = FirebaseAuth.getInstance();
+        mNavController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+        if (mAuth.getCurrentUser() == null) {
+            navigateToSignIn();
         }
-        if (mBinding != null)
+        Toolbar tb = view.findViewById(R.id.mainToolbar_frag);
+        ((AppCompatActivity) requireActivity())
+                .setSupportActionBar(tb);
+        /*requireActivity().findViewById(R.id.nav_graph).setVisibility(View.VISIBLE);*/
+        RecyclerView contactsRecycler = view.findViewById(R.id.userContactsRecyclerView);
+
+
+        contactsRecycler.setAdapter(mListAdapter);
+        // start the periodic work
+        uniquelyScheduleCleanUPWorker();
+        Log.d(TAG, "onCreateView: messges size is: " + messages.size());
+       /* if (messages.size() == 0)
+            initializeUserAndData();
+        else
+            mBinding.userChatsProgressBar.setVisibility(View.GONE);*/
+        mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
+        mainViewModel.getChatsRepository().setUserShouldBeNotified(false);
+        mainViewModel.getChatsRepository().setDataReadyInterface(this);
+        mainViewModel.getUserChats().observe(getViewLifecycleOwner(), userChats -> {
+            mListAdapter.submitList(new ArrayList<>(userChats));
             mBinding.userChatsProgressBar.setVisibility(View.GONE);
-        mListAdapter.submitList(new ArrayList<>(messages));
+        });
+        checkUserConnection();
 
-    }
-
-    @Override
-    public void onCancelled(@NonNull DatabaseError error) {
-
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        Log.d(TAG, "onDestroy: ");
-        mCurrentUserRoomReference.removeEventListener(this);
-    }
-
-
-    private void sendNotification(Message message) {
-        if (tracker == 0) {
-            Log.d(TAG, "sendNotification: " + tracker);
-            if (!message.getIsRead() && !message.getSenderId().equals(mCurrentUserId))
-                NotificationUtils.notifyUserOfNewMessage(requireContext(), message);
-        } else
-            tracker = 0;
+        return view;
     }
 
 
@@ -260,27 +201,32 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy: ");
+        mainViewModel.getChatsRepository().removeValueEventListener();
+    }
+
+    @Override
     public void onDestroyView() {
         super.onDestroyView();
-        tracker = 1;
+        mainViewModel.getChatsRepository().setUserShouldBeNotified(true);
         mBinding = null;
-
     }
 
     @Override
     public void onChatClick(int position) {
-        String targetUserId = messages.get(position).getTargetId();
+        mainViewModel.getChatsRepository().removeValueEventListener();
+        String targetUserId = mainViewModel.getChatsRepository().getMessageInPosition(position).getTargetId();
         Bundle primaryDataBundle = new Bundle();
         primaryDataBundle.putString("target_user_id", targetUserId);
         mNavController.navigate(R.id.chatsFragment, primaryDataBundle);
     }
 
-    public static List<Message> getMessages() {
-        return messages;
-    }
-
     @Override
     public void dataIsReady() {
         mainViewModel.updateChats();
+        mainViewModel.getChatsRepository().setUserShouldBeNotified(true);
+        if (mBinding != null) mBinding.userChatsProgressBar.setVisibility(View.GONE);
     }
 }
