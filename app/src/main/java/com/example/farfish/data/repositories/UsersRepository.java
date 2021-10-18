@@ -1,7 +1,6 @@
 package com.example.farfish.data.repositories;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.telephony.PhoneNumberUtils;
 import android.util.Log;
 
@@ -13,20 +12,16 @@ import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
 
-import com.example.farfish.Module.MessagesPreference;
 import com.example.farfish.Module.User;
 import com.example.farfish.Module.workers.ReadContactsWorker;
 import com.example.farfish.Module.workers.ReadDataFromServerWorker;
-import com.example.farfish.data.AppDatabase;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.Source;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class UsersRepository {
     private static final String TAG = UsersRepository.class.getSimpleName();
@@ -42,6 +37,7 @@ public class UsersRepository {
     private List<String> listServerPhoneNumber = new ArrayList<>();
     private String[] arrayServerPhoneNumbers;
     private Context context;
+
     public UsersRepository(Context context) {
         workManager = WorkManager.getInstance(context);
         this.context = context;
@@ -53,20 +49,16 @@ public class UsersRepository {
 
     public void loadUsers() {
         // Do an asynchronous operation to fetch users.
-        List<User> usersMayKnowCache =  AppDatabase.getInstance(context).getUserDao().getAllUsersUserMayKnow(MessagesPreference.getUserContacts(context)).getValue();
-        List<User> usersListCache =  AppDatabase.getInstance(context).getUserDao().getAllPublicUser(true).getValue();
-        if (usersMayKnowCache != null)
-            usersUserKnowList = usersMayKnowCache;
-        if (usersListCache != null)
-            allUsersList = usersListCache;
-        invokeObservers.prepareDataFinished();
         refreshData();
     }
 
     private void refreshData() {
+
         fetchDataInUsersUserKnowList();
-        FirebaseFirestore.getInstance().collection("rooms").get(Source.SERVER)
+        FirebaseFirestore.getInstance().collection("rooms").get()
                 .addOnSuccessListener(this::fetchPrimaryData).addOnCompleteListener(listener -> invokeObservers.invokeObservers());
+
+
     }
 
     public void readContactsWorkerEnd(String[] deviceContacts) {
@@ -106,13 +98,6 @@ public class UsersRepository {
                 contactUsers.add(user);
         }
         // converting from list to array
-        new AsyncTask<Void, Void, Void>(){
-            @Override
-            protected Void doInBackground(Void... voids) {
-                AppDatabase.getInstance(context).getUserDao().saveAllUsers(allUsersList);
-                return null;
-            }
-        }.execute();
 
         arrayServerPhoneNumbers = new String[listServerPhoneNumber.size()];
         for (int i = 0; i < listServerPhoneNumber.size(); i++) {
@@ -146,18 +131,21 @@ public class UsersRepository {
         deviceContactsObserver = workManager.getWorkInfoByIdLiveData(contactsWork.getId());
 
     }
+
     public User getUserInPosition(int position, boolean fromContacts) {
         if (fromContacts)
             return usersUserKnowList.get(position);
         else
             return allUsersList.get(position);
     }
+
     public List<User> getUsers(boolean fromContacts) {
         if (fromContacts)
             return usersUserKnowList;
         else
             return allUsersList;
     }
+
     public interface InvokeObservers {
         void invokeObservers();
 

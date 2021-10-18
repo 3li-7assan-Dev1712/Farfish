@@ -36,9 +36,7 @@ public class MainViewModel extends AndroidViewModel {
     }
 
     public void updateUsers(boolean fromContacts) {
-        List<User> freshData = usersRepository.getUsers(fromContacts);
-        if (freshData != null && freshData.size() > 0)
-            allUsers.setValue(freshData);
+        allUsers.setValue(usersRepository.getUsers(fromContacts));
     }
 
 }

@@ -19,7 +19,7 @@ public interface UsersDao {
     @Query("SELECT * FROM User WHERE phoneNumber IN  (:numbers)  ORDER BY lastTimeSeen")
     LiveData<List<User>> getAllUsersUserMayKnow(Set<String> numbers);
 
-    @Query("SELECT * FROM User WHERE (isPublic = :isPublic) ORDER BY lastTimeSeen")
+    @Query("SELECT * FROM User WHERE (isPublic == :isPublic) ORDER BY lastTimeSeen")
     LiveData<List<User>> getAllPublicUser(boolean isPublic);
 
     @Insert(onConflict = REPLACE)

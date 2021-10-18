@@ -25,6 +25,8 @@ public class ReadDataFromServerWorker extends Worker {
         String [] serverData = getInputData().getStringArray("server_contacts");
         String [] deviceData = getInputData().getStringArray("device_contacts");
 
+        assert serverData != null;
+        assert deviceData != null;
         Set<CustomPhoneNumberUtils> data =
                 CustomPhoneNumberUtils.getCommonPhoneNumbers(Arrays.asList(serverData), Arrays.asList(deviceData), getApplicationContext());
         String [] commonPhoneNumbers = new String[data.size()];
