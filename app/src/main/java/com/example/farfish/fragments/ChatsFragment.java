@@ -49,6 +49,8 @@ import com.example.farfish.Module.Message;
 import com.example.farfish.Module.MessagesPreference;
 import com.example.farfish.Module.User;
 import com.example.farfish.R;
+import com.example.farfish.data.MainViewModel;
+import com.example.farfish.data.repositories.MessagingRepository;
 import com.example.farfish.databinding.ChatsFragmentBinding;
 import com.example.farfish.databinding.ToolbarConversationBinding;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
@@ -76,7 +78,7 @@ import java.util.Objects;
 
 import id.zelory.compressor.Compressor;
 
-public class ChatsFragment extends Fragment implements MessagesListAdapter.MessageClick {
+public class ChatsFragment extends Fragment implements MessagesListAdapter.MessageClick, MessagingRepository.MessagingInterface {
     // root class
     private ChatsFragmentBinding mBinding;
     private ToolbarConversationBinding mToolbarBinding;
@@ -150,6 +152,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
     private CurrentRoomListener mCurrentRoomListener;
     private TargetRoomListener mTargetRoomListener;
 
+    private MainViewModel mModel;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -317,7 +320,11 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
             mBinding.progressBar.setVisibility(View.GONE);
             messagesListAdapter.submitList(messages);
         }
-
+        mModel.getMessagingRepository().setMessagingInterface(this);
+        mModel.getChatMessages().observe(getViewLifecycleOwner(), chatMessages -> {
+            messagesListAdapter.submitList(chatMessages);
+            mBinding.messageRecyclerView.scrollToPosition(chatMessages.size() - 1);
+        });
         checkUserConnection();
         return view;
     }
@@ -409,7 +416,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
     }
 
     /*this method will update the chat info int the toolbar in real time!*/
-    private void updateChatInfo() {
+    public void updateChatInfo() {
         Log.d(TAG, "updateChatInfo: ");
         if (getContext() != null) {
             if (isWriting) {
@@ -428,6 +435,11 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
                 mToolbarBinding.chatLastSeen.setText(lastTimeSeenToDisplay);
             }
         }
+    }
+
+    @Override
+    public void refreshMessages() {
+        mModel.updateMessages();
     }
 
     private void putIntoImage(Uri uri) {
