@@ -490,6 +490,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
             // if the user hit the back button before choosing an image to send the code below will be executed.
         } else {
             Toast.makeText(requireContext(), requireContext().getString(R.string.cancel_sending_img), Toast.LENGTH_SHORT).show();
+            mBinding.progressBar.setVisibility(View.GONE);
         }
 
     }

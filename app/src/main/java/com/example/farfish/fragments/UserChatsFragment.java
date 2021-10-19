@@ -151,13 +151,16 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
             initializeUserAndData();
         else
             mBinding.userChatsProgressBar.setVisibility(View.GONE);*/
-        mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
-        mainViewModel.getChatsRepository().setUserShouldBeNotified(false);
-        mainViewModel.getChatsRepository().setDataReadyInterface(this);
-        mainViewModel.getUserChats().observe(getViewLifecycleOwner(), userChats -> {
-            mListAdapter.submitList(new ArrayList<>(userChats));
-            mBinding.userChatsProgressBar.setVisibility(View.GONE);
-        });
+        if (mAuth.getCurrentUser() != null) {
+            mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
+            mainViewModel.getChatsRepository().setUserShouldBeNotified(false);
+            mainViewModel.getChatsRepository().setDataReadyInterface(this);
+            mainViewModel.getUserChats().observe(getViewLifecycleOwner(), userChats -> {
+                mListAdapter.submitList(new ArrayList<>(userChats));
+                mBinding.userChatsProgressBar.setVisibility(View.GONE);
+            });
+        }
+
         checkUserConnection();
 
         return view;
@@ -201,7 +204,8 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        mainViewModel.getChatsRepository().setUserShouldBeNotified(true);
+        if (mAuth.getCurrentUser() != null)
+            mainViewModel.getChatsRepository().setUserShouldBeNotified(true);
         mBinding = null;
     }
 

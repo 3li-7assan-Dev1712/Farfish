@@ -26,7 +26,6 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.farfish.Adapters.ContactsListAdapter;
 import com.example.farfish.Module.Connection;
@@ -55,6 +54,7 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
     /*private ContactsAdapter usersAdapter;*/
     private ContactsListAdapter mUserListAdapter;
     private NavController mNavController;
+    private boolean isProgressBarVisible = true;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -65,19 +65,26 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
         mAuth = FirebaseAuth.getInstance();
         super.onCreate(savedInstanceState);
     }
-
     /* request permission*/
     private ActivityResultLauncher<String> requestPermissionToReadContacts =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
                     mModel.getAllUsers().observe(getViewLifecycleOwner(), users ->
                             mUserListAdapter.submitList(users));
+                    setProgresBarVisibility();
                 } else {
                     Toast.makeText(requireContext(),
                             getString(R.string.access_contacts_permission_msg), Toast.LENGTH_LONG).show();
                     mBinding.loadUsersProgressBar.setVisibility(View.GONE);
                 }
             });
+
+    private void setProgresBarVisibility() {
+        if (isProgressBarVisible)
+            mBinding.loadUsersProgressBar.setVisibility(View.VISIBLE);
+        else
+            mBinding.loadUsersProgressBar.setVisibility(View.GONE);
+    }
 
     @Nullable
     @Override
@@ -87,14 +94,14 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
         View view = mBinding.getRoot();
         mModel = new ViewModelProvider(this).get(MainViewModel.class);
         mModel.getUsersRepository().setObservers(this);
-        if (mBinding != null) mBinding.loadUsersProgressBar.setVisibility(View.VISIBLE);
+        if (mBinding != null) setProgresBarVisibility();
         if (ContextCompat.checkSelfPermission(
                 requireContext(), Manifest.permission.READ_CONTACTS) ==
                 PackageManager.PERMISSION_GRANTED) {
             // check if we have the phone numbers already
             mModel.getAllUsers().observe(getViewLifecycleOwner(), users -> {
                 mUserListAdapter.submitList(users);
-                mBinding.loadUsersProgressBar.setVisibility(View.GONE);
+
             });
         } else {
             requestPermissionToReadContacts.launch(Manifest.permission.READ_CONTACTS);
@@ -114,12 +121,10 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
                 FilterPreferenceUtils.enableUsersFilter(requireContext());
             updateFilterImageResoucre();
         });
-        RecyclerView usersRecycler = view.findViewById(R.id.usersRecyclerView);
         // migrating from the old normal RecyclerView adapter to the new ListRecyclerView Adapter (With ListAdapter)
         // to get benefit from the DiffUtil class
 
-        usersRecycler.setAdapter(mUserListAdapter);
-
+        mBinding.usersRecyclerView.setAdapter(mUserListAdapter);
         checkUserConnection();
         return view;
     }
@@ -144,6 +149,7 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
 
     @Override
     public void onChatClicked(int position) {
+        isProgressBarVisible = false;
         User selectedUser = mModel.getUsersRepository().getUserInPosition(position, getFilterState());
         String targetUserId = selectedUser.getUserId();
         Bundle primaryDataBundle = new Bundle();
@@ -163,6 +169,7 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
                 mNavController.navigate(R.id.action_usersFragment_to_fragmentSignIn);
                 break;
             case R.id.go_to_profile:
+                isProgressBarVisible = false;
                 mNavController.navigate(R.id.action_usersFragment_to_userProfileFragment);
                 break;
             case R.id.report_issue:
@@ -212,7 +219,7 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
     public void invokeObservers() {
         mModel.getUsersRepository().deviceContactsObserver.observe(getViewLifecycleOwner(), workInfo -> {
             if (workInfo != null && workInfo.getState().isFinished()) {
-              /*  String[] deviceContacts = workInfo.getOutputData().getStringArray("contacts");*/
+                /*  String[] deviceContacts = workInfo.getOutputData().getStringArray("contacts");*/
                 List<String> deviceContacts = ReadContactsWorker.contactsList;
                 mModel.getUsersRepository().readContactsWorkerEnd(deviceContacts);
             }
@@ -237,7 +244,8 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
     @Override
     public void prepareDataFinished() {
         mModel.updateUsers(getFilterState());
-        mBinding.loadUsersProgressBar.setVisibility(View.GONE);
+        isProgressBarVisible = false;
+        setProgresBarVisibility();
     }
 
 }
