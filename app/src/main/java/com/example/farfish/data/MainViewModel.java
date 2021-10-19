@@ -2,6 +2,7 @@ package com.example.farfish.data;
 
 import android.app.Application;
 import android.content.Context;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -48,10 +49,11 @@ public class MainViewModel extends AndroidViewModel {
     }
 
     public LiveData<List<Message>> getUserChats() {
+        Log.d(TAG, "getUserChats: getting chats");
         if (userChats == null) {
             userChats = new MutableLiveData<>(new ArrayList<>());
-            chatsRepository.loadAllChats();
         }
+        chatsRepository.loadAllChats();
         return userChats;
     }
 

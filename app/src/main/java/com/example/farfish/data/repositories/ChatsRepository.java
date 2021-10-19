@@ -4,12 +4,10 @@ import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.example.farfish.Module.Message;
 import com.example.farfish.Module.MessagesPreference;
 import com.example.farfish.Module.NotificationUtils;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -18,7 +16,6 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class ChatsRepository implements ValueEventListener {
     private static final String TAG = ChatsRepository.class.getSimpleName();
@@ -42,18 +39,12 @@ public class ChatsRepository implements ValueEventListener {
     }
 
     public void loadAllChats() {
+        Log.d(TAG, "loadAllChats: adding event listener");
         mChatsReference.addValueEventListener(this);
     }
 
-/*    @Override
-    public void onDataChange(@NonNull DataSnapshot snapshot) {
-        refreshData(snapshot);
-    }*/
-
     private void refreshData(@NonNull DataSnapshot snapshot) {
         mUserChats.clear();
-        Log.d(TAG, "onDataChange: key: " + snapshot.getKey());
-        Log.d(TAG, "onDataChange: reference: " + snapshot.getRef().toString());
         Iterable<DataSnapshot> roomsIterable = snapshot.getChildren();
         for (DataSnapshot roomsSnapshot : roomsIterable) {
 
