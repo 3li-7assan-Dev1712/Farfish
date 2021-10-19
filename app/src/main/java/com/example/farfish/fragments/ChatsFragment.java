@@ -117,8 +117,6 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
 
     // toolbar values
     private String targetUserId;
-    private String targetUserName;
-    private String targetUserPhotoUrl;
 
     // for target user profile in detail
     private Bundle targetUserData;
@@ -176,7 +174,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
         /*Firestore functionality*/
         mFirebasestore = FirebaseFirestore.getInstance();
         /*app UI functionality*/
-        mUsername = ANONYMOUS;
+        mUsername = MessagesPreference.getUserName(requireContext());
 
         targetUserData = getArguments();
         FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -302,13 +300,16 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
         mBinding.sendButton.setOnClickListener(v -> {
 
             if (Connection.isUserConnected(requireContext())) {
+
                 long dateFromDateClass = new Date().getTime();
                 String text = Objects.requireNonNull(mBinding.messageEditText.getText()).toString();
                 Message currentUserMsg = new Message(text, "", dateFromDateClass, currentUserId, currentUserId,
                         mUsername, currentUserName, currentPhotoUrl, false);
                 Message targetUserMsg = new Message(text, "", dateFromDateClass, currentUserId, targetUserId,
-                        mUsername, targetUserName, targetUserPhotoUrl, false);
-                sendMessage(currentUserMsg, targetUserMsg);
+                        mUsername, mModel.getMessagingRepository().getTargetUserData().getString("target_user_name"),
+                        mModel.getMessagingRepository().getTargetUserData().getString("target_user_photo_url"), false);
+                mModel.getMessagingRepository().sendMessage(currentUserMsg, targetUserMsg);
+                mBinding.messageEditText.setText("");
             } else {
                 new InternetConnectionDialog().show(requireActivity().getSupportFragmentManager(), "internet_dialog");
             }
@@ -344,18 +345,14 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
     }
 
     private void setUserIsNotWriting() {
-        mCurrentUserRoomReference.child("isWriting").setValue(false);
+        mModel.getMessagingRepository().setUserIsNotWriting();
         // when the user has no internet connection we set the value of the isWriting to be false
-        mCurrentUserRoomReference.child("isWriting").onDisconnect().setValue(false);
-        Log.d(TAG, "set user is not writing");
     }
 
     private void setUserIsWriting() {
-
         Log.d(TAG, "set user is writing");
         if (tracker == 0) {
-            mCurrentUserRoomReference.child("isWriting")
-                    .setValue(true);
+           mModel.getMessagingRepository().setUserIsWriting();
             /*messageSingleRef.document("isWriting")
                     .update("isWriting", true);*/
             tracker++;
@@ -431,6 +428,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
     public void refreshMessages() {
         mBinding.progressBar.setVisibility(View.GONE);
         mModel.updateMessages();
+        messagesListAdapter.notifyDataSetChanged();
         mBinding.messageRecyclerView.scrollToPosition(mModel.getMessagingRepository().getMessages().size()-1);
     }
 
@@ -481,8 +479,10 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
                         Message currentUserMsg = new Message("", downloadUrl, dateFromDateClass, currentUserId, currentUserId,
                                 mUsername, currentUserName, currentPhotoUrl, false);
                         Message targetUserMsg = new Message("", downloadUrl, dateFromDateClass, currentUserId, targetUserId,
-                                mUsername, targetUserName, targetUserPhotoUrl, false);
-                        sendMessage(currentUserMsg, targetUserMsg);
+                                mUsername, mModel.getMessagingRepository().getTargetUserData().getString("target_user_name"),
+                                mModel.getMessagingRepository().getTargetUserData().getString("target_user_photo_url"),
+                                false);
+                        mModel.getMessagingRepository().sendMessage(currentUserMsg, targetUserMsg); //hey mister ViewModel send this new message please *_*
                     });
 
                 });
@@ -522,7 +522,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
     }
 
 
-    private void sendMessage(Message currentUserMsg, Message targetUserMsg) {
+    /*private void sendMessage(Message currentUserMsg, Message targetUserMsg) {
 
         String key = mCurrentUserRoomReference.push().getKey();
         Log.d(TAG, "sendMessage: the key of the new two messages is: " + key);
@@ -537,7 +537,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
                 Log.d(TAG, "sendMessage: exception msg: " + exception.getMessage()));
         mBinding.messageEditText.setText("");
 
-    }
+    }*/
 
 
     private void pickImageFromGallery() {

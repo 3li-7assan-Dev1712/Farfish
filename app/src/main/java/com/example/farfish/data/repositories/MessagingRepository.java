@@ -233,7 +233,7 @@ public class MessagingRepository {
         return messages.get(position);
     }
 
-    private void sendMessage(Message currentUserMsg, Message targetUserMsg) {
+    public void sendMessage(Message currentUserMsg, Message targetUserMsg) {
 
         String key = mCurrentUserRoomReference.push().getKey();
         Log.d(TAG, "sendMessage: the key of the new two messages is: " + key);
@@ -260,8 +260,6 @@ public class MessagingRepository {
         Log.d(TAG, "set user is writing");
             mCurrentUserRoomReference.child("isWriting")
                     .setValue(true);
-            /*messageSingleRef.document("isWriting")
-                    .update("isWriting", true);*/
     }
     public interface MessagingInterface {
         void refreshChatInfo();
