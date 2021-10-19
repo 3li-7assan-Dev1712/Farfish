@@ -34,6 +34,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.FragmentNavigator;
@@ -221,10 +222,10 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
             Log.d(TAG, "onCreateView: target photo Url : " + targetUserData.getString("target_user_photo_url"));
             /*messages.clear();*/ // clean the list to ensure it will not contain duplicated data
             navController.navigate(R.id.action_chatsFragment_to_userProfileFragment,
-                    targetUserData);
+                    mModel.getMessagingRepository().getTargetUserData());
 
         });
-        setChatInfo();
+
 
         mBinding.progressBar.setVisibility(ProgressBar.VISIBLE);
 
@@ -314,17 +315,23 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
 
         });
 
-        if (messages.size() == 0)
+        /*if (messages.size() == 0)
             initializeUserAndData();
         else {
             mBinding.progressBar.setVisibility(View.GONE);
             messagesListAdapter.submitList(messages);
-        }
+        }*/
+        mBinding.progressBar.setVisibility(View.VISIBLE);
+        mModel = new ViewModelProvider(this).get(MainViewModel.class);
         mModel.getMessagingRepository().setMessagingInterface(this);
+        mModel.getMessagingRepository().setTargetUserId(targetUserId);
         mModel.getChatMessages().observe(getViewLifecycleOwner(), chatMessages -> {
             messagesListAdapter.submitList(chatMessages);
             mBinding.messageRecyclerView.scrollToPosition(chatMessages.size() - 1);
+            mBinding.progressBar.setVisibility(View.GONE);
         });
+        if (USER_EXPECT_TO_RETURN)
+            populateToolbar();
         checkUserConnection();
         return view;
     }
@@ -356,26 +363,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
         }
     }
 
-    private void setChatInfo() {
 
-        mFirebasestore.collection("rooms").document(targetUserId)
-                .get().addOnSuccessListener(documentSnapshot -> {
-            User user = documentSnapshot.toObject(User.class);
-            if (user != null) {
-                targetUserPhotoUrl = user.getPhotoUrl();
-                targetUserName = user.getUserName();
-                mToolbarBinding.chatTitle.setText(targetUserName);
-                Picasso.get().load(targetUserPhotoUrl).placeholder(R.drawable.ic_baseline_emoji_emotions_24).into(mToolbarBinding.chatConversationProfile);
-                isActive = user.getIsActive();
-                lastTimeSeen = user.getLastTimeSeen();
-                updateChatInfo();
-                populateTargetUserInfo(user);
-                listenToChange(targetUserId);
-            }
-        });
-
-
-    }
 
     private void populateTargetUserInfo(User user) {
         Log.d(TAG, "populateTargetUserInfo: populate successfully");
@@ -392,6 +380,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
     }
 
     private void listenToChange(String targetUserId) {
+
         mFirebasestore.collection("rooms").document(targetUserId)
                 .addSnapshotListener(((value, error) -> {
                     assert value != null;
@@ -402,7 +391,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
                     Log.d(TAG, "Data fetched from " + source);
                     assert user != null;
                     isActive = user.getIsActive();
-                    targetUserData.putBoolean("isActive", isActive);
+                    populateTargetUserInfo(user);
                     lastTimeSeen = user.getLastTimeSeen();
                     try {
                         if (!Connection.isUserConnected(requireContext()))
@@ -418,19 +407,20 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
     /*this method will update the chat info int the toolbar in real time!*/
     public void updateChatInfo() {
         Log.d(TAG, "updateChatInfo: ");
-        if (getContext() != null) {
-            if (isWriting) {
+       if (getContext() != null) {
+            if (mModel.getMessagingRepository().isWriting()) {
                 mToolbarBinding.chatLastSeen.setText(getResources().getString(R.string.isWriting));
                 mToolbarBinding.chatLastSeen.setTextColor(getResources().getColor(R.color.colorAccent));
-            } else if (isActive) {
+            } else if (mModel.getMessagingRepository().isActive()) {
 
                 mToolbarBinding.chatLastSeen.setText(getResources().getString(R.string.online));
                 mToolbarBinding.chatLastSeen.setTextColor(getResources().getColor(R.color.colorTitle));
             } else {
+                long lastSeen = mModel.getMessagingRepository().getLastTimeSeen();
                 SimpleDateFormat df = new SimpleDateFormat("EEE, MMM d", Locale.getDefault());
-                String lastTimeSeenText = df.format(lastTimeSeen);
+                String lastTimeSeenText = df.format(lastSeen);
                 SimpleDateFormat df2 = new SimpleDateFormat("h:mm a", Locale.getDefault());
-                String text2 = df2.format(lastTimeSeen);
+                String text2 = df2.format(lastSeen);
                 String lastTimeSeenToDisplay = lastTimeSeenText + ", " + text2;
                 mToolbarBinding.chatLastSeen.setText(lastTimeSeenToDisplay);
             }
@@ -439,7 +429,22 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
 
     @Override
     public void refreshMessages() {
+        mBinding.progressBar.setVisibility(View.GONE);
         mModel.updateMessages();
+        mBinding.messageRecyclerView.scrollToPosition(mModel.getMessagingRepository().getMessages().size()-1);
+    }
+
+    @Override
+    public void refreshChatInfo() {
+        updateChatInfo();
+    }
+
+    @Override
+    public void populateToolbar() {
+        Bundle targetUserInfo = mModel.getMessagingRepository().getTargetUserData();
+        mToolbarBinding.chatTitle.setText(targetUserInfo.getString("target_user_name"));
+        Picasso.get().load(targetUserInfo.getString("target_user_photo_url")).placeholder(R.drawable.place_holder).into(mToolbarBinding.chatConversationProfile);
+        updateChatInfo();
     }
 
     private void putIntoImage(Uri uri) {
@@ -609,7 +614,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
         int id = item.getItemId();
         switch (id) {
             case R.id.profile:
-                Navigation.findNavController(mBinding.getRoot()).navigate(R.id.action_chatsFragment_to_userProfileFragment, targetUserData);
+                Navigation.findNavController(mBinding.getRoot()).navigate(R.id.action_chatsFragment_to_userProfileFragment, mModel.getMessagingRepository().getTargetUserData());
                 break;
             case R.id.make_video_call:
             case R.id.make_normal_call:
@@ -630,7 +635,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
 
     @Override
     public void onMessageClick(View view, int position) {
-        Message message = messages.get(position);
+        Message message = mModel.getMessagingRepository().getMessageInPosition(position);
         String senderName = message.getSenderName();
         SimpleDateFormat d = new SimpleDateFormat("EEE, MMM d", Locale.getDefault());
         String formattedDate = d.format(message.getTimestamp());

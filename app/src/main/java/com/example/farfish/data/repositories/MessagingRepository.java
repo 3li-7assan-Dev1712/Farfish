@@ -3,7 +3,6 @@ package com.example.farfish.data.repositories;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -11,7 +10,6 @@ import androidx.annotation.Nullable;
 import com.example.farfish.Module.Connection;
 import com.example.farfish.Module.Message;
 import com.example.farfish.Module.User;
-import com.example.farfish.databinding.ChatsFragmentBinding;
 import com.example.farfish.databinding.ToolbarConversationBinding;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
@@ -30,7 +28,6 @@ public class MessagingRepository {
     /*TAG for logging*/
     private static final String TAG = MessagingRepository.class.getSimpleName();
     private MessagingInterface messagingInterface;
-    private ChatsFragmentBinding mBinding;
     private ToolbarConversationBinding mToolbarBinding;
     // functionality
     private List<Message> messages;
@@ -61,18 +58,14 @@ public class MessagingRepository {
     // rooms listeners
     private CurrentRoomListener mCurrentRoomListener;
     private TargetRoomListener mTargetRoomListener;
+
     public MessagingRepository(Context context) {
         messages = new ArrayList<>();
-        currentUserId = FirebaseAuth.getInstance().getUid();
+        targetUserData = new Bundle();
         mContext = context;
         mCurrentRoomListener = new CurrentRoomListener();
         mTargetRoomListener = new TargetRoomListener();
         mFirebasestore = FirebaseFirestore.getInstance();
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        mCurrentUserRoomReference = database.getReference("rooms").child(currentUserId)
-                .child(currentUserId + targetUserId);
-        mTargetUserRoomReference = database.getReference("rooms").child(targetUserId)
-                .child(targetUserId + currentUserId);
     }
 
     public List<Message> getMessages() {
@@ -81,9 +74,16 @@ public class MessagingRepository {
 
     public void setTargetUserId(String targetUserId) {
         this.targetUserId = targetUserId;
+        currentUserId = FirebaseAuth.getInstance().getUid();
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        mCurrentUserRoomReference = database.getReference("rooms").child(currentUserId)
+                .child(currentUserId + targetUserId);
+        mTargetUserRoomReference = database.getReference("rooms").child(targetUserId)
+                .child(targetUserId + currentUserId);
     }
 
     public void loadMessages() {
+        prepareToolbarInfo();
         mCurrentUserRoomReference.addChildEventListener(mCurrentRoomListener);
         mTargetUserRoomReference.addChildEventListener(mTargetRoomListener);
     }
@@ -92,7 +92,7 @@ public class MessagingRepository {
      * and for adding new messages as the user sends. */
     private void addNewMessage(DataSnapshot value) {
         Log.d(TAG, "addNewMessage: ");
-        mBinding.progressBar.setVisibility(View.INVISIBLE);
+
         try {
             Message newMessage = value.getValue(Message.class);
             assert newMessage != null;
@@ -109,7 +109,7 @@ public class MessagingRepository {
         }
     }
 
-    private void setChatInfo() {
+    private void prepareToolbarInfo() {
 
         mFirebasestore.collection("rooms").document(targetUserId)
                 .get().addOnSuccessListener(documentSnapshot -> {
@@ -125,6 +125,14 @@ public class MessagingRepository {
 
     }
 
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public long getLastTimeSeen() {
+        return lastTimeSeen;
+    }
+
     private void populateTargetUserInfo(User user) {
         Log.d(TAG, "populateTargetUserInfo: populate successfully");
         Log.d(TAG, "from populate: the targer user photo url : " + user.getPhotoUrl());
@@ -136,7 +144,7 @@ public class MessagingRepository {
         targetUserData.putString("target_user_name", user.getUserName());
         targetUserData.putBoolean("isActive", user.getIsActive());
         targetUserData.putLong("target_user_last_time_seen", user.getLastTimeSeen());
-
+        messagingInterface.populateToolbar();
     }
 
     public Bundle getTargetUserData() {
@@ -154,14 +162,11 @@ public class MessagingRepository {
                     Log.d(TAG, "Data fetched from " + source);
                     assert user != null;
                     isActive = user.getIsActive();
-                    targetUserData.putBoolean("isActive", isActive);
+                    populateTargetUserInfo(user);
                     lastTimeSeen = user.getLastTimeSeen();
-                    try {
-                        if (!Connection.isUserConnected(mContext))
-                            isActive = false;
-                    } catch (Exception ignored) {
-
-                    }
+                    if (!Connection.isUserConnected(mContext))
+                        isActive = false;
+                    messagingInterface.refreshChatInfo();
                 }));
 
     }
@@ -169,6 +174,10 @@ public class MessagingRepository {
     public void removeListeners() {
         mCurrentUserRoomReference.removeEventListener(mCurrentRoomListener);
         mTargetUserRoomReference.removeEventListener(mTargetRoomListener);
+    }
+
+    public boolean isWriting() {
+        return isWriting;
     }
 
     private void markMessageAsRead(DataSnapshot snapshotMessageTobeUpdated, Message messageToUpdate) {
@@ -220,14 +229,46 @@ public class MessagingRepository {
         }
     }
 
+    public Message getMessageInPosition(int position) {
+        return messages.get(position);
+    }
+
+    private void sendMessage(Message currentUserMsg, Message targetUserMsg) {
+
+        String key = mCurrentUserRoomReference.push().getKey();
+        Log.d(TAG, "sendMessage: the key of the new two messages is: " + key);
+        if (key == null)
+            throw new NullPointerException("the key of the new messages should not be null");
+        mCurrentUserRoomReference.child(key).setValue(targetUserMsg).addOnSuccessListener(success -> {
+                    mTargetUserRoomReference.child(key).setValue(currentUserMsg);
+                }
+        ).addOnFailureListener(exception ->
+                Log.d(TAG, "sendMessage: exception msg: " + exception.getMessage()));
+    }
+
     public void setMessagingInterface(MessagingInterface messagingInterface) {
         this.messagingInterface = messagingInterface;
     }
+    public void setUserIsNotWriting() {
+        mCurrentUserRoomReference.child("isWriting").setValue(false);
+        // when the user has no internet connection we set the value of the isWriting to be false
+        mCurrentUserRoomReference.child("isWriting").onDisconnect().setValue(false);
+        Log.d(TAG, "set user is not writing");
+    }
 
+    public void setUserIsWriting() {
+        Log.d(TAG, "set user is writing");
+            mCurrentUserRoomReference.child("isWriting")
+                    .setValue(true);
+            /*messageSingleRef.document("isWriting")
+                    .update("isWriting", true);*/
+    }
     public interface MessagingInterface {
-        void updateChatInfo();
+        void refreshChatInfo();
 
         void refreshMessages();
+
+        void populateToolbar();
     }
 
     class CurrentRoomListener implements ChildEventListener {
@@ -274,7 +315,7 @@ public class MessagingRepository {
             if (snapshot.getKey().equals("isWriting")) {
                 isWriting = (boolean) snapshot.getValue();
                 Log.d(TAG, "onChildChanged: isWriting " + isWriting);
-                messagingInterface.updateChatInfo();
+                messagingInterface.refreshChatInfo();
             }
 
         }
@@ -294,5 +335,6 @@ public class MessagingRepository {
 
         }
     }
+
 
 }

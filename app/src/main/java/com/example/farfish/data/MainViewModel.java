@@ -69,7 +69,7 @@ public class MainViewModel extends AndroidViewModel {
             userMessages = new MutableLiveData<>(new ArrayList<>());
             messagingRepository.loadMessages();
         }
-        return userChats;
+        return userMessages;
     }
     public void updateUsers(boolean fromContacts) {
         allUsers.setValue(usersRepository.getUsers(fromContacts));
@@ -81,7 +81,7 @@ public class MainViewModel extends AndroidViewModel {
     }
     public void updateMessages() {
         Log.d(TAG, "updateChats: size after logout: " + chatsRepository.getUserChats().size());
-        userChats.setValue(messagingRepository.getMessages());
+        userMessages.setValue(messagingRepository.getMessages());
     }
     public void clearChats() {
         userChats.setValue(new ArrayList<>());
