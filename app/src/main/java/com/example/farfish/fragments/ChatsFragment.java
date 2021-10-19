@@ -44,11 +44,9 @@ import com.aghajari.emojiview.view.AXEmojiPopupLayout;
 import com.aghajari.emojiview.view.AXEmojiView;
 import com.example.farfish.Adapters.MessagesListAdapter;
 import com.example.farfish.Module.Connection;
-import com.example.farfish.Module.FileUtil;
 import com.example.farfish.Module.FullImageData;
 import com.example.farfish.Module.Message;
 import com.example.farfish.Module.MessagesPreference;
-import com.example.farfish.Module.User;
 import com.example.farfish.R;
 import com.example.farfish.data.MainViewModel;
 import com.example.farfish.data.repositories.MessagingRepository;
@@ -56,28 +54,13 @@ import com.example.farfish.databinding.ChatsFragmentBinding;
 import com.example.farfish.databinding.ToolbarConversationBinding;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 
-import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
-
-import id.zelory.compressor.Compressor;
 
 public class ChatsFragment extends Fragment implements MessagesListAdapter.MessageClick, MessagingRepository.MessagingInterface {
     // root class
@@ -96,20 +79,13 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
             });
     /*TAG for logging*/
     private static final String TAG = ChatsFragment.class.getSimpleName();
-    // optional for shiny users *_*
-    public static final String ANONYMOUS = "anonymous";
+
     // max number of characters with a single message.
     public static final int DEFAULT_MSG_LENGTH_LIMIT = 1000;
 
-    // functionality
-    private List<Message> messages;
 
     private MessagesListAdapter messagesListAdapter;
     private String mUsername;
-    // firestore to get the user state wheater they're active or not
-    private FirebaseFirestore mFirebasestore;
-    // for sending and receiving photos
-    private StorageReference mRootRef;
     // this tracker is used to invoke the method of the realtime database to update the user is writing once
     private int tracker = 0;
 
@@ -120,17 +96,6 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
 
     // for target user profile in detail
     private Bundle targetUserData;
-
-    /*chat info in upper toolbar*/
-    private boolean isWriting;
-    private boolean isActive;
-    private long lastTimeSeen;
-    /*---------------------*/
-
-
-    // firebase realtime database
-    private DatabaseReference mCurrentUserRoomReference;
-    private DatabaseReference mTargetUserRoomReference;
 
     private String currentUserId;
     private String currentUserName;
@@ -147,11 +112,8 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
             },
             this::putIntoImage);
 
-    // rooms listeners
-    private CurrentRoomListener mCurrentRoomListener;
-    private TargetRoomListener mTargetRoomListener;
-
     private MainViewModel mModel;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -164,28 +126,18 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
             }
         };
         requireActivity().getOnBackPressedDispatcher().addCallback(this, callback);
-        messages = new ArrayList<>();
         setHasOptionsMenu(true);
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
-        /*firebase storage and its references*/
-        FirebaseStorage mStorage = FirebaseStorage.getInstance();
-        // Create a storage reference from our app
-        mRootRef = mStorage.getReference("images");
-        /*Firestore functionality*/
-        mFirebasestore = FirebaseFirestore.getInstance();
+
         /*app UI functionality*/
         mUsername = MessagesPreference.getUserName(requireContext());
 
         targetUserData = getArguments();
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
         if (targetUserData != null) {
             targetUserId = targetUserData.getString("target_user_id", "id for target user");
             // rooms references
             currentUserId = MessagesPreference.getUserId(requireContext());
-            mCurrentUserRoomReference = database.getReference("rooms").child(currentUserId)
-                    .child(currentUserId + targetUserId);
-            mTargetUserRoomReference = database.getReference("rooms").child(targetUserId)
-                    .child(targetUserId + currentUserId);
+
         } else {
             Toast.makeText(requireContext(), "Data is null", Toast.LENGTH_SHORT).show();
         }
@@ -200,9 +152,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
         mBinding = ChatsFragmentBinding.inflate(inflater, container, false);
         View view = mBinding.getRoot();
         Log.d(TAG, "onCreateView: ");
-        // listeners
-        mCurrentRoomListener = new CurrentRoomListener();
-        mTargetRoomListener = new TargetRoomListener();
+
         navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         Toolbar tb = mBinding.toolbarFrag;
         ((AppCompatActivity) requireActivity()).setSupportActionBar(tb);
@@ -229,7 +179,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
 
         /*implementing Messages Adapter for the RecyclerView*/
         /*messagesAdapter = new MessagesAdapter(requireContext(), messages, this);*/
-        messagesListAdapter = new MessagesListAdapter(messages, requireContext(), this, false);
+        messagesListAdapter = new MessagesListAdapter(new ArrayList<>(), requireContext(), this, false);
         mBinding.messageRecyclerView.setAdapter(messagesListAdapter);
         mBinding.messageRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         // ImagePickerButton shows an image picker to upload a image for a message
@@ -316,12 +266,6 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
 
         });
 
-        /*if (messages.size() == 0)
-            initializeUserAndData();
-        else {
-            mBinding.progressBar.setVisibility(View.GONE);
-            messagesListAdapter.submitList(messages);
-        }*/
         mBinding.progressBar.setVisibility(View.VISIBLE);
         mModel = new ViewModelProvider(this).get(MainViewModel.class);
         mModel.getMessagingRepository().setMessagingInterface(this);
@@ -352,7 +296,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
     private void setUserIsWriting() {
         Log.d(TAG, "set user is writing");
         if (tracker == 0) {
-           mModel.getMessagingRepository().setUserIsWriting();
+            mModel.getMessagingRepository().setUserIsWriting();
             /*messageSingleRef.document("isWriting")
                     .update("isWriting", true);*/
             tracker++;
@@ -361,50 +305,10 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
     }
 
 
-
-    private void populateTargetUserInfo(User user) {
-        Log.d(TAG, "populateTargetUserInfo: populate successfully");
-        Log.d(TAG, "from populate: the targer user photo url : " + user.getPhotoUrl());
-        targetUserData.putString("target_user_id", user.getUserId());
-        Log.d(TAG, "populateTargetUserInfo: target userId: " + targetUserData.getString("target_user_id"));
-        targetUserData.putString("target_user_email", user.getEmail());
-        targetUserData.putString("target_user_photo_url", user.getPhotoUrl());
-        targetUserData.putString("target_user_status", user.getStatus());
-        targetUserData.putString("target_user_name", user.getUserName());
-        targetUserData.putBoolean("isActive", user.getIsActive());
-        targetUserData.putLong("target_user_last_time_seen", user.getLastTimeSeen());
-
-    }
-
-    private void listenToChange(String targetUserId) {
-
-        mFirebasestore.collection("rooms").document(targetUserId)
-                .addSnapshotListener(((value, error) -> {
-                    assert value != null;
-                    User user = value.toObject(User.class);
-                    String source =
-                            value.getMetadata().isFromCache() ?
-                                    "local cache" : "server";
-                    Log.d(TAG, "Data fetched from " + source);
-                    assert user != null;
-                    isActive = user.getIsActive();
-                    populateTargetUserInfo(user);
-                    lastTimeSeen = user.getLastTimeSeen();
-                    try {
-                        if (!Connection.isUserConnected(requireContext()))
-                            isActive = false;
-                    } catch (Exception ex) {
-
-                    }
-                    updateChatInfo();
-                }));
-
-    }
-
     /*this method will update the chat info int the toolbar in real time!*/
     public void updateChatInfo() {
         Log.d(TAG, "updateChatInfo: ");
-       if (getContext() != null) {
+        if (getContext() != null) {
             if (mModel.getMessagingRepository().isWriting()) {
                 mToolbarBinding.chatLastSeen.setText(getResources().getString(R.string.isWriting));
                 mToolbarBinding.chatLastSeen.setTextColor(getResources().getColor(R.color.colorAccent));
@@ -429,7 +333,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
         mBinding.progressBar.setVisibility(View.GONE);
         mModel.updateMessages();
         messagesListAdapter.notifyDataSetChanged();
-        mBinding.messageRecyclerView.scrollToPosition(mModel.getMessagingRepository().getMessages().size()-1);
+        mBinding.messageRecyclerView.scrollToPosition(mModel.getMessagingRepository().getMessages().size() - 1);
     }
 
     @Override
@@ -449,56 +353,15 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
 
         mBinding.progressBar.setVisibility(View.VISIBLE);
         if (uri != null) {
-            try {
-                File galleryFile = FileUtil.from(requireContext(), uri);
-                /*compress the file using a special library*/
-                File compressedImageFile = new Compressor(requireContext()).compressToFile(galleryFile);
-                /*take the file name as a unique identifier*/
-                StorageReference imageRef = mRootRef.child(compressedImageFile.getName());
-                // finally uploading the file to firebase storage.
-                UploadTask uploadTask = imageRef.putFile(Uri.fromFile(compressedImageFile));
-
-                // some logging to track the file size after compressing it with the library.
-                Log.d(TAG, "Original file size is: " + galleryFile.length() / 1024 + "KB");
-                Log.d(TAG, "Compressed file size is: " + compressedImageFile.length() / 1024 + "KB"); // after compressing the file
-
-                // Register observers to listen for when the download is done or if it fails
-                uploadTask.addOnFailureListener(exception -> {
-                    // Handle unsuccessful uploads
-                }).addOnSuccessListener(taskSnapshot -> {
-                    // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
-                    // ...
-                    Toast.makeText(getContext(), requireContext().getString(R.string.sending_img_msg), Toast.LENGTH_SHORT).show();
-                    imageRef.getDownloadUrl().addOnSuccessListener(downloadUri -> {
-                        Log.d(TAG, downloadUri.toString());
-                        Log.d(TAG, String.valueOf(downloadUri));
-                        String downloadUrl = downloadUri.toString();
-                        long dateFromDateClass = new Date().getTime();
-                         /* if the image sent successfully to the firebase storage send its metadata as a message
-                         to the firebase firestore */
-                        Message currentUserMsg = new Message("", downloadUrl, dateFromDateClass, currentUserId, currentUserId,
-                                mUsername, currentUserName, currentPhotoUrl, false);
-                        Message targetUserMsg = new Message("", downloadUrl, dateFromDateClass, currentUserId, targetUserId,
-                                mUsername, mModel.getMessagingRepository().getTargetUserData().getString("target_user_name"),
-                                mModel.getMessagingRepository().getTargetUserData().getString("target_user_photo_url"),
-                                false);
-                        mModel.getMessagingRepository().sendMessage(currentUserMsg, targetUserMsg); //hey mister ViewModel send this new message please *_*
-                    });
-
-                });
-
-            } catch (IOException e) {
-                e.printStackTrace();
-                Log.d(TAG, "Error compressing the file");
-                Toast.makeText(requireContext(), "Error occurs", Toast.LENGTH_SHORT).show();
-            }
-            // if the user hit the back button before choosing an image to send the code below will be executed.
+            mModel.getMessagingRepository().compressAndSendImage(uri);
         } else {
             Toast.makeText(requireContext(), requireContext().getString(R.string.cancel_sending_img), Toast.LENGTH_SHORT).show();
+            mBinding.progressBar.setVisibility(View.GONE);
             mBinding.progressBar.setVisibility(View.GONE);
         }
 
     }
+
 
     // these overriding methods for debugging only and will be cleaned up in the future.
     @Override
@@ -511,34 +374,13 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
         if (!USER_EXPECT_TO_RETURN) {
             Log.d(TAG, "onDestroyView: going to clean up");
             // remove the listener when the view is no longer visilbe for the user
-            mCurrentUserRoomReference.removeEventListener(mCurrentRoomListener);
-            mTargetUserRoomReference.removeEventListener(mTargetRoomListener);
+            mModel.getMessagingRepository().removeListeners();
             // clean up views
             mBinding = null;
             mToolbarBinding = null;
-            messages.clear();
-        } else Log.d(TAG, "onDestroyView: should not clean up the data");
+        } else Log.d(TAG, "onDestroyView: should not remove listeners");
 
     }
-
-
-    /*private void sendMessage(Message currentUserMsg, Message targetUserMsg) {
-
-        String key = mCurrentUserRoomReference.push().getKey();
-        Log.d(TAG, "sendMessage: the key of the new two messages is: " + key);
-        if (key == null)
-            throw new NullPointerException("the key of the new messages should not be null");
-        mCurrentUserRoomReference.child(key).setValue(targetUserMsg).addOnSuccessListener(success -> {
-                    if (mBinding.progressBar.getVisibility() == View.VISIBLE)
-                        mBinding.progressBar.setVisibility(View.GONE);
-                    mTargetUserRoomReference.child(key).setValue(currentUserMsg);
-                }
-        ).addOnFailureListener(exception ->
-                Log.d(TAG, "sendMessage: exception msg: " + exception.getMessage()));
-        mBinding.messageEditText.setText("");
-
-    }*/
-
 
     private void pickImageFromGallery() {
         ConnectivityManager cm = (ConnectivityManager) requireContext().getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -548,65 +390,6 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
         if (!isConnected)
             internetDialog.show(requireActivity().getSupportFragmentManager(), "internet_alert");
         else pickPic.launch("image/*");
-    }
-
-
-    private void initializeUserAndData() {
-
-        /*read all messages form the database and add any new messages with notifying the Adapter after that*/
-        mUsername = MessagesPreference.getUserName(requireContext());
-        /* mCurrentUserRoomReference.get().addOnSuccessListener(this::insertMessagesInAdapter);*/
-
-        mCurrentUserRoomReference.addChildEventListener(mCurrentRoomListener);
-        mTargetUserRoomReference.addChildEventListener(mTargetRoomListener);
-        mBinding.progressBar.setVisibility(View.GONE);
-    }
-
-
-    /* this method is used in two functionality, for getting all the messages from a special room
-     * and for adding new messages as the user sends. */
-    private void addNewMessage(DataSnapshot value) {
-        Log.d(TAG, "addNewMessage: ");
-        mBinding.progressBar.setVisibility(View.INVISIBLE);
-        try {
-            Message newMessage = value.getValue(Message.class);
-            assert newMessage != null;
-            messages.add(newMessage);
-            if (messages.size() > 0) {
-                Log.d(TAG, "addNewMessage: messges size is: " + messages.size());
-                messagesListAdapter.submitList(messages);
-                mBinding.messageRecyclerView.scrollToPosition(messages.size() - 1);
-                if (!newMessage.getIsRead() && !newMessage.getSenderId().equals(currentUserId))
-                    markMessageAsRead(value, newMessage);
-            }
-        } catch (Exception e) {
-            Log.d(TAG, "addNewMessage: exception " + e.getMessage());
-        }
-    }
-
-    private void markMessageAsRead(DataSnapshot snapshotMessageTobeUpdated, Message messageToUpdate) {
-
-
-        Log.d(TAG, "markMessageAsRead: ");
-        String key = snapshotMessageTobeUpdated.getKey();
-        Log.d(TAG, "markMessageAsRead: the key of the message to be updated is: " + key);
-        Map<String, Object> originalMessage = messageToUpdate.toMap();
-        originalMessage.put("isRead", true);
-        snapshotMessageTobeUpdated.getRef().updateChildren(originalMessage).addOnSuccessListener(
-                successListener -> {
-                    Log.d(TAG, "update message successfully to be read");
-                    //  change the message from target message to local message
-                    originalMessage.put("targetId", currentUserId);
-                    originalMessage.put("targetName", currentUserName);
-                    originalMessage.put("targetPhotoUrl", currentPhotoUrl);
-                    mTargetUserRoomReference.child(key).updateChildren(originalMessage).addOnFailureListener(fle ->
-                            Log.d(TAG, "markMessageAsRead: " + fle.getMessage()));
-
-                }
-
-        ).addOnFailureListener(
-                exception -> Log.d(TAG, "markMessageAsRead: " + exception.getMessage()
-                ));
     }
 
     @Override
@@ -657,94 +440,6 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
             USER_EXPECT_TO_RETURN = true;
             NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
             navController.navigate(actionToFullImageFragment, extras);
-        }
-    }
-
-
-    private void refreshData() {
-        Log.d(TAG, "refreshData: ");
-        messages.clear();
-        try {
-            mCurrentUserRoomReference.get().addOnSuccessListener(sListener -> {
-                Iterable<DataSnapshot> meessagesIterable = sListener.getChildren();
-                for (DataSnapshot messageSnapShot : meessagesIterable) {
-                    if (!messageSnapShot.getKey().equals("isWriting")) {
-                        Message msg = messageSnapShot.getValue(Message.class);
-                        assert msg != null;
-                        Log.d(TAG, "refreshData: isRead: " + msg.getIsRead());
-                        messages.add(msg);
-                    }
-                }
-                messagesListAdapter.submitList(messages);
-                messagesListAdapter.notifyDataSetChanged();
-            });
-        } catch (Exception e) {
-            Log.d(TAG, "refreshData: " + e.getMessage());
-        }
-    }
-
-    class CurrentRoomListener implements ChildEventListener {
-
-        @Override
-        public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-            addNewMessage(snapshot);
-            Log.d(TAG, "onChildAdded: ");
-        }
-
-        @Override
-        public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-            Log.d(TAG, "onChildChanged: ");
-            if (!snapshot.getKey().equals("isWriting"))
-                refreshData();
-        }
-
-        @Override
-        public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-
-        }
-
-        @Override
-        public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
-        }
-
-        @Override
-        public void onCancelled(@NonNull DatabaseError error) {
-
-        }
-    }
-
-    class TargetRoomListener implements ChildEventListener {
-
-        @Override
-        public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
-        }
-
-        @Override
-        public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-            Log.d(TAG, "onChildChanged: the key of the changed child is: " + previousChildName);
-            if (snapshot.getKey().equals("isWriting")) {
-                isWriting = (boolean) snapshot.getValue();
-                Log.d(TAG, "onChildChanged: isWriting " + isWriting);
-                updateChatInfo();
-            }
-
-        }
-
-        @Override
-        public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-
-        }
-
-        @Override
-        public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
-        }
-
-        @Override
-        public void onCancelled(@NonNull DatabaseError error) {
-
         }
     }
 
