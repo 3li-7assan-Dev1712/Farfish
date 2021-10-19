@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -68,24 +69,14 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
     }
 
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
-
-        messages = new ArrayList<>();
-        mListAdapter = new MessagesListAdapter(messages, requireContext(), this, true);
+    public static void clearAndRefresh() {
+        mainViewModel.clearChats();
     }
 
     private void navigateToSignIn() {
         NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         navController.navigate(R.id.fragmentSignIn);
     }
-
-    public static List<Message> getMessages() {
-        return mainViewModel.getChatsRepository().getUserChats();
-    }
-
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
@@ -224,8 +215,24 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+        OnBackPressedCallback callback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                requireActivity().finish();
+            }
+        };
+        requireActivity().getOnBackPressedDispatcher().addCallback(this, callback);
+        messages = new ArrayList<>();
+        mListAdapter = new MessagesListAdapter(messages, requireContext(), this, true);
+    }
+
+    @Override
     public void dataIsReady() {
         mainViewModel.updateChats();
+        Log.d(TAG, "dataIsReady: data is ready: " + mainViewModel.getChatsRepository().getUserChats().size());
         mainViewModel.getChatsRepository().setUserShouldBeNotified(true);
         if (mBinding != null) mBinding.userChatsProgressBar.setVisibility(View.GONE);
     }

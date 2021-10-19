@@ -212,7 +212,7 @@ public class FragmentSignIn extends Fragment {
                     String userStatus = user.getStatus();
                     boolean isPublic = user.getIsPublic();
                     saveUserDataInSharedPreference(userName, photoUrl, userId, userStatus, phoneNumber, isPublic);
-                    mNavController.navigateUp();
+                    mNavController.navigate(R.id.userChatsFragment);
                 }
             }).addOnFailureListener(exc -> {
                 showHorizontalProgressBar(false);

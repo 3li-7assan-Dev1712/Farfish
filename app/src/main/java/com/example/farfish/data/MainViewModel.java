@@ -62,6 +62,11 @@ public class MainViewModel extends AndroidViewModel {
     }
 
     public void updateChats() {
+        Log.d(TAG, "updateChats: size after logout: " + chatsRepository.getUserChats().size());
         userChats.setValue(chatsRepository.getUserChats());
     }
+    public void clearChats() {
+        userChats.setValue(new ArrayList<>());
+    }
+
 }

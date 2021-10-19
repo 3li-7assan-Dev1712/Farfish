@@ -6,8 +6,8 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.example.farfish.Module.Message;
-import com.example.farfish.Module.MessagesPreference;
 import com.example.farfish.Module.NotificationUtils;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -29,9 +29,11 @@ public class ChatsRepository implements ValueEventListener {
     public ChatsRepository(Context context) {
         mUserChats = new ArrayList<>();
         mContext = context;
-        mCurrentUserId = MessagesPreference.getUserId(context);
-        mChatsReference = FirebaseDatabase.getInstance().getReference("rooms")
-                .child(mCurrentUserId);
+        mCurrentUserId = FirebaseAuth.getInstance().getUid();
+        if (mCurrentUserId != null) {
+            mChatsReference = FirebaseDatabase.getInstance().getReference("rooms")
+                    .child(mCurrentUserId);
+        }
     }
 
     public void setDataReadyInterface(DataReadyInterface mDataReadyInterface) {
@@ -43,7 +45,7 @@ public class ChatsRepository implements ValueEventListener {
         mChatsReference.addValueEventListener(this);
     }
 
-    private void refreshData(@NonNull DataSnapshot snapshot) {
+    public void refreshData(@NonNull DataSnapshot snapshot) {
         mUserChats.clear();
         Iterable<DataSnapshot> roomsIterable = snapshot.getChildren();
         for (DataSnapshot roomsSnapshot : roomsIterable) {
@@ -60,8 +62,10 @@ public class ChatsRepository implements ValueEventListener {
             }
             if (lastMessage != null) {
                 String senderId = lastMessage.getSenderId();
-                if (!senderId.equals(mCurrentUserId) && newMessageCounter != 0)
-                    lastMessage.setNewMessagesCount(newMessageCounter);
+                if (mCurrentUserId != null) {
+                    if (!senderId.equals(mCurrentUserId) && newMessageCounter != 0)
+                        lastMessage.setNewMessagesCount(newMessageCounter);
+                }
                 mUserChats.add(lastMessage);
                 sendNotification(userShouldBeNotified, lastMessage);
             }
