@@ -183,12 +183,15 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
         mBinding.statusProgressBar.setVisibility(View.VISIBLE);
         if (uri != null) {
             try {
+
                 File galleryFile = FileUtil.from(requireContext(), uri);
                 /*compress the file using a special library*/
                 File compressedImageFile = new Compressor(requireContext()).compressToFile(galleryFile);
                 /*take the file name as a unique identifier*/
                 StorageReference imageRef = mRootRef.child(compressedImageFile.getName());
                 // finally uploading the file to firebase storage.
+                if (getContext() == null)
+                    return;
                 UploadTask uploadTask = imageRef.putFile(Uri.fromFile(compressedImageFile));
 
                 // Register observers to listen for when the download is done or if it fails
@@ -197,12 +200,14 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
                 }).addOnSuccessListener(taskSnapshot -> {
                     // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
                     // ...
-                    Toast.makeText(getContext(), getString(R.string.sending_img_msg), Toast.LENGTH_SHORT).show();
+                    if (isVisible())
+                        Toast.makeText(getContext(), getString(R.string.sending_img_msg), Toast.LENGTH_SHORT).show();
                     imageRef.getDownloadUrl().addOnSuccessListener(downloadUri -> {
                         String downloadUrl = downloadUri.toString();
                         long dateFromDateClass = new Date().getTime();
                          /* if the image sent successfully to the firebase storage send its metadata as a message
                          to the firebase firestore */
+                         if (getContext() == null) return;
                         String uploaderName = MessagesPreference.getUserName(requireContext());
                         String uploaderPhoneNumber = MessagesPreference.getUsePhoneNumber(requireContext());
                         Status newStatus = new Status(uploaderName, uploaderPhoneNumber, downloadUrl, "", dateFromDateClass, 0);
@@ -223,8 +228,11 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
 
     private void uploadNewStatus(Status newStatus) {
         mUserReference.push().setValue(newStatus).addOnSuccessListener(listen -> {
-            if (mBinding.statusProgressBar.getVisibility() == View.VISIBLE)
-                mBinding.statusProgressBar.setVisibility(View.GONE);
+            if (mBinding != null) {
+                if (mBinding.statusProgressBar.getVisibility() == View.VISIBLE)
+                    mBinding.statusProgressBar.setVisibility(View.GONE);
+                mStatusAdapter.notifyDataSetChanged();
+            }
         });
     }
 

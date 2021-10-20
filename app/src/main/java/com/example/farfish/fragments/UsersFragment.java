@@ -47,6 +47,7 @@ import java.util.List;
 public class UsersFragment extends Fragment implements ContactsListAdapter.OnChatClicked,
         SharedPreferences.OnSharedPreferenceChangeListener, UsersRepository.InvokeObservers {
     private static final String TAG = UsersFragment.class.getSimpleName();
+    private static final String ORIENTATION_CHANGE = "change";
     // users view model
     private MainViewModel mModel;
     private UsersFragmentBinding mBinding;
@@ -106,6 +107,11 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
         } else {
             requestPermissionToReadContacts.launch(Manifest.permission.READ_CONTACTS);
         }
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey(ORIENTATION_CHANGE))
+                mBinding.loadUsersProgressBar.setVisibility(View.GONE);
+        }
+
         UserChatsFragment.mainViewModel.getChatsRepository().setUserShouldBeNotified(true);
         requireActivity().getSharedPreferences("filter_utils", Activity.MODE_PRIVATE).
                 registerOnSharedPreferenceChangeListener(this);
@@ -129,6 +135,12 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
         return view;
     }
 
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(ORIENTATION_CHANGE, isProgressBarVisible);
+    }
 
     private void updateFilterImageResoucre() {
         if (getFilterState())
