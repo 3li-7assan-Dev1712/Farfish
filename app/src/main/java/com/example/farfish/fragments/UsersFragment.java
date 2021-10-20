@@ -61,6 +61,7 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
     private ActivityResultLauncher<String> requestPermissionToReadContacts =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
+
                     mModel.getAllUsers().observe(getViewLifecycleOwner(), users ->
                             mUserListAdapter.customSubmitUserList(users));
                     setProgresBarVisibility();

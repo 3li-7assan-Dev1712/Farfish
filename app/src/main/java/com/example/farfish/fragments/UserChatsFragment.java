@@ -143,7 +143,6 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
             Log.d(TAG, "onCreateView: isUserShouldBeNotified: " + mainViewModel.getChatsRepository().isUserShouldBeNotified());
             mainViewModel.getUserChats().observe(getViewLifecycleOwner(), userChats -> {
                 mListAdapter.submitList(new ArrayList<>(userChats));
-                mBinding.userChatsProgressBar.setVisibility(View.GONE);
             });
         }
 

@@ -25,7 +25,8 @@ public class CustomViewPagerAdapter extends ViewPagerAdapter {
     private ArrayList<CustomStory> stories;
     private StoryCallbacks storyCallbacks;
 
-    private  boolean storiesStarted = false;
+    private boolean storiesStarted = false;
+
     public CustomViewPagerAdapter(ArrayList<CustomStory> stories, Context context, StoryCallbacks storyCallbacks) {
 
         super(null, context, storyCallbacks);
@@ -39,9 +40,10 @@ public class CustomViewPagerAdapter extends ViewPagerAdapter {
         return stories.size();
     }
 
-    public void setStories(ArrayList<CustomStory> customStories){
+    public void setStories(ArrayList<CustomStory> customStories) {
         this.stories = customStories;
     }
+
     @NonNull
     @Override
     public Object instantiateItem(@NonNull ViewGroup collection, int position) {
@@ -69,28 +71,23 @@ public class CustomViewPagerAdapter extends ViewPagerAdapter {
 
         String imageUrl = currentStory.getUrl();
         if (!imageUrl.equals("")) {
+
             Picasso.get().load(currentStory.getUrl())
                     .into(mImageView, new Callback() {
                         @Override
                         public void onSuccess() {
-                      /*  PaletteExtraction pe = new PaletteExtraction(view.findViewById(R.id.relativeLayout),
-                                ((BitmapDrawable) resource).getBitmap());
-
-                        pe.execute();*/
-
                             if (!storiesStarted) {
                                 storiesStarted = true;
                                 storyCallbacks.startStories();
                             }
                         }
 
-
                         @Override
                         public void onError(Exception e) {
                             storyCallbacks.nextStory();
                         }
                     });
-        }else{
+        } else {
             mImageView.setVisibility(View.INVISIBLE);
             mTextView.setVisibility(View.VISIBLE);
             mTextView.setText(currentStory.getStatusText());
