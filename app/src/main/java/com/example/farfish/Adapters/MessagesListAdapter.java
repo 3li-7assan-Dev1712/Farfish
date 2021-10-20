@@ -315,7 +315,8 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
                 Log.d(TAG, "areItemsTheSame: same");
             else
                 Log.d(TAG, "areItemsTheSame: noooooooo");
-            return oldItem.getTimestamp() == newItem.getTimestamp();
+            /*return oldItem.getTimestamp() == newItem.getTimestamp();*/
+            return oldItem.getSenderId().equals(newItem.getSenderId());
         }
 
         @Override

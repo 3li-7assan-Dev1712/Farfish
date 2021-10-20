@@ -272,6 +272,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
         mModel.getMessagingRepository().setTargetUserId(targetUserId);
         mModel.getChatMessages().observe(getViewLifecycleOwner(), chatMessages -> {
             messagesListAdapter.submitList(chatMessages);
+            messagesListAdapter.notifyDataSetChanged();
             mBinding.messageRecyclerView.scrollToPosition(chatMessages.size() - 1);
             mBinding.progressBar.setVisibility(View.GONE);
         });
@@ -332,6 +333,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
     public void refreshMessages() {
         mBinding.progressBar.setVisibility(View.GONE);
         mModel.updateMessages();
+        /*messagesListAdapter.submitList(mModel.getMessagingRepository().getMessages());*/
    /*     messagesListAdapter.notifyDataSetChanged();*/
         mBinding.messageRecyclerView.scrollToPosition(mModel.getMessagingRepository().getMessages().size() - 1);
     }

@@ -181,6 +181,7 @@ public class MessagingRepository {
     }
 
     public void removeListeners() {
+        Log.d(TAG, "removeListeners: ");
         mCurrentUserRoomReference.removeEventListener(mCurrentRoomListener);
         mTargetUserRoomReference.removeEventListener(mTargetRoomListener);
     }
