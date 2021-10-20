@@ -290,6 +290,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
     }
 
     private void setUserIsNotWriting() {
+        Log.d(TAG, "setUserIsNotWriting: ");
         mModel.getMessagingRepository().setUserIsNotWriting();
         // when the user has no internet connection we set the value of the isWriting to be false
     }
@@ -379,9 +380,9 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
             Log.d(TAG, "onDestroyView: going to clean up");
             // remove the listener when the view is no longer visilbe for the user
             mModel.getMessagingRepository().removeListeners();
-            // when the user comes from the UsersFragment and navigate up ot it.
-           /* UserChatsFragment.mainViewModel.getChatsRepository().setUserShouldBeNotified(true);*/
-            // clean up views
+            // in the case the user is writing and move to another destination before sending their message.
+            if (mModel.getMessagingRepository().isWriting())
+                setUserIsNotWriting();
             mBinding = null;
             mToolbarBinding = null;
         } else Log.d(TAG, "onDestroyView: should not remove listeners");
@@ -403,6 +404,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
         int id = item.getItemId();
         switch (id) {
             case R.id.profile:
+                USER_EXPECT_TO_RETURN = true;
                 Navigation.findNavController(mBinding.getRoot()).navigate(R.id.action_chatsFragment_to_userProfileFragment, mModel.getMessagingRepository().getTargetUserData());
                 break;
             case R.id.make_video_call:

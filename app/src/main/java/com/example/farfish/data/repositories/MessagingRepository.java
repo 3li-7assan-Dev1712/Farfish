@@ -262,6 +262,7 @@ public class MessagingRepository {
     }
 
     public void setUserIsNotWriting() {
+        isWriting = false;
         mCurrentUserRoomReference.child("isWriting").setValue(false);
         // when the user has no internet connection we set the value of the isWriting to be false
         mCurrentUserRoomReference.child("isWriting").onDisconnect().setValue(false);
@@ -270,6 +271,7 @@ public class MessagingRepository {
 
     public void setUserIsWriting() {
         Log.d(TAG, "set user is writing");
+        isWriting = true;
         mCurrentUserRoomReference.child("isWriting")
                 .setValue(true);
     }
