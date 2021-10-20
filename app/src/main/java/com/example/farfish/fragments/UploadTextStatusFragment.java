@@ -1,7 +1,5 @@
 package com.example.farfish.fragments;
 
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
@@ -52,21 +50,22 @@ public class UploadTextStatusFragment extends Fragment {
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference("status");
         DatabaseReference userRef = reference.child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid()));
         mBinding.uploadTextStatusFragmentFab.setOnClickListener(uploadFab -> {
-            Toast.makeText(requireActivity(), getString(R.string.uploading_text_status), Toast.LENGTH_SHORT).show();
-            Status textStatus = new Status(MessagesPreference.getUserName(requireContext()),
-                    MessagesPreference.getUsePhoneNumber(requireContext()),
-                    "", Objects.requireNonNull(mBinding.editTextUploadStatus.getText()).toString(),
-                    new Date().getTime(),
-                    0);
-
             if (mBinding.editTextUploadStatus.getText().toString().equals("")) {
                 Toast.makeText(requireContext(), getString(R.string.input_field_first), Toast.LENGTH_SHORT).show();
             } else {
-                userRef.push().setValue(textStatus)
-                        .addOnSuccessListener(sListener ->Navigation.findNavController(view).navigateUp() )
+                Toast.makeText(requireActivity(), getString(R.string.uploading_text_status), Toast.LENGTH_SHORT).show();
+                Status textStatus = new Status(MessagesPreference.getUserName(requireContext()),
+                        MessagesPreference.getUsePhoneNumber(requireContext()),
+                        "", Objects.requireNonNull(mBinding.editTextUploadStatus.getText()).toString(),
+                        new Date().getTime(),
+                        0);
+                StatusFragment.mModel.getStatusRepository().uploadNewStatus(textStatus);
+                Navigation.findNavController(view).navigateUp();
+                /*userRef.push().setValue(textStatus)
+                        .addOnSuccessListener(sListener -> Navigation.findNavController(view).navigateUp())
                         .addOnFailureListener(exception -> {
-                    Log.d(TAG, "onCreateView: upload text status exception " + exception.getMessage());
-                });
+                            Log.d(TAG, "onCreateView: upload text status exception " + exception.getMessage());
+                        });*/
             }
         });
         // the reason that I replaced the global views is for easily free up the view by just set mBinding = null

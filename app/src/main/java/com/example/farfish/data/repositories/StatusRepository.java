@@ -138,7 +138,7 @@ public class StatusRepository implements ValueEventListener {
         }
     }
 
-    private void uploadNewStatus(Status newStatus) {
+    public void uploadNewStatus(Status newStatus) {
         mUserReference.push().setValue(newStatus).addOnSuccessListener(listen -> {
         });
     }

@@ -4,11 +4,8 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
-import android.telephony.PhoneNumberUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,45 +26,23 @@ import com.example.farfish.Adapters.ContactsListAdapter;
 import com.example.farfish.CustomViews.CustomStatusView;
 import com.example.farfish.Module.Connection;
 import com.example.farfish.Module.CustomStory;
-import com.example.farfish.Module.FileUtil;
-import com.example.farfish.Module.MessagesPreference;
 import com.example.farfish.Module.Status;
 import com.example.farfish.R;
 import com.example.farfish.data.MainViewModel;
 import com.example.farfish.data.repositories.StatusRepository;
 import com.example.farfish.databinding.StatusFragmentBinding;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-
-import id.zelory.compressor.Compressor;
 
 public class StatusFragment extends Fragment implements ContactsListAdapter.OnChatClicked, StatusRepository.StatusInterface {
 
     // the root view
     private StatusFragmentBinding mBinding;
     private static final String TAG = StatusFragment.class.getSimpleName();
-    private DatabaseReference mDatabaseReference = FirebaseDatabase.getInstance().getReference("status");
-    private DatabaseReference mUserReference = FirebaseDatabase.getInstance().getReference();
-    private StorageReference mRootRef;
-    private Set<String> mContact;
 
-    private MainViewModel mModel;
+    public static MainViewModel mModel;
     /* request permission*/
     private ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
@@ -88,15 +63,11 @@ public class StatusFragment extends Fragment implements ContactsListAdapter.OnCh
                 }
             },
             this::putIntoImage);
-
-    private List<List<Status>> mStatusLists = new ArrayList<>();
     /*private StatusAdapter mStatusAdapter;*/
     private ContactsListAdapter mStatusAdapter;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
-        mRootRef = FirebaseStorage.getInstance().getReference("stories");
-        mUserReference = mDatabaseReference.child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid()));
         mStatusAdapter = new ContactsListAdapter(this, true);
         super.onCreate(savedInstanceState);
     }
@@ -106,7 +77,6 @@ public class StatusFragment extends Fragment implements ContactsListAdapter.OnCh
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mBinding = StatusFragmentBinding.inflate(inflater, container, false);
         View view = mBinding.getRoot();
-        mContact = MessagesPreference.getUserContacts(requireContext());
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.VISIBLE);
         RecyclerView statusRecycler = view.findViewById(R.id.statusRecycler);
         statusRecycler.setAdapter(mStatusAdapter);
@@ -134,152 +104,36 @@ public class StatusFragment extends Fragment implements ContactsListAdapter.OnCh
 
         mModel = new ViewModelProvider(this).get(MainViewModel.class);
         mModel.getStatusRepository().setStatusInterface(this);
-        getViewLifecycleOwnerLiveData().observe(getViewLifecycleOwner(), lifecycleOwner -> {
-            mModel.getStatusLiveData().observe(lifecycleOwner, statuesLists -> {
-                mStatusAdapter.customSubmitStatusList(statuesLists);
-            });
-        });
-        /*listenToUpComingStatus();*/
+        getViewLifecycleOwnerLiveData().observe(getViewLifecycleOwner(), lifecycleOwner ->
+                mModel.getStatusLiveData().observe(lifecycleOwner, statuesLists ->
+                        mStatusAdapter.customSubmitStatusList(statuesLists)));
+        if (savedInstanceState != null)
+            mBinding.statusProgressBar.setVisibility(View.GONE);
         return view;
     }
 
-    private void listenToUpComingStatus() {
-
-        mDatabaseReference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (mBinding != null)
-                    mBinding.statusProgressBar.setVisibility(View.VISIBLE);
-                Log.d(TAG, "onDataChange: generally");
-                Iterable<DataSnapshot> iterable = snapshot.getChildren();
-                List<List<Status>> allUsersStatues = new ArrayList<>();
-                for (DataSnapshot dataSnapshot : iterable) {
-                    String rootUserStatusPhoneNumber = "";
-                    Iterator<DataSnapshot> childIterator = dataSnapshot.getChildren().iterator();
-                    List<Status> oneUserStatuses = new ArrayList<>();
-                    while (childIterator.hasNext()) {
-                        Status status = childIterator.next().getValue(Status.class);
-                        assert status != null;
-                        String phoneNum = status.getUploaderPhoneNumber();
-                        if (rootUserStatusPhoneNumber.equals(""))
-                            rootUserStatusPhoneNumber = phoneNum;
-                        oneUserStatuses.add(status);
-                    }
-                    // just display contacts status
-                    if (mContact != null) {
-                        for (String contact : mContact) {
-                            if (PhoneNumberUtils.compare(contact, rootUserStatusPhoneNumber))
-                                allUsersStatues.add(oneUserStatuses);
-                        }
-                    }
-
-                }
-                if (mBinding != null)
-                    mBinding.statusProgressBar.setVisibility(View.GONE);
-                mStatusLists.clear();
-                mStatusLists.addAll(allUsersStatues);
-                mStatusAdapter.customSubmitStatusList(allUsersStatues);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
     }
 
     private void putIntoImage(Uri uri) {
         mBinding.statusProgressBar.setVisibility(View.VISIBLE);
         if (uri != null) {
-            compressAndUploadImage(uri);
+            mModel.getStatusRepository().compressAndUploadImage(uri);
             // if the user hit the back button before choosing an image to send the code below will be executed.
         } else {
             Toast.makeText(requireContext(), getString(R.string.cancel_sending_img), Toast.LENGTH_SHORT).show();
+            mBinding.statusProgressBar.setVisibility(View.VISIBLE);
         }
 
-    }
-
-    private void compressAndUploadImage(Uri uri) {
-        try {
-
-            File galleryFile = FileUtil.from(requireContext(), uri);
-            /*compress the file using a special library*/
-            File compressedImageFile = new Compressor(requireContext()).compressToFile(galleryFile);
-            /*take the file name as a unique identifier*/
-            StorageReference imageRef = mRootRef.child(compressedImageFile.getName());
-            // finally uploading the file to firebase storage.
-            if (getContext() == null)
-                return;
-            UploadTask uploadTask = imageRef.putFile(Uri.fromFile(compressedImageFile));
-
-            // Register observers to listen for when the download is done or if it fails
-            uploadTask.addOnFailureListener(exception -> {
-                // Handle unsuccessful uploads
-            }).addOnSuccessListener(taskSnapshot -> {
-                // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
-                // ...
-                if (isVisible())
-                    Toast.makeText(getContext(), getString(R.string.sending_img_msg), Toast.LENGTH_SHORT).show();
-                imageRef.getDownloadUrl().addOnSuccessListener(downloadUri -> {
-                    String downloadUrl = downloadUri.toString();
-                    long dateFromDateClass = new Date().getTime();
-                     /* if the image sent successfully to the firebase storage send its metadata as a message
-                     to the firebase firestore */
-                    if (getContext() == null) return;
-                    String uploaderName = MessagesPreference.getUserName(requireContext());
-                    String uploaderPhoneNumber = MessagesPreference.getUsePhoneNumber(requireContext());
-                    Status newStatus = new Status(uploaderName, uploaderPhoneNumber, downloadUrl, "", dateFromDateClass, 0);
-                    uploadNewStatus(newStatus);
-                });
-
-            });
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void uploadNewStatus(Status newStatus) {
-        mUserReference.push().setValue(newStatus).addOnSuccessListener(listen -> {
-            if (mBinding != null) {
-                if (mBinding.statusProgressBar.getVisibility() == View.VISIBLE)
-                    mBinding.statusProgressBar.setVisibility(View.GONE);
-                /* mStatusAdapter.notifyDataSetChanged();*/
-                mStatusAdapter.customSubmitStatusList(mStatusLists);
-            }
-        });
     }
 
     private void pickImageFromGallery() {
-        if (Connection.isUserConnected(requireContext()))
+        if (!Connection.isUserConnected(requireContext()))
             new InternetConnectionDialog().show(requireActivity().getSupportFragmentManager(), "internet_alert");
         else selectImageToUpload.launch("image/*");
     }
-
-
-  /*  @Override
-    public void onStatusClicked(int position) {
-        Log.d(TAG, "onStatusClicked: Ok, will be completed soon");
-
-        List<Status> userStatuses = mStatusLists.get(position);
-        // test story view library
-        ArrayList<CustomStory> myStories = new ArrayList<>();
-        for (Status status : userStatuses) {
-            myStories.add(new CustomStory(
-                            status.getStatusImage(),
-                            new Date(status.getTimestamp()),
-                            status.getStatusText()
-                    )
-            );
-        }
-        new CustomStatusView.Builder(requireActivity().getSupportFragmentManager())
-                .setStoriesList(myStories)
-                .setStoryDuration(5000)
-                .setTitleText(userStatuses.get(0).getUploaderName())
-                .setSubtitleText(null) // Default is Hidden
-                .build()
-                .show();
-    }*/
 
     @Override
     public void onDestroyView() {
@@ -304,7 +158,7 @@ public class StatusFragment extends Fragment implements ContactsListAdapter.OnCh
         }
         new CustomStatusView.Builder(requireActivity().getSupportFragmentManager())
                 .setStoriesList(myStories)
-                .setStoryDuration(2000)
+                .setStoryDuration(2500)
                 .setTitleText(userStatuses.get(0).getUploaderName())
                 .setTitleLogoUrl(userStatuses.get(0).getUploaderPhotoUrl())
                 .setSubtitleText(null) // Default is Hidden
@@ -312,9 +166,12 @@ public class StatusFragment extends Fragment implements ContactsListAdapter.OnCh
                 .show();
     }
 
+
     @Override
     public void statusesAreReady() {
         mModel.updateStatues();
-        mBinding.statusProgressBar.setVisibility(View.GONE);
+        mStatusAdapter.notifyDataSetChanged();
+        if (mBinding != null)
+            mBinding.statusProgressBar.setVisibility(View.GONE);
     }
 }
