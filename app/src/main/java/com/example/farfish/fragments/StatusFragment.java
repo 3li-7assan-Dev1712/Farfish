@@ -21,16 +21,20 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.farfish.Adapters.ContactsListAdapter;
 import com.example.farfish.CustomViews.CustomStatusView;
+import com.example.farfish.Module.Connection;
 import com.example.farfish.Module.CustomStory;
 import com.example.farfish.Module.FileUtil;
 import com.example.farfish.Module.MessagesPreference;
 import com.example.farfish.Module.Status;
 import com.example.farfish.R;
+import com.example.farfish.data.MainViewModel;
+import com.example.farfish.data.repositories.StatusRepository;
 import com.example.farfish.databinding.StatusFragmentBinding;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -53,7 +57,7 @@ import java.util.Set;
 
 import id.zelory.compressor.Compressor;
 
-public class StatusFragment extends Fragment implements ContactsListAdapter.OnChatClicked {
+public class StatusFragment extends Fragment implements ContactsListAdapter.OnChatClicked, StatusRepository.StatusInterface {
 
     // the root view
     private StatusFragmentBinding mBinding;
@@ -63,6 +67,7 @@ public class StatusFragment extends Fragment implements ContactsListAdapter.OnCh
     private StorageReference mRootRef;
     private Set<String> mContact;
 
+    private MainViewModel mModel;
     /* request permission*/
     private ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
@@ -122,11 +127,19 @@ public class StatusFragment extends Fragment implements ContactsListAdapter.OnCh
 
         mBinding.uploadTextStatusFab.setOnClickListener(v -> {
             // prevent the user from uploading new statues if they are not connected to the internet *_-
-            if (getInternetState())
+            if (!Connection.isUserConnected(requireContext()))
                 new InternetConnectionDialog().show(requireActivity().getSupportFragmentManager(), "internet_alert");
             else Navigation.findNavController(view).navigate(R.id.uploadTextStatusFragment);
         });
-        listenToUpComingStatus();
+
+        mModel = new ViewModelProvider(this).get(MainViewModel.class);
+        mModel.getStatusRepository().setStatusInterface(this);
+        getViewLifecycleOwnerLiveData().observe(getViewLifecycleOwner(), lifecycleOwner -> {
+            mModel.getStatusLiveData().observe(lifecycleOwner, statuesLists -> {
+                mStatusAdapter.customSubmitStatusList(statuesLists);
+            });
+        });
+        /*listenToUpComingStatus();*/
         return view;
     }
 
@@ -238,16 +251,11 @@ public class StatusFragment extends Fragment implements ContactsListAdapter.OnCh
     }
 
     private void pickImageFromGallery() {
-        if (getInternetState())
+        if (Connection.isUserConnected(requireContext()))
             new InternetConnectionDialog().show(requireActivity().getSupportFragmentManager(), "internet_alert");
         else selectImageToUpload.launch("image/*");
     }
 
-    public boolean getInternetState() {
-        ConnectivityManager cm = (ConnectivityManager) requireContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        return activeNetwork == null || !activeNetwork.isConnectedOrConnecting();
-    }
 
   /*  @Override
     public void onStatusClicked(int position) {
@@ -283,7 +291,7 @@ public class StatusFragment extends Fragment implements ContactsListAdapter.OnCh
     public void onChatClicked(int position) {
         Log.d(TAG, "onStatusClicked: Ok, will be completed soon");
 
-        List<Status> userStatuses = mStatusLists.get(position);
+        List<Status> userStatuses = mModel.getStatusRepository().getStatusLists().get(position);
         // test story view library
         ArrayList<CustomStory> myStories = new ArrayList<>();
         for (Status status : userStatuses) {
@@ -302,5 +310,11 @@ public class StatusFragment extends Fragment implements ContactsListAdapter.OnCh
                 .setSubtitleText(null) // Default is Hidden
                 .build()
                 .show();
+    }
+
+    @Override
+    public void statusesAreReady() {
+        mModel.updateStatues();
+        mBinding.statusProgressBar.setVisibility(View.GONE);
     }
 }
