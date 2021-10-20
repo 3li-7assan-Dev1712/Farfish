@@ -185,7 +185,8 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
     public void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "onDestroy: ");
-        mainViewModel.getChatsRepository().removeValueEventListener();
+        if (mainViewModel != null)
+            mainViewModel.getChatsRepository().removeValueEventListener();
     }
 
     @Override
