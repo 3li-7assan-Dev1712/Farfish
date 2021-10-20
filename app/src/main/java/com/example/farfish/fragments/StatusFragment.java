@@ -178,48 +178,52 @@ public class StatusFragment extends Fragment implements ContactsListAdapter.OnCh
     private void putIntoImage(Uri uri) {
         mBinding.statusProgressBar.setVisibility(View.VISIBLE);
         if (uri != null) {
-            try {
-
-                File galleryFile = FileUtil.from(requireContext(), uri);
-                /*compress the file using a special library*/
-                File compressedImageFile = new Compressor(requireContext()).compressToFile(galleryFile);
-                /*take the file name as a unique identifier*/
-                StorageReference imageRef = mRootRef.child(compressedImageFile.getName());
-                // finally uploading the file to firebase storage.
-                if (getContext() == null)
-                    return;
-                UploadTask uploadTask = imageRef.putFile(Uri.fromFile(compressedImageFile));
-
-                // Register observers to listen for when the download is done or if it fails
-                uploadTask.addOnFailureListener(exception -> {
-                    // Handle unsuccessful uploads
-                }).addOnSuccessListener(taskSnapshot -> {
-                    // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
-                    // ...
-                    if (isVisible())
-                        Toast.makeText(getContext(), getString(R.string.sending_img_msg), Toast.LENGTH_SHORT).show();
-                    imageRef.getDownloadUrl().addOnSuccessListener(downloadUri -> {
-                        String downloadUrl = downloadUri.toString();
-                        long dateFromDateClass = new Date().getTime();
-                         /* if the image sent successfully to the firebase storage send its metadata as a message
-                         to the firebase firestore */
-                        if (getContext() == null) return;
-                        String uploaderName = MessagesPreference.getUserName(requireContext());
-                        String uploaderPhoneNumber = MessagesPreference.getUsePhoneNumber(requireContext());
-                        Status newStatus = new Status(uploaderName, uploaderPhoneNumber, downloadUrl, "", dateFromDateClass, 0);
-                        uploadNewStatus(newStatus);
-                    });
-
-                });
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            compressAndUploadImage(uri);
             // if the user hit the back button before choosing an image to send the code below will be executed.
         } else {
             Toast.makeText(requireContext(), getString(R.string.cancel_sending_img), Toast.LENGTH_SHORT).show();
         }
 
+    }
+
+    private void compressAndUploadImage(Uri uri) {
+        try {
+
+            File galleryFile = FileUtil.from(requireContext(), uri);
+            /*compress the file using a special library*/
+            File compressedImageFile = new Compressor(requireContext()).compressToFile(galleryFile);
+            /*take the file name as a unique identifier*/
+            StorageReference imageRef = mRootRef.child(compressedImageFile.getName());
+            // finally uploading the file to firebase storage.
+            if (getContext() == null)
+                return;
+            UploadTask uploadTask = imageRef.putFile(Uri.fromFile(compressedImageFile));
+
+            // Register observers to listen for when the download is done or if it fails
+            uploadTask.addOnFailureListener(exception -> {
+                // Handle unsuccessful uploads
+            }).addOnSuccessListener(taskSnapshot -> {
+                // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
+                // ...
+                if (isVisible())
+                    Toast.makeText(getContext(), getString(R.string.sending_img_msg), Toast.LENGTH_SHORT).show();
+                imageRef.getDownloadUrl().addOnSuccessListener(downloadUri -> {
+                    String downloadUrl = downloadUri.toString();
+                    long dateFromDateClass = new Date().getTime();
+                     /* if the image sent successfully to the firebase storage send its metadata as a message
+                     to the firebase firestore */
+                    if (getContext() == null) return;
+                    String uploaderName = MessagesPreference.getUserName(requireContext());
+                    String uploaderPhoneNumber = MessagesPreference.getUsePhoneNumber(requireContext());
+                    Status newStatus = new Status(uploaderName, uploaderPhoneNumber, downloadUrl, "", dateFromDateClass, 0);
+                    uploadNewStatus(newStatus);
+                });
+
+            });
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void uploadNewStatus(Status newStatus) {
