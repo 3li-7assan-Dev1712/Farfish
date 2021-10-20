@@ -63,6 +63,7 @@ import java.util.Locale;
 import java.util.Objects;
 
 public class ChatsFragment extends Fragment implements MessagesListAdapter.MessageClick, MessagingRepository.MessagingInterface {
+    private static final String ORIENTATION_CHANGE = "orientation_change";
     // root class
     private ChatsFragmentBinding mBinding;
     private ToolbarConversationBinding mToolbarBinding;
@@ -127,7 +128,8 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
         };
         requireActivity().getOnBackPressedDispatcher().addCallback(this, callback);
         setHasOptionsMenu(true);
-        requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
+
+
 
         /*app UI functionality*/
         mUsername = MessagesPreference.getUserName(requireContext());
@@ -151,6 +153,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mBinding = ChatsFragmentBinding.inflate(inflater, container, false);
         View view = mBinding.getRoot();
+        requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
         Log.d(TAG, "onCreateView: ");
 
         navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
@@ -266,6 +269,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
 
         });
 
+
         mBinding.progressBar.setVisibility(View.VISIBLE);
         mModel = new ViewModelProvider(this).get(MainViewModel.class);
         mModel.getMessagingRepository().setMessagingInterface(this);
@@ -276,6 +280,10 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
             mBinding.messageRecyclerView.scrollToPosition(chatMessages.size() - 1);
             mBinding.progressBar.setVisibility(View.GONE);
         });
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey(ORIENTATION_CHANGE))
+                populateToolbar();
+        }
         if (USER_EXPECT_TO_RETURN)
             populateToolbar();
         checkUserConnection();
@@ -387,6 +395,12 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
             mToolbarBinding = null;
         } else Log.d(TAG, "onDestroyView: should not remove listeners");
 
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(ORIENTATION_CHANGE, true);
     }
 
     private void pickImageFromGallery() {

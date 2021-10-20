@@ -47,17 +47,18 @@ public class ChatsRepository implements ValueEventListener {
 
     public void refreshData(@NonNull DataSnapshot snapshot) {
         mUserChats.clear();
+
         Iterable<DataSnapshot> roomsIterable = snapshot.getChildren();
         for (DataSnapshot roomsSnapshot : roomsIterable) {
-
             Iterable<DataSnapshot> messagesIterable = roomsSnapshot.getChildren();
             Message lastMessage = null;
             int newMessageCounter = 0;
             for (DataSnapshot messageSnapShot : messagesIterable) {
                 if (!messageSnapShot.getKey().equals("isWriting")) {
                     lastMessage = messageSnapShot.getValue(Message.class);
-                    if (!lastMessage.getIsRead())
+                    if (!lastMessage.getSenderId().equals(mCurrentUserId) && !lastMessage.getIsRead()) {
                         newMessageCounter++;
+                    }
                 }
             }
             if (lastMessage != null) {

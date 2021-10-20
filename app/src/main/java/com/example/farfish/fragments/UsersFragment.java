@@ -218,13 +218,15 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
 
     @Override
     public void invokeObservers() {
-        mModel.getUsersRepository().deviceContactsObserver.observe(getViewLifecycleOwner(), workInfo -> {
-            if (workInfo != null && workInfo.getState().isFinished()) {
-                /*  String[] deviceContacts = workInfo.getOutputData().getStringArray("contacts");*/
-                List<String> deviceContacts = ReadContactsWorker.contactsList;
-                mModel.getUsersRepository().readContactsWorkerEnd(deviceContacts);
-            }
+        getViewLifecycleOwnerLiveData().observe(this, lifecycleOwner -> {
+            mModel.getUsersRepository().deviceContactsObserver.observe(lifecycleOwner, workInfo -> {
+                if (workInfo != null && workInfo.getState().isFinished()) {
+                    List<String> deviceContacts = ReadContactsWorker.contactsList;
+                    mModel.getUsersRepository().readContactsWorkerEnd(deviceContacts);
+                }
+            });
         });
+
 
     }
 
