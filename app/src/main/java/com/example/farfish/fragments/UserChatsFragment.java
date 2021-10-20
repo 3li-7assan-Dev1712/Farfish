@@ -30,7 +30,6 @@ import androidx.work.WorkManager;
 
 import com.example.farfish.Adapters.MessagesListAdapter;
 import com.example.farfish.Module.Connection;
-import com.example.farfish.Module.Message;
 import com.example.farfish.Module.MessagesPreference;
 import com.example.farfish.Module.SharedPreferenceUtils;
 import com.example.farfish.Module.workers.CleanUpOldDataPeriodicWork;
@@ -41,11 +40,8 @@ import com.example.farfish.databinding.FragmentUserChatsBinding;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 
@@ -54,13 +50,11 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
 
     private FirebaseAuth mAuth;
     private static final String TAG = UserChatsFragment.class.getSimpleName();
-    private static List<Message> messages;
     private MessagesListAdapter mListAdapter;
-    private DatabaseReference mCurrentUserRoomReference;
+
     private NavController mNavController;
     private String mCurrentUserId;
-
-    private static MainViewModel mainViewModel;
+    public static MainViewModel mainViewModel;
 
     private FragmentUserChatsBinding mBinding;
 
@@ -86,7 +80,6 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
                 mAuth.signOut();
                 Toast.makeText(requireContext(), getString(R.string.sign_out_msg), Toast.LENGTH_SHORT).show();
                 SharedPreferenceUtils.saveUserSignOut(requireContext());
-                messages.clear();
                 onDestroy();
                 mNavController.navigate(R.id.action_userChatsFragment_to_fragmentSignIn);
                 break;
@@ -122,15 +115,13 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         //prevent any orientation changes
-        requireActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        /*requireActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);*/
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.VISIBLE);
         Log.d(TAG, "onCreateView: ");
         mBinding = FragmentUserChatsBinding.inflate(inflater, container, false);
         View view = mBinding.getRoot();
         mCurrentUserId = MessagesPreference.getUserId(requireContext());
         Log.d(TAG, "onCreate: ");
-        mCurrentUserRoomReference = FirebaseDatabase.getInstance().getReference("rooms")
-                .child(mCurrentUserId);
         mAuth = FirebaseAuth.getInstance();
         mNavController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         if (mAuth.getCurrentUser() == null) {
@@ -146,15 +137,11 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
         contactsRecycler.setAdapter(mListAdapter);
         // start the periodic work
         uniquelyScheduleCleanUPWorker();
-        Log.d(TAG, "onCreateView: messges size is: " + messages.size());
-       /* if (messages.size() == 0)
-            initializeUserAndData();
-        else
-            mBinding.userChatsProgressBar.setVisibility(View.GONE);*/
         if (mAuth.getCurrentUser() != null) {
             mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
-            mainViewModel.getChatsRepository().setUserShouldBeNotified(false);
             mainViewModel.getChatsRepository().setDataReadyInterface(this);
+            mainViewModel.getChatsRepository().setUserShouldBeNotified(false);
+            Log.d(TAG, "onCreateView: isUserShouldBeNotified: " + mainViewModel.getChatsRepository().isUserShouldBeNotified());
             mainViewModel.getUserChats().observe(getViewLifecycleOwner(), userChats -> {
                 mListAdapter.submitList(new ArrayList<>(userChats));
                 mBinding.userChatsProgressBar.setVisibility(View.GONE);
@@ -229,15 +216,16 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
             }
         };
         requireActivity().getOnBackPressedDispatcher().addCallback(this, callback);
-        messages = new ArrayList<>();
-        mListAdapter = new MessagesListAdapter(messages, requireContext(), this, true);
+        mListAdapter = new MessagesListAdapter(new ArrayList<>(), requireContext(), this, true);
     }
 
     @Override
     public void dataIsReady() {
         mainViewModel.updateChats();
         Log.d(TAG, "dataIsReady: data is ready: " + mainViewModel.getChatsRepository().getUserChats().size());
-        mainViewModel.getChatsRepository().setUserShouldBeNotified(true);
+        Log.d(TAG, "dataIsReady: isDetached: " + isVisible());
+        if (isVisible())
+            mainViewModel.getChatsRepository().setUserShouldBeNotified(true);
         if (mBinding != null) mBinding.userChatsProgressBar.setVisibility(View.GONE);
     }
 }

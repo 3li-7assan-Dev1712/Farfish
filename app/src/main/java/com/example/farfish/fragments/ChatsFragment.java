@@ -332,7 +332,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
     public void refreshMessages() {
         mBinding.progressBar.setVisibility(View.GONE);
         mModel.updateMessages();
-        messagesListAdapter.notifyDataSetChanged();
+   /*     messagesListAdapter.notifyDataSetChanged();*/
         mBinding.messageRecyclerView.scrollToPosition(mModel.getMessagingRepository().getMessages().size() - 1);
     }
 
@@ -343,10 +343,12 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
 
     @Override
     public void populateToolbar() {
-        Bundle targetUserInfo = mModel.getMessagingRepository().getTargetUserData();
-        mToolbarBinding.chatTitle.setText(targetUserInfo.getString("target_user_name"));
-        Picasso.get().load(targetUserInfo.getString("target_user_photo_url")).placeholder(R.drawable.place_holder).into(mToolbarBinding.chatConversationProfile);
-        updateChatInfo();
+        if (mBinding != null) {
+            Bundle targetUserInfo = mModel.getMessagingRepository().getTargetUserData();
+            mToolbarBinding.chatTitle.setText(targetUserInfo.getString("target_user_name"));
+            Picasso.get().load(targetUserInfo.getString("target_user_photo_url")).placeholder(R.drawable.place_holder).into(mToolbarBinding.chatConversationProfile);
+            updateChatInfo();
+        }
     }
 
     private void putIntoImage(Uri uri) {
@@ -375,6 +377,8 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
             Log.d(TAG, "onDestroyView: going to clean up");
             // remove the listener when the view is no longer visilbe for the user
             mModel.getMessagingRepository().removeListeners();
+            // when the user comes from the UsersFragment and navigate up ot it.
+           /* UserChatsFragment.mainViewModel.getChatsRepository().setUserShouldBeNotified(true);*/
             // clean up views
             mBinding = null;
             mToolbarBinding = null;

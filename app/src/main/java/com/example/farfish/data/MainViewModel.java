@@ -81,6 +81,14 @@ public class MainViewModel extends AndroidViewModel {
     }
     public void updateMessages() {
         Log.d(TAG, "updateChats: size after logout: " + messagingRepository.getMessages().size());
+        int i = 0;
+        for (Message message: messagingRepository.getMessages()) {
+            if (!message.getIsRead()) {
+                Log.d(TAG, "updateMessages: message is not read ");
+                i++;
+            }
+        }
+        Log.d(TAG, "updateMessages: number of unread messages is: " + i);
         userMessages.setValue(messagingRepository.getMessages());
     }
     public void clearChats() {

@@ -67,7 +67,7 @@ public class ChatsRepository implements ValueEventListener {
                         lastMessage.setNewMessagesCount(newMessageCounter);
                 }
                 mUserChats.add(lastMessage);
-                sendNotification(userShouldBeNotified, lastMessage);
+                sendNotification(lastMessage);
             }
         }
         // the data is ready now
@@ -78,11 +78,17 @@ public class ChatsRepository implements ValueEventListener {
         return mUserChats;
     }
 
-    public void setUserShouldBeNotified(boolean userShouldBeNotified) {
-        this.userShouldBeNotified = userShouldBeNotified;
+    public boolean isUserShouldBeNotified() {
+        return userShouldBeNotified;
     }
 
-    public void sendNotification(boolean userShouldBeNotified, Message newMessage) {
+    public void setUserShouldBeNotified(boolean userShouldBeNotified) {
+        this.userShouldBeNotified = userShouldBeNotified;
+        Log.d(TAG, "setUserShouldBeNotified: " + userShouldBeNotified);
+    }
+
+    public void sendNotification( Message newMessage) {
+        Log.d(TAG, "sendNotification: user should be notified: " + userShouldBeNotified);
         if (userShouldBeNotified)
             NotificationUtils.notifyUserOfNewMessage(mContext, newMessage);
     }
