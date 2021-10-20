@@ -21,11 +21,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.farfish.Adapters.StatusAdapter;
+import com.example.farfish.Adapters.ContactsListAdapter;
 import com.example.farfish.CustomViews.CustomStatusView;
 import com.example.farfish.Module.CustomStory;
 import com.example.farfish.Module.FileUtil;
@@ -54,7 +53,7 @@ import java.util.Set;
 
 import id.zelory.compressor.Compressor;
 
-public class StatusFragment extends Fragment implements StatusAdapter.OnStatusClicked {
+public class StatusFragment extends Fragment implements ContactsListAdapter.OnChatClicked {
 
     // the root view
     private StatusFragmentBinding mBinding;
@@ -86,13 +85,14 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
             this::putIntoImage);
 
     private List<List<Status>> mStatusLists = new ArrayList<>();
-    private StatusAdapter mStatusAdapter;
+    /*private StatusAdapter mStatusAdapter;*/
+    private ContactsListAdapter mStatusAdapter;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         mRootRef = FirebaseStorage.getInstance().getReference("stories");
         mUserReference = mDatabaseReference.child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid()));
-        mStatusAdapter = new StatusAdapter(requireContext(), mStatusLists, this);
+        mStatusAdapter = new ContactsListAdapter(this, true);
         super.onCreate(savedInstanceState);
     }
 
@@ -102,7 +102,6 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
         mBinding = StatusFragmentBinding.inflate(inflater, container, false);
         View view = mBinding.getRoot();
         mContact = MessagesPreference.getUserContacts(requireContext());
-        NavController mNavController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.VISIBLE);
         RecyclerView statusRecycler = view.findViewById(R.id.statusRecycler);
         statusRecycler.setAdapter(mStatusAdapter);
@@ -134,14 +133,11 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
     private void listenToUpComingStatus() {
 
         mDatabaseReference.addValueEventListener(new ValueEventListener() {
-            /*@RequiresApi(api = Build.VERSION_CODES.N)*/
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (mBinding != null)
                     mBinding.statusProgressBar.setVisibility(View.VISIBLE);
                 Log.d(TAG, "onDataChange: generally");
-              /*  List<Status> statuses = snapshot.child(FirebaseAuth.getInstance().getUid()).getValue(StatusLists.class).getStatusLists();
-                mStatusLists.add(statuses);*/
                 Iterable<DataSnapshot> iterable = snapshot.getChildren();
                 List<List<Status>> allUsersStatues = new ArrayList<>();
                 for (DataSnapshot dataSnapshot : iterable) {
@@ -169,7 +165,7 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
                     mBinding.statusProgressBar.setVisibility(View.GONE);
                 mStatusLists.clear();
                 mStatusLists.addAll(allUsersStatues);
-                mStatusAdapter.notifyDataSetChanged();
+                mStatusAdapter.customSubmitStatusList(allUsersStatues);
             }
 
             @Override
@@ -207,7 +203,7 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
                         long dateFromDateClass = new Date().getTime();
                          /* if the image sent successfully to the firebase storage send its metadata as a message
                          to the firebase firestore */
-                         if (getContext() == null) return;
+                        if (getContext() == null) return;
                         String uploaderName = MessagesPreference.getUserName(requireContext());
                         String uploaderPhoneNumber = MessagesPreference.getUsePhoneNumber(requireContext());
                         Status newStatus = new Status(uploaderName, uploaderPhoneNumber, downloadUrl, "", dateFromDateClass, 0);
@@ -231,7 +227,8 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
             if (mBinding != null) {
                 if (mBinding.statusProgressBar.getVisibility() == View.VISIBLE)
                     mBinding.statusProgressBar.setVisibility(View.GONE);
-                mStatusAdapter.notifyDataSetChanged();
+                /* mStatusAdapter.notifyDataSetChanged();*/
+                mStatusAdapter.customSubmitStatusList(mStatusLists);
             }
         });
     }
@@ -248,7 +245,7 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
         return activeNetwork == null || !activeNetwork.isConnectedOrConnecting();
     }
 
-    @Override
+  /*  @Override
     public void onStatusClicked(int position) {
         Log.d(TAG, "onStatusClicked: Ok, will be completed soon");
 
@@ -270,11 +267,36 @@ public class StatusFragment extends Fragment implements StatusAdapter.OnStatusCl
                 .setSubtitleText(null) // Default is Hidden
                 .build()
                 .show();
-    }
+    }*/
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         mBinding = null;
+    }
+
+    @Override
+    public void onChatClicked(int position) {
+        Log.d(TAG, "onStatusClicked: Ok, will be completed soon");
+
+        List<Status> userStatuses = mStatusLists.get(position);
+        // test story view library
+        ArrayList<CustomStory> myStories = new ArrayList<>();
+        for (Status status : userStatuses) {
+            myStories.add(new CustomStory(
+                            status.getStatusImage(),
+                            new Date(status.getTimestamp()),
+                            status.getStatusText()
+                    )
+            );
+        }
+        new CustomStatusView.Builder(requireActivity().getSupportFragmentManager())
+                .setStoriesList(myStories)
+                .setStoryDuration(2000)
+                .setTitleText(userStatuses.get(0).getUploaderName())
+                .setTitleLogoUrl(userStatuses.get(0).getUploaderPhotoUrl())
+                .setSubtitleText(null) // Default is Hidden
+                .build()
+                .show();
     }
 }

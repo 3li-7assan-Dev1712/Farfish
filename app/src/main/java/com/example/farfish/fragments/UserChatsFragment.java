@@ -53,7 +53,6 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
     private MessagesListAdapter mListAdapter;
 
     private NavController mNavController;
-    private String mCurrentUserId;
     public static MainViewModel mainViewModel;
 
     private FragmentUserChatsBinding mBinding;
@@ -120,7 +119,7 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
         Log.d(TAG, "onCreateView: ");
         mBinding = FragmentUserChatsBinding.inflate(inflater, container, false);
         View view = mBinding.getRoot();
-        mCurrentUserId = MessagesPreference.getUserId(requireContext());
+        String mCurrentUserId = MessagesPreference.getUserId(requireContext());
         Log.d(TAG, "onCreate: ");
         mAuth = FirebaseAuth.getInstance();
         mNavController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);

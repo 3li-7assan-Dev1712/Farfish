@@ -57,21 +57,12 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
     private NavController mNavController;
     private boolean isProgressBarVisible = true;
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        setHasOptionsMenu(true);
-        /*usersAdapter = new ContactsAdapter(requireContext(), publicUsers, this);*/
-        mUserListAdapter = new ContactsListAdapter(this);
-        /*firebase database & auth*/
-        mAuth = FirebaseAuth.getInstance();
-        super.onCreate(savedInstanceState);
-    }
     /* request permission*/
     private ActivityResultLauncher<String> requestPermissionToReadContacts =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
                     mModel.getAllUsers().observe(getViewLifecycleOwner(), users ->
-                            mUserListAdapter.submitList(users));
+                            mUserListAdapter.customSubmitUserList(users));
                     setProgresBarVisibility();
                 } else {
                     Toast.makeText(requireContext(),
@@ -79,6 +70,16 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
                     mBinding.loadUsersProgressBar.setVisibility(View.GONE);
                 }
             });
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        setHasOptionsMenu(true);
+        /*usersAdapter = new ContactsAdapter(requireContext(), publicUsers, this);*/
+        mUserListAdapter = new ContactsListAdapter(this, false);
+        /*firebase database & auth*/
+        mAuth = FirebaseAuth.getInstance();
+        super.onCreate(savedInstanceState);
+    }
 
     private void setProgresBarVisibility() {
         if (isProgressBarVisible)
@@ -101,7 +102,7 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
                 PackageManager.PERMISSION_GRANTED) {
             // check if we have the phone numbers already
             mModel.getAllUsers().observe(getViewLifecycleOwner(), users -> {
-                mUserListAdapter.submitList(users);
+                mUserListAdapter.customSubmitUserList(users);
 
             });
         } else {
