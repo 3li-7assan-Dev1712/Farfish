@@ -95,7 +95,8 @@ public class MainViewModel extends AndroidViewModel {
 
 
     public void updateUsers(boolean fromContacts) {
-        allUsers.setValue(usersRepository.getUsers(fromContacts));
+        if (allUsers != null)
+            allUsers.setValue(usersRepository.getUsers(fromContacts));
     }
 
     public void updateChats() {

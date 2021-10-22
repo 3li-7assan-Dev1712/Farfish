@@ -39,6 +39,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.FragmentNavigator;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.aghajari.emojiview.view.AXEmojiPopupLayout;
 import com.aghajari.emojiview.view.AXEmojiView;
@@ -284,6 +285,19 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
             if (savedInstanceState.containsKey(ORIENTATION_CHANGE))
                 populateToolbar();
         }
+        mBinding.messageRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                Log.d(TAG, "onScrollStateChanged: ");
+            }
+
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                Log.d(TAG, "onScrolled: dx: " + dx + " dy: " + dy );
+            }
+        });
         if (USER_EXPECT_TO_RETURN)
             populateToolbar();
         checkUserConnection();

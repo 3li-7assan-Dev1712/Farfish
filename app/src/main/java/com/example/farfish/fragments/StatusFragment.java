@@ -104,9 +104,15 @@ public class StatusFragment extends Fragment implements ContactsListAdapter.OnCh
 
         mModel = new ViewModelProvider(this).get(MainViewModel.class);
         mModel.getStatusRepository().setStatusInterface(this);
-        getViewLifecycleOwnerLiveData().observe(getViewLifecycleOwner(), lifecycleOwner ->
-                mModel.getStatusLiveData().observe(lifecycleOwner, statuesLists ->
-                        mStatusAdapter.customSubmitStatusList(statuesLists)));
+        getViewLifecycleOwnerLiveData().observe(getViewLifecycleOwner(), lifecycleOwner ->{
+
+                    mModel.getStatusLiveData().observe(lifecycleOwner, statuesLists -> {
+                        mStatusAdapter.customSubmitStatusList(statuesLists);
+                        mBinding.statusProgressBar.setVisibility(View.GONE);
+                    });
+
+                });
+
         if (savedInstanceState != null)
             mBinding.statusProgressBar.setVisibility(View.GONE);
         return view;
@@ -124,7 +130,7 @@ public class StatusFragment extends Fragment implements ContactsListAdapter.OnCh
             // if the user hit the back button before choosing an image to send the code below will be executed.
         } else {
             Toast.makeText(requireContext(), getString(R.string.cancel_sending_img), Toast.LENGTH_SHORT).show();
-            mBinding.statusProgressBar.setVisibility(View.VISIBLE);
+            mBinding.statusProgressBar.setVisibility(View.GONE);
         }
 
     }

@@ -39,7 +39,7 @@
         android:layout_above="@id/linearLayout"
         android:layout_marginBottom="8dp"
         android:divider="@android:color/transparent"
-        app:stackFromEnd="false"
+        app:stackFromEnd="true"
         android:transcriptMode="alwaysScroll"
         app:layout_constraintBottom_toTopOf="@id/linearLayout"
         app:layout_constraintEnd_toEndOf="parent"

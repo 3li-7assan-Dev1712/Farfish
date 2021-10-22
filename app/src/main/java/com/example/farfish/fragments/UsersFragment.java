@@ -122,12 +122,17 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
                 .setSupportActionBar(mBinding.mainToolbarFrag);
         updateFilterImageResoucre();
         mBinding.usersToolbar.filterImageView.setOnClickListener(filterListener -> {
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(), Manifest.permission.READ_CONTACTS) ==
+                    PackageManager.PERMISSION_GRANTED) {
+                if (getFilterState())
+                    FilterPreferenceUtils.disableUsersFilter(requireContext());
+                else
+                    FilterPreferenceUtils.enableUsersFilter(requireContext());
+                updateFilterImageResoucre();
+            }else
+                requestPermissionToReadContacts.launch(Manifest.permission.READ_CONTACTS);
 
-            if (getFilterState())
-                FilterPreferenceUtils.disableUsersFilter(requireContext());
-            else
-                FilterPreferenceUtils.enableUsersFilter(requireContext());
-            updateFilterImageResoucre();
         });
         // migrating from the old normal RecyclerView adapter to the new ListRecyclerView Adapter (With ListAdapter)
         // to get benefit from the DiffUtil class

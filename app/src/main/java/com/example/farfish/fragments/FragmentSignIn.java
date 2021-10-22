@@ -160,8 +160,11 @@ public class FragmentSignIn extends Fragment {
     private void showHorizontalProgressBar(boolean showVisibility) {
         if (showVisibility)
             mBinding.signInHorizontalProgressBar.setVisibility(View.VISIBLE);
-        else
-            mBinding.signInHorizontalProgressBar.setVisibility(View.GONE);
+        else {
+            if (mBinding != null) {
+                mBinding.signInHorizontalProgressBar.setVisibility(View.GONE);
+            }
+        }
     }
 
     private void signIn(String email, String password) {
