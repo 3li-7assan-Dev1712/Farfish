@@ -154,6 +154,9 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mBinding = ChatsFragmentBinding.inflate(inflater, container, false);
         View view = mBinding.getRoot();
+        LinearLayoutManager layoutManager = new LinearLayoutManager(requireContext());
+        layoutManager.setStackFromEnd(true);
+        mBinding.messageRecyclerView.setLayoutManager(layoutManager);
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
         Log.d(TAG, "onCreateView: ");
 
@@ -185,7 +188,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
         /*messagesAdapter = new MessagesAdapter(requireContext(), messages, this);*/
         messagesListAdapter = new MessagesListAdapter(new ArrayList<>(), requireContext(), this, false);
         mBinding.messageRecyclerView.setAdapter(messagesListAdapter);
-        mBinding.messageRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
         // ImagePickerButton shows an image picker to upload a image for a message
         mBinding.photoPickerButton.setOnClickListener(v -> {
             if (ContextCompat.checkSelfPermission(
@@ -285,19 +288,6 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
             if (savedInstanceState.containsKey(ORIENTATION_CHANGE))
                 populateToolbar();
         }
-        mBinding.messageRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-                Log.d(TAG, "onScrollStateChanged: ");
-            }
-
-            @Override
-            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                Log.d(TAG, "onScrolled: dx: " + dx + " dy: " + dy );
-            }
-        });
         if (USER_EXPECT_TO_RETURN)
             populateToolbar();
         checkUserConnection();
