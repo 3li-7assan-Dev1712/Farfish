@@ -3,11 +3,13 @@ Farfish is a social media app. With Farfish you can easily communicate
 with your friends and family, sending photos, and messages in realtime!.
 just download the app and sign in and enjoy with it.</br></br>
 <h2>Technologies the app demonstrates:</h2></br>
+- MVVM architecture </br.
 - WorkManager </br>
 - Navigation component </br>
 - Application lifecycle</br>
 - ViewBinding</br>
-- Firebase (Authentication, Realtime database, Firestore and Storage) </br>
+- ViewModel - LiveData
+- Firebase (Authentication, Realtime database, Firestore and Firebase FireStorage) </br>
 - Special library for compressing photos, and special one for emojis as well as some other small libraries.</br>
 
 <h2>About the app</h2> </br>
@@ -49,4 +51,4 @@ using simple SnackBars to provide a reasoning feedback along with the solution, 
  <img src="https://github.com/3li-7assan-Dev1712/Farfish/blob/master/6.png" alt="Farfish Screenshot">
  <img src="https://github.com/3li-7assan-Dev1712/Farfish/blob/master/7.png" alt="Farfish Screenshot"></br>
 </br></br>
-    .developed by Ali Hassan Ibrahim Al-Zubair.
+    `developed by Ali Hassan Ibrahim Al-Zubair.`
