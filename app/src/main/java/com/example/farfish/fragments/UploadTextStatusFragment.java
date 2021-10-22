@@ -1,7 +1,5 @@
 package com.example.farfish.fragments;
 
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
@@ -23,9 +21,6 @@ import com.example.farfish.Module.MessagesPreference;
 import com.example.farfish.Module.Status;
 import com.example.farfish.R;
 import com.example.farfish.databinding.UploadTextStatusFragmentBinding;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.Date;
 import java.util.Objects;
@@ -49,27 +44,21 @@ public class UploadTextStatusFragment extends Fragment {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
             requireActivity().getWindow().setStatusBarColor(requireContext().getResources().getColor(R.color.secondaryDarkColor));
         View view = mBinding.getRoot();
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("status");
-        DatabaseReference userRef = reference.child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid()));
+        hideSendFab(); // hide it until the user inserts some chars
         mBinding.uploadTextStatusFragmentFab.setOnClickListener(uploadFab -> {
-            Toast.makeText(requireActivity(), getString(R.string.uploading_text_status), Toast.LENGTH_SHORT).show();
-            Status textStatus = new Status(MessagesPreference.getUserName(requireContext()),
-                    MessagesPreference.getUsePhoneNumber(requireContext()),
-                    "", Objects.requireNonNull(mBinding.editTextUploadStatus.getText()).toString(),
-                    new Date().getTime(),
-                    0);
-
             if (mBinding.editTextUploadStatus.getText().toString().equals("")) {
                 Toast.makeText(requireContext(), getString(R.string.input_field_first), Toast.LENGTH_SHORT).show();
             } else {
-                userRef.push().setValue(textStatus)
-                        .addOnSuccessListener(sListener ->Navigation.findNavController(view).navigateUp() )
-                        .addOnFailureListener(exception -> {
-                    Log.d(TAG, "onCreateView: upload text status exception " + exception.getMessage());
-                });
+                Toast.makeText(requireActivity(), getString(R.string.uploading_text_status), Toast.LENGTH_SHORT).show();
+                Status textStatus = new Status(MessagesPreference.getUserName(requireContext()),
+                        MessagesPreference.getUsePhoneNumber(requireContext()),
+                        "", Objects.requireNonNull(mBinding.editTextUploadStatus.getText()).toString(),
+                        new Date().getTime(),
+                        0);
+                StatusFragment.mModel.getStatusRepository().uploadNewStatus(textStatus);
+                Navigation.findNavController(view).navigateUp();
             }
         });
-        // the reason that I replaced the global views is for easily free up the view by just set mBinding = null
         AXEmojiView emojiView = new AXEmojiView(requireContext());
         emojiView.setEditText(mBinding.editTextUploadStatus);
         mBinding.statusEditTextPoppupLayout.initPopupView(emojiView);
@@ -123,6 +112,7 @@ public class UploadTextStatusFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        mBinding = null;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
             requireActivity().getWindow().setStatusBarColor(requireContext().getResources().getColor(R.color.colorPrimaryDark));
     }

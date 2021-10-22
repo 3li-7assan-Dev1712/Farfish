@@ -46,10 +46,9 @@ android {
 
 dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    def lifecycle_version = "2.4.0-alpha03"
+    def lifecycle_version = "2.4.0-rc01"
     def nav_version = "2.3.5"
     def work_version = "2.6.0"
-
 
 
     implementation fileTree(dir: "libs", include: ["*.jar"])
@@ -96,6 +95,14 @@ dependencies {
     implementation 'io.github.aghajari:AXEmojiView:1.4.0'
     implementation 'io.github.aghajari:AXEmojiView-iOSProvider:1.4.0'
 
+
+    // sky is the limit!
+    // ViewModel
+    implementation "androidx.lifecycle:lifecycle-viewmodel:$lifecycle_version"
+    // LiveData
+    implementation "androidx.lifecycle:lifecycle-livedata:$lifecycle_version"
+    // alternative for annotation processor
+    implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycle_version"
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

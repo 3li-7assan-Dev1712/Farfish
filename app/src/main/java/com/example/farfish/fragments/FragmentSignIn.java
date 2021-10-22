@@ -24,6 +24,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
+import com.example.farfish.Module.Connection;
 import com.example.farfish.Module.MessagesPreference;
 import com.example.farfish.Module.SharedPreferenceUtils;
 import com.example.farfish.Module.User;
@@ -95,13 +96,7 @@ public class FragmentSignIn extends Fragment {
         InternetConnectionDialog internetDialog = new InternetConnectionDialog();
         mBinding.buttonLogin.setOnClickListener(loginButtonListener -> {
 
-            /* the reason that the app don't reuse the result of the code that checks the internet connection
-             * is that the internet connection can change in any moment*/
-            // for checking internet connection
-            ConnectivityManager cm = (ConnectivityManager) requireContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-            boolean mConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
-
+            if (mBinding.signInHorizontalProgressBar.getVisibility() == View.VISIBLE) return;
             String email = mBinding.editTextEmailSignIn.getText().toString();
             String password = mBinding.editTextPasswordSignIn.getText().toString();
             Log.d(TAG, "onCreateView: email is: " + email);
@@ -110,7 +105,7 @@ public class FragmentSignIn extends Fragment {
                 displayRequiredFieldToast(getString(R.string.required_field_email));
             else if (password.equals(""))
                 displayRequiredFieldToast(getString(R.string.required_field_password));
-            else if (!mConnected)
+            else if (!Connection.isUserConnected(requireContext()))
                 internetDialog.show(requireActivity().getSupportFragmentManager(), "internet_alert");
             else {
                 showHorizontalProgressBar(true);
@@ -125,9 +120,6 @@ public class FragmentSignIn extends Fragment {
         mBinding.forgotPasswordSignIn.setOnClickListener(forgotPassWordListener ->
         {
             // for checking internet connection
-            ConnectivityManager cm = (ConnectivityManager) requireContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-            boolean mConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
             // forgot password functionality
             showHorizontalProgressBar(true);
             String email = mBinding.editTextEmailSignIn.getText().toString();
@@ -135,7 +127,7 @@ public class FragmentSignIn extends Fragment {
                 Snackbar.make(snackBarView, R.string.enter_email, Snackbar.LENGTH_LONG)
                         .setAction(R.string.insert_email, actionFocus -> showKeyboardOnEditText(mBinding.editTextEmailSignIn)).show();
                 showHorizontalProgressBar(false);
-            } else if (!mConnected) {
+            } else if (!Connection.isUserConnected(requireContext())) {
                 internetDialog.show(requireActivity().getSupportFragmentManager(), "internet_alert");
                 showHorizontalProgressBar(false);
             } else {
@@ -160,19 +152,25 @@ public class FragmentSignIn extends Fragment {
     private void showHorizontalProgressBar(boolean showVisibility) {
         if (showVisibility)
             mBinding.signInHorizontalProgressBar.setVisibility(View.VISIBLE);
-        else
-            mBinding.signInHorizontalProgressBar.setVisibility(View.GONE);
+        else {
+            if (mBinding != null) {
+                mBinding.signInHorizontalProgressBar.setVisibility(View.GONE);
+            }
+        }
     }
 
     private void signIn(String email, String password) {
+        Log.d(TAG, "signIn: ");
         mAuth.signInWithEmailAndPassword(email, password).addOnSuccessListener(authResult -> {
             Log.d(TAG, "signIn: user id " + Objects.requireNonNull(authResult.getUser()).getIdToken(true));
             // after checking the user id will be saved the the app flow will be completed
             updateUserInfoAndNavigateBack();
         }).addOnFailureListener(e -> {
             Log.d(TAG, "signIn: exception message: " + e.getMessage());
-            if (e.getMessage().equals("There is no user record corresponding to this identifier. The user may have been deleted."))
+            if (e.getMessage().equals("There is no user record corresponding to this identifier. The user may have been deleted.")) {
                 showSnackBarWithAction(R.string.notRegsitered, R.id.register_button, null);
+                showHorizontalProgressBar(false);
+            }
             try {
                 throw e;
             } catch (FirebaseAuthEmailException emailException) {
@@ -189,6 +187,8 @@ public class FragmentSignIn extends Fragment {
             } catch (Exception ex) {
                 ex.printStackTrace();
                 Log.d(TAG, "signIn: general exception: " + ex.getMessage());
+            }finally {
+                showHorizontalProgressBar(false);
             }
         });
     }
@@ -212,7 +212,7 @@ public class FragmentSignIn extends Fragment {
                     String userStatus = user.getStatus();
                     boolean isPublic = user.getIsPublic();
                     saveUserDataInSharedPreference(userName, photoUrl, userId, userStatus, phoneNumber, isPublic);
-                    mNavController.navigateUp();
+                    mNavController.navigate(R.id.userChatsFragment);
                 }
             }).addOnFailureListener(exc -> {
                 showHorizontalProgressBar(false);
@@ -228,7 +228,7 @@ public class FragmentSignIn extends Fragment {
                 }
                 String userName = firebaseUser.getDisplayName();
                 String phoneNumber = firebaseUser.getPhoneNumber();
-                User user = new User(userName, email, phoneNumber, photoUrl, userId, "اللهم صلي وسلم على محمد", true, new Date().getTime());
+                User user = new User(userName, email, phoneNumber, photoUrl, userId, "اللهم صلي وسلم على محمد", true, false, new Date().getTime());
                 String finalPhotoUrl = photoUrl;
                 firestore.collection("rooms").document(userId).set(user).addOnSuccessListener(suc -> {
                     saveUserDataInSharedPreference(userName, finalPhotoUrl, userId, "اللهم صلي وسلم على محمد", phoneNumber, false);
@@ -289,7 +289,7 @@ public class FragmentSignIn extends Fragment {
     }
 
     private void showSnackBarWithAction(int label, int action, Exception exception) {
-        Snackbar snackbar = Snackbar.make(snackBarView, label, Snackbar.LENGTH_INDEFINITE);
+        Snackbar snackbar = Snackbar.make(snackBarView, label, Snackbar.LENGTH_LONG);
         if (exception != null) {
             if (exception instanceof FirebaseAuthInvalidCredentialsException) {
                 snackbar.setAction(action, snackbarListener -> showKeyboardOnEditText(mBinding.editTextPasswordSignIn));

@@ -28,46 +28,50 @@ import java.util.List;
 public class UserProfileFragment extends Fragment {
 
     private UserProfileFragmentBinding mBinding;
-
+    // user information
+    private String userName;
+    private String userPhotoUrl;
+    private String userId;
+    private String status;
+    private String email;
+    private boolean isActive = true;
+    private String lastTimeSeen = "";
     private static final String TAG = UserProfileFragment.class.getSimpleName();
     private String phoneNumber;
 
+    public UserProfileFragment() {
+    }
+
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-
-        requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
-
-        super.onCreate(savedInstanceState);
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("target_user_id", userId);
+        outState.putString("target_user_email", email);
+        outState.putString("target_user_photo_url", userPhotoUrl);
+        outState.putString("target_user_status", status);
+        outState.putString("target_user_name", userName);
+        outState.putBoolean("isActive", isActive);
+        outState.putString("target_user_last_time_seen", lastTimeSeen);
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mBinding = UserProfileFragmentBinding.inflate(inflater, container, false);
+        requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
         View view = mBinding.getRoot();
+        lastTimeSeen = requireContext().getResources().getString(R.string.online);
         NavController controller = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         mBinding.toolbarUserProfile.setNavigationOnClickListener(clickListener -> controller.navigateUp());
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
 
-        // user information
-        String userName;
-        String userPhotoUrl;
-        String userId;
-        String status;
-        String email;
-        String lastTimeSeen = requireContext().getResources().getString(R.string.online);
-        Bundle userInfo = getArguments();
-        if (userInfo != null) {
+        if (savedInstanceState != null) {
+            populateFromBundle(savedInstanceState);
+        }else if (getArguments() != null) {
+            Bundle userInfo = getArguments();
             mBinding.editProfileButton.setVisibility(View.GONE);
             mBinding.logoutButtonUserProfile.setVisibility(View.GONE);
-            userPhotoUrl = userInfo.getString("target_user_photo_url");
-            userName = userInfo.getString("target_user_name");
-            status = userInfo.getString("target_user_status");
-            email = userInfo.getString("target_user_email");
-            userId = userInfo.getString("target_user_id");
-            boolean isActive = userInfo.getBoolean("isActive");
-            if (!isActive)
-                lastTimeSeen = getReadableLastTimeSeen(userInfo.getLong("target_user_last_time_seen"));
+            populateFromBundle(userInfo);
         } else {
             mBinding.editProfileButton.setVisibility(View.VISIBLE);
             mBinding.logoutButtonUserProfile.setVisibility(View.VISIBLE);
@@ -123,12 +127,22 @@ public class UserProfileFragment extends Fragment {
         mBinding.logoutButtonUserProfile.setOnClickListener(logoutOnClickListener -> {
             SharedPreferenceUtils.saveUserSignOut(requireContext());
             FirebaseAuth.getInstance().signOut();
-            List<Message> messages = UserChatsFragment.getMessages();
-            if (messages != null) messages.clear();
+            UserChatsFragment.clearAndRefresh();
             controller.navigate(R.id.action_userProfileFragment_to_fragmentSignIn);
         });
         /*----------------------------------------------------------------------------*/
         return view;
+    }
+
+    private void populateFromBundle(Bundle userInfo) {
+        userPhotoUrl = userInfo.getString("target_user_photo_url");
+        userName = userInfo.getString("target_user_name");
+        status = userInfo.getString("target_user_status");
+        email = userInfo.getString("target_user_email");
+        userId = userInfo.getString("target_user_id");
+        isActive = userInfo.getBoolean("isActive");
+        if (!isActive)
+            lastTimeSeen = getReadableLastTimeSeen(userInfo.getLong("target_user_last_time_seen"));
     }
 
     private String getReadableLastTimeSeen(long lastTimeUserWasActive) {

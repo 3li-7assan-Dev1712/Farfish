@@ -83,6 +83,12 @@ public class ProfileImageFragment extends Fragment {
             email = userData.getString("email");
             password = userData.getString("password");
         }
+        if (savedInstanceState != null){
+            if (savedInstanceState.containsKey("imageUri")) {
+                imageUriFromGallery = savedInstanceState.getParcelable("imageUri");
+                setImageAndBackground(imageUriFromGallery);
+            }
+        }
         mBinding.registerImage.setOnClickListener( imageListener -> {
             if (ContextCompat.checkSelfPermission(
                     requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) ==
@@ -144,6 +150,13 @@ public class ProfileImageFragment extends Fragment {
 
     }
 
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (imageUriFromGallery != null)
+            outState.putParcelable("imageUri", imageUriFromGallery);
+    }
+
     private void pickImageFromGallery() {
         choosePicture.launch("image/*");
     }
@@ -151,10 +164,14 @@ public class ProfileImageFragment extends Fragment {
     private void putIntoImage(Uri uri) {
         imageUriFromGallery = uri;
         if (imageUriFromGallery != null) {
-            mBinding.profileImageFrameLayout.setBackground(requireContext().getResources().getDrawable(R.drawable.circle_background));
-            Picasso.get().load(uri).fit().centerCrop().into(mBinding.registerImage);
+            setImageAndBackground(uri);
 
         }
+    }
+
+    private void setImageAndBackground(Uri uri) {
+        mBinding.profileImageFrameLayout.setBackground(requireContext().getResources().getDrawable(R.drawable.circle_background));
+        Picasso.get().load(uri).fit().centerCrop().into(mBinding.registerImage);
     }
 
     private void compressImageAndStoreInStorage(Uri uri) {
