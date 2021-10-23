@@ -44,12 +44,19 @@ import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class UsersFragment extends Fragment implements ContactsListAdapter.OnChatClicked,
         SharedPreferences.OnSharedPreferenceChangeListener, UsersRepository.InvokeObservers {
     private static final String TAG = UsersFragment.class.getSimpleName();
     private static final String ORIENTATION_CHANGE = "change";
     // users view model
-    private MainViewModel mModel;
+
+    public MainViewModel mModel;
+
     private UsersFragmentBinding mBinding;
     private FirebaseAuth mAuth;
     /*private ContactsAdapter usersAdapter;*/
@@ -96,6 +103,7 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.VISIBLE);
         View view = mBinding.getRoot();
         mModel = new ViewModelProvider(this).get(MainViewModel.class);
+        Log.d(TAG, "onCreateView: mModule has code: " + mModel.hashCode());
         mModel.getUsersRepository().setObservers(this);
         if (mBinding != null) setProgresBarVisibility();
         if (ContextCompat.checkSelfPermission(
@@ -114,7 +122,8 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
                 mBinding.loadUsersProgressBar.setVisibility(View.GONE);
         }
 
-        UserChatsFragment.mainViewModel.getChatsRepository().setUserShouldBeNotified(true);
+
+        mModel.getChatsRepository().setUserShouldBeNotified(true);
         requireActivity().getSharedPreferences("filter_utils", Activity.MODE_PRIVATE).
                 registerOnSharedPreferenceChangeListener(this);
         mNavController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
@@ -170,7 +179,7 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
     public void onChatClicked(int position) {
         isProgressBarVisible = false;
         User selectedUser = mModel.getUsersRepository().getUserInPosition(position, getFilterState());
-        UserChatsFragment.mainViewModel.getChatsRepository().setUserShouldBeNotified(false);
+        mModel.getChatsRepository().setUserShouldBeNotified(false);
         String targetUserId = selectedUser.getUserId();
         Bundle primaryDataBundle = new Bundle();
         primaryDataBundle.putString("target_user_id", targetUserId);

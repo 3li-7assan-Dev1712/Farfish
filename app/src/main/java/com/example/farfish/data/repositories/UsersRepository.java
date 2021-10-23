@@ -23,6 +23,10 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.qualifiers.ApplicationContext;
+
 public class UsersRepository {
     private static final String TAG = UsersRepository.class.getSimpleName();
     // observers
@@ -38,7 +42,8 @@ public class UsersRepository {
     private String[] arrayServerPhoneNumbers;
     private Context context;
 
-    public UsersRepository(Context context) {
+    @Inject
+    public UsersRepository(@ApplicationContext Context context) {
         workManager = WorkManager.getInstance(context);
         this.context = context;
     }

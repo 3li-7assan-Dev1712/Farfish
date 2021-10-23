@@ -1,13 +1,10 @@
 package com.example.farfish.data;
 
-import android.app.Application;
-import android.content.Context;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModel;
 
 import com.example.farfish.Module.Message;
 import com.example.farfish.Module.Status;
@@ -20,7 +17,13 @@ import com.example.farfish.data.repositories.UsersRepository;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainViewModel extends AndroidViewModel {
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+import dagger.hilt.android.lifecycle.HiltViewModel;
+
+@HiltViewModel
+public class MainViewModel extends ViewModel {
 
     private static final String TAG = MainViewModel.class.getSimpleName();
     // LiveData
@@ -34,13 +37,20 @@ public class MainViewModel extends AndroidViewModel {
     private MessagingRepository messagingRepository;
     private StatusRepository statusRepository;
 
-    public MainViewModel(@NonNull Application application) {
-        super(application);
-        Context context = application.getApplicationContext();
-        usersRepository = new UsersRepository(context);
-        chatsRepository = new ChatsRepository(context);
-        messagingRepository = new MessagingRepository(context);
-        statusRepository = new StatusRepository(context);
+    @Inject
+    MainViewModel
+            (
+                    UsersRepository usersRepository,
+                    ChatsRepository chatsRepository,
+                    MessagingRepository messagingRepository,
+                    StatusRepository statusRepository
+
+            ) {
+//        Context context = application.getApplicationContext();
+        this.usersRepository = usersRepository;
+        this.chatsRepository = chatsRepository;
+        this.messagingRepository = messagingRepository;
+        this.statusRepository = statusRepository;
     }
 
     // getters
@@ -86,7 +96,7 @@ public class MainViewModel extends AndroidViewModel {
     }
 
     public LiveData<List<List<Status>>> getStatusLiveData() {
-        if (statuesLists == null){
+        if (statuesLists == null) {
             statuesLists = new MutableLiveData<>();
             statusRepository.loadAllStatuses();
         }
@@ -103,10 +113,11 @@ public class MainViewModel extends AndroidViewModel {
         Log.d(TAG, "updateChats: size after logout: " + chatsRepository.getUserChats().size());
         userChats.setValue(chatsRepository.getUserChats());
     }
+
     public void updateMessages() {
         Log.d(TAG, "updateChats: size after logout: " + messagingRepository.getMessages().size());
         int i = 0;
-        for (Message message: messagingRepository.getMessages()) {
+        for (Message message : messagingRepository.getMessages()) {
             if (!message.getIsRead()) {
                 Log.d(TAG, "updateMessages: message is not read ");
                 i++;
@@ -115,6 +126,7 @@ public class MainViewModel extends AndroidViewModel {
         Log.d(TAG, "updateMessages: number of unread messages is: " + i);
         userMessages.setValue(messagingRepository.getMessages());
     }
+
     public void clearChats() {
         userChats.setValue(new ArrayList<>());
     }

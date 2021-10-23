@@ -14,23 +14,31 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 
 import com.aghajari.emojiview.view.AXEmojiView;
 import com.example.farfish.Module.MessagesPreference;
 import com.example.farfish.Module.Status;
 import com.example.farfish.R;
+import com.example.farfish.data.MainViewModel;
 import com.example.farfish.databinding.UploadTextStatusFragmentBinding;
 
 import java.util.Date;
 import java.util.Objects;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class UploadTextStatusFragment extends Fragment {
 
     private static final String TAG = UploadTextStatusFragment.class.getSimpleName();
     private static final int DEFAULT_STATUS_LENGTH_LIMIT = 400;
     private UploadTextStatusFragmentBinding mBinding;
 
+    public MainViewModel model;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,6 +52,7 @@ public class UploadTextStatusFragment extends Fragment {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
             requireActivity().getWindow().setStatusBarColor(requireContext().getResources().getColor(R.color.secondaryDarkColor));
         View view = mBinding.getRoot();
+        model = new ViewModelProvider(this).get(MainViewModel.class);
         hideSendFab(); // hide it until the user inserts some chars
         mBinding.uploadTextStatusFragmentFab.setOnClickListener(uploadFab -> {
             if (mBinding.editTextUploadStatus.getText().toString().equals("")) {
@@ -55,7 +64,7 @@ public class UploadTextStatusFragment extends Fragment {
                         "", Objects.requireNonNull(mBinding.editTextUploadStatus.getText()).toString(),
                         new Date().getTime(),
                         0);
-                StatusFragment.mModel.getStatusRepository().uploadNewStatus(textStatus);
+                model.getStatusRepository().uploadNewStatus(textStatus);
                 Navigation.findNavController(view).navigateUp();
             }
         });

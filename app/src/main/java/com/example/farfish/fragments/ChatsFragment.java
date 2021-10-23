@@ -39,7 +39,6 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.FragmentNavigator;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.aghajari.emojiview.view.AXEmojiPopupLayout;
 import com.aghajari.emojiview.view.AXEmojiView;
@@ -63,6 +62,12 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
 
+import javax.inject.Inject;
+
+
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class ChatsFragment extends Fragment implements MessagesListAdapter.MessageClick, MessagingRepository.MessagingInterface {
     private static final String ORIENTATION_CHANGE = "orientation_change";
     // root class
@@ -114,7 +119,8 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
             },
             this::putIntoImage);
 
-    private MainViewModel mModel;
+
+    public MainViewModel mModel;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -347,7 +353,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
         mBinding.progressBar.setVisibility(View.GONE);
         mModel.updateMessages();
         /*messagesListAdapter.submitList(mModel.getMessagingRepository().getMessages());*/
-   /*     messagesListAdapter.notifyDataSetChanged();*/
+        /*     messagesListAdapter.notifyDataSetChanged();*/
         mBinding.messageRecyclerView.scrollToPosition(mModel.getMessagingRepository().getMessages().size() - 1);
     }
 

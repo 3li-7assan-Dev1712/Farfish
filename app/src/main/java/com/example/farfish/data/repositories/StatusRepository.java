@@ -31,6 +31,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.qualifiers.ApplicationContext;
 import id.zelory.compressor.Compressor;
 
 public class StatusRepository implements ValueEventListener {
@@ -44,7 +47,8 @@ public class StatusRepository implements ValueEventListener {
     private List<List<Status>> mStatusLists = new ArrayList<>();
     private StatusInterface statusInterface;
 
-    public StatusRepository(Context context) {
+    @Inject
+    public StatusRepository(@ApplicationContext Context context) {
         mContext = context;
         mRootRef = FirebaseStorage.getInstance().getReference("stories");
         mUserReference = mDatabaseReference.child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid()));

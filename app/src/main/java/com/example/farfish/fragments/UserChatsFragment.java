@@ -44,7 +44,11 @@ import com.google.firebase.auth.FirebaseAuth;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
+import javax.inject.Inject;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class UserChatsFragment extends Fragment implements MessagesListAdapter.ChatClick,
         ChatsRepository.DataReadyInterface {
 
@@ -53,7 +57,8 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
     private MessagesListAdapter mListAdapter;
 
     private NavController mNavController;
-    public static MainViewModel mainViewModel;
+
+    public MainViewModel mainViewModel;
 
     private FragmentUserChatsBinding mBinding;
 
@@ -62,7 +67,7 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
     }
 
 
-    public static void clearAndRefresh() {
+    public void clearAndRefresh() {
         mainViewModel.clearChats();
     }
 
@@ -138,6 +143,7 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
         uniquelyScheduleCleanUPWorker();
         if (mAuth.getCurrentUser() != null) {
             mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
+            Log.d(TAG, "onCreateView: mainvViewModel has code: " + mainViewModel.hashCode());
             mainViewModel.getChatsRepository().setDataReadyInterface(this);
             mainViewModel.getChatsRepository().setUserShouldBeNotified(false);
             Log.d(TAG, "onCreateView: isUserShouldBeNotified: " + mainViewModel.getChatsRepository().isUserShouldBeNotified());

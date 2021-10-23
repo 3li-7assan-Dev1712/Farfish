@@ -33,6 +33,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.qualifiers.ApplicationContext;
 import id.zelory.compressor.Compressor;
 
 public class MessagingRepository {
@@ -66,7 +69,8 @@ public class MessagingRepository {
     private CurrentRoomListener mCurrentRoomListener;
     private TargetRoomListener mTargetRoomListener;
 
-    public MessagingRepository(Context context) {
+    @Inject
+    public MessagingRepository(@ApplicationContext Context context) {
         messages = new ArrayList<>();
         targetUserData = new Bundle();
         mContext = context;

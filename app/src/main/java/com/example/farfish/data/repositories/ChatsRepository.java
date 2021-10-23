@@ -20,6 +20,10 @@ import com.google.protobuf.MapEntryLite;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.qualifiers.ApplicationContext;
+
 public class ChatsRepository implements ValueEventListener {
     private static final String TAG = ChatsRepository.class.getSimpleName();
     private DatabaseReference mChatsReference;
@@ -27,11 +31,13 @@ public class ChatsRepository implements ValueEventListener {
     private String mCurrentUserId;
     private Context mContext;
     private DataReadyInterface mDataReadyInterface;
-    private boolean userShouldBeNotified = true;
+    private boolean userShouldBeNotified;
 
-    public ChatsRepository(Context context) {
+    @Inject
+    public ChatsRepository(@ApplicationContext Context context) {
         mUserChats = new ArrayList<>();
         mContext = context;
+        this.userShouldBeNotified = true;
         mCurrentUserId = FirebaseAuth.getInstance().getUid();
         if (mCurrentUserId != null) {
             mChatsReference = FirebaseDatabase.getInstance().getReference("rooms")
@@ -46,6 +52,9 @@ public class ChatsRepository implements ValueEventListener {
     public void loadAllChats() {
         Log.d(TAG, "loadAllChats: adding event listener");
         mChatsReference.addValueEventListener(this);
+        // this is going to be the biggest app I will be really be proud of *_-
+        // hi there how are you, My name is Ali Hassan I am an android developer and I love to build apps
+        // that help the wold, If you wanna have my free to contact me.
     }
 
     public void refreshData(@NonNull DataSnapshot snapshot) {

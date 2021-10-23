@@ -18,10 +18,12 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Date;
 
+import dagger.hilt.android.HiltAndroidApp;
+
 /* In my chat app I want to know when the user close the app (navigate to another app, or
  * go the home screen so I can save their last time activation my firestore server,
  * this class demonstrates the process*/
-
+@HiltAndroidApp
 public class AppStateDetector extends androidx.multidex.MultiDexApplication implements
         LifecycleObserver, SharedPreferences.OnSharedPreferenceChangeListener {
 

@@ -36,13 +36,19 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class StatusFragment extends Fragment implements ContactsListAdapter.OnChatClicked, StatusRepository.StatusInterface {
 
     // the root view
     private StatusFragmentBinding mBinding;
     private static final String TAG = StatusFragment.class.getSimpleName();
 
-    public static MainViewModel mModel;
+
+    public MainViewModel mModel;
     /* request permission*/
     private ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {

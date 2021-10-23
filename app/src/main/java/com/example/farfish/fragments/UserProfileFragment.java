@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
@@ -17,6 +18,7 @@ import com.example.farfish.Module.Message;
 import com.example.farfish.Module.MessagesPreference;
 import com.example.farfish.Module.SharedPreferenceUtils;
 import com.example.farfish.R;
+import com.example.farfish.data.MainViewModel;
 import com.example.farfish.databinding.UserProfileFragmentBinding;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -25,6 +27,11 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class UserProfileFragment extends Fragment {
 
     private UserProfileFragmentBinding mBinding;
@@ -38,6 +45,8 @@ public class UserProfileFragment extends Fragment {
     private String lastTimeSeen = "";
     private static final String TAG = UserProfileFragment.class.getSimpleName();
     private String phoneNumber;
+
+    public MainViewModel mainViewModel;
 
     public UserProfileFragment() {
     }
@@ -60,6 +69,7 @@ public class UserProfileFragment extends Fragment {
         mBinding = UserProfileFragmentBinding.inflate(inflater, container, false);
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
         View view = mBinding.getRoot();
+        mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
         lastTimeSeen = requireContext().getResources().getString(R.string.online);
         NavController controller = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         mBinding.toolbarUserProfile.setNavigationOnClickListener(clickListener -> controller.navigateUp());
@@ -127,7 +137,7 @@ public class UserProfileFragment extends Fragment {
         mBinding.logoutButtonUserProfile.setOnClickListener(logoutOnClickListener -> {
             SharedPreferenceUtils.saveUserSignOut(requireContext());
             FirebaseAuth.getInstance().signOut();
-            UserChatsFragment.clearAndRefresh();
+            mainViewModel.clearChats();
             controller.navigate(R.id.action_userProfileFragment_to_fragmentSignIn);
         });
         /*----------------------------------------------------------------------------*/
