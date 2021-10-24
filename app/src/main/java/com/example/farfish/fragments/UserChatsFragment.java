@@ -113,8 +113,7 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        //prevent any orientation changes
-        /*requireActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);*/
+
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.VISIBLE);
         Log.d(TAG, "onCreateView: ");
         mBinding = FragmentUserChatsBinding.inflate(inflater, container, false);
@@ -190,8 +189,6 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        if (mAuth.getCurrentUser() != null)
-            mainViewModel.getChatsRepository().setUserShouldBeNotified(true);
         mBinding = null;
     }
 

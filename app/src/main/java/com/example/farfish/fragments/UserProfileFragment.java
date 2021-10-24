@@ -67,12 +67,14 @@ public class UserProfileFragment extends Fragment {
 
         if (savedInstanceState != null) {
             populateFromBundle(savedInstanceState);
+            UserChatsFragment.mainViewModel.getChatsRepository().setUserShouldBeNotified(false);
         }else if (getArguments() != null) {
             Bundle userInfo = getArguments();
             mBinding.editProfileButton.setVisibility(View.GONE);
             mBinding.logoutButtonUserProfile.setVisibility(View.GONE);
             populateFromBundle(userInfo);
         } else {
+            UserChatsFragment.mainViewModel.getChatsRepository().setUserShouldBeNotified(true);
             mBinding.editProfileButton.setVisibility(View.VISIBLE);
             mBinding.logoutButtonUserProfile.setVisibility(View.VISIBLE);
             Context context = requireContext();
