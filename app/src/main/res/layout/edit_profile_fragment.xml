@@ -151,7 +151,7 @@
                 app:contentInsetStart="0dp"
                 app:navigationIcon="@drawable/ic__navigate_before"
                 app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-                app:title="Edit Profile" />
+                app:title="@string/edit_profile" />
 
         </com.google.android.material.appbar.AppBarLayout>
 

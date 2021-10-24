@@ -10,7 +10,7 @@
     <string name="yesterday">البارحة</string>
     <string name="online">متصل</string>
     <string name="last_time_seen">"أخر ظهور كان قبل "</string>
-    <string name="isWriting">بكتب الآن…</string>
+    <string name="isWriting">يكتب الآن…</string>
     <string name="go_to_contacts">اظهار كل المستخدمين</string>
     <string name="new_photo_view_holder">"صورة "</string>
     <string name="enter_email_address_hint">ادخل بريدك الالكتروني</string>
@@ -56,7 +56,7 @@
     <string name="hours_ago">ساعات من الأن</string>
     <string name="minutes_label">دقائق</string>
     <string name="minutes_ago">دقائق من اللآن</string>
-    <string name="a_day_ago">قبل يوم واحد</string>
+    <string name="a_day_ago"> يوم واحد</string>
     <string name="one_hour">ساعة</string>
     <string name="and">و</string>
     <string name="seconds_ago">ثواني من الأن</string>
@@ -109,4 +109,5 @@
     <string name="choose_app_to_send_emial">أرسال الإيميل بإستخدام…</string>
     <string name="no_app_found">لا يوجد تطبيق في هاتفك لارسال هذا الإيميل</string>
     <string name="type_your_issue">ماهي المشكة التي واجهتك في التطبيق؟</string>
+    <string name="edit_profile">تعديل الملف الشخصي</string>
 </resources>

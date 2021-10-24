@@ -14,7 +14,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        android:background="#FAFAFD"
+        android:backgroundTint="#FAFAFD"
         android:clickable="true"
         android:focusable="true"
         android:maxWidth="24dp"
