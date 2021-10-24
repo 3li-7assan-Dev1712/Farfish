@@ -18,7 +18,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.hilt.navigation.HiltViewModelFactory;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavBackStackEntry;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -107,8 +109,11 @@ public class StatusFragment extends Fragment implements ContactsListAdapter.OnCh
                 new InternetConnectionDialog().show(requireActivity().getSupportFragmentManager(), "internet_alert");
             else Navigation.findNavController(view).navigate(R.id.uploadTextStatusFragment);
         });
-
-        mModel = new ViewModelProvider(this).get(MainViewModel.class);
+        NavBackStackEntry backStackEntry = Navigation.findNavController(view).getBackStackEntry(R.id.nav_graph);
+        mModel = new ViewModelProvider(
+                backStackEntry,
+                HiltViewModelFactory.create(requireContext(), backStackEntry)
+        ).get(MainViewModel.class);
         mModel.getStatusRepository().setStatusInterface(this);
         getViewLifecycleOwnerLiveData().observe(getViewLifecycleOwner(), lifecycleOwner ->{
 

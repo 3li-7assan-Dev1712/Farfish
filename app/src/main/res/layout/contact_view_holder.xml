@@ -14,6 +14,7 @@
         android:layout_marginTop="4dp"
         android:background="@drawable/new_message_indicator_background"
         android:padding="4dp"
+        android:minWidth="24dp"
         app:layout_constraintEnd_toEndOf="@id/lastMessageTime"
         tools:visibility="visible"
         android:visibility="invisible"

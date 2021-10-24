@@ -35,6 +35,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavBackStackEntry;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.FragmentNavigator;
@@ -281,7 +282,10 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
 
 
         mBinding.progressBar.setVisibility(View.VISIBLE);
-        mModel = new ViewModelProvider(this).get(MainViewModel.class);
+        NavBackStackEntry backStackEntry = navController.getBackStackEntry(R.id.nav_graph);
+        mModel = new ViewModelProvider(
+                backStackEntry
+        ).get(MainViewModel.class);
         mModel.getMessagingRepository().setMessagingInterface(this);
         mModel.getMessagingRepository().setTargetUserId(targetUserId);
         mModel.getChatMessages().observe(getViewLifecycleOwner(), chatMessages -> {

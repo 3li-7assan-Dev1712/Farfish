@@ -4,18 +4,15 @@ import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.example.farfish.Module.Message;
 import com.example.farfish.Module.NotificationUtils;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.protobuf.MapEntryLite;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -100,7 +97,7 @@ public class ChatsRepository implements ValueEventListener {
         Log.d(TAG, "setUserShouldBeNotified: " + userShouldBeNotified);
     }
 
-    public void sendNotification( Message newMessage) {
+    public void sendNotification(Message newMessage) {
         Log.d(TAG, "sendNotification: user should be notified: " + userShouldBeNotified);
         if (userShouldBeNotified)
             NotificationUtils.notifyUserOfNewMessage(mContext, newMessage);

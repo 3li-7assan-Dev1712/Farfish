@@ -2,7 +2,6 @@ package com.example.farfish.fragments;
 
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,7 +17,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
+import androidx.hilt.navigation.HiltViewModelFactory;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavBackStackEntry;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
@@ -44,9 +45,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
-import javax.inject.Inject;
-
 import dagger.hilt.android.AndroidEntryPoint;
+
 
 @AndroidEntryPoint
 public class UserChatsFragment extends Fragment implements MessagesListAdapter.ChatClick,
@@ -142,7 +142,14 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
         // start the periodic work
         uniquelyScheduleCleanUPWorker();
         if (mAuth.getCurrentUser() != null) {
-            mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
+            NavBackStackEntry backStackEntry = mNavController.getBackStackEntry(R.id.nav_graph);
+
+            /*HiltViewModelFactory.createInternal(requireActivity(), getSavedStateRegistryOw(), savedInstanceState, null);*/
+            mainViewModel = new ViewModelProvider(
+                    backStackEntry,
+                    HiltViewModelFactory.create(requireContext(), backStackEntry)
+                    ).get(MainViewModel.class);
+
             Log.d(TAG, "onCreateView: mainvViewModel has code: " + mainViewModel.hashCode());
             mainViewModel.getChatsRepository().setDataReadyInterface(this);
             mainViewModel.getChatsRepository().setUserShouldBeNotified(false);

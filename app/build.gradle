@@ -102,15 +102,26 @@ dependencies {
     // sky is the limit!
     // ViewModel
     implementation "androidx.lifecycle:lifecycle-viewmodel:$lifecycle_version"
+
+
     // LiveData
     implementation "androidx.lifecycle:lifecycle-livedata:$lifecycle_version"
     // alternative for annotation processor
     implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycle_version"
 
-    // Hilt for doing dependency injection
-    implementation "com.google.dagger:hilt-android:2.38.1"
-    kapt "com.google.dagger:hilt-compiler:2.38.1"
+    /*
+    Duplicate class androidx.lifecycle.ViewModelLazy found in modules jetified-lifecycle-viewmodel-ktx-2.2.0-runtime.jar (androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0) and lifecycle-viewmodel-2.4.0-rc01-runtime.jar (androidx.lifecycle:lifecycle-viewmodel:2.4.0-rc01)
+Duplicate class androidx.lifecycle.ViewModelProviderKt found in modules jetified-lifecycle-viewmodel-ktx-2.2.0-runtime.jar (androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0) and lifecycle-viewmodel-2.4.0-rc01-runtime.jar (androidx.lifecycle:lifecycle-viewmodel:2.4.0-rc01)
 
+     */
+    // Hilt for doing dependency injection
+
+    implementation "com.google.dagger:hilt-android:2.38.1"
+    implementation 'androidx.hilt:hilt-navigation-fragment:1.0.0'
+    configurations.all{
+        exclude group: 'androidx.lifecycle', module: 'lifecycle-viewmodel-ktx'
+    }
+    kapt "com.google.dagger:hilt-compiler:2.38.1"
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

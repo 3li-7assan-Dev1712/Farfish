@@ -1,5 +1,6 @@
 package com.example.farfish.data;
 
+import android.content.Context;
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
@@ -18,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
 import dagger.hilt.android.lifecycle.HiltViewModel;
 
@@ -32,13 +32,15 @@ public class MainViewModel extends ViewModel {
     private MutableLiveData<List<Message>> userMessages;
     private MutableLiveData<List<List<Status>>> statuesLists;
     // repositories
-    private UsersRepository usersRepository;
-    private ChatsRepository chatsRepository;
-    private MessagingRepository messagingRepository;
-    private StatusRepository statusRepository;
+     public UsersRepository usersRepository;
+     public ChatsRepository chatsRepository;
+     public MessagingRepository messagingRepository;
+     public StatusRepository statusRepository;
+
+
 
     @Inject
-    MainViewModel
+    public MainViewModel
             (
                     UsersRepository usersRepository,
                     ChatsRepository chatsRepository,
@@ -51,6 +53,13 @@ public class MainViewModel extends ViewModel {
         this.chatsRepository = chatsRepository;
         this.messagingRepository = messagingRepository;
         this.statusRepository = statusRepository;
+    }
+
+    public void init(Context context) {
+        this.usersRepository = new UsersRepository(context);
+        this.chatsRepository = new ChatsRepository(context);
+        this.messagingRepository = new MessagingRepository(context);
+        this.statusRepository = new StatusRepository(context);
     }
 
     // getters

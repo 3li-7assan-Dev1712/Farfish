@@ -23,7 +23,9 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.hilt.navigation.HiltViewModelFactory;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavBackStackEntry;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
@@ -43,8 +45,6 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.List;
-
-import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -102,7 +102,12 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
         mBinding = UsersFragmentBinding.inflate(inflater, container, false);
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.VISIBLE);
         View view = mBinding.getRoot();
-        mModel = new ViewModelProvider(this).get(MainViewModel.class);
+        mNavController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+        NavBackStackEntry backStackEntry = mNavController.getBackStackEntry(R.id.nav_graph);
+        mModel = new ViewModelProvider(
+                backStackEntry,
+                HiltViewModelFactory.create(requireContext(), backStackEntry)
+        ).get(MainViewModel.class);
         Log.d(TAG, "onCreateView: mModule has code: " + mModel.hashCode());
         mModel.getUsersRepository().setObservers(this);
         if (mBinding != null) setProgresBarVisibility();
@@ -126,7 +131,7 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
         mModel.getChatsRepository().setUserShouldBeNotified(true);
         requireActivity().getSharedPreferences("filter_utils", Activity.MODE_PRIVATE).
                 registerOnSharedPreferenceChangeListener(this);
-        mNavController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+
         ((AppCompatActivity) requireActivity())
                 .setSupportActionBar(mBinding.mainToolbarFrag);
         updateFilterImageResoucre();
@@ -139,7 +144,7 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
                 else
                     FilterPreferenceUtils.enableUsersFilter(requireContext());
                 updateFilterImageResoucre();
-            }else
+            } else
                 requestPermissionToReadContacts.launch(Manifest.permission.READ_CONTACTS);
 
         });
