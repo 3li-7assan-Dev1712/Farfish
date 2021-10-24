@@ -283,6 +283,8 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
             messagesListAdapter.notifyDataSetChanged();
             mBinding.messageRecyclerView.scrollToPosition(chatMessages.size() - 1);
             mBinding.progressBar.setVisibility(View.GONE);
+            Log.d(TAG, "onCreateView: scrolling : " + mBinding.messageRecyclerView.isVerticalScrollBarEnabled());
+
         });
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(ORIENTATION_CHANGE))
@@ -290,6 +292,22 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
         }
         if (USER_EXPECT_TO_RETURN)
             populateToolbar();
+        mBinding.scrollBottomFab.setOnClickListener(scrollFabListener -> {
+            mBinding.scrollBottomFab.hide();
+            mBinding.messageRecyclerView.scrollToPosition(mModel.getMessagingRepository().getMessages().size()-1);
+        });
+        mBinding.messageRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if (dy > 0 && mBinding.scrollBottomFab.getVisibility() == View.VISIBLE){
+                    mBinding.scrollBottomFab.hide();
+                }
+                else if (dy < 0 && mBinding.scrollBottomFab.getVisibility() != View.VISIBLE) {
+                    mBinding.scrollBottomFab.show();
+                }
+            }
+        });
         checkUserConnection();
         return view;
     }
@@ -346,9 +364,11 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
     public void refreshMessages() {
         mBinding.progressBar.setVisibility(View.GONE);
         mModel.updateMessages();
-        /*messagesListAdapter.submitList(mModel.getMessagingRepository().getMessages());*/
-   /*     messagesListAdapter.notifyDataSetChanged();*/
         mBinding.messageRecyclerView.scrollToPosition(mModel.getMessagingRepository().getMessages().size() - 1);
+        if (mModel.getMessagingRepository().getMessages().size() <= 10){
+            mBinding.scrollBottomFab.hide();
+        }
+
     }
 
     @Override

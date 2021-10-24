@@ -9,6 +9,25 @@
     android:paddingBottom="8dp"
     tools:context=".fragments.ChatsFragment">
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/scrollBottomFab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:background="#FAFAFD"
+        android:clickable="true"
+        android:focusable="true"
+        android:maxWidth="24dp"
+        android:maxHeight="24dp"
+        android:src="@drawable/ic_arrow_downward_24"
+        android:visibility="invisible"
+        app:fabSize="mini"
+        app:layout_constraintBottom_toTopOf="@id/sendButton"
+        app:layout_constraintEnd_toEndOf="@id/sendButton"
+        app:layout_constraintStart_toStartOf="@id/sendButton"
+        app:maxImageSize="16dp"
+        tools:visibility="visible" />
+
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar"
         android:layout_width="match_parent"
