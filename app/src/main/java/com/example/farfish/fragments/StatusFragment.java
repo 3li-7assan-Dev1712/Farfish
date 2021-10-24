@@ -77,7 +77,6 @@ public class StatusFragment extends Fragment implements ContactsListAdapter.OnCh
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mBinding = StatusFragmentBinding.inflate(inflater, container, false);
         View view = mBinding.getRoot();
-        UserChatsFragment.mainViewModel.getChatsRepository().setUserShouldBeNotified(true);
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.VISIBLE);
         RecyclerView statusRecycler = view.findViewById(R.id.statusRecycler);
         statusRecycler.setAdapter(mStatusAdapter);

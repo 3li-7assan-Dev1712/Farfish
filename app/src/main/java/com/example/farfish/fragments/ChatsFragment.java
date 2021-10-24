@@ -294,16 +294,15 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
             populateToolbar();
         mBinding.scrollBottomFab.setOnClickListener(scrollFabListener -> {
             mBinding.scrollBottomFab.hide();
-            mBinding.messageRecyclerView.scrollToPosition(mModel.getMessagingRepository().getMessages().size()-1);
+            mBinding.messageRecyclerView.scrollToPosition(mModel.getMessagingRepository().getMessages().size() - 1);
         });
         mBinding.messageRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                if (dy > 0 && mBinding.scrollBottomFab.getVisibility() == View.VISIBLE){
+                if (dy > 0 && mBinding.scrollBottomFab.getVisibility() == View.VISIBLE) {
                     mBinding.scrollBottomFab.hide();
-                }
-                else if (dy < 0 && mBinding.scrollBottomFab.getVisibility() != View.VISIBLE) {
+                } else if (dy < 0 && mBinding.scrollBottomFab.getVisibility() != View.VISIBLE) {
                     mBinding.scrollBottomFab.show();
                 }
             }
@@ -365,7 +364,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
         mBinding.progressBar.setVisibility(View.GONE);
         mModel.updateMessages();
         mBinding.messageRecyclerView.scrollToPosition(mModel.getMessagingRepository().getMessages().size() - 1);
-        if (mModel.getMessagingRepository().getMessages().size() <= 10){
+        if (mModel.getMessagingRepository().getMessages().size() <= 10) {
             mBinding.scrollBottomFab.hide();
         }
 

@@ -114,7 +114,6 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
                 mBinding.loadUsersProgressBar.setVisibility(View.GONE);
         }
 
-        UserChatsFragment.mainViewModel.getChatsRepository().setUserShouldBeNotified(true);
         requireActivity().getSharedPreferences("filter_utils", Activity.MODE_PRIVATE).
                 registerOnSharedPreferenceChangeListener(this);
         mNavController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
@@ -130,7 +129,7 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
                 else
                     FilterPreferenceUtils.enableUsersFilter(requireContext());
                 updateFilterImageResoucre();
-            }else
+            } else
                 requestPermissionToReadContacts.launch(Manifest.permission.READ_CONTACTS);
 
         });
@@ -170,7 +169,6 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
     public void onChatClicked(int position) {
         isProgressBarVisible = false;
         User selectedUser = mModel.getUsersRepository().getUserInPosition(position, getFilterState());
-        UserChatsFragment.mainViewModel.getChatsRepository().setUserShouldBeNotified(false);
         String targetUserId = selectedUser.getUserId();
         Bundle primaryDataBundle = new Bundle();
         primaryDataBundle.putString("target_user_id", targetUserId);

@@ -24,9 +24,9 @@ public class ChatsRepository implements ValueEventListener {
     private String mCurrentUserId;
     private Context mContext;
     private DataReadyInterface mDataReadyInterface;
-    private boolean userShouldBeNotified = true;
 
     private List<Long> mRoomsSize;
+
     public ChatsRepository(Context context) {
         Log.d(TAG, "ChatsRepository: constructor is called");
         mUserChats = new ArrayList<>();
@@ -41,7 +41,7 @@ public class ChatsRepository implements ValueEventListener {
     }
 
 
-    public void initList(){
+    public void initList() {
         Log.d(TAG, "initList: called");
         if (this.mRoomsSize == null)
             this.mRoomsSize = new ArrayList<>();
@@ -59,10 +59,10 @@ public class ChatsRepository implements ValueEventListener {
     public void refreshData(@NonNull DataSnapshot snapshot) {
         Log.d(TAG, "refreshData: ");
         boolean shouldReturn = shouldReturn(snapshot);
-        if (shouldReturn){
+        if (shouldReturn) {
             Log.d(TAG, "refreshData: should return is true");
             return;
-        }else{
+        } else {
             Log.d(TAG, "refreshData: should return is false");
         }
         mUserChats.clear();
@@ -107,7 +107,7 @@ public class ChatsRepository implements ValueEventListener {
             Iterable<DataSnapshot> roomsIterable = snapshot.getChildren();
             int index = 0;
             for (DataSnapshot roomsSnapshot : roomsIterable) {
-                if (mRoomsSize.get(index) != roomsSnapshot.getChildrenCount()){
+                if (mRoomsSize.get(index) != roomsSnapshot.getChildrenCount()) {
                     Log.d(TAG, "shouldReturn: size from Room : " + mRoomsSize.get(index) + " size in current: " + roomsSnapshot.getChildrenCount());
                     return false;
                 }
@@ -127,18 +127,8 @@ public class ChatsRepository implements ValueEventListener {
         return mUserChats;
     }
 
-    public boolean isUserShouldBeNotified() {
-        return userShouldBeNotified;
-    }
-
-    public void setUserShouldBeNotified(boolean userShouldBeNotified) {
-        this.userShouldBeNotified = userShouldBeNotified;
-        Log.d(TAG, "setUserShouldBeNotified: " + userShouldBeNotified);
-    }
 
     public void sendNotification(Message newMessage) {
-        Log.d(TAG, "sendNotification: user should be notified: " + userShouldBeNotified);
-        /*if (userShouldBeNotified)*/
         NotificationUtils.notifyUserOfNewMessage(mContext, newMessage);
     }
 

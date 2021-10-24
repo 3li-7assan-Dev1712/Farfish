@@ -2,7 +2,6 @@ package com.example.farfish.fragments;
 
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -46,14 +45,14 @@ import java.util.concurrent.TimeUnit;
 
 
 public class UserChatsFragment extends Fragment implements MessagesListAdapter.ChatClick,
-        ChatsRepository.DataReadyInterface {
+        ChatsRepository.DataReadyInterface, UserProfileFragment.CleanViewModel {
 
     private FirebaseAuth mAuth;
     private static final String TAG = UserChatsFragment.class.getSimpleName();
     private MessagesListAdapter mListAdapter;
 
     private NavController mNavController;
-    public static MainViewModel mainViewModel;
+    private MainViewModel mainViewModel;
 
     private FragmentUserChatsBinding mBinding;
 
@@ -61,10 +60,6 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
         // Required empty public constructor
     }
 
-
-    public static void clearAndRefresh() {
-        mainViewModel.clearChats();
-    }
 
     private void navigateToSignIn() {
         NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
@@ -139,8 +134,6 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
             if (mainViewModel == null)
                 mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
             mainViewModel.getChatsRepository().setDataReadyInterface(this);
-            mainViewModel.getChatsRepository().setUserShouldBeNotified(false);
-            Log.d(TAG, "onCreateView: isUserShouldBeNotified: " + mainViewModel.getChatsRepository().isUserShouldBeNotified());
             mainViewModel.getUserChats().observe(getViewLifecycleOwner(), userChats -> {
                 mListAdapter.submitList(new ArrayList<>(userChats));
                 mBinding.userChatsProgressBar.setVisibility(View.GONE);
@@ -149,6 +142,7 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
 
         checkUserConnection();
 
+        UserProfileFragment.setCleaner(this);
         return view;
     }
 
@@ -222,8 +216,11 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
         mainViewModel.updateChats();
         Log.d(TAG, "dataIsReady: data is ready: " + mainViewModel.getChatsRepository().getUserChats().size());
         Log.d(TAG, "dataIsReady: isDetached: " + isVisible());
-        if (isVisible())
-            mainViewModel.getChatsRepository().setUserShouldBeNotified(true);
         if (mBinding != null) mBinding.userChatsProgressBar.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void cleanViewModel() {
+        this.mainViewModel = null;
     }
 }

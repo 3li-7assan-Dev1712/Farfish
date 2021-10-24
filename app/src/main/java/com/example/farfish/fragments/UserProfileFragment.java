@@ -13,7 +13,6 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
-import com.example.farfish.Module.Message;
 import com.example.farfish.Module.MessagesPreference;
 import com.example.farfish.Module.SharedPreferenceUtils;
 import com.example.farfish.R;
@@ -22,8 +21,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
-
-import java.util.List;
 
 public class UserProfileFragment extends Fragment {
 
@@ -38,6 +35,12 @@ public class UserProfileFragment extends Fragment {
     private String lastTimeSeen = "";
     private static final String TAG = UserProfileFragment.class.getSimpleName();
     private String phoneNumber;
+
+    private static CleanViewModel cleanViewModel;
+
+    public static void setCleaner (CleanViewModel cleaner) {
+        cleanViewModel = cleaner;
+    }
 
     public UserProfileFragment() {
     }
@@ -67,14 +70,12 @@ public class UserProfileFragment extends Fragment {
 
         if (savedInstanceState != null) {
             populateFromBundle(savedInstanceState);
-            UserChatsFragment.mainViewModel.getChatsRepository().setUserShouldBeNotified(false);
-        }else if (getArguments() != null) {
+        } else if (getArguments() != null) {
             Bundle userInfo = getArguments();
             mBinding.editProfileButton.setVisibility(View.GONE);
             mBinding.logoutButtonUserProfile.setVisibility(View.GONE);
             populateFromBundle(userInfo);
         } else {
-            UserChatsFragment.mainViewModel.getChatsRepository().setUserShouldBeNotified(true);
             mBinding.editProfileButton.setVisibility(View.VISIBLE);
             mBinding.logoutButtonUserProfile.setVisibility(View.VISIBLE);
             Context context = requireContext();
@@ -129,13 +130,16 @@ public class UserProfileFragment extends Fragment {
         mBinding.logoutButtonUserProfile.setOnClickListener(logoutOnClickListener -> {
             SharedPreferenceUtils.saveUserSignOut(requireContext());
             FirebaseAuth.getInstance().signOut();
-            UserChatsFragment.clearAndRefresh();
+            cleanViewModel.cleanViewModel();
             controller.navigate(R.id.action_userProfileFragment_to_fragmentSignIn);
         });
         /*----------------------------------------------------------------------------*/
         return view;
     }
 
+    public interface CleanViewModel {
+        void cleanViewModel();
+    }
     private void populateFromBundle(Bundle userInfo) {
         userPhotoUrl = userInfo.getString("target_user_photo_url");
         userName = userInfo.getString("target_user_name");
