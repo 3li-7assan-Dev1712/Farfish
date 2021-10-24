@@ -72,6 +72,7 @@ public class MainViewModel extends AndroidViewModel {
         Log.d(TAG, "getUserChats: getting chats");
         if (userChats == null) {
             userChats = new MutableLiveData<>(new ArrayList<>());
+            chatsRepository.initList();
         }
         chatsRepository.loadAllChats();
         return userChats;

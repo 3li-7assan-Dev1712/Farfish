@@ -136,12 +136,14 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
         // start the periodic work
         uniquelyScheduleCleanUPWorker();
         if (mAuth.getCurrentUser() != null) {
-            mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
+            if (mainViewModel == null)
+                mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
             mainViewModel.getChatsRepository().setDataReadyInterface(this);
             mainViewModel.getChatsRepository().setUserShouldBeNotified(false);
             Log.d(TAG, "onCreateView: isUserShouldBeNotified: " + mainViewModel.getChatsRepository().isUserShouldBeNotified());
             mainViewModel.getUserChats().observe(getViewLifecycleOwner(), userChats -> {
                 mListAdapter.submitList(new ArrayList<>(userChats));
+                mBinding.userChatsProgressBar.setVisibility(View.GONE);
             });
         }
 
@@ -194,7 +196,7 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
 
     @Override
     public void onChatClick(int position) {
-        mainViewModel.getChatsRepository().removeValueEventListener();
+        /*mainViewModel.getChatsRepository().removeValueEventListener();*/
         String targetUserId = mainViewModel.getChatsRepository().getMessageInPosition(position).getTargetId();
         Bundle primaryDataBundle = new Bundle();
         primaryDataBundle.putString("target_user_id", targetUserId);

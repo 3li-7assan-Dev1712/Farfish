@@ -4,18 +4,15 @@ import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.example.farfish.Module.Message;
 import com.example.farfish.Module.NotificationUtils;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.protobuf.MapEntryLite;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +26,9 @@ public class ChatsRepository implements ValueEventListener {
     private DataReadyInterface mDataReadyInterface;
     private boolean userShouldBeNotified = true;
 
+    private List<Long> mRoomsSize;
     public ChatsRepository(Context context) {
+        Log.d(TAG, "ChatsRepository: constructor is called");
         mUserChats = new ArrayList<>();
         mContext = context;
         mCurrentUserId = FirebaseAuth.getInstance().getUid();
@@ -37,6 +36,15 @@ public class ChatsRepository implements ValueEventListener {
             mChatsReference = FirebaseDatabase.getInstance().getReference("rooms")
                     .child(mCurrentUserId);
         }
+
+
+    }
+
+
+    public void initList(){
+        Log.d(TAG, "initList: called");
+        if (this.mRoomsSize == null)
+            this.mRoomsSize = new ArrayList<>();
     }
 
     public void setDataReadyInterface(DataReadyInterface mDataReadyInterface) {
@@ -49,13 +57,24 @@ public class ChatsRepository implements ValueEventListener {
     }
 
     public void refreshData(@NonNull DataSnapshot snapshot) {
+        Log.d(TAG, "refreshData: ");
+        boolean shouldReturn = shouldReturn(snapshot);
+        if (shouldReturn){
+            Log.d(TAG, "refreshData: should return is true");
+            return;
+        }else{
+            Log.d(TAG, "refreshData: should return is false");
+        }
         mUserChats.clear();
-
+        mRoomsSize.clear();
         Iterable<DataSnapshot> roomsIterable = snapshot.getChildren();
         for (DataSnapshot roomsSnapshot : roomsIterable) {
             Iterable<DataSnapshot> messagesIterable = roomsSnapshot.getChildren();
             Message lastMessage = null;
             int newMessageCounter = 0;
+            Log.d(TAG, "refreshData: roomsSnapShot key: " + roomsSnapshot.getKey());
+            Log.d(TAG, "refreshData: children count: " + roomsSnapshot.getChildrenCount());
+            mRoomsSize.add(roomsSnapshot.getChildrenCount());
             for (DataSnapshot messageSnapShot : messagesIterable) {
                 if (!messageSnapShot.getKey().equals("isWriting")) {
                     lastMessage = messageSnapShot.getValue(Message.class);
@@ -64,18 +83,44 @@ public class ChatsRepository implements ValueEventListener {
                     }
                 }
             }
+
             if (lastMessage != null) {
                 String senderId = lastMessage.getSenderId();
                 if (mCurrentUserId != null) {
-                    if (!senderId.equals(mCurrentUserId) && newMessageCounter != 0)
+                    if (!senderId.equals(mCurrentUserId) && newMessageCounter != 0) {
                         lastMessage.setNewMessagesCount(newMessageCounter);
+                        sendNotification(lastMessage);
+                    }
                 }
                 mUserChats.add(lastMessage);
-                sendNotification(lastMessage);
+
             }
         }
         // the data is ready now
         mDataReadyInterface.dataIsReady();
+    }
+
+    private boolean shouldReturn(DataSnapshot snapshot) {
+        if (mRoomsSize.size() == 0)
+            return false;
+        else {
+            Iterable<DataSnapshot> roomsIterable = snapshot.getChildren();
+            int index = 0;
+            for (DataSnapshot roomsSnapshot : roomsIterable) {
+                if (mRoomsSize.get(index) != roomsSnapshot.getChildrenCount()){
+                    Log.d(TAG, "shouldReturn: size from Room : " + mRoomsSize.get(index) + " size in current: " + roomsSnapshot.getChildrenCount());
+                    return false;
+                }
+                index++;
+                /*currentList.add();*/
+               /* Iterable<DataSnapshot> messagesIterable = roomsSnapshot.getChildren();
+                DataSnapshot snapShot = null;
+                for (DataSnapshot messageSnapShot : messagesIterable) {
+                    snapShot = messageSnapShot;
+                }*/
+            }
+            return true;
+        }
     }
 
     public List<Message> getUserChats() {
@@ -91,10 +136,10 @@ public class ChatsRepository implements ValueEventListener {
         Log.d(TAG, "setUserShouldBeNotified: " + userShouldBeNotified);
     }
 
-    public void sendNotification( Message newMessage) {
+    public void sendNotification(Message newMessage) {
         Log.d(TAG, "sendNotification: user should be notified: " + userShouldBeNotified);
-        if (userShouldBeNotified)
-            NotificationUtils.notifyUserOfNewMessage(mContext, newMessage);
+        /*if (userShouldBeNotified)*/
+        NotificationUtils.notifyUserOfNewMessage(mContext, newMessage);
     }
 
     public interface DataReadyInterface {
@@ -107,6 +152,7 @@ public class ChatsRepository implements ValueEventListener {
 
     @Override
     public void onDataChange(@NonNull DataSnapshot snapshot) {
+        Log.d(TAG, "onDataChange: ");
         refreshData(snapshot);
     }
 
