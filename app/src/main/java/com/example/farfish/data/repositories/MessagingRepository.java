@@ -78,7 +78,7 @@ public class MessagingRepository {
     }
 
     public List<Message> getMessages() {
-        return messages;
+        return this.messages;
     }
 
     public void setTargetUserId(String targetUserId) {
@@ -233,12 +233,32 @@ public class MessagingRepository {
                         }
                     }
                 }
+                // checking if there's any uplication and remove it if so
+                checkForDuplication();
                 messagingInterface.refreshMessages();
                /* messagesListAdapter.submitList(messages);
                 messagesListAdapter.notifyDataSetChanged();*/
             });
         } catch (Exception e) {
             Log.d(TAG, "refreshData: " + e.getMessage());
+        }
+    }
+
+    private void checkForDuplication() {
+        Log.d(TAG, "checkForDuplication: size before solution: " + messages.size());
+        int listSize = messages.size();
+        if (listSize == 0 || listSize == 1)
+            return;
+        if (listSize % 2 != 0) {
+            listSize++;
+        }
+        int indexToCheck = listSize/2;
+        Message firstMessage = messages.get(0);
+        Message messageMightBeDuplicated = messages.get(indexToCheck);
+        if (firstMessage.getTimestamp() == messageMightBeDuplicated.getTimestamp()){
+            Log.d(TAG, "checkForDublication: there is duplication!" );
+            messages = messages.subList(0,  indexToCheck);
+            Log.d(TAG, "checkForDuplication: size after solution: " + messages.size());
         }
     }
 
@@ -343,8 +363,11 @@ public class MessagingRepository {
             Log.d(TAG, "onChildChanged: ");
             String key = snapshot.getKey();
             if (key != null) {
-                if (!key.equals("isWriting"))
+                if (!key.equals("isWriting")) {
+                    messages.clear();
+                    Log.d(TAG, "onChildChanged: size after clear: " + messages.size());
                     refreshData();
+                }
             }
 
         }
