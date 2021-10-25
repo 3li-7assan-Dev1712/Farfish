@@ -5,7 +5,6 @@ import android.telephony.PhoneNumberUtils;
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
-import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkInfo;
@@ -37,6 +36,8 @@ public class UsersRepository {
     private List<String> listServerPhoneNumber = new ArrayList<>();
     private String[] arrayServerPhoneNumbers;
     private Context context;
+
+    private List<User> testUsers = new ArrayList<>();
 
     public UsersRepository(Context context) {
         workManager = WorkManager.getInstance(context);
@@ -136,10 +137,11 @@ public class UsersRepository {
     }
 
     public User getUserInPosition(int position, boolean fromContacts) {
-        if (fromContacts)
+  /*      if (fromContacts)
             return usersUserKnowList.get(position);
         else
-            return allUsersList.get(position);
+            return allUsersList.get(position);*/
+        return testUsers.get(position);
     }
 
     public List<User> getUsers(boolean fromContacts) {
@@ -155,5 +157,13 @@ public class UsersRepository {
         void observeCommonContacts();
 
         void prepareDataFinished();
+    }
+
+    public List<User> getTestUsers() {
+        //String userName, String email, String phoneNumber, String photoUrl, String userId, String status, boolean isActive, boolean isPublic, long lastTimeSeen
+        testUsers.add(new User("Ali Hassan", "ali@gmail.com", "0125350069", "no", "kdkfd933", "Good", false, true, 193838372));
+        testUsers.add(new User("Esam Hassan", "esamhassan@gmail.com", "0126869834", "no", "kdkfd933", "Good", true, true, 1938393272));
+        testUsers.add(new User("Amr Hassan", "amrelect@gmail.com", "0115735414", "no", "kdkfd933", "Good", false, true, 323838372));
+        return testUsers;
     }
 }

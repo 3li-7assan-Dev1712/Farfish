@@ -406,11 +406,10 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
         super.onDestroyView();
         Log.d(TAG, "onDestroyView: "); // for logging
         Log.d(TAG, "onDestroyView: expect user to return " + USER_EXPECT_TO_RETURN);
-
+        // remove the listener when the view is no longer visilbe for the user
+        mModel.getMessagingRepository().removeListeners();
         if (!USER_EXPECT_TO_RETURN) {
             Log.d(TAG, "onDestroyView: going to clean up");
-            // remove the listener when the view is no longer visilbe for the user
-            mModel.getMessagingRepository().removeListeners();
             // in the case the user is writing and move to another destination before sending their message.
             if (mModel.getMessagingRepository().isWriting())
                 setUserIsNotWriting();
