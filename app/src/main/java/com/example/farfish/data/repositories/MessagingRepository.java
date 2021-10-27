@@ -66,16 +66,7 @@ public class MessagingRepository {
     private CurrentRoomListener mCurrentRoomListener;
     private TargetRoomListener mTargetRoomListener;
     private  List<Message> testMessages = new ArrayList<>();
-    public MessagingRepository(Context context) {
-        messages = new ArrayList<>();
-        targetUserData = new Bundle();
-        mContext = context;
-        currentUserName = MessagesPreference.getUserName(context);
-        currentPhotoUrl = MessagesPreference.getUsePhoto(context);
-        mCurrentRoomListener = new CurrentRoomListener();
-        mTargetRoomListener = new TargetRoomListener();
-        mFirebasestore = FirebaseFirestore.getInstance();
-    }
+    private PostMessagesInterface postMessagesInterface;
 
     public List<Message> getMessages() {
         return this.messages;
@@ -97,25 +88,16 @@ public class MessagingRepository {
         mTargetUserRoomReference.addChildEventListener(mTargetRoomListener);
     }
 
-    /* this method is used in two functionality, for getting all the messages from a special room
-     * and for adding new messages as the user sends. */
-    private void addNewMessage(DataSnapshot value) {
-        Log.d(TAG, "addNewMessage: ");
-
-        try {
-            Message newMessage = value.getValue(Message.class);
-            assert newMessage != null;
-            messages.add(newMessage);
-            if (messages.size() > 0) {
-                Log.d(TAG, "addNewMessage: messges size is: " + messages.size());
-                /*messagesListAdapter.submitList(messages);*/
-                messagingInterface.refreshMessages();
-                if (!newMessage.getIsRead() && !newMessage.getSenderId().equals(currentUserId))
-                    markMessageAsRead(value, newMessage);
-            }
-        } catch (Exception e) {
-            Log.d(TAG, "addNewMessage: exception " + e.getMessage());
-        }
+    public MessagingRepository(Context context, PostMessagesInterface postMessagesInterface) {
+        messages = new ArrayList<>();
+        this.postMessagesInterface = postMessagesInterface;
+        targetUserData = new Bundle();
+        mContext = context;
+        currentUserName = MessagesPreference.getUserName(context);
+        currentPhotoUrl = MessagesPreference.getUsePhoto(context);
+        mCurrentRoomListener = new CurrentRoomListener();
+        mTargetRoomListener = new TargetRoomListener();
+        mFirebasestore = FirebaseFirestore.getInstance();
     }
 
     private void prepareToolbarInfo() {
@@ -190,30 +172,24 @@ public class MessagingRepository {
         return isWriting;
     }
 
-    private void markMessageAsRead(DataSnapshot snapshotMessageTobeUpdated, Message messageToUpdate) {
+    /* this method is used in two functionality, for getting all the messages from a special room
+     * and for adding new messages as the user sends. */
+    private void addNewMessage(DataSnapshot value) {
+        Log.d(TAG, "addNewMessage: ");
 
-
-        Log.d(TAG, "markMessageAsRead: ");
-        String key = snapshotMessageTobeUpdated.getKey();
-        Log.d(TAG, "markMessageAsRead: the key of the message to be updated is: " + key);
-        Map<String, Object> originalMessage = messageToUpdate.toMap();
-        originalMessage.put("isRead", true);
-        snapshotMessageTobeUpdated.getRef().updateChildren(originalMessage).addOnSuccessListener(
-                successListener -> {
-                    Log.d(TAG, "update message successfully to be read");
-                    //  change the message from target message to local message
-                    originalMessage.put("targetId", currentUserId);
-                    originalMessage.put("targetName", currentUserName);
-                    originalMessage.put("targetPhotoUrl", currentPhotoUrl);
-                    assert key != null;
-                    mTargetUserRoomReference.child(key).updateChildren(originalMessage).addOnFailureListener(fle ->
-                            Log.d(TAG, "markMessageAsRead: " + fle.getMessage()));
-
-                }
-
-        ).addOnFailureListener(
-                exception -> Log.d(TAG, "markMessageAsRead: " + exception.getMessage()
-                ));
+        try {
+            Message newMessage = value.getValue(Message.class);
+            assert newMessage != null;
+            messages.add(newMessage);
+            if (messages.size() > 0) {
+                /*messagingInterface.refreshMessages();*/
+                postMessagesInterface.postMessages(messages);
+                if (!newMessage.getIsRead() && !newMessage.getSenderId().equals(currentUserId))
+                    markMessageAsRead(value, newMessage);
+            }
+        } catch (Exception e) {
+            Log.d(TAG, "addNewMessage: exception " + e.getMessage());
+        }
     }
 
     private void refreshData() {
@@ -305,6 +281,38 @@ public class MessagingRepository {
         void populateToolbar();
     }
 
+    private void markMessageAsRead(DataSnapshot snapshotMessageTobeUpdated, Message messageToUpdate) {
+
+
+        Log.d(TAG, "markMessageAsRead: ");
+        String key = snapshotMessageTobeUpdated.getKey();
+        Log.d(TAG, "markMessageAsRead: the key of the message to be updated is: " + key);
+        Map<String, Object> originalMessage = messageToUpdate.toMap();
+        originalMessage.put("isRead", true);
+        mTargetUserRoomReference.child(key).updateChildren(originalMessage);
+        /*
+        snapshotMessageTobeUpdated.getRef().updateChildren(originalMessage).addOnSuccessListener(
+                successListener -> {
+                    Log.d(TAG, "update message successfully to be read");
+                    //  change the message from target message to local message
+                    originalMessage.put("targetId", currentUserId);
+                    originalMessage.put("targetName", currentUserName);
+                    originalMessage.put("targetPhotoUrl", currentPhotoUrl);
+                    assert key != null;
+                    mTargetUserRoomReference.child(key).updateChildren(originalMessage).addOnFailureListener(fle ->
+                            Log.d(TAG, "markMessageAsRead: " + fle.getMessage()));
+
+                }
+
+        ).addOnFailureListener(
+                exception -> Log.d(TAG, "markMessageAsRead: " + exception.getMessage()
+                ));
+
+         */
+    }
+    public interface PostMessagesInterface{
+        void postMessages(List<Message> messages);
+    }
     public void compressAndSendImage(Uri uri) {
         try {
             File galleryFile = FileUtil.from(mContext, uri);

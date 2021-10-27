@@ -20,7 +20,7 @@ import com.example.farfish.data.repositories.UsersRepository;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainViewModel extends AndroidViewModel {
+public class MainViewModel extends AndroidViewModel implements MessagingRepository.PostMessagesInterface{
 
     private static final String TAG = MainViewModel.class.getSimpleName();
     // LiveData
@@ -39,7 +39,7 @@ public class MainViewModel extends AndroidViewModel {
         Context context = application.getApplicationContext();
         usersRepository = new UsersRepository(context);
         chatsRepository = new ChatsRepository(context);
-        messagingRepository = new MessagingRepository(context);
+        messagingRepository = new MessagingRepository(context, this);
         statusRepository = new StatusRepository(context);
     }
 
@@ -62,25 +62,25 @@ public class MainViewModel extends AndroidViewModel {
 
     public LiveData<List<User>> getAllUsers() {
         if (allUsers == null) {
-            allUsers = new MutableLiveData<>(new ArrayList<>());
+            allUsers = new MutableLiveData<>();
             usersRepository.loadUsers();
         }
-        return allUsers;
+        return allUsers;// ok
     }
 
     public LiveData<List<Message>> getUserChats() {
         Log.d(TAG, "getUserChats: getting chats");
         if (userChats == null) {
-            userChats = new MutableLiveData<>(new ArrayList<>());
+            userChats = new MutableLiveData<>();
             chatsRepository.initList();
         }
         chatsRepository.loadAllChats();
         return userChats;
     }
 
-    public LiveData<List<Message>> getChatMessages() {
+    public MutableLiveData<List<Message>> getChatMessages() {
         if (userMessages == null) {
-            userMessages = new MutableLiveData<>(new ArrayList<>());
+            userMessages = new MutableLiveData<>();
             messagingRepository.loadMessages();
         }
         return userMessages;
@@ -122,5 +122,10 @@ public class MainViewModel extends AndroidViewModel {
 
     public void updateStatues() {
         statuesLists.setValue(statusRepository.getStatusLists());
+    }
+
+    @Override
+    public void postMessages(List<Message> messages) {
+        userMessages.postValue(messages);
     }
 }

@@ -138,8 +138,8 @@ public class ChatsRepository implements ValueEventListener {
     }
 
     public Message getMessageInPosition(int position) {
-       /* return mUserChats.get(position);*/
-        return testMessages.get(position);
+        return mUserChats.get(position);
+        /*return testMessages.get(position);*/
     }
 
     @Override
