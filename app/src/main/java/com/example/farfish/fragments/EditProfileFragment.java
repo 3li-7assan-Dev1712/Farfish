@@ -55,7 +55,7 @@ public class EditProfileFragment extends Fragment {
                 if (isGranted) {
                     pickImageFromGallery();
                 } else {
-                    Toast.makeText(requireContext(), requireContext().getString(R.string.grant_access_media_permission),Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), requireContext().getString(R.string.grant_access_media_permission), Toast.LENGTH_SHORT).show();
                 }
             });
     private ActivityResultLauncher<String> choosePicture = registerForActivityResult(

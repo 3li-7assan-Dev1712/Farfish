@@ -68,6 +68,8 @@ public class MessagingRepository {
     // rooms listeners
     private CurrentRoomListener mCurrentRoomListener;
     private TargetRoomListener mTargetRoomListener;
+    private List<Message> testMessages = new ArrayList<>();
+    private PostMessagesInterface postMessagesInterface;
 
     @Inject
     public MessagingRepository(@ApplicationContext Context context) {
@@ -81,8 +83,9 @@ public class MessagingRepository {
         mFirebasestore = FirebaseFirestore.getInstance();
     }
 
+
     public List<Message> getMessages() {
-        return messages;
+        return this.messages;
     }
 
     public void setTargetUserId(String targetUserId) {
@@ -101,25 +104,16 @@ public class MessagingRepository {
         mTargetUserRoomReference.addChildEventListener(mTargetRoomListener);
     }
 
-    /* this method is used in two functionality, for getting all the messages from a special room
-     * and for adding new messages as the user sends. */
-    private void addNewMessage(DataSnapshot value) {
-        Log.d(TAG, "addNewMessage: ");
-
-        try {
-            Message newMessage = value.getValue(Message.class);
-            assert newMessage != null;
-            messages.add(newMessage);
-            if (messages.size() > 0) {
-                Log.d(TAG, "addNewMessage: messges size is: " + messages.size());
-                /*messagesListAdapter.submitList(messages);*/
-                messagingInterface.refreshMessages();
-                if (!newMessage.getIsRead() && !newMessage.getSenderId().equals(currentUserId))
-                    markMessageAsRead(value, newMessage);
-            }
-        } catch (Exception e) {
-            Log.d(TAG, "addNewMessage: exception " + e.getMessage());
-        }
+    public MessagingRepository(Context context, PostMessagesInterface postMessagesInterface) {
+        messages = new ArrayList<>();
+        this.postMessagesInterface = postMessagesInterface;
+        targetUserData = new Bundle();
+        mContext = context;
+        currentUserName = MessagesPreference.getUserName(context);
+        currentPhotoUrl = MessagesPreference.getUsePhoto(context);
+        mCurrentRoomListener = new CurrentRoomListener();
+        mTargetRoomListener = new TargetRoomListener();
+        mFirebasestore = FirebaseFirestore.getInstance();
     }
 
     private void prepareToolbarInfo() {
@@ -194,30 +188,24 @@ public class MessagingRepository {
         return isWriting;
     }
 
-    private void markMessageAsRead(DataSnapshot snapshotMessageTobeUpdated, Message messageToUpdate) {
+    /* this method is used in two functionality, for getting all the messages from a special room
+     * and for adding new messages as the user sends. */
+    private void addNewMessage(DataSnapshot value) {
+        Log.d(TAG, "addNewMessage: ");
 
-
-        Log.d(TAG, "markMessageAsRead: ");
-        String key = snapshotMessageTobeUpdated.getKey();
-        Log.d(TAG, "markMessageAsRead: the key of the message to be updated is: " + key);
-        Map<String, Object> originalMessage = messageToUpdate.toMap();
-        originalMessage.put("isRead", true);
-        snapshotMessageTobeUpdated.getRef().updateChildren(originalMessage).addOnSuccessListener(
-                successListener -> {
-                    Log.d(TAG, "update message successfully to be read");
-                    //  change the message from target message to local message
-                    originalMessage.put("targetId", currentUserId);
-                    originalMessage.put("targetName", currentUserName);
-                    originalMessage.put("targetPhotoUrl", currentPhotoUrl);
-                    assert key != null;
-                    mTargetUserRoomReference.child(key).updateChildren(originalMessage).addOnFailureListener(fle ->
-                            Log.d(TAG, "markMessageAsRead: " + fle.getMessage()));
-
-                }
-
-        ).addOnFailureListener(
-                exception -> Log.d(TAG, "markMessageAsRead: " + exception.getMessage()
-                ));
+        try {
+            Message newMessage = value.getValue(Message.class);
+            assert newMessage != null;
+            messages.add(newMessage);
+            if (messages.size() > 0) {
+                /*messagingInterface.refreshMessages();*/
+                postMessagesInterface.postMessages(messages);
+                if (!newMessage.getIsRead() && !newMessage.getSenderId().equals(currentUserId))
+                    markMessageAsRead(value, newMessage);
+            }
+        } catch (Exception e) {
+            Log.d(TAG, "addNewMessage: exception " + e.getMessage());
+        }
     }
 
     private void refreshData() {
@@ -237,6 +225,8 @@ public class MessagingRepository {
                         }
                     }
                 }
+                // checking if there's any uplication and remove it if so
+                checkForDuplication();
                 messagingInterface.refreshMessages();
                /* messagesListAdapter.submitList(messages);
                 messagesListAdapter.notifyDataSetChanged();*/
@@ -246,8 +236,27 @@ public class MessagingRepository {
         }
     }
 
+    private void checkForDuplication() {
+        Log.d(TAG, "checkForDuplication: size before solution: " + messages.size());
+        int listSize = messages.size();
+        if (listSize == 0 || listSize == 1)
+            return;
+        if (listSize % 2 != 0) {
+            listSize++;
+        }
+        int indexToCheck = listSize / 2;
+        Message firstMessage = messages.get(0);
+        Message messageMightBeDuplicated = messages.get(indexToCheck);
+        if (firstMessage.getTimestamp() == messageMightBeDuplicated.getTimestamp()) {
+            Log.d(TAG, "checkForDublication: there is duplication!");
+            messages = messages.subList(0, indexToCheck);
+            Log.d(TAG, "checkForDuplication: size after solution: " + messages.size());
+        }
+    }
+
     public Message getMessageInPosition(int position) {
         return messages.get(position);
+        /* return testMessages.get(position);*/
     }
 
     public void sendMessage(Message currentUserMsg, Message targetUserMsg) {
@@ -286,6 +295,40 @@ public class MessagingRepository {
         void refreshMessages();
 
         void populateToolbar();
+    }
+
+    private void markMessageAsRead(DataSnapshot snapshotMessageTobeUpdated, Message messageToUpdate) {
+
+
+        Log.d(TAG, "markMessageAsRead: ");
+        String key = snapshotMessageTobeUpdated.getKey();
+        Log.d(TAG, "markMessageAsRead: the key of the message to be updated is: " + key);
+        Map<String, Object> originalMessage = messageToUpdate.toMap();
+        originalMessage.put("isRead", true);
+        mTargetUserRoomReference.child(key).updateChildren(originalMessage);
+        /*
+        snapshotMessageTobeUpdated.getRef().updateChildren(originalMessage).addOnSuccessListener(
+                successListener -> {
+                    Log.d(TAG, "update message successfully to be read");
+                    //  change the message from target message to local message
+                    originalMessage.put("targetId", currentUserId);
+                    originalMessage.put("targetName", currentUserName);
+                    originalMessage.put("targetPhotoUrl", currentPhotoUrl);
+                    assert key != null;
+                    mTargetUserRoomReference.child(key).updateChildren(originalMessage).addOnFailureListener(fle ->
+                            Log.d(TAG, "markMessageAsRead: " + fle.getMessage()));
+
+                }
+
+        ).addOnFailureListener(
+                exception -> Log.d(TAG, "markMessageAsRead: " + exception.getMessage()
+                ));
+
+         */
+    }
+
+    public interface PostMessagesInterface {
+        void postMessages(List<Message> messages);
     }
 
     public void compressAndSendImage(Uri uri) {
@@ -347,8 +390,11 @@ public class MessagingRepository {
             Log.d(TAG, "onChildChanged: ");
             String key = snapshot.getKey();
             if (key != null) {
-                if (!key.equals("isWriting"))
+                if (!key.equals("isWriting")) {
+                    messages.clear();
+                    Log.d(TAG, "onChildChanged: size after clear: " + messages.size());
                     refreshData();
+                }
             }
 
         }
@@ -404,5 +450,23 @@ public class MessagingRepository {
         public void onCancelled(@NonNull DatabaseError error) {
 
         }
+    }
+
+    public List<Message> getTestMessages() {
+        // String text, String photoUrl, long timestamp, String senderId, String targetId, String senderName, String targetName, String targetPhotoUrl, boolean isRead
+
+        testMessages.add(new Message("Hi there", "no photo", 1938372733,
+                "kfkdj83839", "8838kdkfjd8", "Ali Hassan", "Esam Hassan", "no", false));
+        testMessages.add(new Message("Anything just test", "no photo", 1938372733,
+                "kfkdj83839", "8838kdkfjd8", "Ali Hassan", "Esam Hassan", "no", true));
+        testMessages.add(new Message("test demo", "no photo", 1938372733,
+                "kfkdj83839", "8838kdkfjd8", "Ali Hassan", "Esam Hassan", "no", false));
+        testMessages.add(new Message("How is it going", "no photo", 1938372733,
+                "kfkdj83839", "8838kdkfjd8", "Ali Hassan", "Esam Hassan", "no", false));
+        testMessages.add(new Message("It's fine, thanks for asking!", "no photo", 1938372733,
+                "kfkdj83839", "8838kdkfjd8", "Ali Hassan", "Esam Hassan", "no", true));
+        testMessages.add(new Message("I'm going to do it.", "no photo", 1938372733,
+                "kfkdj83839", "8838kdkfjd8", "Ali Hassan", "Esam Hassan", "no", false));
+        return testMessages;
     }
 }

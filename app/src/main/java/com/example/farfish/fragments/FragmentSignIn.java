@@ -3,8 +3,6 @@ package com.example.farfish.fragments;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -187,7 +185,7 @@ public class FragmentSignIn extends Fragment {
             } catch (Exception ex) {
                 ex.printStackTrace();
                 Log.d(TAG, "signIn: general exception: " + ex.getMessage());
-            }finally {
+            } finally {
                 showHorizontalProgressBar(false);
             }
         });

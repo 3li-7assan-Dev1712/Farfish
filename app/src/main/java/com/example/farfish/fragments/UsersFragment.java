@@ -128,7 +128,6 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
         }
 
 
-        mModel.getChatsRepository().setUserShouldBeNotified(true);
         requireActivity().getSharedPreferences("filter_utils", Activity.MODE_PRIVATE).
                 registerOnSharedPreferenceChangeListener(this);
 
@@ -184,7 +183,6 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
     public void onChatClicked(int position) {
         isProgressBarVisible = false;
         User selectedUser = mModel.getUsersRepository().getUserInPosition(position, getFilterState());
-        mModel.getChatsRepository().setUserShouldBeNotified(false);
         String targetUserId = selectedUser.getUserId();
         Bundle primaryDataBundle = new Bundle();
         primaryDataBundle.putString("target_user_id", targetUserId);

@@ -15,6 +15,7 @@ public class InternetConnectionDialog extends DialogFragment {
     public InternetConnectionDialog() {
 
     }
+
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {

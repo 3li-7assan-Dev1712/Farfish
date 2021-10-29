@@ -14,7 +14,6 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
-import com.example.farfish.Module.Message;
 import com.example.farfish.Module.MessagesPreference;
 import com.example.farfish.Module.SharedPreferenceUtils;
 import com.example.farfish.R;
@@ -24,10 +23,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
-
-import java.util.List;
-
-import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -47,6 +42,12 @@ public class UserProfileFragment extends Fragment {
     private String phoneNumber;
 
     public MainViewModel mainViewModel;
+
+    private static CleanViewModel cleanViewModel;
+
+    public static void setCleaner(CleanViewModel cleaner) {
+        cleanViewModel = cleaner;
+    }
 
     public UserProfileFragment() {
     }
@@ -77,7 +78,7 @@ public class UserProfileFragment extends Fragment {
 
         if (savedInstanceState != null) {
             populateFromBundle(savedInstanceState);
-        }else if (getArguments() != null) {
+        } else if (getArguments() != null) {
             Bundle userInfo = getArguments();
             mBinding.editProfileButton.setVisibility(View.GONE);
             mBinding.logoutButtonUserProfile.setVisibility(View.GONE);
@@ -137,11 +138,15 @@ public class UserProfileFragment extends Fragment {
         mBinding.logoutButtonUserProfile.setOnClickListener(logoutOnClickListener -> {
             SharedPreferenceUtils.saveUserSignOut(requireContext());
             FirebaseAuth.getInstance().signOut();
-            mainViewModel.clearChats();
+            cleanViewModel.cleanViewModel();
             controller.navigate(R.id.action_userProfileFragment_to_fragmentSignIn);
         });
         /*----------------------------------------------------------------------------*/
         return view;
+    }
+
+    public interface CleanViewModel {
+        void cleanViewModel();
     }
 
     private void populateFromBundle(Bundle userInfo) {

@@ -5,7 +5,6 @@ import android.telephony.PhoneNumberUtils;
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
-import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkInfo;
@@ -86,6 +85,8 @@ public class UsersRepository {
 
     private void fetchPrimaryData(QuerySnapshot queryDocumentSnapshots) {
         Log.d(TAG, "fetchPrimaryData: ");
+        contactUsers.clear();
+        allUsersList.clear();
         for (DocumentSnapshot ds : queryDocumentSnapshots.getDocuments()) {
             User user = ds.toObject(User.class);
             String currentUserId = FirebaseAuth.getInstance().getUid();
@@ -113,6 +114,7 @@ public class UsersRepository {
 
     public void prepareUserUserKnowList(List<String> commonContacts) {
         assert commonContacts != null;
+        usersUserKnowList.clear();
         for (String commonPhoneNumber : commonContacts) {
             for (User userUserKnow : contactUsers) {
                 String localUserPhoneNumber = userUserKnow.getPhoneNumber();

@@ -50,7 +50,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
 public class UserChatsFragment extends Fragment implements MessagesListAdapter.ChatClick,
-        ChatsRepository.DataReadyInterface {
+        ChatsRepository.DataReadyInterface, UserProfileFragment.CleanViewModel {
 
     private FirebaseAuth mAuth;
     private static final String TAG = UserChatsFragment.class.getSimpleName();
@@ -66,10 +66,6 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
         // Required empty public constructor
     }
 
-
-    public void clearAndRefresh() {
-        mainViewModel.clearChats();
-    }
 
     private void navigateToSignIn() {
         NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
@@ -118,8 +114,7 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        //prevent any orientation changes
-        /*requireActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);*/
+
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.VISIBLE);
         Log.d(TAG, "onCreateView: ");
         mBinding = FragmentUserChatsBinding.inflate(inflater, container, false);
@@ -148,19 +143,19 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
             mainViewModel = new ViewModelProvider(
                     backStackEntry,
                     HiltViewModelFactory.create(requireContext(), backStackEntry)
-                    ).get(MainViewModel.class);
+            ).get(MainViewModel.class);
 
             Log.d(TAG, "onCreateView: mainvViewModel has code: " + mainViewModel.hashCode());
             mainViewModel.getChatsRepository().setDataReadyInterface(this);
-            mainViewModel.getChatsRepository().setUserShouldBeNotified(false);
-            Log.d(TAG, "onCreateView: isUserShouldBeNotified: " + mainViewModel.getChatsRepository().isUserShouldBeNotified());
             mainViewModel.getUserChats().observe(getViewLifecycleOwner(), userChats -> {
                 mListAdapter.submitList(new ArrayList<>(userChats));
+                mBinding.userChatsProgressBar.setVisibility(View.GONE);
             });
         }
 
         checkUserConnection();
 
+        UserProfileFragment.setCleaner(this);
         return view;
     }
 
@@ -203,14 +198,12 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        if (mAuth.getCurrentUser() != null)
-            mainViewModel.getChatsRepository().setUserShouldBeNotified(true);
         mBinding = null;
     }
 
     @Override
     public void onChatClick(int position) {
-        mainViewModel.getChatsRepository().removeValueEventListener();
+        /*mainViewModel.getChatsRepository().removeValueEventListener();*/
         String targetUserId = mainViewModel.getChatsRepository().getMessageInPosition(position).getTargetId();
         Bundle primaryDataBundle = new Bundle();
         primaryDataBundle.putString("target_user_id", targetUserId);
@@ -236,8 +229,11 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
         mainViewModel.updateChats();
         Log.d(TAG, "dataIsReady: data is ready: " + mainViewModel.getChatsRepository().getUserChats().size());
         Log.d(TAG, "dataIsReady: isDetached: " + isVisible());
-        if (isVisible())
-            mainViewModel.getChatsRepository().setUserShouldBeNotified(true);
         if (mBinding != null) mBinding.userChatsProgressBar.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void cleanViewModel() {
+        this.mainViewModel = null;
     }
 }

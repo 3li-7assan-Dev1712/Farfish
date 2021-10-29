@@ -23,7 +23,8 @@ import javax.inject.Inject;
 import dagger.hilt.android.lifecycle.HiltViewModel;
 
 @HiltViewModel
-public class MainViewModel extends ViewModel {
+public class MainViewModel extends ViewModel implements MessagingRepository.PostMessagesInterface{
+
 
     private static final String TAG = MainViewModel.class.getSimpleName();
     // LiveData
@@ -55,12 +56,6 @@ public class MainViewModel extends ViewModel {
         this.statusRepository = statusRepository;
     }
 
-    public void init(Context context) {
-        this.usersRepository = new UsersRepository(context);
-        this.chatsRepository = new ChatsRepository(context);
-        this.messagingRepository = new MessagingRepository(context);
-        this.statusRepository = new StatusRepository(context);
-    }
 
     // getters
     public UsersRepository getUsersRepository() {
@@ -81,7 +76,7 @@ public class MainViewModel extends ViewModel {
 
     public LiveData<List<User>> getAllUsers() {
         if (allUsers == null) {
-            allUsers = new MutableLiveData<>(new ArrayList<>());
+            allUsers = new MutableLiveData<>();
             usersRepository.loadUsers();
         }
         return allUsers;
@@ -96,9 +91,9 @@ public class MainViewModel extends ViewModel {
         return userChats;
     }
 
-    public LiveData<List<Message>> getChatMessages() {
+    public MutableLiveData<List<Message>> getChatMessages() {
         if (userMessages == null) {
-            userMessages = new MutableLiveData<>(new ArrayList<>());
+            userMessages = new MutableLiveData<>();
             messagingRepository.loadMessages();
         }
         return userMessages;
@@ -142,5 +137,10 @@ public class MainViewModel extends ViewModel {
 
     public void updateStatues() {
         statuesLists.setValue(statusRepository.getStatusLists());
+    }
+
+    @Override
+    public void postMessages(List<Message> messages) {
+        userMessages.postValue(messages);
     }
 }

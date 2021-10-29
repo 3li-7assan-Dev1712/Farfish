@@ -120,6 +120,7 @@
     <string name="choose_app_to_send_emial">Send email using…</string>
     <string name="no_app_found">No email clients installed.</string>
     <string name="type_your_issue">Replace this by the issue you\'ve found!</string>
+    <string name="edit_profile">Edit Profile</string>
 
 
 </resources>

@@ -60,7 +60,7 @@ public class ProfileImageFragment extends Fragment {
                 }
             });
     private ActivityResultLauncher<String> choosePicture = registerForActivityResult(
-            new ActivityResultContracts.GetContent(){
+            new ActivityResultContracts.GetContent() {
                 @NonNull
                 @Override
                 public Intent createIntent(@NonNull Context context, @NonNull String input) {
@@ -71,6 +71,7 @@ public class ProfileImageFragment extends Fragment {
 
     private String userId, userName, photoUrl, phoneNumber, email, password;
     private View snackBarView;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -83,13 +84,13 @@ public class ProfileImageFragment extends Fragment {
             email = userData.getString("email");
             password = userData.getString("password");
         }
-        if (savedInstanceState != null){
+        if (savedInstanceState != null) {
             if (savedInstanceState.containsKey("imageUri")) {
                 imageUriFromGallery = savedInstanceState.getParcelable("imageUri");
                 setImageAndBackground(imageUriFromGallery);
             }
         }
-        mBinding.registerImage.setOnClickListener( imageListener -> {
+        mBinding.registerImage.setOnClickListener(imageListener -> {
             if (ContextCompat.checkSelfPermission(
                     requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) ==
                     PackageManager.PERMISSION_GRANTED) {
@@ -110,9 +111,10 @@ public class ProfileImageFragment extends Fragment {
                 Toast.makeText(requireActivity(), getString(R.string.img_required_msg), Toast.LENGTH_SHORT).show();
             else if (phoneNumber.equals(""))
                 Toast.makeText(requireContext(), getString(R.string.phone_number_required_msg), Toast.LENGTH_SHORT).show();
-            else if ( phoneNumber.charAt(0) != 0 &&  phoneNumber.length() != 10 )
+            else if (phoneNumber.charAt(0) != 0 && phoneNumber.length() != 10)
                 Toast.makeText(requireContext(), getString(R.string.phone_number_required_msg), Toast.LENGTH_SHORT).show();
-            else if (!isConnected) internetDialog.show(requireActivity().getSupportFragmentManager(), "internet_alert");
+            else if (!isConnected)
+                internetDialog.show(requireActivity().getSupportFragmentManager(), "internet_alert");
             else {
                 mBinding.progressBarProfileImage.setVisibility(View.VISIBLE);
                 saveUserDataAndNavigateToHomeScreen();
@@ -131,15 +133,15 @@ public class ProfileImageFragment extends Fragment {
             }).addOnFailureListener(exception -> {
                 Log.d(TAG, "saveUserDataAndNavigateToHomeScreen: exception: " + exception.getMessage());
                 Log.d(TAG, "saveUserDataAndNavigateToHomeScreen: Error in authenticating new user");
-                try{
+                try {
                     throw exception;
-                }catch (FirebaseAuthEmailException emailException){
+                } catch (FirebaseAuthEmailException emailException) {
                     showSnackBarWithAction(R.string.wrong_email, emailException);
-                }catch (FirebaseAuthWeakPasswordException weakPasswordException){
+                } catch (FirebaseAuthWeakPasswordException weakPasswordException) {
                     showSnackBarWithAction(R.string.weak_password, weakPasswordException);
-                }catch (FirebaseAuthUserCollisionException collisionException){
+                } catch (FirebaseAuthUserCollisionException collisionException) {
                     showSnackBarWithAction(R.string.already_registered, collisionException);
-                }catch (Exception generalException){
+                } catch (Exception generalException) {
                     Toast.makeText(requireActivity(), generalException.getMessage(), Toast.LENGTH_SHORT).show();
                     Log.d(TAG, "saveUserDataAndNavigateToHomeScreen: general exception: " + generalException.getMessage());
                     showSnackBarWithAction(R.string.wrong_email, generalException);
@@ -208,6 +210,7 @@ public class ProfileImageFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
+
     private void saveFinalData() {
         Log.d(TAG, "saveFinalData: photoUrl" + photoUrl);
         String status = Objects.requireNonNull(mBinding.editTextStatus.getText()).toString();
@@ -219,7 +222,7 @@ public class ProfileImageFragment extends Fragment {
         MessagesPreference.saveUserPhoneNumber(requireContext(), phoneNumber);
         MessagesPreference.saveUserPrivacy(requireContext(), false);
         /*create a new user*/
-        User newUser = new User(userName, email, phoneNumber, photoUrl, userId, status,true, false, new Date().getTime());
+        User newUser = new User(userName, email, phoneNumber, photoUrl, userId, status, true, false, new Date().getTime());
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         firestore.collection("rooms").document(userId).set(newUser).addOnSuccessListener(data -> {
             Log.d(TAG, "saveUserDataAndNavigateToHomeScreen: successfully register new user");
@@ -232,7 +235,7 @@ public class ProfileImageFragment extends Fragment {
     }
 
 
-    private void showSnackBarWithAction(int label, Exception exception){
+    private void showSnackBarWithAction(int label, Exception exception) {
         mBinding.progressBarProfileImage.setVisibility(View.GONE);
         Snackbar snackbar = Snackbar.make(snackBarView, label, Snackbar.LENGTH_INDEFINITE);
         int action = R.string.return_fix;
@@ -242,10 +245,10 @@ public class ProfileImageFragment extends Fragment {
                 snackbar.setAction(action, snackbarListener -> controller.navigateUp());
             } else if (exception instanceof FirebaseAuthWeakPasswordException) {
                 snackbar.setAction(action, snackbarListener -> controller.navigateUp());
-            }else if (exception instanceof FirebaseAuthUserCollisionException){
+            } else if (exception instanceof FirebaseAuthUserCollisionException) {
                 action = R.string.sign_in;
-               snackbar.setAction(action, snackbarListener -> controller.popBackStack(R.id.fragmentSignIn, false));
-            }else {
+                snackbar.setAction(action, snackbarListener -> controller.popBackStack(R.id.fragmentSignIn, false));
+            } else {
                 snackbar.setAction(action, snackbarListener -> controller.navigateUp());
             }
         }

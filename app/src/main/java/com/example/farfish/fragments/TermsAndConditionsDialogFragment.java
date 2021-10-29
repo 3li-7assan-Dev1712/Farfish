@@ -22,6 +22,7 @@ public class TermsAndConditionsDialogFragment extends DialogFragment {
     public TermsAndConditionsDialogFragment(ActionClickListener _mTermsAndConditionsListener) {
         this.mTermsAndConditionsListener = _mTermsAndConditionsListener;
     }
+
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
