@@ -36,6 +36,7 @@ public class ChatsRepository implements ValueEventListener {
 
         Log.d(TAG, "ChatsRepository: constructor is called");
         mUserChats = new ArrayList<>();
+        mRoomsSize = new ArrayList<>();
         mContext = context;
         mCurrentUserId = FirebaseAuth.getInstance().getUid();
         if (mCurrentUserId != null) {

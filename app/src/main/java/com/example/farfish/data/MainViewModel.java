@@ -1,6 +1,5 @@
 package com.example.farfish.data;
 
-import android.content.Context;
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
@@ -23,7 +22,7 @@ import javax.inject.Inject;
 import dagger.hilt.android.lifecycle.HiltViewModel;
 
 @HiltViewModel
-public class MainViewModel extends ViewModel implements MessagingRepository.PostMessagesInterface{
+public class MainViewModel extends ViewModel implements MessagingRepository.PostMessagesInterface {
 
 
     private static final String TAG = MainViewModel.class.getSimpleName();
@@ -33,11 +32,10 @@ public class MainViewModel extends ViewModel implements MessagingRepository.Post
     private MutableLiveData<List<Message>> userMessages;
     private MutableLiveData<List<List<Status>>> statuesLists;
     // repositories
-     public UsersRepository usersRepository;
-     public ChatsRepository chatsRepository;
-     public MessagingRepository messagingRepository;
-     public StatusRepository statusRepository;
-
+    public UsersRepository usersRepository;
+    public ChatsRepository chatsRepository;
+    public MessagingRepository messagingRepository;
+    public StatusRepository statusRepository;
 
 
     @Inject
@@ -82,10 +80,10 @@ public class MainViewModel extends ViewModel implements MessagingRepository.Post
         return allUsers;
     }
 
-    public LiveData<List<Message>> getUserChats() {
+    public MutableLiveData<List<Message>> getUserChats() {
         Log.d(TAG, "getUserChats: getting chats");
         if (userChats == null) {
-            userChats = new MutableLiveData<>(new ArrayList<>());
+            userChats = new MutableLiveData<>();
         }
         chatsRepository.loadAllChats();
         return userChats;
@@ -99,7 +97,7 @@ public class MainViewModel extends ViewModel implements MessagingRepository.Post
         return userMessages;
     }
 
-    public LiveData<List<List<Status>>> getStatusLiveData() {
+    public MutableLiveData<List<List<Status>>> getStatusLiveData() {
         if (statuesLists == null) {
             statuesLists = new MutableLiveData<>();
             statusRepository.loadAllStatuses();

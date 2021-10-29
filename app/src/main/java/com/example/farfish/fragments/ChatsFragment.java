@@ -34,12 +34,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.hilt.navigation.HiltViewModelFactory;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavBackStackEntry;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.FragmentNavigator;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.aghajari.emojiview.view.AXEmojiPopupLayout;
 import com.aghajari.emojiview.view.AXEmojiView;
@@ -284,7 +286,8 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
         mBinding.progressBar.setVisibility(View.VISIBLE);
         NavBackStackEntry backStackEntry = navController.getBackStackEntry(R.id.nav_graph);
         mModel = new ViewModelProvider(
-                backStackEntry
+                backStackEntry,
+                HiltViewModelFactory.create(requireContext(), backStackEntry)
         ).get(MainViewModel.class);
         mModel.getMessagingRepository().setMessagingInterface(this);
         mModel.getMessagingRepository().setTargetUserId(targetUserId);
