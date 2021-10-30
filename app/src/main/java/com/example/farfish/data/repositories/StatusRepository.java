@@ -40,7 +40,7 @@ public class StatusRepository implements ValueEventListener {
 
     private static final String TAG = StatusRepository.class.getSimpleName();
     private DatabaseReference mDatabaseReference = FirebaseDatabase.getInstance().getReference("status");
-    private DatabaseReference mUserReference = FirebaseDatabase.getInstance().getReference();
+    private DatabaseReference mUserReference;
     private StorageReference mRootRef;
     private Set<String> mContact;
     private Context mContext;

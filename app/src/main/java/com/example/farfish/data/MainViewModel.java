@@ -14,7 +14,6 @@ import com.example.farfish.data.repositories.MessagingRepository;
 import com.example.farfish.data.repositories.StatusRepository;
 import com.example.farfish.data.repositories.UsersRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -24,9 +23,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 @HiltViewModel
 public class MainViewModel extends ViewModel implements MessagingRepository.PostMessagesInterface {
 
-
+    // Tag for logging
     private static final String TAG = MainViewModel.class.getSimpleName();
-    // LiveData
+    // MutableLiveData
     private MutableLiveData<List<User>> allUsers;
     private MutableLiveData<List<Message>> userChats;
     private MutableLiveData<List<Message>> userMessages;
@@ -37,17 +36,16 @@ public class MainViewModel extends ViewModel implements MessagingRepository.Post
     public MessagingRepository messagingRepository;
     public StatusRepository statusRepository;
 
-
+    // the constructor
     @Inject
     public MainViewModel
-            (
-                    UsersRepository usersRepository,
-                    ChatsRepository chatsRepository,
-                    MessagingRepository messagingRepository,
-                    StatusRepository statusRepository
+    (
+            UsersRepository usersRepository,
+            ChatsRepository chatsRepository,
+            MessagingRepository messagingRepository,
+            StatusRepository statusRepository
 
-            ) {
-//        Context context = application.getApplicationContext();
+    ) {
         this.usersRepository = usersRepository;
         this.chatsRepository = chatsRepository;
         this.messagingRepository = messagingRepository;
@@ -93,6 +91,7 @@ public class MainViewModel extends ViewModel implements MessagingRepository.Post
         if (userMessages == null) {
             userMessages = new MutableLiveData<>();
             messagingRepository.loadMessages();
+            messagingRepository.setPostMessagesInterface(this);
         }
         return userMessages;
     }
@@ -118,19 +117,7 @@ public class MainViewModel extends ViewModel implements MessagingRepository.Post
 
     public void updateMessages() {
         Log.d(TAG, "updateChats: size after logout: " + messagingRepository.getMessages().size());
-        int i = 0;
-        for (Message message : messagingRepository.getMessages()) {
-            if (!message.getIsRead()) {
-                Log.d(TAG, "updateMessages: message is not read ");
-                i++;
-            }
-        }
-        Log.d(TAG, "updateMessages: number of unread messages is: " + i);
         userMessages.setValue(messagingRepository.getMessages());
-    }
-
-    public void clearChats() {
-        userChats.setValue(new ArrayList<>());
     }
 
     public void updateStatues() {
@@ -141,4 +128,5 @@ public class MainViewModel extends ViewModel implements MessagingRepository.Post
     public void postMessages(List<Message> messages) {
         userMessages.postValue(messages);
     }
+
 }

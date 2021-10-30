@@ -43,16 +43,8 @@ public class ChatsRepository implements ValueEventListener {
             mChatsReference = FirebaseDatabase.getInstance().getReference("rooms")
                     .child(mCurrentUserId);
         }
-
-
     }
 
-
-    public void initList() {
-        Log.d(TAG, "initList: called");
-        if (this.mRoomsSize == null)
-            this.mRoomsSize = new ArrayList<>();
-    }
 
     public void setDataReadyInterface(DataReadyInterface mDataReadyInterface) {
         this.mDataReadyInterface = mDataReadyInterface;
@@ -80,7 +72,6 @@ public class ChatsRepository implements ValueEventListener {
             Message lastMessage = null;
             int newMessageCounter = 0;
             Log.d(TAG, "refreshData: roomsSnapShot key: " + roomsSnapshot.getKey());
-            Log.d(TAG, "refreshData: children count: " + roomsSnapshot.getChildrenCount());
             mRoomsSize.add(roomsSnapshot.getChildrenCount());
             for (DataSnapshot messageSnapShot : messagesIterable) {
                 if (!messageSnapShot.getKey().equals("isWriting")) {
@@ -108,7 +99,7 @@ public class ChatsRepository implements ValueEventListener {
     }
 
     private boolean shouldReturn(DataSnapshot snapshot) {
-        if (mRoomsSize.size() == 0)
+        if (mRoomsSize.size() == 0 || mRoomsSize.size() == 1)
             return false;
         else {
             Iterable<DataSnapshot> roomsIterable = snapshot.getChildren();
@@ -119,12 +110,6 @@ public class ChatsRepository implements ValueEventListener {
                     return false;
                 }
                 index++;
-                /*currentList.add();*/
-               /* Iterable<DataSnapshot> messagesIterable = roomsSnapshot.getChildren();
-                DataSnapshot snapShot = null;
-                for (DataSnapshot messageSnapShot : messagesIterable) {
-                    snapShot = messageSnapShot;
-                }*/
             }
             return true;
         }

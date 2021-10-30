@@ -58,7 +58,6 @@ public class MessagingRepository {
     private long lastTimeSeen;
     // firebase realtime database
     private DatabaseReference mCurrentUserRoomReference;
-    /*---------------------*/
     private DatabaseReference mTargetUserRoomReference;
     // current user info
     private String currentUserId;
@@ -83,6 +82,9 @@ public class MessagingRepository {
         mFirebasestore = FirebaseFirestore.getInstance();
     }
 
+    public void setPostMessagesInterface(PostMessagesInterface postMessagesInterface) {
+        this.postMessagesInterface = postMessagesInterface;
+    }
 
     public List<Message> getMessages() {
         return this.messages;
@@ -104,7 +106,7 @@ public class MessagingRepository {
         mTargetUserRoomReference.addChildEventListener(mTargetRoomListener);
     }
 
-    public MessagingRepository(Context context, PostMessagesInterface postMessagesInterface) {
+    /*public MessagingRepository(Context context, PostMessagesInterface postMessagesInterface) {
         messages = new ArrayList<>();
         this.postMessagesInterface = postMessagesInterface;
         targetUserData = new Bundle();
@@ -115,7 +117,7 @@ public class MessagingRepository {
         mTargetRoomListener = new TargetRoomListener();
         mFirebasestore = FirebaseFirestore.getInstance();
     }
-
+*/
     private void prepareToolbarInfo() {
 
         mFirebasestore.collection("rooms").document(targetUserId)
@@ -193,16 +195,16 @@ public class MessagingRepository {
     private void addNewMessage(DataSnapshot value) {
         Log.d(TAG, "addNewMessage: ");
 
+        if (value.getKey().equals("isWriting"))
+            Log.d(TAG, "addNewMessage: the key is isWriting, you should return.");
         try {
             Message newMessage = value.getValue(Message.class);
             assert newMessage != null;
             messages.add(newMessage);
-            if (messages.size() > 0) {
-                /*messagingInterface.refreshMessages();*/
-                postMessagesInterface.postMessages(messages);
-                if (!newMessage.getIsRead() && !newMessage.getSenderId().equals(currentUserId))
-                    markMessageAsRead(value, newMessage);
-            }
+            postMessagesInterface.postMessages(messages);
+            if (!newMessage.getIsRead() && !newMessage.getSenderId().equals(currentUserId))
+                markMessageAsRead(value, newMessage);
+
         } catch (Exception e) {
             Log.d(TAG, "addNewMessage: exception " + e.getMessage());
         }
@@ -225,11 +227,8 @@ public class MessagingRepository {
                         }
                     }
                 }
-                // checking if there's any uplication and remove it if so
                 checkForDuplication();
                 messagingInterface.refreshMessages();
-               /* messagesListAdapter.submitList(messages);
-                messagesListAdapter.notifyDataSetChanged();*/
             });
         } catch (Exception e) {
             Log.d(TAG, "refreshData: " + e.getMessage());

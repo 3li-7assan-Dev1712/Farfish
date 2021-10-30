@@ -38,13 +38,10 @@ public class UsersRepository {
     private List<User> contactUsers = new ArrayList<>();
     // phone numbers
     private List<String> listServerPhoneNumber = new ArrayList<>();
-    private String[] arrayServerPhoneNumbers;
-    private Context context;
 
     @Inject
     public UsersRepository(@ApplicationContext Context context) {
         workManager = WorkManager.getInstance(context);
-        this.context = context;
     }
 
     public void setObservers(UsersRepository.InvokeObservers observers) {
@@ -103,13 +100,6 @@ public class UsersRepository {
             if (!currentUserId.equals(user.getUserId()))
                 contactUsers.add(user);
         }
-        // converting from list to array
-
-        arrayServerPhoneNumbers = new String[listServerPhoneNumber.size()];
-        for (int i = 0; i < listServerPhoneNumber.size(); i++) {
-            arrayServerPhoneNumbers[i] = listServerPhoneNumber.get(i);
-        }
-
     }
 
     public void prepareUserUserKnowList(List<String> commonContacts) {
