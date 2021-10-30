@@ -62,7 +62,7 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
     /*private ContactsAdapter usersAdapter;*/
     private ContactsListAdapter mUserListAdapter;
     private NavController mNavController;
-    private boolean isProgressBarVisible = true;
+    /* private boolean isProgressBarVisible = true;*/
 
     /* request permission*/
     private ActivityResultLauncher<String> requestPermissionToReadContacts =
@@ -71,7 +71,8 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
 
                     mModel.getAllUsers().observe(getViewLifecycleOwner(), users ->
                             mUserListAdapter.customSubmitUserList(users));
-                    setProgresBarVisibility();
+                    mBinding.loadUsersProgressBar.setVisibility(View.GONE);
+                    /*setProgresBarVisibility();*/
                 } else {
                     Toast.makeText(requireContext(),
                             getString(R.string.access_contacts_permission_msg), Toast.LENGTH_LONG).show();
@@ -89,12 +90,12 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
         super.onCreate(savedInstanceState);
     }
 
-    private void setProgresBarVisibility() {
+   /* private void setProgresBarVisibility() {
         if (isProgressBarVisible)
             mBinding.loadUsersProgressBar.setVisibility(View.VISIBLE);
         else
             mBinding.loadUsersProgressBar.setVisibility(View.GONE);
-    }
+    }*/
 
     @Nullable
     @Override
@@ -110,14 +111,14 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
         ).get(MainViewModel.class);
         Log.d(TAG, "onCreateView: mModule has code: " + mModel.hashCode());
         mModel.getUsersRepository().setObservers(this);
-        if (mBinding != null) setProgresBarVisibility();
+        /*if (mBinding != null) setProgresBarVisibility();*/
         if (ContextCompat.checkSelfPermission(
                 requireContext(), Manifest.permission.READ_CONTACTS) ==
                 PackageManager.PERMISSION_GRANTED) {
             // check if we have the phone numbers already
             mModel.getAllUsers().observe(getViewLifecycleOwner(), users -> {
                 mUserListAdapter.customSubmitUserList(users);
-
+                mBinding.loadUsersProgressBar.setVisibility(View.GONE);
             });
         } else {
             requestPermissionToReadContacts.launch(Manifest.permission.READ_CONTACTS);
@@ -159,7 +160,7 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putBoolean(ORIENTATION_CHANGE, isProgressBarVisible);
+        /*outState.putBoolean(ORIENTATION_CHANGE, isProgressBarVisible);*/
     }
 
     private void updateFilterImageResoucre() {
@@ -181,7 +182,7 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
 
     @Override
     public void onChatClicked(int position) {
-        isProgressBarVisible = false;
+        /*isProgressBarVisible = false;*/
         User selectedUser = mModel.getUsersRepository().getUserInPosition(position, getFilterState());
         String targetUserId = selectedUser.getUserId();
         Log.d(TAG, "onChatClick: target user id: " + targetUserId);
@@ -201,7 +202,7 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
                 mNavController.navigate(R.id.action_usersFragment_to_fragmentSignIn);
                 break;
             case R.id.go_to_profile:
-                isProgressBarVisible = false;
+                /*isProgressBarVisible = false;*/
                 mNavController.navigate(R.id.action_usersFragment_to_userProfileFragment);
                 break;
             case R.id.report_issue:
@@ -278,8 +279,8 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
     @Override
     public void prepareDataFinished() {
         mModel.updateUsers(getFilterState());
-        isProgressBarVisible = false;
-        setProgresBarVisibility();
+        /*isProgressBarVisible = false;
+        setProgresBarVisibility();*/
     }
 
 }

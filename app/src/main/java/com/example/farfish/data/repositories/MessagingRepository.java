@@ -67,7 +67,7 @@ public class MessagingRepository {
     // rooms listeners
     private CurrentRoomListener mCurrentRoomListener;
     private TargetRoomListener mTargetRoomListener;
-    private List<Message> testMessages = new ArrayList<>();
+
     private PostMessagesInterface postMessagesInterface;
 
     @Inject
@@ -452,21 +452,4 @@ public class MessagingRepository {
         }
     }
 
-    public List<Message> getTestMessages() {
-        // String text, String photoUrl, long timestamp, String senderId, String targetId, String senderName, String targetName, String targetPhotoUrl, boolean isRead
-
-        testMessages.add(new Message("Hi there", "no photo", 1938372733,
-                "kfkdj83839", "8838kdkfjd8", "Ali Hassan", "Esam Hassan", "no", false));
-        testMessages.add(new Message("Anything just test", "no photo", 1938372733,
-                "kfkdj83839", "8838kdkfjd8", "Ali Hassan", "Esam Hassan", "no", true));
-        testMessages.add(new Message("test demo", "no photo", 1938372733,
-                "kfkdj83839", "8838kdkfjd8", "Ali Hassan", "Esam Hassan", "no", false));
-        testMessages.add(new Message("How is it going", "no photo", 1938372733,
-                "kfkdj83839", "8838kdkfjd8", "Ali Hassan", "Esam Hassan", "no", false));
-        testMessages.add(new Message("It's fine, thanks for asking!", "no photo", 1938372733,
-                "kfkdj83839", "8838kdkfjd8", "Ali Hassan", "Esam Hassan", "no", true));
-        testMessages.add(new Message("I'm going to do it.", "no photo", 1938372733,
-                "kfkdj83839", "8838kdkfjd8", "Ali Hassan", "Esam Hassan", "no", false));
-        return testMessages;
-    }
 }

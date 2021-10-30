@@ -29,7 +29,6 @@ public class ChatsRepository implements ValueEventListener {
     private Context mContext;
     private DataReadyInterface mDataReadyInterface;
     private List<Long> mRoomsSize;
-    private List<Message> testMessages = new ArrayList<>();
 
     @Inject
     public ChatsRepository(@ApplicationContext Context context) {
@@ -130,7 +129,6 @@ public class ChatsRepository implements ValueEventListener {
 
     public Message getMessageInPosition(int position) {
         return mUserChats.get(position);
-        /*return testMessages.get(position);*/
     }
 
     @Override
@@ -148,15 +146,4 @@ public class ChatsRepository implements ValueEventListener {
         mChatsReference.removeEventListener(this);
     }
 
-    public List<Message> getTestData() {
-        // String text, String photoUrl, long timestamp, String senderId, String targetId, String senderName, String targetName, String targetPhotoUrl, boolean isRead
-
-        testMessages.add(new Message("Hi there", "no photo", 1938372733,
-                "kfkdj83839", "8838kdkfjd8", "Ali Hassan", "Esam Hassan", "no", false));
-        testMessages.add(new Message("Anything just test", "no photo", 1938372733,
-                "kfkdj83839", "8838kdkfjd8", "Ali Hassan", "Esam Hassan", "no", true));
-        testMessages.add(new Message("test demo", "no photo", 1938372733,
-                "kfkdj83839", "8838kdkfjd8", "Ali Hassan", "Esam Hassan", "no", false));
-        return testMessages;
-    }
 }

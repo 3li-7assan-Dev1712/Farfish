@@ -15,14 +15,12 @@ import android.widget.Toast;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.hilt.navigation.HiltViewModelFactory;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavBackStackEntry;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.work.Constraints;
 import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.NetworkType;
@@ -31,7 +29,6 @@ import androidx.work.WorkManager;
 
 import com.example.farfish.Adapters.MessagesListAdapter;
 import com.example.farfish.Module.Connection;
-import com.example.farfish.Module.MessagesPreference;
 import com.example.farfish.Module.SharedPreferenceUtils;
 import com.example.farfish.Module.workers.CleanUpOldDataPeriodicWork;
 import com.example.farfish.R;
@@ -67,10 +64,55 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
     }
 
 
-    private void navigateToSignIn() {
-        NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
-        navController.navigate(R.id.fragmentSignIn);
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+        OnBackPressedCallback callback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                requireActivity().finish();
+            }
+        };
+        requireActivity().getOnBackPressedDispatcher().addCallback(this, callback);
+        mListAdapter = new MessagesListAdapter(new ArrayList<>(), requireContext(), this, true);
     }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+
+        requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.VISIBLE);
+        Log.d(TAG, "onCreateView: ");
+        mBinding = FragmentUserChatsBinding.inflate(inflater, container, false);
+        View view = mBinding.getRoot();
+        mAuth = FirebaseAuth.getInstance();
+        mNavController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+        if (mAuth.getCurrentUser() == null) {
+            navigateToSignIn();
+        }
+        ((AppCompatActivity) requireActivity())
+                .setSupportActionBar(mBinding.mainToolbarFrag);
+        mBinding.userContactsRecyclerView.setAdapter(mListAdapter);
+        // start the periodic work
+        uniquelyScheduleCleanUPWorker();
+        if (mAuth.getCurrentUser() != null) {
+            NavBackStackEntry backStackEntry = mNavController.getBackStackEntry(R.id.nav_graph);
+            mainViewModel = new ViewModelProvider(
+                    backStackEntry,
+                    HiltViewModelFactory.create(requireContext(), backStackEntry)
+            ).get(MainViewModel.class);
+            mainViewModel.getChatsRepository().setDataReadyInterface(this);
+            mainViewModel.getUserChats().observe(getViewLifecycleOwner(), userChats -> {
+                mListAdapter.submitList(new ArrayList<>(userChats));
+                mBinding.userChatsProgressBar.setVisibility(View.GONE);
+            });
+        }
+        checkUserConnection();
+        UserProfileFragment.setCleaner(this);
+        return view;
+    }
+
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
@@ -111,62 +153,16 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
         }
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
 
-        requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.VISIBLE);
-        Log.d(TAG, "onCreateView: ");
-        mBinding = FragmentUserChatsBinding.inflate(inflater, container, false);
-        View view = mBinding.getRoot();
-        String mCurrentUserId = MessagesPreference.getUserId(requireContext());
-        Log.d(TAG, "onCreate: ");
-        mAuth = FirebaseAuth.getInstance();
-        mNavController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
-        if (mAuth.getCurrentUser() == null) {
-            navigateToSignIn();
-        }
-        Toolbar tb = view.findViewById(R.id.mainToolbar_frag);
-        ((AppCompatActivity) requireActivity())
-                .setSupportActionBar(tb);
-        /*requireActivity().findViewById(R.id.nav_graph).setVisibility(View.VISIBLE);*/
-        RecyclerView contactsRecycler = view.findViewById(R.id.userContactsRecyclerView);
-
-
-        contactsRecycler.setAdapter(mListAdapter);
-        // start the periodic work
-        uniquelyScheduleCleanUPWorker();
-        if (mAuth.getCurrentUser() != null) {
-            NavBackStackEntry backStackEntry = mNavController.getBackStackEntry(R.id.nav_graph);
-
-            /*HiltViewModelFactory.createInternal(requireActivity(), getSavedStateRegistryOw(), savedInstanceState, null);*/
-            mainViewModel = new ViewModelProvider(
-                    backStackEntry,
-                    HiltViewModelFactory.create(requireContext(), backStackEntry)
-            ).get(MainViewModel.class);
-
-            Log.d(TAG, "onCreateView: mainvViewModel has code: " + mainViewModel.hashCode());
-            mainViewModel.getChatsRepository().setDataReadyInterface(this);
-            mainViewModel.getUserChats().observe(getViewLifecycleOwner(), userChats -> {
-                mListAdapter.submitList(new ArrayList<>(userChats));
-                mBinding.userChatsProgressBar.setVisibility(View.GONE);
-            });
-        }
-
-        checkUserConnection();
-
-        UserProfileFragment.setCleaner(this);
-        return view;
+    private void navigateToSignIn() {
+        mNavController.navigate(R.id.fragmentSignIn);
     }
 
-
     private void checkUserConnection() {
-
         if (!Connection.isUserConnected(requireContext())) {
             Snackbar.make(requireActivity().findViewById(R.id.bottom_nav), R.string.user_offline_msg, BaseTransientBottomBar.LENGTH_LONG)
                     .setAnchorView(R.id.bottom_nav).show();
         }
-
     }
 
     private void uniquelyScheduleCleanUPWorker() {
@@ -203,27 +199,13 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
 
     @Override
     public void onChatClick(int position) {
-        /*mainViewModel.getChatsRepository().removeValueEventListener();*/
         String targetUserId = mainViewModel.getChatsRepository().getMessageInPosition(position).getTargetId();
-        Log.d(TAG, "onChatClick: target user id: " + targetUserId);
         Bundle primaryDataBundle = new Bundle();
         primaryDataBundle.putString("target_user_id", targetUserId);
         mNavController.navigate(R.id.chatsFragment, primaryDataBundle);
     }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
-        OnBackPressedCallback callback = new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                requireActivity().finish();
-            }
-        };
-        requireActivity().getOnBackPressedDispatcher().addCallback(this, callback);
-        mListAdapter = new MessagesListAdapter(new ArrayList<>(), requireContext(), this, true);
-    }
+
 
     @Override
     public void dataIsReady() {

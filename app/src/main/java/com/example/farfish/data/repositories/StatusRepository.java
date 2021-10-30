@@ -63,6 +63,9 @@ public class StatusRepository implements ValueEventListener {
         mDatabaseReference.addValueEventListener(this);
     }
 
+    public void removeListener(){
+        mDatabaseReference.removeEventListener(this);
+    }
     @Override
     public void onDataChange(@NonNull DataSnapshot snapshot) {
         Log.d(TAG, "onDataChange: generally");

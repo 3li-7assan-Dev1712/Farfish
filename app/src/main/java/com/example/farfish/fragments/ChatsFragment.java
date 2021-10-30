@@ -108,7 +108,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
     private String currentUserName;
     private String currentPhotoUrl;
 
-    private boolean USER_EXPECT_TO_RETURN = false;
+    private boolean USER_EXPECT_TO_RETURN;
     private ActivityResultLauncher<String> pickPic = registerForActivityResult(
             new ActivityResultContracts.GetContent() {
                 @NonNull
@@ -161,6 +161,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mBinding = ChatsFragmentBinding.inflate(inflater, container, false);
         View view = mBinding.getRoot();
+        USER_EXPECT_TO_RETURN = false;
         LinearLayoutManager layoutManager = new LinearLayoutManager(requireContext());
         layoutManager.setStackFromEnd(true);
         mBinding.messageRecyclerView.setLayoutManager(layoutManager);
@@ -291,10 +292,12 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
         mModel.getMessagingRepository().setTargetUserId(targetUserId);
         mModel.getChatMessages().observe(getViewLifecycleOwner(), chatMessages -> {
             messagesListAdapter.submitList(chatMessages);
-            messagesListAdapter.notifyDataSetChanged();
-            mBinding.messageRecyclerView.scrollToPosition(chatMessages.size() - 1);
+           /* messagesListAdapter.notifyDataSetChanged();*/
+            /*mBinding.messageRecyclerView.scrollToPosition(chatMessages.size() - 1);*/
             mBinding.progressBar.setVisibility(View.GONE);
         });
+        if (mModel.getMessagingRepository().getMessages().size() == 0)
+            mBinding.progressBar.setVisibility(View.GONE);
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(ORIENTATION_CHANGE))
                 populateToolbar();

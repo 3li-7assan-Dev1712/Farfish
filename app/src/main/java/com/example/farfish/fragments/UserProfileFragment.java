@@ -10,14 +10,12 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import com.example.farfish.Module.MessagesPreference;
 import com.example.farfish.Module.SharedPreferenceUtils;
 import com.example.farfish.R;
-import com.example.farfish.data.MainViewModel;
 import com.example.farfish.databinding.UserProfileFragmentBinding;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -41,7 +39,6 @@ public class UserProfileFragment extends Fragment {
     private static final String TAG = UserProfileFragment.class.getSimpleName();
     private String phoneNumber;
 
-    public MainViewModel mainViewModel;
 
     private static CleanViewModel cleanViewModel;
 
@@ -68,20 +65,18 @@ public class UserProfileFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mBinding = UserProfileFragmentBinding.inflate(inflater, container, false);
-        requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
+        hideView(requireActivity().findViewById(R.id.bottom_nav));
         View view = mBinding.getRoot();
-        mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
         lastTimeSeen = requireContext().getResources().getString(R.string.online);
         NavController controller = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         mBinding.toolbarUserProfile.setNavigationOnClickListener(clickListener -> controller.navigateUp());
-        requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
 
         if (savedInstanceState != null) {
             populateFromBundle(savedInstanceState);
         } else if (getArguments() != null) {
             Bundle userInfo = getArguments();
-            mBinding.editProfileButton.setVisibility(View.GONE);
-            mBinding.logoutButtonUserProfile.setVisibility(View.GONE);
+            hideView(mBinding.editProfileButton);
+            hideView(mBinding.logoutButtonUserProfile);
             populateFromBundle(userInfo);
         } else {
             mBinding.editProfileButton.setVisibility(View.VISIBLE);
@@ -106,12 +101,13 @@ public class UserProfileFragment extends Fragment {
                 .into(mBinding.userProfileImageView, new Callback() {
                     @Override
                     public void onSuccess() {
-                        mBinding.userProfileProgressBar.setVisibility(View.GONE);
+                        hideView(mBinding.userProfileProgressBar);
                     }
 
                     @Override
                     public void onError(Exception e) {
                         Log.d(TAG, "onError: " + e.getMessage());
+                        hideView(mBinding.userProfileProgressBar);
                     }
                 });
         // user info from bundle, this will override the above fields if it's not null
@@ -143,6 +139,10 @@ public class UserProfileFragment extends Fragment {
         });
         /*----------------------------------------------------------------------------*/
         return view;
+    }
+
+    private void hideView(View view) {
+        view.setVisibility(View.GONE);
     }
 
     public interface CleanViewModel {

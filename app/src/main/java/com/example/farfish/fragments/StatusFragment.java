@@ -159,6 +159,11 @@ public class StatusFragment extends Fragment implements ContactsListAdapter.OnCh
         super.onDestroyView();
         mBinding = null;
     }
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        mModel.statusRepository.removeListener();
+    }
 
     @Override
     public void onChatClicked(int position) {
