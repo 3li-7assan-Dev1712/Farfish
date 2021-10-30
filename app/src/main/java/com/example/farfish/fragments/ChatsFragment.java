@@ -65,9 +65,6 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
 
-import javax.inject.Inject;
-
-
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
@@ -147,6 +144,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
         targetUserData = getArguments();
         if (targetUserData != null) {
             targetUserId = targetUserData.getString("target_user_id", "id for target user");
+            Log.d(TAG, "onCreate: target user id (chats): " + targetUserId);
             // rooms references
             currentUserId = MessagesPreference.getUserId(requireContext());
 

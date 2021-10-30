@@ -205,6 +205,7 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
     public void onChatClick(int position) {
         /*mainViewModel.getChatsRepository().removeValueEventListener();*/
         String targetUserId = mainViewModel.getChatsRepository().getMessageInPosition(position).getTargetId();
+        Log.d(TAG, "onChatClick: target user id: " + targetUserId);
         Bundle primaryDataBundle = new Bundle();
         primaryDataBundle.putString("target_user_id", targetUserId);
         mNavController.navigate(R.id.chatsFragment, primaryDataBundle);

@@ -90,9 +90,9 @@ public class MainViewModel extends ViewModel implements MessagingRepository.Post
     public MutableLiveData<List<Message>> getChatMessages() {
         if (userMessages == null) {
             userMessages = new MutableLiveData<>();
-            messagingRepository.loadMessages();
             messagingRepository.setPostMessagesInterface(this);
         }
+        messagingRepository.loadMessages();
         return userMessages;
     }
 

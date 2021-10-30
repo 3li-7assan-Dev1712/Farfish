@@ -184,10 +184,10 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
         isProgressBarVisible = false;
         User selectedUser = mModel.getUsersRepository().getUserInPosition(position, getFilterState());
         String targetUserId = selectedUser.getUserId();
+        Log.d(TAG, "onChatClick: target user id: " + targetUserId);
         Bundle primaryDataBundle = new Bundle();
         primaryDataBundle.putString("target_user_id", targetUserId);
-        NavController controller = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
-        controller.navigate(R.id.action_usersFragment_to_chatsFragment, primaryDataBundle);
+        mNavController.navigate(R.id.action_usersFragment_to_chatsFragment, primaryDataBundle);
     }
 
     @Override

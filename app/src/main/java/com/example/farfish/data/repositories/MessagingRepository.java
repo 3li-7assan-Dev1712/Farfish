@@ -101,6 +101,7 @@ public class MessagingRepository {
     }
 
     public void loadMessages() {
+        messages.clear();
         prepareToolbarInfo();
         mCurrentUserRoomReference.addChildEventListener(mCurrentRoomListener);
         mTargetUserRoomReference.addChildEventListener(mTargetRoomListener);
