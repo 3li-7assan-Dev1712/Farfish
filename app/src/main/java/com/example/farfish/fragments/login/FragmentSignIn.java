@@ -1,4 +1,4 @@
-package com.example.farfish.fragments;
+package com.example.farfish.fragments.login;
 
 import android.app.Activity;
 import android.content.Context;
@@ -28,6 +28,7 @@ import com.example.farfish.Module.SharedPreferenceUtils;
 import com.example.farfish.Module.User;
 import com.example.farfish.R;
 import com.example.farfish.databinding.FragmentSignInBinding;
+import com.example.farfish.fragments.dialogs.InternetConnectionDialog;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;

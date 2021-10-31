@@ -1,4 +1,4 @@
-package com.example.farfish.fragments;
+package com.example.farfish.fragments.main;
 
 import android.Manifest;
 import android.app.Activity;

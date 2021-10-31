@@ -1,4 +1,4 @@
-package com.example.farfish.fragments;
+package com.example.farfish.fragments.dialogs;
 
 import android.app.AlertDialog;
 import android.app.Dialog;

@@ -1,4 +1,4 @@
-package com.example.farfish.fragments;
+package com.example.farfish.fragments.profile;
 
 import android.content.Context;
 import android.os.Bundle;

@@ -1,4 +1,4 @@
-package com.example.farfish.fragments;
+package com.example.farfish.fragments.main;
 
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
@@ -35,6 +35,7 @@ import com.example.farfish.R;
 import com.example.farfish.data.MainViewModel;
 import com.example.farfish.data.repositories.ChatsRepository;
 import com.example.farfish.databinding.FragmentUserChatsBinding;
+import com.example.farfish.fragments.profile.UserProfileFragment;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;

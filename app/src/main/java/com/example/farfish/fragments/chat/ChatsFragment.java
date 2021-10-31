@@ -1,4 +1,4 @@
-package com.example.farfish.fragments;
+package com.example.farfish.fragments.chat;
 
 import android.Manifest;
 import android.content.Context;
@@ -55,6 +55,7 @@ import com.example.farfish.data.MainViewModel;
 import com.example.farfish.data.repositories.MessagingRepository;
 import com.example.farfish.databinding.ChatsFragmentBinding;
 import com.example.farfish.databinding.ToolbarConversationBinding;
+import com.example.farfish.fragments.dialogs.InternetConnectionDialog;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.squareup.picasso.Picasso;

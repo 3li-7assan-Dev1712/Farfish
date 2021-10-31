@@ -1,4 +1,4 @@
-package com.example.farfish.fragments;
+package com.example.farfish.fragments.main;
 
 import android.Manifest;
 import android.content.Context;
@@ -34,12 +34,11 @@ import com.example.farfish.R;
 import com.example.farfish.data.MainViewModel;
 import com.example.farfish.data.repositories.StatusRepository;
 import com.example.farfish.databinding.StatusFragmentBinding;
+import com.example.farfish.fragments.dialogs.InternetConnectionDialog;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -50,6 +49,7 @@ public class StatusFragment extends Fragment implements ContactsListAdapter.OnCh
     private StatusFragmentBinding mBinding;
     private static final String TAG = StatusFragment.class.getSimpleName();
 
+    private boolean SHOULD_REMOVE_LISTENER;
 
     public MainViewModel mModel;
     /* request permission*/
@@ -86,10 +86,10 @@ public class StatusFragment extends Fragment implements ContactsListAdapter.OnCh
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mBinding = StatusFragmentBinding.inflate(inflater, container, false);
         View view = mBinding.getRoot();
+        SHOULD_REMOVE_LISTENER = true;
         NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.VISIBLE);
-        RecyclerView statusRecycler = view.findViewById(R.id.statusRecycler);
-        statusRecycler.setAdapter(mStatusAdapter);
+        mBinding.statusRecycler.setAdapter(mStatusAdapter);
         mBinding.uploadImageStatusFab.setOnClickListener(uploadImage -> {
 
             if (ContextCompat.checkSelfPermission(
@@ -109,7 +109,10 @@ public class StatusFragment extends Fragment implements ContactsListAdapter.OnCh
             // prevent the user from uploading new statues if they are not connected to the internet *_-
             if (!Connection.isUserConnected(requireContext()))
                 new InternetConnectionDialog().show(requireActivity().getSupportFragmentManager(), "internet_alert");
-            else navController.navigate(R.id.uploadTextStatusFragment);
+            else{
+                SHOULD_REMOVE_LISTENER = false;
+                navController.navigate(R.id.uploadTextStatusFragment);
+            }
         });
         NavBackStackEntry backStackEntry = navController.getBackStackEntry(R.id.nav_graph);
         mModel = new ViewModelProvider(
@@ -151,19 +154,20 @@ public class StatusFragment extends Fragment implements ContactsListAdapter.OnCh
     private void pickImageFromGallery() {
         if (!Connection.isUserConnected(requireContext()))
             new InternetConnectionDialog().show(requireActivity().getSupportFragmentManager(), "internet_alert");
-        else selectImageToUpload.launch("image/*");
+        else {
+            SHOULD_REMOVE_LISTENER = false;
+            selectImageToUpload.launch("image/*");
+        }
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         mBinding = null;
+        if (SHOULD_REMOVE_LISTENER)
+            mModel.statusRepository.removeListener();
     }
-    @Override
-    public void onDestroy(){
-        super.onDestroy();
-        mModel.statusRepository.removeListener();
-    }
+
 
     @Override
     public void onChatClicked(int position) {

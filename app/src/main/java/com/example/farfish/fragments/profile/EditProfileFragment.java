@@ -1,4 +1,4 @@
-package com.example.farfish.fragments;
+package com.example.farfish.fragments.profile;
 
 import android.Manifest;
 import android.content.Context;
@@ -27,6 +27,7 @@ import com.example.farfish.Module.FileUtil;
 import com.example.farfish.Module.MessagesPreference;
 import com.example.farfish.R;
 import com.example.farfish.databinding.EditProfileFragmentBinding;
+import com.example.farfish.fragments.dialogs.InternetConnectionDialog;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.DocumentReference;

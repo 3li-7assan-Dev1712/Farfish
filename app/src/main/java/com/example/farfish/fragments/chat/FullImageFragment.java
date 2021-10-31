@@ -1,4 +1,4 @@
-package com.example.farfish.fragments;
+package com.example.farfish.fragments.chat;
 
 import android.os.Build;
 import android.os.Bundle;

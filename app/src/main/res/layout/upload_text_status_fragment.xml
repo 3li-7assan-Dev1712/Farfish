@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/secondaryDarkColor"
-    tools:context=".fragments.UploadTextStatusFragment">
+    tools:context=".fragments.main.UploadTextStatusFragment">
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/uploadTextStatusFragmentFab"

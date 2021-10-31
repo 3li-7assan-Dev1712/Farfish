@@ -1,4 +1,4 @@
-package com.example.farfish.fragments;
+package com.example.farfish.fragments.login;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -17,6 +17,7 @@ import androidx.navigation.Navigation;
 
 import com.example.farfish.R;
 import com.example.farfish.databinding.FragmentSignUpBinding;
+import com.example.farfish.fragments.dialogs.TermsAndConditionsDialogFragment;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 

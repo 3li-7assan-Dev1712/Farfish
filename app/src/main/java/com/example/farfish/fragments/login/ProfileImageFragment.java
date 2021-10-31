@@ -1,4 +1,4 @@
-package com.example.farfish.fragments;
+package com.example.farfish.fragments.login;
 
 import android.Manifest;
 import android.content.Context;
@@ -29,6 +29,7 @@ import com.example.farfish.Module.SharedPreferenceUtils;
 import com.example.farfish.Module.User;
 import com.example.farfish.R;
 import com.example.farfish.databinding.ProfileImageFragmentBinding;
+import com.example.farfish.fragments.dialogs.InternetConnectionDialog;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthEmailException;

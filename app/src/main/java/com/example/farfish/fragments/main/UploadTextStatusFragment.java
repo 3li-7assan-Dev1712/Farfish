@@ -1,4 +1,4 @@
-package com.example.farfish.fragments;
+package com.example.farfish.fragments.main;
 
 import android.os.Build;
 import android.os.Bundle;
@@ -26,8 +26,6 @@ import com.example.farfish.databinding.UploadTextStatusFragmentBinding;
 
 import java.util.Date;
 import java.util.Objects;
-
-import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
