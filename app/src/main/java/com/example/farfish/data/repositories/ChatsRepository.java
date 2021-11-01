@@ -6,8 +6,8 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.example.farfish.Module.Message;
+import com.example.farfish.Module.MessagesPreference;
 import com.example.farfish.Module.NotificationUtils;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -32,16 +32,7 @@ public class ChatsRepository implements ValueEventListener {
 
     @Inject
     public ChatsRepository(@ApplicationContext Context context) {
-
-        Log.d(TAG, "ChatsRepository: constructor is called");
-        mUserChats = new ArrayList<>();
-        mRoomsSize = new ArrayList<>();
         mContext = context;
-        mCurrentUserId = FirebaseAuth.getInstance().getUid();
-        if (mCurrentUserId != null) {
-            mChatsReference = FirebaseDatabase.getInstance().getReference("rooms")
-                    .child(mCurrentUserId);
-        }
     }
 
 
@@ -51,6 +42,13 @@ public class ChatsRepository implements ValueEventListener {
 
     public void loadAllChats() {
         Log.d(TAG, "loadAllChats: adding event listener");
+        mUserChats = new ArrayList<>();
+        mRoomsSize = new ArrayList<>();
+        mCurrentUserId = MessagesPreference.getUserId(mContext);
+        if (mCurrentUserId != null) {
+            mChatsReference = FirebaseDatabase.getInstance().getReference("rooms")
+                    .child(mCurrentUserId);
+        }
         mChatsReference.addValueEventListener(this);
     }
 
@@ -144,6 +142,15 @@ public class ChatsRepository implements ValueEventListener {
 
     public void removeValueEventListener() {
         mChatsReference.removeEventListener(this);
+        cleanUp();
+    }
+
+    private void cleanUp() {
+        mChatsReference = null;
+        mUserChats = null;
+        mCurrentUserId = null;
+        mDataReadyInterface = null;
+        mRoomsSize = null;
     }
 
 }

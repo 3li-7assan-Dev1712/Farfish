@@ -39,7 +39,7 @@ import id.zelory.compressor.Compressor;
 public class StatusRepository implements ValueEventListener {
 
     private static final String TAG = StatusRepository.class.getSimpleName();
-    private DatabaseReference mDatabaseReference = FirebaseDatabase.getInstance().getReference("status");
+    private DatabaseReference mDatabaseReference;
     private DatabaseReference mUserReference;
     private StorageReference mRootRef;
     private Set<String> mContact;
@@ -50,9 +50,13 @@ public class StatusRepository implements ValueEventListener {
     @Inject
     public StatusRepository(@ApplicationContext Context context) {
         mContext = context;
+    }
+
+    private void init() {
         mRootRef = FirebaseStorage.getInstance().getReference("stories");
+        mDatabaseReference = FirebaseDatabase.getInstance().getReference("status");
         mUserReference = mDatabaseReference.child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid()));
-        mContact = MessagesPreference.getUserContacts(context);
+        mContact = MessagesPreference.getUserContacts(mContext);
     }
 
     public void setStatusInterface(StatusInterface statusInterface) {
@@ -60,12 +64,24 @@ public class StatusRepository implements ValueEventListener {
     }
 
     public void loadAllStatuses() {
+        init();
         mDatabaseReference.addValueEventListener(this);
     }
 
     public void removeListener(){
         mDatabaseReference.removeEventListener(this);
+        cleanUp();
     }
+
+    private void cleanUp() {
+        mDatabaseReference = null;
+        mRootRef = null;
+        mStatusLists = null;
+        mContact = null;
+        mUserReference = null;
+        statusInterface = null;
+    }
+
     @Override
     public void onDataChange(@NonNull DataSnapshot snapshot) {
         Log.d(TAG, "onDataChange: generally");

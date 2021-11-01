@@ -46,6 +46,7 @@ public class MainViewModel extends ViewModel implements MessagingRepository.Post
             StatusRepository statusRepository
 
     ) {
+        Log.d(TAG, "MainViewModel: constructor");
         this.usersRepository = usersRepository;
         this.chatsRepository = chatsRepository;
         this.messagingRepository = messagingRepository;

@@ -23,7 +23,6 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavBackStackEntry;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.farfish.Adapters.ContactsListAdapter;
 import com.example.farfish.CustomViews.CustomStatusView;
@@ -72,7 +71,6 @@ public class StatusFragment extends Fragment implements ContactsListAdapter.OnCh
                 }
             },
             this::putIntoImage);
-    /*private StatusAdapter mStatusAdapter;*/
     private ContactsListAdapter mStatusAdapter;
 
     @Override
@@ -109,7 +107,7 @@ public class StatusFragment extends Fragment implements ContactsListAdapter.OnCh
             // prevent the user from uploading new statues if they are not connected to the internet *_-
             if (!Connection.isUserConnected(requireContext()))
                 new InternetConnectionDialog().show(requireActivity().getSupportFragmentManager(), "internet_alert");
-            else{
+            else {
                 SHOULD_REMOVE_LISTENER = false;
                 navController.navigate(R.id.uploadTextStatusFragment);
             }
@@ -120,14 +118,11 @@ public class StatusFragment extends Fragment implements ContactsListAdapter.OnCh
                 HiltViewModelFactory.create(requireContext(), backStackEntry)
         ).get(MainViewModel.class);
         mModel.getStatusRepository().setStatusInterface(this);
-        getViewLifecycleOwnerLiveData().observe(getViewLifecycleOwner(), lifecycleOwner ->{
-
-                    mModel.getStatusLiveData().observe(lifecycleOwner, statuesLists -> {
-                        mStatusAdapter.customSubmitStatusList(statuesLists);
-                        mBinding.statusProgressBar.setVisibility(View.GONE);
-                    });
-
-                });
+        getViewLifecycleOwnerLiveData().observe(getViewLifecycleOwner(), lifecycleOwner ->
+                mModel.getStatusLiveData().observe(lifecycleOwner, statuesLists -> {
+            mStatusAdapter.customSubmitStatusList(statuesLists);
+            mBinding.statusProgressBar.setVisibility(View.GONE);
+        }));
 
         if (savedInstanceState != null)
             mBinding.statusProgressBar.setVisibility(View.GONE);

@@ -72,11 +72,14 @@ public class MessagingRepository {
 
     @Inject
     public MessagingRepository(@ApplicationContext Context context) {
+        mContext = context;
+    }
+
+    private void init() {
         messages = new ArrayList<>();
         targetUserData = new Bundle();
-        mContext = context;
-        currentUserName = MessagesPreference.getUserName(context);
-        currentPhotoUrl = MessagesPreference.getUsePhoto(context);
+        currentUserName = MessagesPreference.getUserName(mContext);
+        currentPhotoUrl = MessagesPreference.getUsePhoto(mContext);
         mCurrentRoomListener = new CurrentRoomListener();
         mTargetRoomListener = new TargetRoomListener();
         mFirebasestore = FirebaseFirestore.getInstance();
@@ -101,24 +104,13 @@ public class MessagingRepository {
     }
 
     public void loadMessages() {
+        init();
         messages.clear();
         prepareToolbarInfo();
         mCurrentUserRoomReference.addChildEventListener(mCurrentRoomListener);
         mTargetUserRoomReference.addChildEventListener(mTargetRoomListener);
     }
 
-    /*public MessagingRepository(Context context, PostMessagesInterface postMessagesInterface) {
-        messages = new ArrayList<>();
-        this.postMessagesInterface = postMessagesInterface;
-        targetUserData = new Bundle();
-        mContext = context;
-        currentUserName = MessagesPreference.getUserName(context);
-        currentPhotoUrl = MessagesPreference.getUsePhoto(context);
-        mCurrentRoomListener = new CurrentRoomListener();
-        mTargetRoomListener = new TargetRoomListener();
-        mFirebasestore = FirebaseFirestore.getInstance();
-    }
-*/
     private void prepareToolbarInfo() {
 
         mFirebasestore.collection("rooms").document(targetUserId)
@@ -185,6 +177,23 @@ public class MessagingRepository {
         Log.d(TAG, "removeListeners: ");
         mCurrentUserRoomReference.removeEventListener(mCurrentRoomListener);
         mTargetUserRoomReference.removeEventListener(mTargetRoomListener);
+        cleanUp();
+    }
+
+    private void cleanUp() {
+        messagingInterface = null;
+        messages = null;
+        mFirebasestore = null;
+        mRootRef = null;
+        targetUserId = null;
+        targetUserData = null;
+        mCurrentUserRoomReference = null;
+        mTargetUserRoomReference = null;
+        currentUserId = null;
+        currentUserName = null;
+        currentPhotoUrl = null;
+        mCurrentRoomListener = null;
+        mTargetRoomListener = null;
     }
 
     public boolean isWriting() {
