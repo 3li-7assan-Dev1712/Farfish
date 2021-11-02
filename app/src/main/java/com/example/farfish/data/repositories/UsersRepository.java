@@ -40,11 +40,13 @@ public class UsersRepository {
     // phone numbers
     private List<String> listServerPhoneNumber = new ArrayList<>();
     private Context mContext;
+    private String currentUserId;
 
     @Inject
     public UsersRepository(@ApplicationContext Context context) {
         workManager = WorkManager.getInstance(context);
         mContext = context;
+        currentUserId = MessagesPreference.getUserId(context);
     }
 
     public void setObservers(UsersRepository.InvokeObservers observers) {
@@ -64,6 +66,7 @@ public class UsersRepository {
 
         FirebaseFirestore.getInstance().collection("rooms").get()
                 .addOnSuccessListener(this::fetchPrimaryData).addOnCompleteListener(listener -> {
+            Log.d(TAG, "refreshData: onCompletion called");
                     invokeObservers.invokeObservers();
                     if (contactsIsCached)
                         readContactsWorkerEnd();
@@ -95,7 +98,6 @@ public class UsersRepository {
         allUsersList.clear();
         for (DocumentSnapshot ds : queryDocumentSnapshots.getDocuments()) {
             User user = ds.toObject(User.class);
-            String currentUserId = FirebaseAuth.getInstance().getUid();
             assert user != null;
             String phoneNumber = user.getPhoneNumber();
             if (phoneNumber != null) {
@@ -109,6 +111,7 @@ public class UsersRepository {
             if (!currentUserId.equals(user.getUserId()))
                 contactUsers.add(user);
         }
+        Log.d(TAG, "fetchPrimaryData: done");
     }
 
     public void prepareUserUserKnowList(List<String> commonContacts) {
@@ -123,6 +126,7 @@ public class UsersRepository {
                 }
             }
         }
+        contactUsers.clear();
         Log.d(TAG, "prepareUserUserKnowList: userUserKnowList size is: " + usersUserKnowList.size());
 
         invokeObservers.prepareDataFinished();

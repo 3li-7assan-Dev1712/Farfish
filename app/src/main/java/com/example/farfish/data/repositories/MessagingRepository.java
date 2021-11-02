@@ -137,7 +137,7 @@ public class MessagingRepository {
 
     private void populateTargetUserInfo(User user) {
         Log.d(TAG, "populateTargetUserInfo: populate successfully");
-        Log.d(TAG, "from populate: the targer user photo url : " + user.getPhotoUrl());
+        Log.d(TAG, "from populate: the target user photo url : " + user.getPhotoUrl());
         targetUserData.putString("target_user_id", user.getUserId());
         Log.d(TAG, "populateTargetUserInfo: target userId: " + targetUserData.getString("target_user_id"));
         targetUserData.putString("target_user_email", user.getEmail());
@@ -182,6 +182,7 @@ public class MessagingRepository {
 
     private void cleanUp() {
         messagingInterface = null;
+        messages.clear();
         messages = null;
         mFirebasestore = null;
         mRootRef = null;
@@ -204,20 +205,18 @@ public class MessagingRepository {
      * and for adding new messages as the user sends. */
     private void addNewMessage(DataSnapshot value) {
         Log.d(TAG, "addNewMessage: ");
+        String key = value.getKey();
+        if (key == null) return;
+        if (key.equals("isWriting")) return;
 
-        if (value.getKey().equals("isWriting"))
-            Log.d(TAG, "addNewMessage: the key is isWriting, you should return.");
-        try {
-            Message newMessage = value.getValue(Message.class);
-            assert newMessage != null;
-            messages.add(newMessage);
-            postMessagesInterface.postMessages(messages);
-            if (!newMessage.getIsRead() && !newMessage.getSenderId().equals(currentUserId))
-                markMessageAsRead(value, newMessage);
+        Message newMessage = value.getValue(Message.class);
+        assert newMessage != null;
+        messages.add(newMessage);
+        postMessagesInterface.postMessages(messages);
+        if (!newMessage.getIsRead() && !newMessage.getSenderId().equals(currentUserId))
+            markMessageAsRead(value, newMessage);
 
-        } catch (Exception e) {
-            Log.d(TAG, "addNewMessage: exception " + e.getMessage());
-        }
+
     }
 
     private void refreshData() {
