@@ -32,6 +32,7 @@ import androidx.navigation.Navigation;
 import com.example.farfish.Adapters.ContactsListAdapter;
 import com.example.farfish.Module.Connection;
 import com.example.farfish.Module.FilterPreferenceUtils;
+import com.example.farfish.Module.MessagesPreference;
 import com.example.farfish.Module.SharedPreferenceUtils;
 import com.example.farfish.Module.User;
 import com.example.farfish.Module.workers.ReadContactsWorker;
@@ -45,6 +46,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.List;
+import java.util.Set;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -71,13 +73,12 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
 
                     mModel.getAllUsers().observe(getViewLifecycleOwner(), users ->
                             mUserListAdapter.customSubmitUserList(users));
-                    mBinding.loadUsersProgressBar.setVisibility(View.GONE);
                     /*setProgresBarVisibility();*/
                 } else {
                     Toast.makeText(requireContext(),
                             getString(R.string.access_contacts_permission_msg), Toast.LENGTH_LONG).show();
-                    mBinding.loadUsersProgressBar.setVisibility(View.GONE);
                 }
+                mBinding.loadUsersProgressBar.setVisibility(View.GONE);
             });
 
     @Override
@@ -250,11 +251,18 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
 
     @Override
     public void invokeObservers() {
+        if (mModel.getUsersRepository().deviceContactsObserver == null) return;
         getViewLifecycleOwnerLiveData().observe(this, lifecycleOwner -> {
             mModel.getUsersRepository().deviceContactsObserver.observe(lifecycleOwner, workInfo -> {
                 if (workInfo != null && workInfo.getState().isFinished()) {
-                    List<String> deviceContacts = ReadContactsWorker.contactsList;
-                    mModel.getUsersRepository().readContactsWorkerEnd(deviceContacts);
+                    /*List<String> deviceContacts = ReadContactsWorker.contactsList;*/
+                    Set<String> deviceContacts = ReadContactsWorker.contactsSet;
+                    ReadContactsWorker.freeUpMemory();
+                    MessagesPreference.saveDeviceContacts(requireContext(), deviceContacts);
+                    Log.d(TAG, "invokeObservers: cached the phone number in the SharedPreferences and there are : " + deviceContacts.size() + " numbers in this device" );
+                    // free up the deviceContacts list as well
+                    deviceContacts.clear();
+                    mModel.getUsersRepository().readContactsWorkerEnd();
                 }
             });
         });

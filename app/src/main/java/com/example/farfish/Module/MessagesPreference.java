@@ -72,15 +72,28 @@ public class MessagesPreference {
         return sp.getString("user_id", "id");
     }
 
-    public static void saveUserContacts(Context context, Set<String> contacts){
+    public static void saveCommonContacts(Context context, Set<String> contacts){
         SharedPreferences sp = context.getSharedPreferences("messages", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sp.edit();
         editor.putStringSet("contacts", contacts);
         editor.apply();
     }
 
+    public static void saveDeviceContacts(Context context, Set<String> deviceContacts){
+        SharedPreferences sp = context.getSharedPreferences("messages", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putStringSet("device_contacts", deviceContacts);
+        editor.apply();
+    }
+
+
     public static Set<String> getUserContacts(Context context){
         SharedPreferences sp = context.getSharedPreferences("messages", Context.MODE_PRIVATE);
         return sp.getStringSet("contacts", null);
+    }
+
+    public static Set<String> getDeviceContacts(Context context) {
+        SharedPreferences sp = context.getSharedPreferences("messages", Context.MODE_PRIVATE);
+        return sp.getStringSet("device_contacts", null);
     }
 }

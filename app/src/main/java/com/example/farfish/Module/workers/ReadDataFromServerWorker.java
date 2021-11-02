@@ -16,12 +16,13 @@ import java.util.Set;
 
 public class ReadDataFromServerWorker extends Worker {
     private static final String TAG = ReadDataFromServerWorker.class.getSimpleName();
-    private static List<String> deviceContacts, serverContacts, commonPhoneNumbers;
+    private static List<String> serverContacts, commonPhoneNumbers;
+    private static Set<String> deviceContacts;
     public ReadDataFromServerWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
     }
 
-    public static void setLists(List<String> _deviceContacts, List<String> _serverContacts){
+    public static void setLists(Set<String> _deviceContacts, List<String> _serverContacts){
          deviceContacts= _deviceContacts;
          serverContacts = _serverContacts;
     }
@@ -33,8 +34,6 @@ public class ReadDataFromServerWorker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
-        String [] serverData = getInputData().getStringArray("server_contacts");
-        String [] deviceData = getInputData().getStringArray("device_contacts");
 
         assert deviceContacts != null;
         assert serverContacts != null;

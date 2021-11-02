@@ -11,6 +11,7 @@ import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
 
+import com.example.farfish.Module.MessagesPreference;
 import com.example.farfish.Module.User;
 import com.example.farfish.Module.workers.ReadContactsWorker;
 import com.example.farfish.Module.workers.ReadDataFromServerWorker;
@@ -38,10 +39,12 @@ public class UsersRepository {
     private List<User> contactUsers = new ArrayList<>();
     // phone numbers
     private List<String> listServerPhoneNumber = new ArrayList<>();
+    private Context mContext;
 
     @Inject
     public UsersRepository(@ApplicationContext Context context) {
         workManager = WorkManager.getInstance(context);
+        mContext = context;
     }
 
     public void setObservers(UsersRepository.InvokeObservers observers) {
@@ -53,30 +56,36 @@ public class UsersRepository {
         refreshData();
     }
 
+
     private void refreshData() {
+        boolean contactsIsCached = MessagesPreference.getDeviceContacts(mContext) != null;
+        if (!contactsIsCached)
+            readTheContactsInTheDevice();
 
-        fetchDataInUsersUserKnowList();
         FirebaseFirestore.getInstance().collection("rooms").get()
-                .addOnSuccessListener(this::fetchPrimaryData).addOnCompleteListener(listener -> invokeObservers.invokeObservers());
-
+                .addOnSuccessListener(this::fetchPrimaryData).addOnCompleteListener(listener -> {
+                    invokeObservers.invokeObservers();
+                    if (contactsIsCached)
+                        readContactsWorkerEnd();
+                }
+        );
 
     }
 
-    public void readContactsWorkerEnd(List<String> deviceContacts) {
+    public void readContactsWorkerEnd() {
         Log.d(TAG, "readContactsWorkerEnd: ");
-        if (deviceContacts != null) {
+
             /*Data input = new Data.Builder()
                     .putStringArray("device_contacts", deviceContacts)
                     .putStringArray("server_contacts", arrayServerPhoneNumbers)
                     .build();*/
-            ReadDataFromServerWorker.setLists(deviceContacts, listServerPhoneNumber);
-            WorkRequest commonContactsWorker = new OneTimeWorkRequest.Builder(ReadDataFromServerWorker.class)
-                    .build();
-            workManager.enqueue(commonContactsWorker);
-            commonContactsObserver = workManager.getWorkInfoByIdLiveData(commonContactsWorker.getId());
-            Log.d(TAG, "readContactsWorkerEnd: enqueue the work successfully");
-            invokeObservers.observeCommonContacts();
-        } else Log.d(TAG, "readContactsWorkerEnd: deviceContacts is null");
+        ReadDataFromServerWorker.setLists(MessagesPreference.getDeviceContacts(mContext), listServerPhoneNumber);
+        WorkRequest commonContactsWorker = new OneTimeWorkRequest.Builder(ReadDataFromServerWorker.class)
+                .build();
+        workManager.enqueue(commonContactsWorker);
+        commonContactsObserver = workManager.getWorkInfoByIdLiveData(commonContactsWorker.getId());
+        Log.d(TAG, "readContactsWorkerEnd: enqueue the work successfully");
+        invokeObservers.observeCommonContacts();
 
     }
 
@@ -119,7 +128,7 @@ public class UsersRepository {
         invokeObservers.prepareDataFinished();
     }
 
-    private void fetchDataInUsersUserKnowList() {
+    private void readTheContactsInTheDevice() {
 
         // for WorkManager functionality
         OneTimeWorkRequest contactsWork = new OneTimeWorkRequest.Builder(ReadContactsWorker.class)

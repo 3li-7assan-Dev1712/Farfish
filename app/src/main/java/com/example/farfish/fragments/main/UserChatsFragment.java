@@ -40,6 +40,8 @@ import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
@@ -80,7 +82,7 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NotNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.VISIBLE);

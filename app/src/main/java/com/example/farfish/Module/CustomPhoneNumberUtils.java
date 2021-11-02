@@ -11,9 +11,9 @@ import java.util.Set;
 
 public class CustomPhoneNumberUtils {
     private static Set<String> mContactsPhoneNumbers = new HashSet<>();
-    private  String val;
+    private String val;
 
-    public CustomPhoneNumberUtils (String val){
+    public CustomPhoneNumberUtils(String val) {
         this.val = val;
     }
 
@@ -26,6 +26,25 @@ public class CustomPhoneNumberUtils {
         return this.getVal().hashCode();
     }
 
+    public static Set<CustomPhoneNumberUtils> getCommonPhoneNumbers(Set<String> phoneNumberFromContactContactProvider,
+                                                                    List<String> phoneNumbersFromServer,
+                                                                    Context context) {
+        Set<CustomPhoneNumberUtils> common = new HashSet<>();
+        Set<CustomPhoneNumberUtils> phoneNumbers = new HashSet<>();
+        for (String s : phoneNumbersFromServer) {
+            phoneNumbers.add(new CustomPhoneNumberUtils(s));
+        }
+        for (String s : phoneNumberFromContactContactProvider) {
+            CustomPhoneNumberUtils customPhoneNumberUtils = new CustomPhoneNumberUtils(s);
+            if (phoneNumbers.contains(customPhoneNumberUtils)) {
+                common.add(customPhoneNumberUtils);
+                mContactsPhoneNumbers.add(s);
+            }
+        }
+        MessagesPreference.saveCommonContacts(context, mContactsPhoneNumbers);
+        return common;
+    }
+
     @Override
     public boolean equals(@Nullable Object obj) {
         if (this == obj)
@@ -35,26 +54,7 @@ public class CustomPhoneNumberUtils {
         if (this.getClass() != obj.getClass())
             return false;
 
-        CustomPhoneNumberUtils number =  (CustomPhoneNumberUtils) obj;
+        CustomPhoneNumberUtils number = (CustomPhoneNumberUtils) obj;
         return PhoneNumberUtils.compare(this.getVal(), number.getVal());
-    }
-
-    public static Set<CustomPhoneNumberUtils> getCommonPhoneNumbers (List<String> phoneNumbersFromServer,
-                                                               List<String> phoneNumberFromContactContactProvider,
-                                                                     Context context) {
-        Set<CustomPhoneNumberUtils> common = new HashSet<>();
-        Set<CustomPhoneNumberUtils> phoneNumbers = new HashSet<>();
-        for (String s: phoneNumbersFromServer){
-            phoneNumbers.add(new CustomPhoneNumberUtils(s));
-        }
-        for (String s: phoneNumberFromContactContactProvider){
-            CustomPhoneNumberUtils customPhoneNumberUtils = new CustomPhoneNumberUtils(s);
-            if (phoneNumbers.contains(customPhoneNumberUtils)){
-                common.add(customPhoneNumberUtils);
-                mContactsPhoneNumbers.add(s);
-            }
-        }
-        MessagesPreference.saveUserContacts(context, mContactsPhoneNumbers);
-        return common;
     }
 }
