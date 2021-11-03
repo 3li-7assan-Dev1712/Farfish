@@ -78,8 +78,6 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
     private ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
-                    // Permission is granted. Continue the action or workflow in your
-                    // app.
                     pickImageFromGallery();
                 } else {
                     Toast.makeText(requireContext(), requireContext().getString(R.string.grant_access_media_permission), Toast.LENGTH_SHORT).show();
@@ -395,6 +393,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
             mToolbarBinding.chatTitle.setText(targetUserInfo.getString("target_user_name"));
             Picasso.get().load(targetUserInfo.getString("target_user_photo_url")).placeholder(R.drawable.place_holder).into(mToolbarBinding.chatConversationProfile);
             updateChatInfo();
+            targetUserInfo.clear();
         }
     }
 
@@ -405,7 +404,6 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
             mModel.getMessagingRepository().compressAndSendImage(uri);
         } else {
             Toast.makeText(requireContext(), requireContext().getString(R.string.cancel_sending_img), Toast.LENGTH_SHORT).show();
-            mBinding.progressBar.setVisibility(View.GONE);
             mBinding.progressBar.setVisibility(View.GONE);
         }
 
@@ -429,6 +427,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
             mModel.getMessagingRepository().removeListeners();
             mBinding = null;
             mToolbarBinding = null;
+            targetUserData.clear();
         } else Log.d(TAG, "onDestroyView: should not remove listeners");
 
     }
@@ -496,7 +495,6 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
                     .build();
 
             USER_EXPECT_TO_RETURN = true;
-            NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
             navController.navigate(actionToFullImageFragment, extras);
         }
     }

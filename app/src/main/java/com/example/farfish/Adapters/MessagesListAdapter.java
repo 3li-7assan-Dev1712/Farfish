@@ -313,19 +313,11 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
     public static final DiffUtil.ItemCallback<Message> Diff = new DiffUtil.ItemCallback<Message>() {
         @Override
         public boolean areItemsTheSame(@NonNull Message oldItem, @NonNull Message newItem) {
-            if (oldItem.getTimestamp() == newItem.getTimestamp())
-                Log.d(TAG, "areItemsTheSame: same");
-            else
-                Log.d(TAG, "areItemsTheSame: noooooooo");
             return oldItem.getTimestamp() == newItem.getTimestamp();
         }
 
         @Override
         public boolean areContentsTheSame(@NonNull Message oldItem, @NonNull Message newItem) {
-            if (oldItem.equals(newItem))
-                Log.d(TAG, "areContentsTheSame: the content is the same");
-            else
-                Log.d(TAG, "areContentsTheSame: not the same");
             return oldItem.equals(newItem);
         }
     };
