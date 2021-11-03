@@ -1,4 +1,4 @@
-package com.example.farfish.Module;
+package com.example.farfish.Module.preferences;
 
 import android.content.Context;
 import android.content.SharedPreferences;

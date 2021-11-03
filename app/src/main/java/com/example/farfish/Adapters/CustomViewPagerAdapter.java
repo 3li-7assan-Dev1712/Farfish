@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
-import com.example.farfish.Module.CustomStory;
+import com.example.farfish.CustomViews.CustomStory;
 import com.example.farfish.R;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;

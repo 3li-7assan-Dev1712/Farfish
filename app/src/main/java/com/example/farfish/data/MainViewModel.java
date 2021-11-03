@@ -6,9 +6,9 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.example.farfish.Module.Message;
-import com.example.farfish.Module.Status;
-import com.example.farfish.Module.User;
+import com.example.farfish.Module.dataclasses.Message;
+import com.example.farfish.Module.dataclasses.Status;
+import com.example.farfish.Module.dataclasses.User;
 import com.example.farfish.data.repositories.ChatsRepository;
 import com.example.farfish.data.repositories.MessagingRepository;
 import com.example.farfish.data.repositories.StatusRepository;

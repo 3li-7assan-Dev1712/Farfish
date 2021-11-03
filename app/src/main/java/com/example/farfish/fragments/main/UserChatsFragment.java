@@ -28,8 +28,8 @@ import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
 import com.example.farfish.Adapters.MessagesListAdapter;
-import com.example.farfish.Module.Connection;
-import com.example.farfish.Module.SharedPreferenceUtils;
+import com.example.farfish.Module.util.Connection;
+import com.example.farfish.Module.preferences.SharedPreferenceUtils;
 import com.example.farfish.Module.workers.CleanUpOldDataPeriodicWork;
 import com.example.farfish.R;
 import com.example.farfish.data.MainViewModel;

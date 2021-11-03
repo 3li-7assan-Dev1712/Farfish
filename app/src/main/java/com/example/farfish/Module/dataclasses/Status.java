@@ -1,4 +1,4 @@
-package com.example.farfish.Module;
+package com.example.farfish.Module.dataclasses;
 
 import android.os.Parcel;
 import android.os.Parcelable;

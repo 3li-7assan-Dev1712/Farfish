@@ -23,8 +23,8 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
-import com.example.farfish.Module.FileUtil;
-import com.example.farfish.Module.MessagesPreference;
+import com.example.farfish.Module.util.FileUtil;
+import com.example.farfish.Module.preferences.MessagesPreference;
 import com.example.farfish.R;
 import com.example.farfish.databinding.EditProfileFragmentBinding;
 import com.example.farfish.fragments.dialogs.InternetConnectionDialog;

@@ -1,7 +1,6 @@
 package com.example.farfish.data.repositories;
 
 import android.content.Context;
-import android.telephony.PhoneNumberUtils;
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
@@ -11,9 +10,9 @@ import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
 
-import com.example.farfish.Module.CustomPhoneNumberUtils;
-import com.example.farfish.Module.MessagesPreference;
-import com.example.farfish.Module.User;
+import com.example.farfish.Module.util.CustomPhoneNumberUtils;
+import com.example.farfish.Module.preferences.MessagesPreference;
+import com.example.farfish.Module.dataclasses.User;
 import com.example.farfish.Module.workers.ReadContactsWorker;
 import com.example.farfish.Module.workers.ReadDataFromServerWorker;
 import com.google.firebase.firestore.DocumentSnapshot;

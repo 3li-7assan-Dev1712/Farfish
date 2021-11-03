@@ -1,4 +1,4 @@
-package com.example.farfish.Module;
+package com.example.farfish.Module.dataclasses;
 
 import android.telephony.PhoneNumberUtils;
 import android.util.Log;

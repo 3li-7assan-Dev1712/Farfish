@@ -12,8 +12,8 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.farfish.Module.Status;
-import com.example.farfish.Module.User;
+import com.example.farfish.Module.dataclasses.Status;
+import com.example.farfish.Module.dataclasses.User;
 import com.example.farfish.R;
 import com.example.farfish.databinding.ContactViewHolderBinding;
 import com.squareup.picasso.Callback;

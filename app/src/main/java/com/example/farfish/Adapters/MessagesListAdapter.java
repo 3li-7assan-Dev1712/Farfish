@@ -14,8 +14,8 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.farfish.Module.Message;
-import com.example.farfish.Module.MessagesPreference;
+import com.example.farfish.Module.dataclasses.Message;
+import com.example.farfish.Module.preferences.MessagesPreference;
 import com.example.farfish.R;
 import com.example.farfish.databinding.ContactViewHolderBinding;
 import com.example.farfish.databinding.LocalMessageViewHolderBinding;

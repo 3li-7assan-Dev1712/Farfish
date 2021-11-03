@@ -1,4 +1,4 @@
-package com.example.farfish.Module;
+package com.example.farfish.Module.util;
 
 import android.content.SharedPreferences;
 import android.util.Log;
@@ -11,6 +11,8 @@ import androidx.lifecycle.ProcessLifecycleOwner;
 
 import com.aghajari.emojiview.AXEmojiManager;
 import com.aghajari.emojiview.iosprovider.AXIOSEmojiProvider;
+import com.example.farfish.Module.preferences.MessagesPreference;
+import com.example.farfish.Module.preferences.SharedPreferenceUtils;
 import com.example.farfish.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;

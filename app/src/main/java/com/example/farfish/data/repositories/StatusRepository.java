@@ -8,9 +8,9 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.example.farfish.Module.FileUtil;
-import com.example.farfish.Module.MessagesPreference;
-import com.example.farfish.Module.Status;
+import com.example.farfish.Module.util.FileUtil;
+import com.example.farfish.Module.preferences.MessagesPreference;
+import com.example.farfish.Module.dataclasses.Status;
 import com.example.farfish.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;

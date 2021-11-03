@@ -9,11 +9,11 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.example.farfish.Module.Connection;
-import com.example.farfish.Module.FileUtil;
-import com.example.farfish.Module.Message;
-import com.example.farfish.Module.MessagesPreference;
-import com.example.farfish.Module.User;
+import com.example.farfish.Module.util.Connection;
+import com.example.farfish.Module.util.FileUtil;
+import com.example.farfish.Module.dataclasses.Message;
+import com.example.farfish.Module.preferences.MessagesPreference;
+import com.example.farfish.Module.dataclasses.User;
 import com.example.farfish.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;

@@ -1,10 +1,12 @@
-package com.example.farfish.Module;
+package com.example.farfish.Module.util;
 
 import android.content.Context;
 import android.telephony.PhoneNumberUtils;
-import android.util.Log;
 
 import androidx.annotation.Nullable;
+
+import com.example.farfish.Module.preferences.MessagesPreference;
+import com.example.farfish.Module.dataclasses.User;
 
 import java.util.ArrayList;
 import java.util.HashSet;

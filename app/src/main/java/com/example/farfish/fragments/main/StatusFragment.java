@@ -26,9 +26,9 @@ import androidx.navigation.Navigation;
 
 import com.example.farfish.Adapters.ContactsListAdapter;
 import com.example.farfish.CustomViews.CustomStatusView;
-import com.example.farfish.Module.Connection;
-import com.example.farfish.Module.CustomStory;
-import com.example.farfish.Module.Status;
+import com.example.farfish.Module.util.Connection;
+import com.example.farfish.CustomViews.CustomStory;
+import com.example.farfish.Module.dataclasses.Status;
 import com.example.farfish.R;
 import com.example.farfish.data.MainViewModel;
 import com.example.farfish.data.repositories.StatusRepository;

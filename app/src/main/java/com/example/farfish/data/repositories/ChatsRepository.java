@@ -5,9 +5,9 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.example.farfish.Module.Message;
-import com.example.farfish.Module.MessagesPreference;
-import com.example.farfish.Module.NotificationUtils;
+import com.example.farfish.Module.dataclasses.Message;
+import com.example.farfish.Module.preferences.MessagesPreference;
+import com.example.farfish.Module.util.NotificationUtils;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;

@@ -13,8 +13,8 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
-import com.example.farfish.Module.MessagesPreference;
-import com.example.farfish.Module.SharedPreferenceUtils;
+import com.example.farfish.Module.preferences.MessagesPreference;
+import com.example.farfish.Module.preferences.SharedPreferenceUtils;
 import com.example.farfish.R;
 import com.example.farfish.databinding.UserProfileFragmentBinding;
 import com.google.firebase.auth.FirebaseAuth;

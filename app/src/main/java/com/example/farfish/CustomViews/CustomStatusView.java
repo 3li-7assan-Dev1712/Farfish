@@ -1,6 +1,5 @@
 package com.example.farfish.CustomViews;
 
-import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -15,7 +14,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.DialogFragment;
@@ -24,7 +22,6 @@ import androidx.fragment.app.FragmentManager;
 import androidx.viewpager.widget.ViewPager;
 
 import com.example.farfish.Adapters.CustomViewPagerAdapter;
-import com.example.farfish.Module.CustomStory;
 import com.example.farfish.R;
 import com.squareup.picasso.Picasso;
 

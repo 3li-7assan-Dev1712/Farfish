@@ -22,10 +22,10 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
-import com.example.farfish.Module.Connection;
-import com.example.farfish.Module.MessagesPreference;
-import com.example.farfish.Module.SharedPreferenceUtils;
-import com.example.farfish.Module.User;
+import com.example.farfish.Module.util.Connection;
+import com.example.farfish.Module.preferences.MessagesPreference;
+import com.example.farfish.Module.preferences.SharedPreferenceUtils;
+import com.example.farfish.Module.dataclasses.User;
 import com.example.farfish.R;
 import com.example.farfish.databinding.FragmentSignInBinding;
 import com.example.farfish.fragments.dialogs.InternetConnectionDialog;

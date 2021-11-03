@@ -1,4 +1,4 @@
-package com.example.farfish.Module;
+package com.example.farfish.Module.util;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -13,6 +13,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.farfish.Activities.MainActivity;
+import com.example.farfish.Module.dataclasses.Message;
 import com.example.farfish.R;
 
 import java.util.ArrayList;

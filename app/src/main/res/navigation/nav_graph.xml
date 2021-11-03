@@ -94,7 +94,7 @@
         tools:layout="@layout/full_image_fragment" >
         <argument
             android:name="image_info"
-            app:argType="com.example.farfish.Module.FullImageData" />
+            app:argType="com.example.farfish.Module.dataclasses.FullImageData" />
     </fragment>
     <fragment
         android:id="@+id/statusFragment"

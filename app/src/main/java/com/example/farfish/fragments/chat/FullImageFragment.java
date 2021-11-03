@@ -16,7 +16,7 @@ import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
-import com.example.farfish.Module.FullImageData;
+import com.example.farfish.Module.dataclasses.FullImageData;
 import com.example.farfish.R;
 import com.example.farfish.databinding.FullImageFragmentBinding;
 

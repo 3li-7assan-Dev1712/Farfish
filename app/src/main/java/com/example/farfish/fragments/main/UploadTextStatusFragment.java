@@ -18,8 +18,8 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 
 import com.aghajari.emojiview.view.AXEmojiView;
-import com.example.farfish.Module.MessagesPreference;
-import com.example.farfish.Module.Status;
+import com.example.farfish.Module.preferences.MessagesPreference;
+import com.example.farfish.Module.dataclasses.Status;
 import com.example.farfish.R;
 import com.example.farfish.data.MainViewModel;
 import com.example.farfish.databinding.UploadTextStatusFragmentBinding;
