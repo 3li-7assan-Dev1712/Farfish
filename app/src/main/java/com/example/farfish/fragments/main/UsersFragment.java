@@ -275,11 +275,12 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
         Log.d(TAG, "observeCommonContacts: ");
         mModel.getUsersRepository().commonContactsObserver.observe(getViewLifecycleOwner(), commonWorkInfo -> {
             if (commonWorkInfo != null && commonWorkInfo.getState().isFinished()) {
-                List<String> commonContacts = ReadDataFromServerWorker.getCommonPhoneNumbers();
-                if (commonContacts != null)
-                    mModel.getUsersRepository().prepareUserUserKnowList(commonContacts);
+                /*List<String> commonContacts = ReadDataFromServerWorker.getCommonPhoneNumbers();*/
+                mModel.getUsersRepository().prepareUserUserKnowList();
+               /* if (commonContacts != null)
+
                 else
-                    Log.d(TAG, "observeCommonContacts: common contacts is null");
+                    Log.d(TAG, "observeCommonContacts: common contacts is null");*/
             }
         });
     }

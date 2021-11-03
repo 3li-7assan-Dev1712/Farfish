@@ -3,33 +3,32 @@ package com.example.farfish.Module.workers;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
-import androidx.work.Data;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
 import com.example.farfish.Module.CustomPhoneNumberUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
 public class ReadDataFromServerWorker extends Worker {
-    private static final String TAG = ReadDataFromServerWorker.class.getSimpleName();
-    private static List<String> serverContacts, commonPhoneNumbers;
+/*    private static List<String>  commonPhoneNumbers;
+    private static Set<String>  setCommonPhoneNumbers;*/
     private static Set<String> deviceContacts;
+    private static Set<CustomPhoneNumberUtils> serverContacts;
+    private final String TAG = ReadDataFromServerWorker.class.getSimpleName();
     public ReadDataFromServerWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
     }
 
-    public static void setLists(Set<String> _deviceContacts, List<String> _serverContacts){
+    public static void setLists(Set<String> _deviceContacts, Set<CustomPhoneNumberUtils> _serverContacts){
          deviceContacts= _deviceContacts;
          serverContacts = _serverContacts;
     }
 
-    public static List<String> getCommonPhoneNumbers() {
+    /*public static List<String> getCommonPhoneNumbers() {
         return commonPhoneNumbers;
-    }
+    }*/
 
     @NonNull
     @Override
@@ -37,13 +36,13 @@ public class ReadDataFromServerWorker extends Worker {
 
         assert deviceContacts != null;
         assert serverContacts != null;
-        Set<CustomPhoneNumberUtils> data =
-                CustomPhoneNumberUtils.getCommonPhoneNumbers(deviceContacts, serverContacts, getApplicationContext());
+        CustomPhoneNumberUtils.storeCommonPhoneNumber(deviceContacts, serverContacts, getApplicationContext());
+        /*
         commonPhoneNumbers = new ArrayList<>(data.size());
         for (CustomPhoneNumberUtils datum : data) {
             String commonPhoneNumber = datum.getVal();
             commonPhoneNumbers.add(commonPhoneNumber);
-        }
+        }*/
         return Result.success();
     }
 }

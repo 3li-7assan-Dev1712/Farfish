@@ -11,17 +11,19 @@ import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
 
+import com.example.farfish.Module.CustomPhoneNumberUtils;
 import com.example.farfish.Module.MessagesPreference;
 import com.example.farfish.Module.User;
 import com.example.farfish.Module.workers.ReadContactsWorker;
 import com.example.farfish.Module.workers.ReadDataFromServerWorker;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -36,9 +38,10 @@ public class UsersRepository {
     private WorkManager workManager;
     private List<User> allUsersList = new ArrayList<>();
     private List<User> usersUserKnowList = new ArrayList<>();
-    private List<User> contactUsers = new ArrayList<>();
+    /*private List<User> contactUsers = new ArrayList<>();*/
     // phone numbers
     private List<String> listServerPhoneNumber = new ArrayList<>();
+    private Set<CustomPhoneNumberUtils> setServerPhoneNumber = new HashSet<>();
     private Context mContext;
     private String currentUserId;
 
@@ -82,7 +85,7 @@ public class UsersRepository {
                     .putStringArray("device_contacts", deviceContacts)
                     .putStringArray("server_contacts", arrayServerPhoneNumbers)
                     .build();*/
-        ReadDataFromServerWorker.setLists(MessagesPreference.getDeviceContacts(mContext), listServerPhoneNumber);
+        ReadDataFromServerWorker.setLists(MessagesPreference.getDeviceContacts(mContext), setServerPhoneNumber);
         WorkRequest commonContactsWorker = new OneTimeWorkRequest.Builder(ReadDataFromServerWorker.class)
                 .build();
         workManager.enqueue(commonContactsWorker);
@@ -94,30 +97,31 @@ public class UsersRepository {
 
     private void fetchPrimaryData(QuerySnapshot queryDocumentSnapshots) {
         Log.d(TAG, "fetchPrimaryData: ");
-        contactUsers.clear();
+       /* contactUsers.clear();*/
         allUsersList.clear();
         for (DocumentSnapshot ds : queryDocumentSnapshots.getDocuments()) {
             User user = ds.toObject(User.class);
             assert user != null;
             String phoneNumber = user.getPhoneNumber();
-            if (phoneNumber != null) {
+            setServerPhoneNumber.add(new CustomPhoneNumberUtils(phoneNumber));
+            /*if (phoneNumber != null) {
                 if (!phoneNumber.equals("")) {
-                    listServerPhoneNumber.add(phoneNumber);
+                   *//* listServerPhoneNumber.add(phoneNumber);*//*
+
                 }
-            }
+            }*/
             assert currentUserId != null;
             if (!currentUserId.equals(user.getUserId()) && user.getIsPublic())
                 allUsersList.add(user);
             if (!currentUserId.equals(user.getUserId()))
-                contactUsers.add(user);
+                CustomPhoneNumberUtils.allUsers.add(user);
         }
         Log.d(TAG, "fetchPrimaryData: done");
     }
 
-    public void prepareUserUserKnowList(List<String> commonContacts) {
-        assert commonContacts != null;
+    public void prepareUserUserKnowList() {
         usersUserKnowList.clear();
-        for (String commonPhoneNumber : commonContacts) {
+        /*for (String commonPhoneNumber : MessagesPreference.getUserContacts(mContext)) {
             for (User userUserKnow : contactUsers) {
                 String localUserPhoneNumber = userUserKnow.getPhoneNumber();
                 if (PhoneNumberUtils.compare(commonPhoneNumber, localUserPhoneNumber)) {
@@ -125,8 +129,10 @@ public class UsersRepository {
                     usersUserKnowList.add(userUserKnow);
                 }
             }
-        }
-        contactUsers.clear();
+        }*/
+        /*contactUsers.clear();*/
+        usersUserKnowList = CustomPhoneNumberUtils.getUsersUserKnow();
+        CustomPhoneNumberUtils.allUsers.clear();
         Log.d(TAG, "prepareUserUserKnowList: userUserKnowList size is: " + usersUserKnowList.size());
 
         invokeObservers.prepareDataFinished();

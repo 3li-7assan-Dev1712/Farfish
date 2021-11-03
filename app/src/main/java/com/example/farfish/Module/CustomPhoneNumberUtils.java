@@ -2,9 +2,11 @@ package com.example.farfish.Module;
 
 import android.content.Context;
 import android.telephony.PhoneNumberUtils;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -13,6 +15,8 @@ public class CustomPhoneNumberUtils {
     private static Set<String> mContactsPhoneNumbers = new HashSet<>();
     private String val;
 
+    public static List<User> allUsers = new ArrayList<>();
+    private static List<User> usersUserKnow = new ArrayList<>();
     public CustomPhoneNumberUtils(String val) {
         this.val = val;
     }
@@ -26,23 +30,29 @@ public class CustomPhoneNumberUtils {
         return this.getVal().hashCode();
     }
 
-    public static Set<CustomPhoneNumberUtils> getCommonPhoneNumbers(Set<String> phoneNumberFromContactContactProvider,
-                                                                    List<String> phoneNumbersFromServer,
-                                                                    Context context) {
-        Set<CustomPhoneNumberUtils> common = new HashSet<>();
-        Set<CustomPhoneNumberUtils> phoneNumbers = new HashSet<>();
+    public static void storeCommonPhoneNumber(Set<String> phoneNumberFromContactContactProvider,
+                                              Set<CustomPhoneNumberUtils> phoneNumbersFromServer,
+                                              Context context) {
+        /*    Set<CustomPhoneNumberUtils> common = new HashSet<>();*/
+/*        Set<CustomPhoneNumberUtils> phoneNumbers = new HashSet<>();
         for (String s : phoneNumbersFromServer) {
             phoneNumbers.add(new CustomPhoneNumberUtils(s));
-        }
+        }*/
+
         for (String s : phoneNumberFromContactContactProvider) {
-            CustomPhoneNumberUtils customPhoneNumberUtils = new CustomPhoneNumberUtils(s);
-            if (phoneNumbers.contains(customPhoneNumberUtils)) {
-                common.add(customPhoneNumberUtils);
+            /*    CustomPhoneNumberUtils customPhoneNumberUtils = ;*/
+            if (phoneNumbersFromServer.contains(new CustomPhoneNumberUtils(s))) {
+                /*     common.add(customPhoneNumberUtils);*/
                 mContactsPhoneNumbers.add(s);
+                for (User userUserKnow : allUsers) {
+                    String localUserPhoneNumber = userUserKnow.getPhoneNumber();
+                    if (PhoneNumberUtils.compare(s, localUserPhoneNumber)) {
+                        usersUserKnow.add(userUserKnow);
+                    }
+                }
             }
         }
         MessagesPreference.saveCommonContacts(context, mContactsPhoneNumbers);
-        return common;
     }
 
     @Override
@@ -56,5 +66,8 @@ public class CustomPhoneNumberUtils {
 
         CustomPhoneNumberUtils number = (CustomPhoneNumberUtils) obj;
         return PhoneNumberUtils.compare(this.getVal(), number.getVal());
+    }
+    public static List<User> getUsersUserKnow(){
+        return usersUserKnow;
     }
 }

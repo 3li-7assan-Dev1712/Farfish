@@ -69,8 +69,11 @@ public class StatusRepository implements ValueEventListener {
     }
 
     public void removeListener(){
-        mDatabaseReference.removeEventListener(this);
-        cleanUp();
+
+        if (mDatabaseReference != null) {
+            mDatabaseReference.removeEventListener(this);
+            cleanUp();
+        }
     }
 
     private void cleanUp() {

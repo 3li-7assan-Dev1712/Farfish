@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/wallpaper_1"
+    android:background="@color/colorPrimaryDark"
     android:fitsSystemWindows="true"
     android:paddingBottom="8dp"
     tools:context=".fragments.chat.ChatsFragment">
