@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/local_view_holder_container"
@@ -13,13 +14,12 @@
         android:id="@+id/messageLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="end"
         android:layout_marginTop="8dp"
         android:background="@drawable/current_message_background"
         android:maxWidth="300dp"
         android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:paddingEnd="16dp">
 
         <ImageView
             android:id="@+id/photoImageView"
@@ -82,4 +82,4 @@
             app:layout_constraintEnd_toEndOf="parent"
             android:contentDescription="@string/image_button_description" />
     </androidx.constraintlayout.widget.ConstraintLayout>
-</androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout>

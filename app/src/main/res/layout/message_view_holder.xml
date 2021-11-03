@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<androidx.constraintlayout.widget.ConstraintLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -21,8 +21,7 @@
         android:layout_marginTop="8dp"
         android:paddingEnd="16dp"
         android:paddingStart="16dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:layout_gravity="start">
         <ImageView
             android:id="@+id/photoImageView"
             android:layout_width="match_parent"
@@ -82,6 +81,6 @@
             android:contentDescription="@string/image_button_description" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-</androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout>
 
 
