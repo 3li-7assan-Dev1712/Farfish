@@ -185,7 +185,6 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
             binding.messageTextView.setText(message.getText());
             binding.timeMessage.setText(getReadableDate(message.getTimestamp()));
         }
-
     }
 
     static class LocalImageMessageViewHolder extends RecyclerView.ViewHolder {
@@ -212,6 +211,7 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
 
                 @Override
                 public void onError(Exception e) {
+                    binding.sendImageProgressBar.setVisibility(View.GONE);
                     Log.d(TAG, "onError: " + e.getMessage());
                 }
             });
@@ -246,7 +246,9 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
 
                 @Override
                 public void onError(Exception e) {
+                    binding.receiveImageProgressBar.setVisibility(View.GONE);
                     Log.d(TAG, "onError: " + e.getMessage());
+
                 }
             });
             binding.timeMessage.setText(getReadableDate(message.getTimestamp()));

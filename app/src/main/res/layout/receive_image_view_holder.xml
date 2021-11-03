@@ -7,17 +7,17 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingStart="16dp"
-    tools:background="@android:color/darker_gray"
-    android:paddingEnd="16dp">
+    android:paddingEnd="16dp"
+    tools:background="@android:color/darker_gray">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/messageLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="start"
         android:layout_marginTop="8dp"
         android:background="@drawable/message_background"
-        android:padding="4dp"
-       android:layout_gravity="start">
+        android:padding="4dp">
 
         <ImageView
             android:id="@+id/photoImageView"
@@ -56,48 +56,48 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Message" />
 
-        <FrameLayout
+        <View
+            android:id="@+id/backgroundView"
             android:layout_width="96dp"
             android:layout_height="32dp"
+            android:alpha=".5"
+            android:background="#000"
             app:layout_constraintBottom_toBottomOf="@id/photoImageView"
-            app:layout_constraintEnd_toEndOf="@id/photoImageView"
-            >
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="#000"
-                android:alpha=".5"/>
-            <TextView
-                android:id="@+id/timeMessage"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom|end"
-                android:textStyle="bold"
-                android:fontFamily="sans-serif-light"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@android:color/white"
-                tools:text="4:55PM" />
-        </FrameLayout>
+            app:layout_constraintEnd_toEndOf="@id/photoImageView" />
+
+        <TextView
+            android:id="@+id/timeMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginEnd="4dp"
+            android:fontFamily="sans-serif-light"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@android:color/white"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@id/backgroundView"
+            app:layout_constraintEnd_toEndOf="@id/backgroundView"
+            tools:text="4:55PM" />
 
         <ImageView
             android:id="@+id/isReadIconIndicator"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:contentDescription="@string/image_button_description"
             android:src="@drawable/ic_done_all_black"
-            app:layout_constraintTop_toBottomOf="@id/messageTextView"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:visibility="gone"
-            android:contentDescription="@string/image_button_description" />
+            app:layout_constraintTop_toBottomOf="@id/messageTextView" />
 
         <ProgressBar
             android:id="@+id/receiveImageProgressBar"
             style="?android:attr/progressBarStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>

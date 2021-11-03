@@ -33,11 +33,6 @@ public class CustomPhoneNumberUtils {
     public static void storeCommonPhoneNumber(Set<String> phoneNumberFromContactContactProvider,
                                               Set<CustomPhoneNumberUtils> phoneNumbersFromServer,
                                               Context context) {
-        /*    Set<CustomPhoneNumberUtils> common = new HashSet<>();*/
-/*        Set<CustomPhoneNumberUtils> phoneNumbers = new HashSet<>();
-        for (String s : phoneNumbersFromServer) {
-            phoneNumbers.add(new CustomPhoneNumberUtils(s));
-        }*/
 
         for (String s : phoneNumberFromContactContactProvider) {
             /*    CustomPhoneNumberUtils customPhoneNumberUtils = ;*/
@@ -69,5 +64,12 @@ public class CustomPhoneNumberUtils {
     }
     public static List<User> getUsersUserKnow(){
         return usersUserKnow;
+    }
+
+    // this function is responsible for clearing up the lists after using them to free up some space.
+    public static void clearLists(){
+        allUsers.clear();
+        usersUserKnow.clear();
+        mContactsPhoneNumbers.clear();
     }
 }

@@ -92,6 +92,7 @@ public class MainViewModel extends ViewModel implements MessagingRepository.Post
         if (userMessages == null) {
             userMessages = new MutableLiveData<>();
             messagingRepository.setPostMessagesInterface(this);
+            Log.d(TAG, "getChatMessages: set post interface");
         }
         messagingRepository.loadMessages();
         return userMessages;

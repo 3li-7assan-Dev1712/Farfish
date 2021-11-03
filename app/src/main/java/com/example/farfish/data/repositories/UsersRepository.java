@@ -120,7 +120,6 @@ public class UsersRepository {
     }
 
     public void prepareUserUserKnowList() {
-        usersUserKnowList.clear();
         /*for (String commonPhoneNumber : MessagesPreference.getUserContacts(mContext)) {
             for (User userUserKnow : contactUsers) {
                 String localUserPhoneNumber = userUserKnow.getPhoneNumber();
@@ -130,11 +129,9 @@ public class UsersRepository {
                 }
             }
         }*/
-        /*contactUsers.clear();*/
         usersUserKnowList = CustomPhoneNumberUtils.getUsersUserKnow();
-        CustomPhoneNumberUtils.allUsers.clear();
+        CustomPhoneNumberUtils.clearLists();
         Log.d(TAG, "prepareUserUserKnowList: userUserKnowList size is: " + usersUserKnowList.size());
-
         invokeObservers.prepareDataFinished();
     }
 

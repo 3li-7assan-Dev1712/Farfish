@@ -185,9 +185,9 @@ public class MessagingRepository {
         messages.clear();
         messages = null;
         mFirebasestore = null;
-        mRootRef = null;
         targetUserId = null;
-        targetUserData = null;
+        targetUserData.clear();
+        targetUserData= null;
         mCurrentUserRoomReference = null;
         mTargetUserRoomReference = null;
         currentUserId = null;
@@ -195,6 +195,7 @@ public class MessagingRepository {
         currentPhotoUrl = null;
         mCurrentRoomListener = null;
         mTargetRoomListener = null;
+        lastTimeSeen = 0;
     }
 
     public boolean isWriting() {
@@ -215,8 +216,6 @@ public class MessagingRepository {
         postMessagesInterface.postMessages(messages);
         if (!newMessage.getIsRead() && !newMessage.getSenderId().equals(currentUserId))
             markMessageAsRead(value, newMessage);
-
-
     }
 
     private void refreshData() {

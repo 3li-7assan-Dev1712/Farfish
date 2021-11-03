@@ -36,7 +36,6 @@ import com.example.farfish.Module.MessagesPreference;
 import com.example.farfish.Module.SharedPreferenceUtils;
 import com.example.farfish.Module.User;
 import com.example.farfish.Module.workers.ReadContactsWorker;
-import com.example.farfish.Module.workers.ReadDataFromServerWorker;
 import com.example.farfish.R;
 import com.example.farfish.data.MainViewModel;
 import com.example.farfish.data.repositories.UsersRepository;
@@ -45,7 +44,6 @@ import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 
-import java.util.List;
 import java.util.Set;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -255,11 +253,10 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
         getViewLifecycleOwnerLiveData().observe(this, lifecycleOwner -> {
             mModel.getUsersRepository().deviceContactsObserver.observe(lifecycleOwner, workInfo -> {
                 if (workInfo != null && workInfo.getState().isFinished()) {
-                    /*List<String> deviceContacts = ReadContactsWorker.contactsList;*/
                     Set<String> deviceContacts = ReadContactsWorker.contactsSet;
                     ReadContactsWorker.freeUpMemory();
                     MessagesPreference.saveDeviceContacts(requireContext(), deviceContacts);
-                    Log.d(TAG, "invokeObservers: cached the phone number in the SharedPreferences and there are : " + deviceContacts.size() + " numbers in this device" );
+                    Log.d(TAG, "invokeObservers: cached the phone number in the SharedPreferences and there are : " + deviceContacts.size() + " numbers in this device");
                     // free up the deviceContacts list as well
                     deviceContacts.clear();
                     mModel.getUsersRepository().readContactsWorkerEnd();
@@ -275,12 +272,8 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
         Log.d(TAG, "observeCommonContacts: ");
         mModel.getUsersRepository().commonContactsObserver.observe(getViewLifecycleOwner(), commonWorkInfo -> {
             if (commonWorkInfo != null && commonWorkInfo.getState().isFinished()) {
-                /*List<String> commonContacts = ReadDataFromServerWorker.getCommonPhoneNumbers();*/
                 mModel.getUsersRepository().prepareUserUserKnowList();
-               /* if (commonContacts != null)
 
-                else
-                    Log.d(TAG, "observeCommonContacts: common contacts is null");*/
             }
         });
     }
@@ -288,8 +281,6 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
     @Override
     public void prepareDataFinished() {
         mModel.updateUsers(getFilterState());
-        /*isProgressBarVisible = false;
-        setProgresBarVisibility();*/
     }
 
 }
