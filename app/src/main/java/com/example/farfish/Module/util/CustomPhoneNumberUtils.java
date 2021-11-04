@@ -51,6 +51,7 @@ public class CustomPhoneNumberUtils {
                 }
             }
         }
+        Log.d("TAG", "storeCommonPhoneNumber: after filling the list : " + usersUserKnow.size());
         MessagesPreference.saveCommonContacts(context, mContactsPhoneNumbers);
     }
 

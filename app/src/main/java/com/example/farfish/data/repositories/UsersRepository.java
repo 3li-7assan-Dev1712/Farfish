@@ -130,7 +130,8 @@ public class UsersRepository {
                 }
             }
         }*/
-        usersUserKnowList = CustomPhoneNumberUtils.getUsersUserKnow();
+        Log.d(TAG, "prepareUserUserKnowList: test size is: " + CustomPhoneNumberUtils.getUsersUserKnow().size());
+        usersUserKnowList.addAll( CustomPhoneNumberUtils.getUsersUserKnow() );
         CustomPhoneNumberUtils.clearLists();
         Log.d(TAG, "prepareUserUserKnowList: userUserKnowList size is: " + usersUserKnowList.size());
         invokeObservers.prepareDataFinished();
