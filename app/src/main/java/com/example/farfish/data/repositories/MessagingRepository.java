@@ -76,10 +76,11 @@ public class MessagingRepository {
     @Inject
     public MessagingRepository(@ApplicationContext Context context) {
         mContext = context;
-        mRootRef = mStorage.getReference("images");
+
     }
 
     private void init() {
+        mRootRef = mStorage.getReference("images");
         messages = new ArrayList<>();
         targetUserData = new Bundle();
         currentUserName = MessagesPreference.getUserName(mContext);

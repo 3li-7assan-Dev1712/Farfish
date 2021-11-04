@@ -9,33 +9,33 @@ import dagger.Module;
 import dagger.Provides;
 import dagger.hilt.InstallIn;
 import dagger.hilt.android.components.ViewModelComponent;
-import dagger.hilt.android.scopes.ActivityRetainedScoped;
+import dagger.hilt.android.scopes.ViewModelScoped;
 
 @Module
 @InstallIn(ViewModelComponent.class)
 public abstract class AppModule {
 
     @Provides
-    @ActivityRetainedScoped
-    public FirebaseFirestore providesFirestoreInstance() {
+    @ViewModelScoped
+    public static FirebaseFirestore providesFirestoreInstance() {
         return FirebaseFirestore.getInstance();
     }
 
     @Provides
-    @ActivityRetainedScoped
-    public FirebaseAuth providesFirebaseAuthInstance() {
+    @ViewModelScoped
+    public static FirebaseAuth providesFirebaseAuthInstance() {
         return FirebaseAuth.getInstance();
     }
 
     @Provides
-    @ActivityRetainedScoped
-    public FirebaseStorage providesFirebaseStorageInstance() {
+    @ViewModelScoped
+    public static FirebaseStorage providesFirebaseStorageInstance() {
         return FirebaseStorage.getInstance();
     }
 
     @Provides
-    @ActivityRetainedScoped
-    public FirebaseDatabase providesFirebaseDatabaseInstance() {
+    @ViewModelScoped
+    public static FirebaseDatabase providesFirebaseDatabaseInstance() {
         return FirebaseDatabase.getInstance();
     }
 }
