@@ -45,9 +45,12 @@ public class MessagingRepository {
     // functionality
     private List<Message> messages;
     // firestore to get the user state wheater they're active or not
-    private FirebaseFirestore mFirebasestore;
+    @Inject
+    public FirebaseFirestore mFirebasestore;
     // for sending and receiving photos
-    private StorageReference mRootRef = FirebaseStorage.getInstance().getReference("images");
+    @Inject
+    public FirebaseStorage mStorage;
+    private StorageReference mRootRef;/* = FirebaseStorage.getInstance().getReference("images");*/
     // toolbar values
     private String targetUserId;
     // for target user profile in detail
@@ -73,6 +76,7 @@ public class MessagingRepository {
     @Inject
     public MessagingRepository(@ApplicationContext Context context) {
         mContext = context;
+        mRootRef = mStorage.getReference("images");
     }
 
     private void init() {
@@ -82,7 +86,7 @@ public class MessagingRepository {
         currentPhotoUrl = MessagesPreference.getUsePhoto(mContext);
         mCurrentRoomListener = new CurrentRoomListener();
         mTargetRoomListener = new TargetRoomListener();
-        mFirebasestore = FirebaseFirestore.getInstance();
+     /*   mFirebasestore = FirebaseFirestore.getInstance();*/
     }
 
     public void setPostMessagesInterface(PostMessagesInterface postMessagesInterface) {
@@ -184,7 +188,7 @@ public class MessagingRepository {
         messagingInterface = null;
         messages.clear();
         messages = null;
-        mFirebasestore = null;
+        /*mFirebasestore = null;*/
         targetUserId = null;
         targetUserData.clear();
         targetUserData= null;

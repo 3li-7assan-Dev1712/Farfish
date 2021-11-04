@@ -45,6 +45,8 @@ public class UsersRepository {
     private String currentUserId;
 
     @Inject
+    public FirebaseFirestore mFirestore;
+    @Inject
     public UsersRepository(@ApplicationContext Context context) {
         workManager = WorkManager.getInstance(context);
         mContext = context;
@@ -66,7 +68,7 @@ public class UsersRepository {
         if (!contactsIsCached)
             readTheContactsInTheDevice();
 
-        FirebaseFirestore.getInstance().collection("rooms").get()
+        mFirestore.collection("rooms").get()
                 .addOnSuccessListener(this::fetchPrimaryData).addOnCompleteListener(listener -> {
             Log.d(TAG, "refreshData: onCompletion called");
                     invokeObservers.invokeObservers();
