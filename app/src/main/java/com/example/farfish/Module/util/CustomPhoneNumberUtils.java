@@ -2,6 +2,7 @@ package com.example.farfish.Module.util;
 
 import android.content.Context;
 import android.telephony.PhoneNumberUtils;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 
@@ -36,6 +37,7 @@ public class CustomPhoneNumberUtils {
                                               Set<CustomPhoneNumberUtils> phoneNumbersFromServer,
                                               Context context) {
 
+        Log.d("TAG", "storeCommonPhoneNumber: allUsers list size is: " + allUsers.size());
         for (String s : phoneNumberFromContactContactProvider) {
             /*    CustomPhoneNumberUtils customPhoneNumberUtils = ;*/
             if (phoneNumbersFromServer.contains(new CustomPhoneNumberUtils(s))) {

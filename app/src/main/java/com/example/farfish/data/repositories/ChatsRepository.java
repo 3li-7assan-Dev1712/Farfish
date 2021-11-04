@@ -31,6 +31,9 @@ public class ChatsRepository implements ValueEventListener {
     private List<Long> mRoomsSize;
 
     @Inject
+    public FirebaseDatabase mDatabase;
+
+    @Inject
     public ChatsRepository(@ApplicationContext Context context) {
         mContext = context;
     }
@@ -46,7 +49,7 @@ public class ChatsRepository implements ValueEventListener {
         mRoomsSize = new ArrayList<>();
         mCurrentUserId = MessagesPreference.getUserId(mContext);
         if (mCurrentUserId != null) {
-            mChatsReference = FirebaseDatabase.getInstance().getReference("rooms")
+            mChatsReference = mDatabase.getReference("rooms")
                     .child(mCurrentUserId);
         }
         mChatsReference.addValueEventListener(this);
