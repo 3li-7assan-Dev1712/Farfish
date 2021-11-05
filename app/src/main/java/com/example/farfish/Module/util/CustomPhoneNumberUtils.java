@@ -38,6 +38,8 @@ public class CustomPhoneNumberUtils {
                                               Context context) {
 
         Log.d("TAG", "storeCommonPhoneNumber: allUsers list size is: " + allUsers.size());
+        Log.d("TAG", "storeCommonPhoneNumber: contacts content provider: " + phoneNumberFromContactContactProvider.size());
+        Log.d("TAG", "storeCommonPhoneNumber: server phone numbers: " + phoneNumbersFromServer.size());
         for (String s : phoneNumberFromContactContactProvider) {
             /*    CustomPhoneNumberUtils customPhoneNumberUtils = ;*/
             if (phoneNumbersFromServer.contains(new CustomPhoneNumberUtils(s))) {

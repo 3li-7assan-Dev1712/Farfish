@@ -1,17 +1,44 @@
 package com.example.farfish.Module.dataclasses;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.telephony.PhoneNumberUtils;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
 
 
-public class User {
+public class User implements Parcelable {
     private String userName, email, phoneNumber, photoUrl;
     private String userId;
     private String status;
     private boolean isActive, isPublic;
     private long lastTimeSeen;
+
+    public static final Creator<User> CREATOR = new Creator<User>() {
+        @Override
+        public User createFromParcel(Parcel in) {
+            return new User(in);
+        }
+
+        @Override
+        public User[] newArray(int size) {
+            return new User[size];
+        }
+    };
+
+    protected User(Parcel in) {
+        userName = in.readString();
+        email = in.readString();
+        phoneNumber = in.readString();
+        photoUrl = in.readString();
+        userId = in.readString();
+        status = in.readString();
+        isActive = in.readByte() != 0;
+        isPublic = in.readByte() != 0;
+        lastTimeSeen = in.readLong();
+    }
+
 
     public String getStatus() {
         return status;
@@ -98,4 +125,21 @@ public class User {
         isPublic = aPublic;
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(userName);
+        dest.writeString(email);
+        dest.writeString(phoneNumber);
+        dest.writeString(photoUrl);
+        dest.writeString(userId);
+        dest.writeString(status);
+        dest.writeByte((byte) (isActive ? 1 : 0));
+        dest.writeByte((byte) (isPublic ? 1 : 0));
+        dest.writeLong(lastTimeSeen);
+    }
 }

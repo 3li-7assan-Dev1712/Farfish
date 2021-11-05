@@ -64,16 +64,25 @@ public class UsersRepository {
 
 
     private void refreshData() {
-        boolean contactsIsCached = MessagesPreference.getDeviceContacts(mContext) != null;
-        if (!contactsIsCached)
+        boolean contactsIsCached = false;
+        if (MessagesPreference.getDeviceContacts(mContext) != null) {
+            if (MessagesPreference.getDeviceContacts(mContext).size() > 0)
+                contactsIsCached = true;
+        }
+        if (!contactsIsCached) {
             readTheContactsInTheDevice();
-
+            Log.d(TAG, "refreshData: data is not cached");
+        }
+        Log.d(TAG, "refreshData: from preference: " + MessagesPreference.getDeviceContacts(mContext).size() );
+        boolean finalContactsIsCached = contactsIsCached;
         mFirestore.collection("rooms").get()
                 .addOnSuccessListener(this::fetchPrimaryData).addOnCompleteListener(listener -> {
             Log.d(TAG, "refreshData: onCompletion called");
                     invokeObservers.invokeObservers();
-                    if (contactsIsCached)
+                    if (finalContactsIsCached) {
                         readContactsWorkerEnd();
+                        Log.d(TAG, "refreshData: data is cached!");
+                    }
                 }
         );
 

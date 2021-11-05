@@ -46,6 +46,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.aghajari.emojiview.view.AXEmojiPopupLayout;
 import com.aghajari.emojiview.view.AXEmojiView;
 import com.example.farfish.Adapters.MessagesListAdapter;
+import com.example.farfish.Module.dataclasses.User;
 import com.example.farfish.Module.util.Connection;
 import com.example.farfish.Module.dataclasses.FullImageData;
 import com.example.farfish.Module.dataclasses.Message;
@@ -181,7 +182,6 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
         mToolbarBinding.conversationToolbarUserInfo.setOnClickListener(targetUserLayoutListener -> {
 
             USER_EXPECT_TO_RETURN = true;
-            Log.d(TAG, "onCreateView: target photo Url : " + targetUserData.getString("target_user_photo_url"));
             /*messages.clear();*/ // clean the list to ensure it will not contain duplicated data
             navController.navigate(R.id.action_chatsFragment_to_userProfileFragment,
                     mModel.getMessagingRepository().getTargetUserData());
@@ -389,11 +389,11 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
     @Override
     public void populateToolbar() {
         if (mBinding != null) {
-            Bundle targetUserInfo = mModel.getMessagingRepository().getTargetUserData();
-            mToolbarBinding.chatTitle.setText(targetUserInfo.getString("target_user_name"));
-            Picasso.get().load(targetUserInfo.getString("target_user_photo_url")).placeholder(R.drawable.place_holder).into(mToolbarBinding.chatConversationProfile);
+            User targetUser = mModel.getMessagingRepository().getTargetUserData().getParcelable("user");
+            assert targetUser != null;
+            mToolbarBinding.chatTitle.setText(targetUser.getUserName());
+            Picasso.get().load(targetUser.getPhotoUrl()).placeholder(R.drawable.place_holder).into(mToolbarBinding.chatConversationProfile);
             updateChatInfo();
-            targetUserInfo.clear();
         }
     }
 

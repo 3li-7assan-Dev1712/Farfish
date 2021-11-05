@@ -253,12 +253,12 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
         getViewLifecycleOwnerLiveData().observe(this, lifecycleOwner -> {
             mModel.getUsersRepository().deviceContactsObserver.observe(lifecycleOwner, workInfo -> {
                 if (workInfo != null && workInfo.getState().isFinished()) {
-                    Set<String> deviceContacts = ReadContactsWorker.contactsSet;
-                    ReadContactsWorker.freeUpMemory();
+                    /*Set<String> deviceContacts = ReadContactsWorker.contactsSet;
                     MessagesPreference.saveDeviceContacts(requireContext(), deviceContacts);
                     Log.d(TAG, "invokeObservers: cached the phone number in the SharedPreferences and there are : " + deviceContacts.size() + " numbers in this device");
+                    ReadContactsWorker.freeUpMemory();
                     // free up the deviceContacts list as well
-                    deviceContacts.clear();
+                    deviceContacts.clear();*/
                     mModel.getUsersRepository().readContactsWorkerEnd();
                 }
             });

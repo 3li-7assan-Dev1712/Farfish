@@ -2,6 +2,7 @@ package com.example.farfish.Module.preferences;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import java.util.Set;
 
@@ -80,6 +81,7 @@ public class MessagesPreference {
     }
 
     public static void saveDeviceContacts(Context context, Set<String> deviceContacts){
+        Log.d("TAG", "saveDeviceContacts: " + deviceContacts.size());
         SharedPreferences sp = context.getSharedPreferences("messages", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sp.edit();
         editor.putStringSet("device_contacts", deviceContacts);
@@ -94,6 +96,7 @@ public class MessagesPreference {
 
     public static Set<String> getDeviceContacts(Context context) {
         SharedPreferences sp = context.getSharedPreferences("messages", Context.MODE_PRIVATE);
+        Log.d("TAG", "getDeviceContacts: size is: " + sp.getStringSet("device_contacts", null).size());
         return sp.getStringSet("device_contacts", null);
     }
 }

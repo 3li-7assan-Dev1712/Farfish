@@ -141,7 +141,7 @@ public class MessagingRepository {
     }
 
     private void populateTargetUserInfo(User user) {
-        Log.d(TAG, "populateTargetUserInfo: populate successfully");
+       /* Log.d(TAG, "populateTargetUserInfo: populate successfully");
         Log.d(TAG, "from populate: the target user photo url : " + user.getPhotoUrl());
         targetUserData.putString("target_user_id", user.getUserId());
         Log.d(TAG, "populateTargetUserInfo: target userId: " + targetUserData.getString("target_user_id"));
@@ -150,7 +150,8 @@ public class MessagingRepository {
         targetUserData.putString("target_user_status", user.getStatus());
         targetUserData.putString("target_user_name", user.getUserName());
         targetUserData.putBoolean("isActive", user.getIsActive());
-        targetUserData.putLong("target_user_last_time_seen", user.getLastTimeSeen());
+        targetUserData.putLong("target_user_last_time_seen", user.getLastTimeSeen());*/
+        targetUserData.putParcelable("user", user);
         messagingInterface.populateToolbar();
     }
 

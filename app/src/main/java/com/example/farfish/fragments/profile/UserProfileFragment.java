@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
+import com.example.farfish.Module.dataclasses.User;
 import com.example.farfish.Module.preferences.MessagesPreference;
 import com.example.farfish.Module.preferences.SharedPreferenceUtils;
 import com.example.farfish.R;
@@ -36,6 +37,7 @@ public class UserProfileFragment extends Fragment {
     private String email;
     private boolean isActive = true;
     private String lastTimeSeen = "";
+    private long lastTimeSeenLong;
     private static final String TAG = UserProfileFragment.class.getSimpleName();
     private String phoneNumber;
 
@@ -52,13 +54,15 @@ public class UserProfileFragment extends Fragment {
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putString("target_user_id", userId);
+        User user = new User(userName, email, phoneNumber, userPhotoUrl, userId, status, isActive, false, lastTimeSeenLong);
+        outState.putParcelable("user", user);
+        /*outState.putString("target_user_id", userId);
         outState.putString("target_user_email", email);
         outState.putString("target_user_photo_url", userPhotoUrl);
         outState.putString("target_user_status", status);
         outState.putString("target_user_name", userName);
         outState.putBoolean("isActive", isActive);
-        outState.putString("target_user_last_time_seen", lastTimeSeen);
+        outState.putString("target_user_last_time_seen", lastTimeSeen);*/
     }
 
     @Nullable
@@ -150,14 +154,26 @@ public class UserProfileFragment extends Fragment {
     }
 
     private void populateFromBundle(Bundle userInfo) {
-        userPhotoUrl = userInfo.getString("target_user_photo_url");
+        User user = userInfo.getParcelable("user");
+       /* userPhotoUrl = userInfo.getString("target_user_photo_url");
         userName = userInfo.getString("target_user_name");
         status = userInfo.getString("target_user_status");
         email = userInfo.getString("target_user_email");
         userId = userInfo.getString("target_user_id");
-        isActive = userInfo.getBoolean("isActive");
-        if (!isActive)
-            lastTimeSeen = getReadableLastTimeSeen(userInfo.getLong("target_user_last_time_seen"));
+        isActive = userInfo.getBoolean("isActive");*/
+        assert user != null;
+        userPhotoUrl = user.getPhotoUrl();
+        userName = user.getUserName();
+        status = user.getStatus();
+        email = user.getEmail();
+        userId = user.getUserId();
+        isActive = user.getIsActive();
+        if (!isActive){
+            long time = user.getLastTimeSeen();
+            lastTimeSeen = getReadableLastTimeSeen(time);
+            lastTimeSeenLong = time;
+        }
+
     }
 
     private String getReadableLastTimeSeen(long lastTimeUserWasActive) {
