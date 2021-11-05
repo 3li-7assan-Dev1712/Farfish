@@ -107,7 +107,7 @@ public class EditProfileFragment extends Fragment {
             userStatus = userData.getString("user_status");
             userPhoneNumber = userData.getString("phone_number");
             // populate the UI
-            Picasso.get().load(photoUrl).placeholder(R.drawable.ic_round_person_24)
+            Picasso.get().load(photoUrl).placeholder(R.drawable.time_background)
                     .into(mBinding.editProfileImageVIew);
             mBinding.editProfileEditTextUserName.setText(userName, TextView.BufferType.EDITABLE);
             mBinding.editProfileEditTextStatus.setText(userStatus, TextView.BufferType.EDITABLE);

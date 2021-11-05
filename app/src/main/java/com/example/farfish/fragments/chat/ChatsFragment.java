@@ -392,7 +392,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
             User targetUser = mModel.getMessagingRepository().getTargetUserData().getParcelable("user");
             assert targetUser != null;
             mToolbarBinding.chatTitle.setText(targetUser.getUserName());
-            Picasso.get().load(targetUser.getPhotoUrl()).placeholder(R.drawable.place_holder).into(mToolbarBinding.chatConversationProfile);
+            Picasso.get().load(targetUser.getPhotoUrl()).placeholder(R.drawable.time_background).into(mToolbarBinding.chatConversationProfile);
             updateChatInfo();
         }
     }

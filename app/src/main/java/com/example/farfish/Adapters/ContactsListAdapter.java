@@ -158,7 +158,7 @@ public class ContactsListAdapter extends ListAdapter<User, ContactsListAdapter.C
 
                     @Override
                     public void onError(Exception e) {
-                        binding.profileImage.setImageResource(R.drawable.place_holder);
+                        binding.profileImage.setImageResource(R.drawable.time_background);
                         binding.progressImageIndicator.setVisibility(View.GONE);
                     }
                 });

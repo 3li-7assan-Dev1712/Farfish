@@ -101,7 +101,7 @@ public class UserProfileFragment extends Fragment {
         }
 
         // populate the UI with the data
-        Picasso.get().load(userPhotoUrl).placeholder(R.drawable.place_holder)
+        Picasso.get().load(userPhotoUrl).placeholder(R.drawable.time_background)
                 .into(mBinding.userProfileImageView, new Callback() {
                     @Override
                     public void onSuccess() {

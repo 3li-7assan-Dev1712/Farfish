@@ -153,7 +153,6 @@ public class ChatsRepository implements ValueEventListener {
         mUserChats = null;
         mCurrentUserId = null;
         mDataReadyInterface = null;
-        mRoomsSize = null;
     }
 
 }

@@ -269,7 +269,7 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
         }
 
         public void bind(Message message) {
-            Picasso.get().load(message.getTargetPhotoUrl()).placeholder(R.drawable.place_holder).into(binding.profileImage, new Callback() {
+            Picasso.get().load(message.getTargetPhotoUrl()).placeholder(R.drawable.time_background).into(binding.profileImage, new Callback() {
                 @Override
                 public void onSuccess() {
                     binding.progressImageIndicator.setVisibility(View.GONE);
