@@ -36,6 +36,8 @@ public class ChatsRepository implements ValueEventListener {
     @Inject
     public ChatsRepository(@ApplicationContext Context context) {
         mContext = context;
+        mUserChats = new ArrayList<>();
+        mRoomsSize = new ArrayList<>();
     }
 
 
@@ -45,8 +47,7 @@ public class ChatsRepository implements ValueEventListener {
 
     public void loadAllChats() {
         Log.d(TAG, "loadAllChats: adding event listener");
-        mUserChats = new ArrayList<>();
-        mRoomsSize = new ArrayList<>();
+
         mCurrentUserId = MessagesPreference.getUserId(mContext);
         if (mCurrentUserId != null) {
             mChatsReference = mDatabase.getReference("rooms")
@@ -144,13 +145,15 @@ public class ChatsRepository implements ValueEventListener {
     }
 
     public void removeValueEventListener() {
-        mChatsReference.removeEventListener(this);
-        cleanUp();
+
+        if (mChatsReference != null) {
+            mChatsReference.removeEventListener(this);
+            cleanUp();
+        }
     }
 
     private void cleanUp() {
         mChatsReference = null;
-        mUserChats = null;
         mCurrentUserId = null;
         mDataReadyInterface = null;
     }

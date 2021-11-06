@@ -270,6 +270,7 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
     @Override
     public void observeCommonContacts() {
         Log.d(TAG, "observeCommonContacts: ");
+
         mModel.getUsersRepository().commonContactsObserver.observe(getViewLifecycleOwner(), commonWorkInfo -> {
             if (commonWorkInfo != null && commonWorkInfo.getState().isFinished()) {
                 mModel.getUsersRepository().prepareUserUserKnowList();

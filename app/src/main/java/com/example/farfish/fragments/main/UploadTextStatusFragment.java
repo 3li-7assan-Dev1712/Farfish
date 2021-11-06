@@ -113,7 +113,7 @@ public class UploadTextStatusFragment extends Fragment {
     }
 
     private void hideSendFab() {
-        mBinding.uploadTextStatusFragmentFab.setVisibility(View.INVISIBLE);
+        mBinding.uploadTextStatusFragmentFab.hide(); // call the hide method to provide some fade animation while disappearing.
     }
 
     @Override
@@ -125,6 +125,6 @@ public class UploadTextStatusFragment extends Fragment {
     }
 
     private void displaySendFab() {
-        mBinding.uploadTextStatusFragmentFab.setVisibility(View.VISIBLE);
+        mBinding.uploadTextStatusFragmentFab.show();
     }
 }
