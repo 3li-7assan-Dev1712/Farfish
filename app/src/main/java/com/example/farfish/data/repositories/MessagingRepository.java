@@ -76,13 +76,13 @@ public class MessagingRepository {
     @Inject
     public MessagingRepository(@ApplicationContext Context context) {
         mContext = context;
-
+        targetUserData = new Bundle();
     }
 
     private void init() {
         mRootRef = mStorage.getReference("images");
         messages = new ArrayList<>();
-        targetUserData = new Bundle();
+
         currentUserName = MessagesPreference.getUserName(mContext);
         currentPhotoUrl = MessagesPreference.getUsePhoto(mContext);
         mCurrentRoomListener = new CurrentRoomListener();
@@ -193,7 +193,6 @@ public class MessagingRepository {
         /*mFirebasestore = null;*/
         targetUserId = null;
         targetUserData.clear();
-        targetUserData= null;
         mCurrentUserRoomReference = null;
         mTargetUserRoomReference = null;
         currentUserId = null;

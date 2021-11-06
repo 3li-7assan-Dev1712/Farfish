@@ -40,7 +40,7 @@ public class UserProfileFragment extends Fragment {
     private long lastTimeSeenLong;
     private static final String TAG = UserProfileFragment.class.getSimpleName();
     private String phoneNumber;
-
+    private boolean isFromSharedPreference;
 
     private static CleanViewModel cleanViewModel;
 
@@ -56,13 +56,7 @@ public class UserProfileFragment extends Fragment {
         super.onSaveInstanceState(outState);
         User user = new User(userName, email, phoneNumber, userPhotoUrl, userId, status, isActive, false, lastTimeSeenLong);
         outState.putParcelable("user", user);
-        /*outState.putString("target_user_id", userId);
-        outState.putString("target_user_email", email);
-        outState.putString("target_user_photo_url", userPhotoUrl);
-        outState.putString("target_user_status", status);
-        outState.putString("target_user_name", userName);
-        outState.putBoolean("isActive", isActive);
-        outState.putString("target_user_last_time_seen", lastTimeSeen);*/
+        outState.putBoolean("boolean_val", isFromSharedPreference);
     }
 
     @Nullable
@@ -76,13 +70,20 @@ public class UserProfileFragment extends Fragment {
         mBinding.toolbarUserProfile.setNavigationOnClickListener(clickListener -> controller.navigateUp());
 
         if (savedInstanceState != null) {
+            isFromSharedPreference = savedInstanceState.getBoolean("boolean_val");
+            if (!isFromSharedPreference) {
+                hideView(mBinding.editProfileButton);
+                hideView(mBinding.logoutButtonUserProfile);
+            }
             populateFromBundle(savedInstanceState);
         } else if (getArguments() != null) {
+            isFromSharedPreference = false;
             Bundle userInfo = getArguments();
             hideView(mBinding.editProfileButton);
             hideView(mBinding.logoutButtonUserProfile);
             populateFromBundle(userInfo);
         } else {
+            isFromSharedPreference = true;
             mBinding.editProfileButton.setVisibility(View.VISIBLE);
             mBinding.logoutButtonUserProfile.setVisibility(View.VISIBLE);
             Context context = requireContext();
@@ -155,12 +156,6 @@ public class UserProfileFragment extends Fragment {
 
     private void populateFromBundle(Bundle userInfo) {
         User user = userInfo.getParcelable("user");
-       /* userPhotoUrl = userInfo.getString("target_user_photo_url");
-        userName = userInfo.getString("target_user_name");
-        status = userInfo.getString("target_user_status");
-        email = userInfo.getString("target_user_email");
-        userId = userInfo.getString("target_user_id");
-        isActive = userInfo.getBoolean("isActive");*/
         assert user != null;
         userPhotoUrl = user.getPhotoUrl();
         userName = user.getUserName();
@@ -168,7 +163,7 @@ public class UserProfileFragment extends Fragment {
         email = user.getEmail();
         userId = user.getUserId();
         isActive = user.getIsActive();
-        if (!isActive){
+        if (!isActive) {
             long time = user.getLastTimeSeen();
             lastTimeSeen = getReadableLastTimeSeen(time);
             lastTimeSeenLong = time;

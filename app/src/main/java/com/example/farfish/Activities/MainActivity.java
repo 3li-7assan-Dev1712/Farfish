@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity  {
     protected void onStart() {
         super.onStart();
 
-          NavHostFragment f = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
+        NavHostFragment f = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
         if ( f != null ) {
             NavController navController = f.getNavController();
             BottomNavigationView bottomNav = findViewById(R.id.bottom_nav);

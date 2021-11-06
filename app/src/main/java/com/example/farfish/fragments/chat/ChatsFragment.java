@@ -390,6 +390,10 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
     public void populateToolbar() {
         if (mBinding != null) {
             User targetUser = mModel.getMessagingRepository().getTargetUserData().getParcelable("user");
+            if (targetUser == null)
+                Log.d(TAG, "populateToolbar: targetUser is null!");
+            else
+                Log.d(TAG, "populateToolbar: targetUser is not null");
             assert targetUser != null;
             mToolbarBinding.chatTitle.setText(targetUser.getUserName());
             Picasso.get().load(targetUser.getPhotoUrl()).placeholder(R.drawable.time_background).into(mToolbarBinding.chatConversationProfile);
@@ -435,6 +439,8 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
+        Log.d(TAG, "onSaveInstanceState: ");
+        USER_EXPECT_TO_RETURN = true;
         outState.putBoolean(ORIENTATION_CHANGE, true);
     }
 
