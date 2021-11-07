@@ -115,9 +115,11 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
                 requireContext(), Manifest.permission.READ_CONTACTS) ==
                 PackageManager.PERMISSION_GRANTED) {
             // check if we have the phone numbers already
-            mModel.getAllUsers().observe(getViewLifecycleOwner(), users -> {
-                mUserListAdapter.customSubmitUserList(users);
-                mBinding.loadUsersProgressBar.setVisibility(View.GONE);
+            getViewLifecycleOwnerLiveData().observe(getViewLifecycleOwner(), lifecycleOwner -> {
+                mModel.getAllUsers().observe(lifecycleOwner, users -> {
+                    mUserListAdapter.customSubmitUserList(users);
+                    mBinding.loadUsersProgressBar.setVisibility(View.GONE);
+                });
             });
         } else {
             requestPermissionToReadContacts.launch(Manifest.permission.READ_CONTACTS);
@@ -271,11 +273,13 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
     public void observeCommonContacts() {
         Log.d(TAG, "observeCommonContacts: ");
 
-        mModel.getUsersRepository().commonContactsObserver.observe(getViewLifecycleOwner(), commonWorkInfo -> {
-            if (commonWorkInfo != null && commonWorkInfo.getState().isFinished()) {
-                mModel.getUsersRepository().prepareUserUserKnowList();
+        getViewLifecycleOwnerLiveData().observe(this, lifecycleOwner -> {
+            mModel.getUsersRepository().commonContactsObserver.observe(getViewLifecycleOwner(), commonWorkInfo -> {
+                if (commonWorkInfo != null && commonWorkInfo.getState().isFinished()) {
+                    mModel.getUsersRepository().prepareUserUserKnowList();
 
-            }
+                }
+            });
         });
     }
 

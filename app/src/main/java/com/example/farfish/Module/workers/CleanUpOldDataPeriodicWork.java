@@ -27,7 +27,7 @@ public class CleanUpOldDataPeriodicWork extends Worker {
     // tag for logging and debugging
     private static final String TAG = CleanUpOldDataPeriodicWork.class.getSimpleName();
     // three months
-    private static final long MAX_MESSAGE_AGE = 90;
+    private final short MAX_MESSAGE_AGE = 90;
     // status reference where in the clean up happens
     private DatabaseReference mDatabaseStatusReference = FirebaseDatabase.getInstance().getReference("status");
     private DatabaseReference mDatabaseMessageReference = FirebaseDatabase.getInstance().getReference("rooms");
@@ -35,7 +35,7 @@ public class CleanUpOldDataPeriodicWork extends Worker {
     private StorageReference mOutdatedStoryImageReference = FirebaseStorage.getInstance().getReference("stories");
     private StorageReference mOutdatedMessageImageReference = FirebaseStorage.getInstance().getReference("images");
     // max number of story can live
-    private static final long MAX_STATUS_DURATION = 2; // two days
+    private final short MAX_STATUS_DURATION = 2; // two days
 
     // required constructor
     public CleanUpOldDataPeriodicWork(@NonNull Context context, @NonNull WorkerParameters workerParams) {

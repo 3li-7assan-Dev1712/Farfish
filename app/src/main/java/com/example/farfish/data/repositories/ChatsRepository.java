@@ -39,7 +39,7 @@ public class ChatsRepository implements ValueEventListener {
         mUserChats = new ArrayList<>();
         mRoomsSize = new ArrayList<>();
     }
-
+/*this will be completed*/
 
     public void setDataReadyInterface(DataReadyInterface mDataReadyInterface) {
         this.mDataReadyInterface = mDataReadyInterface;
