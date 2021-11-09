@@ -28,8 +28,8 @@ import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
 import com.example.farfish.Adapters.MessagesListAdapter;
-import com.example.farfish.Module.util.Connection;
 import com.example.farfish.Module.preferences.SharedPreferenceUtils;
+import com.example.farfish.Module.util.Connection;
 import com.example.farfish.Module.workers.CleanUpOldDataPeriodicWork;
 import com.example.farfish.R;
 import com.example.farfish.data.MainViewModel;
@@ -56,8 +56,8 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
 
     @Inject
     public FirebaseAuth mAuth;
+
     private static final String TAG = UserChatsFragment.class.getSimpleName();
-    private MessagesListAdapter mListAdapter;
 
     private NavController mNavController;
 
@@ -68,7 +68,6 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
     public UserChatsFragment() {
         // Required empty public constructor
     }
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -81,7 +80,8 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
             }
         };
         requireActivity().getOnBackPressedDispatcher().addCallback(this, callback);
-        mListAdapter = new MessagesListAdapter(new ArrayList<>(), requireContext(), this, true);
+        /*mListAdapter = new MessagesListAdapter(new ArrayList<>(), requireContext(), this, true);*/
+
     }
 
     @Override
@@ -99,7 +99,6 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
         }
         ((AppCompatActivity) requireActivity())
                 .setSupportActionBar(mBinding.mainToolbarFrag);
-        mBinding.userContactsRecyclerView.setAdapter(mListAdapter);
         // start the periodic work
         uniquelyScheduleCleanUPWorker();
         if (mAuth.getCurrentUser() != null) {
@@ -108,9 +107,13 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
                     backStackEntry,
                     HiltViewModelFactory.create(requireContext(), backStackEntry)
             ).get(MainViewModel.class);
+
+            mBinding.userContactsRecyclerView.setAdapter(mainViewModel.getChatsRepository().getListAdapter());
             mainViewModel.getChatsRepository().setDataReadyInterface(this);
+            mainViewModel.getChatsRepository().getListAdapter().setIsGeneral(true);
+            mainViewModel.getChatsRepository().getListAdapter().setChatClick(this);
             mainViewModel.getUserChats().observe(getViewLifecycleOwner(), userChats -> {
-                mListAdapter.submitList(new ArrayList<>(userChats));
+                mainViewModel.getChatsRepository().getListAdapter().submitList(new ArrayList<>(userChats));
                 mBinding.userChatsProgressBar.setVisibility(View.GONE);
             });
         }
@@ -177,7 +180,6 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
                 .setRequiredNetworkType(NetworkType.CONNECTED)
                 .setRequiresBatteryNotLow(true)
                 .build();
-
         PeriodicWorkRequest cleanUpRequest =
                 new PeriodicWorkRequest.Builder(CleanUpOldDataPeriodicWork.class, 3, TimeUnit.HOURS)
                         .setConstraints(constraints)
@@ -210,7 +212,6 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
         primaryDataBundle.putString("target_user_id", targetUserId);
         mNavController.navigate(R.id.chatsFragment, primaryDataBundle);
     }
-
 
 
     @Override

@@ -5,6 +5,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.example.farfish.Adapters.MessagesListAdapter;
 import com.example.farfish.Module.dataclasses.Message;
 import com.example.farfish.Module.preferences.MessagesPreference;
 import com.example.farfish.Module.util.NotificationUtils;
@@ -31,6 +32,9 @@ public class ChatsRepository implements ValueEventListener {
     private List<Long> mRoomsSize;
 
     @Inject
+    public MessagesListAdapter mListAdapter;
+
+    @Inject
     public FirebaseDatabase mDatabase;
 
     @Inject
@@ -39,14 +43,12 @@ public class ChatsRepository implements ValueEventListener {
         mUserChats = new ArrayList<>();
         mRoomsSize = new ArrayList<>();
     }
-/*this will be completed*/
 
     public void setDataReadyInterface(DataReadyInterface mDataReadyInterface) {
         this.mDataReadyInterface = mDataReadyInterface;
     }
 
     public void loadAllChats() {
-        Log.d(TAG, "loadAllChats: adding event listener");
 
         mCurrentUserId = MessagesPreference.getUserId(mContext);
         if (mCurrentUserId != null) {
@@ -158,4 +160,7 @@ public class ChatsRepository implements ValueEventListener {
         mDataReadyInterface = null;
     }
 
+    public MessagesListAdapter getListAdapter() {
+        return mListAdapter;
+    }
 }

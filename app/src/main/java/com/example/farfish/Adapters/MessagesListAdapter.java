@@ -30,12 +30,16 @@ import java.util.List;
 import java.util.Locale;
 
 public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewHolder> {
+
+
     private static final String TAG = MessagesListAdapter.class.getSimpleName();
     private static final int USE_RECEIVE_BACKGROUND = 0;
     private static final int USE_SEND_BACKGROUND = 1;
     private static final int USE_SEND_BACKGROUND_IMG = 2;
     private static final int USE_RECEIVE_BACKGROUND_IMG = 3;
-    private static final int USE_PARENT_VIEW_HOLDER = 4; // this will indicate for the UserContactsFragment's viewholders
+    private static final int USE_PARENT_VIEW_HOLDER = 4;
+    // this will indicate for the UserContactsFragment's viewholders
+
 
     private List<Message> mMessages;
     private Context mContext;
@@ -51,8 +55,8 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
         void onChatClick(int position);
     }
 
-    static MessagesListAdapter.MessageClick mMessageInterface;
-    static ChatClick mChatClick;
+    MessagesListAdapter.MessageClick mMessageInterface;
+    ChatClick mChatClick;
 
     public MessagesListAdapter(List<Message> messages, Context context, MessageClick messageClick, boolean isGeneral) {
         super(MessagesListAdapter.Diff);
@@ -70,15 +74,20 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
         this.mIsGeneral = isGeneral;
     }
 
+    public MessagesListAdapter(Context mContext) {
+        super(MessagesListAdapter.Diff);
+        this.mContext = mContext;
+    }
+
     @Override
     public int getItemViewType(int position) {
         if (mIsGeneral)
             return USE_PARENT_VIEW_HOLDER;
         String senderId = mDiffer.getCurrentList().get(position).getSenderId();
         String photoUrl = mDiffer.getCurrentList().get(position).getPhotoUrl();
-        if (mMessages == null) {
+     /*   if (mMessages == null) {
             throw new NullPointerException("From getItemViewType message is null");
-        }
+        }*/
         if (useCurrentMessageBackground(senderId) && !photoUrl.equals("")) {
             return USE_SEND_BACKGROUND_IMG;
         } else if (useCurrentMessageBackground(senderId) && photoUrl.equals("")) {
@@ -187,7 +196,48 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
         }
     }
 
-    static class LocalImageMessageViewHolder extends RecyclerView.ViewHolder {
+    public void setIsGeneral(boolean mIsGeneral) {
+        this.mIsGeneral = mIsGeneral;
+    }
+
+    public void setChatClick(ChatClick chatClick) {
+        this.mChatClick = chatClick;
+    }
+
+    public void setMessageInterface(MessageClick mMessageInterface) {
+        this.mMessageInterface = mMessageInterface;
+    }
+
+    private static String getReadableDate(long timestamp) {
+        SimpleDateFormat d = new SimpleDateFormat("h:mm a", Locale.getDefault());
+        return d.format(timestamp);
+    }
+
+    public static final DiffUtil.ItemCallback<Message> Diff = new DiffUtil.ItemCallback<Message>() {
+        @Override
+        public boolean areItemsTheSame(@NonNull Message oldItem, @NonNull Message newItem) {
+            return oldItem.getTimestamp() == newItem.getTimestamp();
+        }
+
+        @Override
+        public boolean areContentsTheSame(@NonNull Message oldItem, @NonNull Message newItem) {
+            return oldItem.equals(newItem);
+        }
+    };
+
+    private final AsyncListDiffer<Message> mDiffer = new AsyncListDiffer<>(this, Diff);
+
+    @Override
+    public int getItemCount() {
+        return mDiffer.getCurrentList().size();
+    }
+
+    @Override
+    public void submitList(@Nullable List<Message> list) {
+        mDiffer.submitList(list);
+    }
+
+    class LocalImageMessageViewHolder extends RecyclerView.ViewHolder {
 
 
         private SendImageViewHolderBinding binding;
@@ -224,7 +274,7 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
 
     }
 
-    static class ReceivedImageMessageViewHolder extends RecyclerView.ViewHolder {
+    class ReceivedImageMessageViewHolder extends RecyclerView.ViewHolder {
         private ReceiveImageViewHolderBinding binding;
 
         public ReceivedImageMessageViewHolder(@NonNull ReceiveImageViewHolderBinding binding) {
@@ -256,7 +306,7 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
 
     }
 
-    static class UserChatsViewHolder extends RecyclerView.ViewHolder {
+    class UserChatsViewHolder extends RecyclerView.ViewHolder {
         private ContactViewHolderBinding binding;
 
         public UserChatsViewHolder(ContactViewHolderBinding binding) {
@@ -305,32 +355,4 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
 
     }
 
-    private static String getReadableDate(long timestamp) {
-        SimpleDateFormat d = new SimpleDateFormat("h:mm a", Locale.getDefault());
-        return d.format(timestamp);
-    }
-
-    public static final DiffUtil.ItemCallback<Message> Diff = new DiffUtil.ItemCallback<Message>() {
-        @Override
-        public boolean areItemsTheSame(@NonNull Message oldItem, @NonNull Message newItem) {
-            return oldItem.getTimestamp() == newItem.getTimestamp();
-        }
-
-        @Override
-        public boolean areContentsTheSame(@NonNull Message oldItem, @NonNull Message newItem) {
-            return oldItem.equals(newItem);
-        }
-    };
-
-    private final AsyncListDiffer<Message> mDiffer = new AsyncListDiffer<>(this, Diff);
-
-    @Override
-    public int getItemCount() {
-        return mDiffer.getCurrentList().size();
-    }
-
-    @Override
-    public void submitList(@Nullable List<Message> list) {
-        mDiffer.submitList(list);
-    }
 }
