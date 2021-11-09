@@ -46,7 +46,13 @@ import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.Set;
 
+import javax.inject.Inject;
+
+import dagger.Module;
+import dagger.Provides;
+import dagger.hilt.InstallIn;
 import dagger.hilt.android.AndroidEntryPoint;
+import dagger.hilt.android.components.FragmentComponent;
 
 @AndroidEntryPoint
 public class UsersFragment extends Fragment implements ContactsListAdapter.OnChatClicked,
@@ -54,11 +60,11 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
     private static final String TAG = UsersFragment.class.getSimpleName();
     private static final String ORIENTATION_CHANGE = "change";
     // users view model
-
     public MainViewModel mModel;
 
     private UsersFragmentBinding mBinding;
-    private FirebaseAuth mAuth;
+    @Inject
+    public FirebaseAuth mAuth;
     /*private ContactsAdapter usersAdapter;*/
     private ContactsListAdapter mUserListAdapter;
     private NavController mNavController;
@@ -68,9 +74,11 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
     private ActivityResultLauncher<String> requestPermissionToReadContacts =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
+                    getViewLifecycleOwnerLiveData().observe(this, lifecycleOwner -> {
+                        mModel.getAllUsers().observe(lifecycleOwner, users ->
+                                mUserListAdapter.customSubmitUserList(users));
+                    });
 
-                    mModel.getAllUsers().observe(getViewLifecycleOwner(), users ->
-                            mUserListAdapter.customSubmitUserList(users));
                     /*setProgresBarVisibility();*/
                 } else {
                     Toast.makeText(requireContext(),
@@ -84,8 +92,8 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
         setHasOptionsMenu(true);
         /*usersAdapter = new ContactsAdapter(requireContext(), publicUsers, this);*/
         mUserListAdapter = new ContactsListAdapter(this, false);
-        /*firebase database & auth*/
-        mAuth = FirebaseAuth.getInstance();
+        /*firebase database & auth*//*
+        mAuth = FirebaseAuth.getInstance();*/
         super.onCreate(savedInstanceState);
     }
 
@@ -265,8 +273,6 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
                 }
             });
         });
-
-
     }
 
     @Override
@@ -288,4 +294,12 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
         mModel.updateUsers(getFilterState());
     }
 
+    @dagger.Module
+    @InstallIn(FragmentComponent.class)
+    static abstract class Module{
+        @Provides
+        public static FirebaseAuth providesFirebaseAuthInstance() {
+            return FirebaseAuth.getInstance();
+        }
+    }
 }

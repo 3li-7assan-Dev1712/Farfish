@@ -46,6 +46,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
+import javax.inject.Inject;
+
 public class FragmentSignIn extends Fragment {
     private static final String TAG = FragmentSignIn.class.getSimpleName();
     /*FirebaseUI*/
@@ -58,7 +60,8 @@ public class FragmentSignIn extends Fragment {
     );
 
     // firebase auth
-    private FirebaseAuth mAuth;
+    @Inject
+    public FirebaseAuth mAuth;
     /*Navigation*/
     private NavController mNavController;
     // snackbar view
@@ -79,8 +82,6 @@ public class FragmentSignIn extends Fragment {
         };
         requireActivity().getOnBackPressedDispatcher().addCallback(this, callback);
         super.onCreate(savedInstanceState);
-        mAuth = FirebaseAuth.getInstance();
-
     }
 
     @Nullable

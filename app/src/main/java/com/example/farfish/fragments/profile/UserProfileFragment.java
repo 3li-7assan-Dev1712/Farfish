@@ -23,6 +23,8 @@ import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
+import javax.inject.Inject;
+
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
@@ -47,6 +49,9 @@ public class UserProfileFragment extends Fragment {
     public static void setCleaner(CleanViewModel cleaner) {
         cleanViewModel = cleaner;
     }
+
+    @Inject
+    public FirebaseAuth mAuth;
 
     public UserProfileFragment() {
     }
@@ -92,7 +97,7 @@ public class UserProfileFragment extends Fragment {
             userId = MessagesPreference.getUserId(context);
             status = MessagesPreference.getUseStatus(context);
             phoneNumber = MessagesPreference.getUsePhoneNumber(context);
-            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+            FirebaseUser currentUser = mAuth.getCurrentUser();
             if (currentUser != null) {
                 email = currentUser.getEmail();
 
@@ -138,7 +143,7 @@ public class UserProfileFragment extends Fragment {
 
         mBinding.logoutButtonUserProfile.setOnClickListener(logoutOnClickListener -> {
             SharedPreferenceUtils.saveUserSignOut(requireContext());
-            FirebaseAuth.getInstance().signOut();
+            mAuth.signOut();
             cleanViewModel.cleanViewModel();
             controller.navigate(R.id.action_userProfileFragment_to_fragmentSignIn);
         });

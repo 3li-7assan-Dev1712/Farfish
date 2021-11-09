@@ -55,8 +55,7 @@ public class StatusFragment extends Fragment implements ContactsListAdapter.OnCh
     private ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
-                    // Permission is granted. Continue the action or workflow in your
-                    // app.
+                    // Permission is granted. Continue the action or workflow in your app.
                     pickImageFromGallery();
                 } else {
                     Toast.makeText(requireContext(), getString(R.string.grant_access_media_permission), Toast.LENGTH_SHORT).show();

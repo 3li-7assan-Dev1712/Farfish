@@ -45,6 +45,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
+import javax.inject.Inject;
+
 import dagger.hilt.android.AndroidEntryPoint;
 
 
@@ -52,7 +54,8 @@ import dagger.hilt.android.AndroidEntryPoint;
 public class UserChatsFragment extends Fragment implements MessagesListAdapter.ChatClick,
         ChatsRepository.DataReadyInterface, UserProfileFragment.CleanViewModel {
 
-    private FirebaseAuth mAuth;
+    @Inject
+    public FirebaseAuth mAuth;
     private static final String TAG = UserChatsFragment.class.getSimpleName();
     private MessagesListAdapter mListAdapter;
 
@@ -89,7 +92,7 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
         Log.d(TAG, "onCreateView: ");
         mBinding = FragmentUserChatsBinding.inflate(inflater, container, false);
         View view = mBinding.getRoot();
-        mAuth = FirebaseAuth.getInstance();
+
         mNavController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         if (mAuth.getCurrentUser() == null) {
             navigateToSignIn();
