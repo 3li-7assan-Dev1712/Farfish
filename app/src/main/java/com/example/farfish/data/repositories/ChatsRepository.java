@@ -32,9 +32,6 @@ public class ChatsRepository implements ValueEventListener {
     private List<Long> mRoomsSize;
 
     @Inject
-    public MessagesListAdapter mListAdapter;
-
-    @Inject
     public FirebaseDatabase mDatabase;
 
     @Inject
@@ -160,7 +157,4 @@ public class ChatsRepository implements ValueEventListener {
         mDataReadyInterface = null;
     }
 
-    public MessagesListAdapter getListAdapter() {
-        return mListAdapter;
-    }
 }

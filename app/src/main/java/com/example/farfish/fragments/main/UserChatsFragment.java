@@ -28,6 +28,7 @@ import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
 import com.example.farfish.Adapters.MessagesListAdapter;
+import com.example.farfish.Module.dataclasses.Message;
 import com.example.farfish.Module.preferences.SharedPreferenceUtils;
 import com.example.farfish.Module.util.Connection;
 import com.example.farfish.Module.workers.CleanUpOldDataPeriodicWork;
@@ -68,6 +69,8 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
     public UserChatsFragment() {
         // Required empty public constructor
     }
+    @Inject
+    public MessagesListAdapter mListAdapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -108,12 +111,12 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
                     HiltViewModelFactory.create(requireContext(), backStackEntry)
             ).get(MainViewModel.class);
 
-            mBinding.userContactsRecyclerView.setAdapter(mainViewModel.getChatsRepository().getListAdapter());
+            mBinding.userContactsRecyclerView.setAdapter(mListAdapter);
             mainViewModel.getChatsRepository().setDataReadyInterface(this);
-            mainViewModel.getChatsRepository().getListAdapter().setIsGeneral(true);
-            mainViewModel.getChatsRepository().getListAdapter().setChatClick(this);
+            mListAdapter.setIsGeneral(true);
+            mListAdapter.setChatClick(this);
             mainViewModel.getUserChats().observe(getViewLifecycleOwner(), userChats -> {
-                mainViewModel.getChatsRepository().getListAdapter().submitList(new ArrayList<>(userChats));
+                mListAdapter.submitList(new ArrayList<>(userChats));
                 mBinding.userChatsProgressBar.setVisibility(View.GONE);
             });
         }

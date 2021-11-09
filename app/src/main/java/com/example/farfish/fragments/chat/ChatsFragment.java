@@ -67,6 +67,8 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
 
+import javax.inject.Inject;
+
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
@@ -91,7 +93,8 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
     public static final int DEFAULT_MSG_LENGTH_LIMIT = 1000;
 
 
-    private MessagesListAdapter messagesListAdapter;
+    @Inject
+    public MessagesListAdapter messagesListAdapter;
     private String mUsername;
     // this tracker is used to invoke the method of the realtime database to update the user is writing once
     private int tracker = 0;
@@ -193,8 +196,8 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
 
         /*implementing Messages Adapter for the RecyclerView*/
         /*messagesAdapter = new MessagesAdapter(requireContext(), messages, this);*/
-        messagesListAdapter = new MessagesListAdapter(new ArrayList<>(), requireContext(), this, false);
-        mBinding.messageRecyclerView.setAdapter(messagesListAdapter);
+//        messagesListAdapter = new MessagesListAdapter(new ArrayList<>(), requireContext(), this, false);
+
 
         // ImagePickerButton shows an image picker to upload a image for a message
         mBinding.photoPickerButton.setOnClickListener(v -> {
@@ -289,6 +292,10 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
         ).get(MainViewModel.class);
         mModel.getMessagingRepository().setMessagingInterface(this);
         mModel.getMessagingRepository().setTargetUserId(targetUserId);
+        mBinding.messageRecyclerView.setAdapter(messagesListAdapter);
+        messagesListAdapter.setMessageInterface(this);
+        messagesListAdapter.setIsGeneral(false);
+
         mModel.getChatMessages().observe(getViewLifecycleOwner(), chatMessages -> {
             messagesListAdapter.submitList(chatMessages);
            /* messagesListAdapter.notifyDataSetChanged();*/
