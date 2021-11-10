@@ -85,7 +85,7 @@ public class StatusRepository implements ValueEventListener {
     private void cleanUp() {
         mDatabaseReference = null;
         mRootRef = null;
-        mStatusLists = null;
+        mContact.clear();
         mContact = null;
         mUserReference = null;
         statusInterface = null;

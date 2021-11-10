@@ -39,6 +39,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
@@ -70,11 +72,13 @@ public class StatusFragment extends Fragment implements ContactsListAdapter.OnCh
                 }
             },
             this::putIntoImage);
-    private ContactsListAdapter mStatusAdapter;
+    @Inject
+    public ContactsListAdapter mStatusAdapter;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
-        mStatusAdapter = new ContactsListAdapter(this, true);
+        mStatusAdapter.setForStatus(true);
+        mStatusAdapter.setOnChatClicked(this);
         super.onCreate(savedInstanceState);
     }
 

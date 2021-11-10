@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.AsyncDifferConfig;
 import androidx.recyclerview.widget.AsyncListDiffer;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
@@ -45,7 +46,7 @@ public class ContactsListAdapter extends ListAdapter<User, ContactsListAdapter.C
         void onChatClicked(int position);
     }
 
-    private static OnChatClicked onChatClicked;
+    private OnChatClicked onChatClicked;
     // for status destination
     private final AsyncListDiffer<List<Status>> mStatusDiffer = new AsyncListDiffer<>(this, StatusDiff);
 
@@ -62,6 +63,18 @@ public class ContactsListAdapter extends ListAdapter<User, ContactsListAdapter.C
     public ContactsListAdapter(OnChatClicked pOnChatClicked, boolean forStatus) {
         super(Diff);
         onChatClicked = pOnChatClicked;
+        this.forStatus = forStatus;
+    }
+
+    public ContactsListAdapter() {
+        super(Diff);
+    }
+
+    public void setOnChatClicked(OnChatClicked onChatClicked) {
+        this.onChatClicked = onChatClicked;
+    }
+
+    public void setForStatus(boolean forStatus) {
         this.forStatus = forStatus;
     }
 
@@ -112,7 +125,7 @@ public class ContactsListAdapter extends ListAdapter<User, ContactsListAdapter.C
         mStatusDiffer.submitList(lists);
     }
 
-    static class ContactsViewHolder extends RecyclerView.ViewHolder {
+    class ContactsViewHolder extends RecyclerView.ViewHolder {
         private ContactViewHolderBinding binding;
 
         public ContactsViewHolder(ContactViewHolderBinding binding) {

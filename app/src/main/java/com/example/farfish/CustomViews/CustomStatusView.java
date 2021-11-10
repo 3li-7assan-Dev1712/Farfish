@@ -176,7 +176,7 @@ public class CustomStatusView extends DialogFragment implements StoriesProgressV
 
     @Override
     public void onPrev() {
-        if (counter <= 0) return;
+        if (counter <= 0 || storiesList == null) return;
         mViewPager.setCurrentItem(--counter, false);
         updateHeading();
     }
@@ -210,6 +210,7 @@ public class CustomStatusView extends DialogFragment implements StoriesProgressV
 
     @Override
     public void nextStory() {
+        if (storiesList == null) return;
         if (counter + 1 >= storiesList.size()) {
             dismissAllowingStateLoss();
             return;

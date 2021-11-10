@@ -194,10 +194,6 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
 
         mBinding.progressBar.setVisibility(ProgressBar.VISIBLE);
 
-        /*implementing Messages Adapter for the RecyclerView*/
-        /*messagesAdapter = new MessagesAdapter(requireContext(), messages, this);*/
-//        messagesListAdapter = new MessagesListAdapter(new ArrayList<>(), requireContext(), this, false);
-
 
         // ImagePickerButton shows an image picker to upload a image for a message
         mBinding.photoPickerButton.setOnClickListener(v -> {

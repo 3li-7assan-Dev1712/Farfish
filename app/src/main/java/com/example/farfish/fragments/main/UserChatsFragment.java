@@ -28,7 +28,6 @@ import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
 import com.example.farfish.Adapters.MessagesListAdapter;
-import com.example.farfish.Module.dataclasses.Message;
 import com.example.farfish.Module.preferences.SharedPreferenceUtils;
 import com.example.farfish.Module.util.Connection;
 import com.example.farfish.Module.workers.CleanUpOldDataPeriodicWork;
@@ -69,6 +68,7 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
     public UserChatsFragment() {
         // Required empty public constructor
     }
+
     @Inject
     public MessagesListAdapter mListAdapter;
 
@@ -83,7 +83,6 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
             }
         };
         requireActivity().getOnBackPressedDispatcher().addCallback(this, callback);
-        /*mListAdapter = new MessagesListAdapter(new ArrayList<>(), requireContext(), this, true);*/
 
     }
 

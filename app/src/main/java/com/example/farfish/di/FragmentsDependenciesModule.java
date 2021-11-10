@@ -2,6 +2,7 @@ package com.example.farfish.di;
 
 import android.content.Context;
 
+import com.example.farfish.Adapters.ContactsListAdapter;
 import com.example.farfish.Adapters.MessagesListAdapter;
 
 import dagger.Module;
@@ -21,5 +22,11 @@ public abstract class FragmentsDependenciesModule {
             @ApplicationContext Context context
     ) {
         return new MessagesListAdapter(context);
+    }
+
+    @Provides
+    @FragmentScoped
+    public static ContactsListAdapter providesContactsListAdapter() {
+        return new ContactsListAdapter();
     }
 }

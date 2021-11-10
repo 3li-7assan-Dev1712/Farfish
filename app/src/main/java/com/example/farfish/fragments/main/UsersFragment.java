@@ -30,12 +30,10 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import com.example.farfish.Adapters.ContactsListAdapter;
+import com.example.farfish.Module.dataclasses.User;
+import com.example.farfish.Module.preferences.SharedPreferenceUtils;
 import com.example.farfish.Module.util.Connection;
 import com.example.farfish.Module.util.FilterPreferenceUtils;
-import com.example.farfish.Module.preferences.MessagesPreference;
-import com.example.farfish.Module.preferences.SharedPreferenceUtils;
-import com.example.farfish.Module.dataclasses.User;
-import com.example.farfish.Module.workers.ReadContactsWorker;
 import com.example.farfish.R;
 import com.example.farfish.data.MainViewModel;
 import com.example.farfish.data.repositories.UsersRepository;
@@ -44,11 +42,8 @@ import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 
-import java.util.Set;
-
 import javax.inject.Inject;
 
-import dagger.Module;
 import dagger.Provides;
 import dagger.hilt.InstallIn;
 import dagger.hilt.android.AndroidEntryPoint;
@@ -66,7 +61,9 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
     @Inject
     public FirebaseAuth mAuth;
     /*private ContactsAdapter usersAdapter;*/
-    private ContactsListAdapter mUserListAdapter;
+    @Inject
+    public ContactsListAdapter mUserListAdapter;
+
     private NavController mNavController;
     /* private boolean isProgressBarVisible = true;*/
 
@@ -89,9 +86,12 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG, "onCreate: ");
         setHasOptionsMenu(true);
+        mUserListAdapter.setOnChatClicked(this);
+        mUserListAdapter.setForStatus(false);
         /*usersAdapter = new ContactsAdapter(requireContext(), publicUsers, this);*/
-        mUserListAdapter = new ContactsListAdapter(this, false);
+//        mUserListAdapter = new ContactsListAdapter(this, false);
         /*firebase database & auth*//*
         mAuth = FirebaseAuth.getInstance();*/
         super.onCreate(savedInstanceState);
@@ -104,9 +104,16 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
             mBinding.loadUsersProgressBar.setVisibility(View.GONE);
     }*/
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        Log.d(TAG, "onViewCreated: ");
+        super.onViewCreated(view, savedInstanceState);
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        Log.d(TAG, "onCreateView: ");
         mBinding = UsersFragmentBinding.inflate(inflater, container, false);
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.VISIBLE);
         View view = mBinding.getRoot();
@@ -296,7 +303,7 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
 
     @dagger.Module
     @InstallIn(FragmentComponent.class)
-    static abstract class Module{
+    static abstract class Module {
         @Provides
         public static FirebaseAuth providesFirebaseAuthInstance() {
             return FirebaseAuth.getInstance();
