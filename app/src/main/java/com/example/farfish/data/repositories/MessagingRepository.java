@@ -44,13 +44,7 @@ public class MessagingRepository {
     private MessagingInterface messagingInterface;
     // functionality
     private List<Message> messages;
-    // firestore to get the user state wheater they're active or not
-    @Inject
-    public FirebaseFirestore mFirebasestore;
-    // for sending and receiving photos
-    @Inject
-    public FirebaseStorage mStorage;
-    private StorageReference mRootRef;/* = FirebaseStorage.getInstance().getReference("images");*/
+    private StorageReference mRootRef;
     // toolbar values
     private String targetUserId;
     // for target user profile in detail
@@ -80,14 +74,12 @@ public class MessagingRepository {
     }
 
     private void init() {
-        mRootRef = mStorage.getReference("images");
+        mRootRef = FirebaseStorage.getInstance().getReference("images");
         messages = new ArrayList<>();
-
         currentUserName = MessagesPreference.getUserName(mContext);
         currentPhotoUrl = MessagesPreference.getUsePhoto(mContext);
         mCurrentRoomListener = new CurrentRoomListener();
         mTargetRoomListener = new TargetRoomListener();
-     /*   mFirebasestore = FirebaseFirestore.getInstance();*/
     }
 
     public void setPostMessagesInterface(PostMessagesInterface postMessagesInterface) {
@@ -118,7 +110,7 @@ public class MessagingRepository {
 
     private void prepareToolbarInfo() {
 
-        mFirebasestore.collection("rooms").document(targetUserId)
+        FirebaseFirestore.getInstance().collection("rooms").document(targetUserId)
                 .get().addOnSuccessListener(documentSnapshot -> {
             User user = documentSnapshot.toObject(User.class);
             if (user != null) {
@@ -160,7 +152,7 @@ public class MessagingRepository {
     }
 
     private void listenToChange(String targetUserId) {
-        mFirebasestore.collection("rooms").document(targetUserId)
+        FirebaseFirestore.getInstance().collection("rooms").document(targetUserId)
                 .addSnapshotListener(((value, error) -> {
                     assert value != null;
                     User user = value.toObject(User.class);
@@ -190,7 +182,6 @@ public class MessagingRepository {
         messagingInterface = null;
         messages.clear();
         messages = null;
-        /*mFirebasestore = null;*/
         targetUserId = null;
         targetUserData.clear();
         mCurrentUserRoomReference = null;

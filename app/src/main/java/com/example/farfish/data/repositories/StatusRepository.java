@@ -39,12 +39,6 @@ import id.zelory.compressor.Compressor;
 public class StatusRepository implements ValueEventListener {
 
     private static final String TAG = StatusRepository.class.getSimpleName();
-    @Inject
-    public FirebaseDatabase mDatabase;
-    @Inject
-    public FirebaseStorage mStorage;
-    @Inject
-    public FirebaseAuth mAuth;
     private DatabaseReference mDatabaseReference;
     private DatabaseReference mUserReference;
     private StorageReference mRootRef;
@@ -59,9 +53,9 @@ public class StatusRepository implements ValueEventListener {
     }
 
     private void init() {
-        mRootRef = mStorage.getReference("stories");
-        mDatabaseReference = mDatabase.getReference("status");
-        mUserReference = mDatabaseReference.child(Objects.requireNonNull(mAuth.getUid()));
+        mRootRef = FirebaseStorage.getInstance().getReference("stories");
+        mDatabaseReference = FirebaseDatabase.getInstance().getReference("status");
+        mUserReference = mDatabaseReference.child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid()));
         mContact = MessagesPreference.getUserContacts(mContext);
     }
 

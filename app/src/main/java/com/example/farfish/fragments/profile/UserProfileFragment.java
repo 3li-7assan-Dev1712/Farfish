@@ -50,8 +50,8 @@ public class UserProfileFragment extends Fragment {
         cleanViewModel = cleaner;
     }
 
-    @Inject
-    public FirebaseAuth mAuth;
+
+    private FirebaseAuth mAuth;
 
     public UserProfileFragment() {
     }
@@ -70,6 +70,7 @@ public class UserProfileFragment extends Fragment {
         mBinding = UserProfileFragmentBinding.inflate(inflater, container, false);
         hideView(requireActivity().findViewById(R.id.bottom_nav));
         View view = mBinding.getRoot();
+        mAuth = FirebaseAuth.getInstance();
         lastTimeSeen = requireContext().getResources().getString(R.string.online);
         NavController controller = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         mBinding.toolbarUserProfile.setNavigationOnClickListener(clickListener -> controller.navigateUp());

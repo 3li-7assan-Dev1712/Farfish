@@ -60,8 +60,7 @@ public class FragmentSignIn extends Fragment {
     );
 
     // firebase auth
-    @Inject
-    public FirebaseAuth mAuth;
+    private FirebaseAuth mAuth;
     /*Navigation*/
     private NavController mNavController;
     // snackbar view
@@ -81,6 +80,7 @@ public class FragmentSignIn extends Fragment {
             }
         };
         requireActivity().getOnBackPressedDispatcher().addCallback(this, callback);
+        mAuth = FirebaseAuth.getInstance();
         super.onCreate(savedInstanceState);
     }
 

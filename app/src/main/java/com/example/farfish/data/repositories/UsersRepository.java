@@ -10,9 +10,9 @@ import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
 
-import com.example.farfish.Module.util.CustomPhoneNumberUtils;
-import com.example.farfish.Module.preferences.MessagesPreference;
 import com.example.farfish.Module.dataclasses.User;
+import com.example.farfish.Module.preferences.MessagesPreference;
+import com.example.farfish.Module.util.CustomPhoneNumberUtils;
 import com.example.farfish.Module.workers.ReadContactsWorker;
 import com.example.farfish.Module.workers.ReadDataFromServerWorker;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -45,8 +45,6 @@ public class UsersRepository {
     private String currentUserId;
 
     @Inject
-    public FirebaseFirestore mFirestore;
-    @Inject
     public UsersRepository(@ApplicationContext Context context) {
         workManager = WorkManager.getInstance(context);
         mContext = context;
@@ -73,11 +71,11 @@ public class UsersRepository {
             readTheContactsInTheDevice();
             Log.d(TAG, "refreshData: data is not cached");
         }
-        Log.d(TAG, "refreshData: from preference: " + MessagesPreference.getDeviceContacts(mContext).size() );
+        Log.d(TAG, "refreshData: from preference: " + MessagesPreference.getDeviceContacts(mContext).size());
         boolean finalContactsIsCached = contactsIsCached;
-        mFirestore.collection("rooms").get()
+        FirebaseFirestore.getInstance().collection("rooms").get()
                 .addOnSuccessListener(this::fetchPrimaryData).addOnCompleteListener(listener -> {
-            Log.d(TAG, "refreshData: onCompletion called");
+                    Log.d(TAG, "refreshData: onCompletion called");
                     invokeObservers.invokeObservers();
                     if (finalContactsIsCached) {
                         readContactsWorkerEnd();
@@ -107,7 +105,7 @@ public class UsersRepository {
 
     private void fetchPrimaryData(QuerySnapshot queryDocumentSnapshots) {
         Log.d(TAG, "fetchPrimaryData: ");
-       /* contactUsers.clear();*/
+        /* contactUsers.clear();*/
         allUsersList.clear();
         for (DocumentSnapshot ds : queryDocumentSnapshots.getDocuments()) {
             User user = ds.toObject(User.class);
@@ -140,7 +138,7 @@ public class UsersRepository {
             }
         }*/
         Log.d(TAG, "prepareUserUserKnowList: test size is: " + CustomPhoneNumberUtils.getUsersUserKnow().size());
-        usersUserKnowList.addAll( CustomPhoneNumberUtils.getUsersUserKnow() );
+        usersUserKnowList.addAll(CustomPhoneNumberUtils.getUsersUserKnow());
         CustomPhoneNumberUtils.clearLists();
         Log.d(TAG, "prepareUserUserKnowList: userUserKnowList size is: " + usersUserKnowList.size());
         invokeObservers.prepareDataFinished();

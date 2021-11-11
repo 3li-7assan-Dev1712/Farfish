@@ -27,7 +27,7 @@ import java.util.Locale;
 public class ContactsListAdapter extends ListAdapter<User, ContactsListAdapter.ContactsViewHolder> {
 
 
-    public static final DiffUtil.ItemCallback<List<Status>> StatusDiff = new DiffUtil.ItemCallback<List<Status>>() {
+    public final DiffUtil.ItemCallback<List<Status>> StatusDiff = new DiffUtil.ItemCallback<List<Status>>() {
         @Override
         public boolean areItemsTheSame(@NonNull List<Status> oldItem, @NonNull List<Status> newItem) {
             if (oldItem.size() == 0 || newItem.size() == 0)
@@ -40,7 +40,7 @@ public class ContactsListAdapter extends ListAdapter<User, ContactsListAdapter.C
             return oldItem.size() == newItem.size();
         }
     };
-    private static final String TAG = ContactsListAdapter.class.getSimpleName();
+    private final String TAG = ContactsListAdapter.class.getSimpleName();
 
     public interface OnChatClicked {
         void onChatClicked(int position);

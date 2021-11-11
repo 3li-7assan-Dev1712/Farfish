@@ -44,10 +44,7 @@ import com.google.firebase.auth.FirebaseAuth;
 
 import javax.inject.Inject;
 
-import dagger.Provides;
-import dagger.hilt.InstallIn;
 import dagger.hilt.android.AndroidEntryPoint;
-import dagger.hilt.android.components.FragmentComponent;
 
 @AndroidEntryPoint
 public class UsersFragment extends Fragment implements ContactsListAdapter.OnChatClicked,
@@ -56,10 +53,7 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
     private static final String ORIENTATION_CHANGE = "change";
     // users view model
     public MainViewModel mModel;
-
     private UsersFragmentBinding mBinding;
-    @Inject
-    public FirebaseAuth mAuth;
     /*private ContactsAdapter usersAdapter;*/
     @Inject
     public ContactsListAdapter mUserListAdapter;
@@ -90,24 +84,8 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
         setHasOptionsMenu(true);
         mUserListAdapter.setOnChatClicked(this);
         mUserListAdapter.setForStatus(false);
-        /*usersAdapter = new ContactsAdapter(requireContext(), publicUsers, this);*/
-//        mUserListAdapter = new ContactsListAdapter(this, false);
-        /*firebase database & auth*//*
-        mAuth = FirebaseAuth.getInstance();*/
         super.onCreate(savedInstanceState);
-    }
-
-   /* private void setProgresBarVisibility() {
-        if (isProgressBarVisible)
-            mBinding.loadUsersProgressBar.setVisibility(View.VISIBLE);
-        else
-            mBinding.loadUsersProgressBar.setVisibility(View.GONE);
-    }*/
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        Log.d(TAG, "onViewCreated: ");
-        super.onViewCreated(view, savedInstanceState);
+        Log.d(TAG, "onCreate: auth has code is: " + FirebaseAuth.getInstance().hashCode());
     }
 
     @Nullable
@@ -123,13 +101,10 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
                 backStackEntry,
                 HiltViewModelFactory.create(requireContext(), backStackEntry)
         ).get(MainViewModel.class);
-        Log.d(TAG, "onCreateView: mModule has code: " + mModel.hashCode());
         mModel.getUsersRepository().setObservers(this);
-        /*if (mBinding != null) setProgresBarVisibility();*/
         if (ContextCompat.checkSelfPermission(
                 requireContext(), Manifest.permission.READ_CONTACTS) ==
                 PackageManager.PERMISSION_GRANTED) {
-            // check if we have the phone numbers already
             getViewLifecycleOwnerLiveData().observe(getViewLifecycleOwner(), lifecycleOwner -> {
                 mModel.getAllUsers().observe(lifecycleOwner, users -> {
                     mUserListAdapter.customSubmitUserList(users);
@@ -164,9 +139,6 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
                 requestPermissionToReadContacts.launch(Manifest.permission.READ_CONTACTS);
 
         });
-        // migrating from the old normal RecyclerView adapter to the new ListRecyclerView Adapter (With ListAdapter)
-        // to get benefit from the DiffUtil class
-
         mBinding.usersRecyclerView.setAdapter(mUserListAdapter);
         checkUserConnection();
         return view;
@@ -212,7 +184,7 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
         int id = item.getItemId();
         switch (id) {
             case R.id.sign_out:
-                mAuth.signOut();
+                FirebaseAuth.getInstance().signOut();
                 Toast.makeText(requireContext(), requireContext().getString(R.string.sign_out_msg), Toast.LENGTH_SHORT).show();
                 SharedPreferenceUtils.saveUserSignOut(requireContext());
                 mNavController.navigate(R.id.action_usersFragment_to_fragmentSignIn);
@@ -301,12 +273,4 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
         mModel.updateUsers(getFilterState());
     }
 
-    @dagger.Module
-    @InstallIn(FragmentComponent.class)
-    static abstract class Module {
-        @Provides
-        public static FirebaseAuth providesFirebaseAuthInstance() {
-            return FirebaseAuth.getInstance();
-        }
-    }
 }

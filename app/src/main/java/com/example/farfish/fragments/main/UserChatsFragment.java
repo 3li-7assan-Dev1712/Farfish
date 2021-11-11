@@ -54,9 +54,6 @@ import dagger.hilt.android.AndroidEntryPoint;
 public class UserChatsFragment extends Fragment implements MessagesListAdapter.ChatClick,
         ChatsRepository.DataReadyInterface, UserProfileFragment.CleanViewModel {
 
-    @Inject
-    public FirebaseAuth mAuth;
-
     private static final String TAG = UserChatsFragment.class.getSimpleName();
 
     private NavController mNavController;
@@ -84,6 +81,7 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
         };
         requireActivity().getOnBackPressedDispatcher().addCallback(this, callback);
 
+        Log.d(TAG, "onCreate: auth has code is: " + FirebaseAuth.getInstance().hashCode());
     }
 
     @Override
@@ -96,14 +94,14 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
         View view = mBinding.getRoot();
 
         mNavController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
-        if (mAuth.getCurrentUser() == null) {
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
             navigateToSignIn();
         }
         ((AppCompatActivity) requireActivity())
                 .setSupportActionBar(mBinding.mainToolbarFrag);
         // start the periodic work
         uniquelyScheduleCleanUPWorker();
-        if (mAuth.getCurrentUser() != null) {
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
             NavBackStackEntry backStackEntry = mNavController.getBackStackEntry(R.id.nav_graph);
             mainViewModel = new ViewModelProvider(
                     backStackEntry,
@@ -130,7 +128,7 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
         int id = item.getItemId();
         switch (id) {
             case R.id.sign_out:
-                mAuth.signOut();
+                FirebaseAuth.getInstance().signOut();
                 Toast.makeText(requireContext(), getString(R.string.sign_out_msg), Toast.LENGTH_SHORT).show();
                 SharedPreferenceUtils.saveUserSignOut(requireContext());
                 onDestroy();
