@@ -20,6 +20,10 @@ import java.util.ArrayList;
 import omari.hamza.storyview.callback.StoryCallbacks;
 import omari.hamza.storyview.utils.ViewPagerAdapter;
 
+/**
+ * This adapter is used in the StatusFragment to display a set of statuses after tabbing
+ * on an item in the RecyclerView.
+ */
 public class CustomViewPagerAdapter extends ViewPagerAdapter {
     private Context context;
     private ArrayList<CustomStory> stories;

@@ -24,6 +24,10 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * this adapter is used in both UsersFragment and StatusFragment to provide
+ * the data for the RecyclerView.
+ */
 public class ContactsListAdapter extends ListAdapter<User, ContactsListAdapter.ContactsViewHolder> {
 
 

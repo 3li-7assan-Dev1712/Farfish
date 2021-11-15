@@ -29,6 +29,10 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * This adapter is used in both UserChatsFragment and ChatsFragment for providing
+ * the data to the RecyclerView.
+ */
 public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewHolder> {
 
 
@@ -38,7 +42,6 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
     private static final int USE_SEND_BACKGROUND_IMG = 2;
     private static final int USE_RECEIVE_BACKGROUND_IMG = 3;
     private static final int USE_PARENT_VIEW_HOLDER = 4;
-    // this will indicate for the UserContactsFragment's viewholders
 
 
     private List<Message> mMessages;
@@ -85,9 +88,6 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
             return USE_PARENT_VIEW_HOLDER;
         String senderId = mDiffer.getCurrentList().get(position).getSenderId();
         String photoUrl = mDiffer.getCurrentList().get(position).getPhotoUrl();
-     /*   if (mMessages == null) {
-            throw new NullPointerException("From getItemViewType message is null");
-        }*/
         if (useCurrentMessageBackground(senderId) && !photoUrl.equals("")) {
             return USE_SEND_BACKGROUND_IMG;
         } else if (useCurrentMessageBackground(senderId) && photoUrl.equals("")) {
