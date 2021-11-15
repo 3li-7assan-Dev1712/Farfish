@@ -12,8 +12,7 @@ import com.example.farfish.Module.util.CustomPhoneNumberUtils;
 import java.util.Set;
 
 public class ReadDataFromServerWorker extends Worker {
-    /*    private static List<String>  commonPhoneNumbers;
-        private static Set<String>  setCommonPhoneNumbers;*/
+
     private static Set<String> deviceContacts;
     private static Set<CustomPhoneNumberUtils> serverContacts;
     private final String TAG = ReadDataFromServerWorker.class.getSimpleName();
@@ -27,9 +26,6 @@ public class ReadDataFromServerWorker extends Worker {
         serverContacts = _serverContacts;
     }
 
-    /*public static List<String> getCommonPhoneNumbers() {
-        return commonPhoneNumbers;
-    }*/
 
     @NonNull
     @Override
@@ -43,12 +39,6 @@ public class ReadDataFromServerWorker extends Worker {
         // free up some space in the memory
         deviceContacts.clear();
         serverContacts.clear();
-        /*
-        commonPhoneNumbers = new ArrayList<>(data.size());
-        for (CustomPhoneNumberUtils datum : data) {
-            String commonPhoneNumber = datum.getVal();
-            commonPhoneNumbers.add(commonPhoneNumber);
-        }*/
         return Result.success();
     }
 }

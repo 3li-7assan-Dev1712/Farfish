@@ -29,21 +29,27 @@ import javax.inject.Inject;
 import dagger.hilt.android.qualifiers.ApplicationContext;
 
 public class UsersRepository {
-    private static final String TAG = UsersRepository.class.getSimpleName();
-    // observers
+    /**
+     * TAG for debug, and will be removed later
+     */
+    private final String TAG = UsersRepository.class.getSimpleName();
+
     public LiveData<WorkInfo> deviceContactsObserver;
     public LiveData<WorkInfo> commonContactsObserver;
     private InvokeObservers invokeObservers;
     private WorkManager workManager;
     private List<User> allUsersList = new ArrayList<>();
     private List<User> usersUserKnowList = new ArrayList<>();
-    /*private List<User> contactUsers = new ArrayList<>();*/
-    // phone numbers
-    private List<String> listServerPhoneNumber = new ArrayList<>();
     private Set<CustomPhoneNumberUtils> setServerPhoneNumber = new HashSet<>();
     private Context mContext;
     private String currentUserId;
 
+    /**
+     * injected constructor to provide an object of this class.
+     * constructs the necessary dependencies.
+     *
+     * @param context takes a context to be used for creating a WorkManager object
+     */
     @Inject
     public UsersRepository(@ApplicationContext Context context) {
         workManager = WorkManager.getInstance(context);
@@ -51,16 +57,27 @@ public class UsersRepository {
         currentUserId = MessagesPreference.getUserId(context);
     }
 
+    /**
+     * this method is responsible to attach the callbacks of this class to the UsersFragment
+     *
+     * @param observers takes an interface that holds a set of callbacks to invoke the fragments when the data is
+     *                  ready to display it to the user.
+     */
     public void setObservers(UsersRepository.InvokeObservers observers) {
         this.invokeObservers = observers;
     }
 
+    /**
+     * This method provides the logic of getting the data asynchronously
+     */
     public void loadUsers() {
         // Do an asynchronous operation to fetch users.
         refreshData();
     }
 
-
+    /**
+     * this method fetches the data into some lists to display them to the user.
+     */
     private void refreshData() {
         boolean contactsIsCached = false;
         if (MessagesPreference.getDeviceContacts(mContext) != null) {
@@ -86,13 +103,13 @@ public class UsersRepository {
 
     }
 
+    /**
+     * this methods is called from the UsersFragment, UsersFragment observes
+     * the WorkManager after it is finished it call this method to
+     * complete the app flow.
+     */
     public void readContactsWorkerEnd() {
         Log.d(TAG, "readContactsWorkerEnd: ");
-
-            /*Data input = new Data.Builder()
-                    .putStringArray("device_contacts", deviceContacts)
-                    .putStringArray("server_contacts", arrayServerPhoneNumbers)
-                    .build();*/
         ReadDataFromServerWorker.setLists(MessagesPreference.getDeviceContacts(mContext), setServerPhoneNumber);
         WorkRequest commonContactsWorker = new OneTimeWorkRequest.Builder(ReadDataFromServerWorker.class)
                 .build();
@@ -103,21 +120,21 @@ public class UsersRepository {
 
     }
 
+    /**
+     * as the name suggests the method fetches the users from the
+     * Firestore database into a list as well as their phone numbers.
+     *
+     * @param queryDocumentSnapshots takes an instance of a QuerySnapshot to fetch it
+     *                               to a list of users.
+     */
     private void fetchPrimaryData(QuerySnapshot queryDocumentSnapshots) {
         Log.d(TAG, "fetchPrimaryData: ");
-        /* contactUsers.clear();*/
         allUsersList.clear();
         for (DocumentSnapshot ds : queryDocumentSnapshots.getDocuments()) {
             User user = ds.toObject(User.class);
             assert user != null;
             String phoneNumber = user.getPhoneNumber();
             setServerPhoneNumber.add(new CustomPhoneNumberUtils(phoneNumber));
-            /*if (phoneNumber != null) {
-                if (!phoneNumber.equals("")) {
-                   *//* listServerPhoneNumber.add(phoneNumber);*//*
-
-                }
-            }*/
             assert currentUserId != null;
             if (!currentUserId.equals(user.getUserId()) && user.getIsPublic())
                 allUsersList.add(user);
@@ -127,16 +144,12 @@ public class UsersRepository {
         Log.d(TAG, "fetchPrimaryData: done");
     }
 
+    /**
+     * this method is called from the UsersFragment, after the WorkManager
+     * is finished its work (getting the common phone numbers) the UsersFragment
+     * calls this method to start preparing the UsersUserKnow list.
+     */
     public void prepareUserUserKnowList() {
-        /*for (String commonPhoneNumber : MessagesPreference.getUserContacts(mContext)) {
-            for (User userUserKnow : contactUsers) {
-                String localUserPhoneNumber = userUserKnow.getPhoneNumber();
-                if (PhoneNumberUtils.compare(commonPhoneNumber, localUserPhoneNumber)) {
-                    Log.d(TAG, "prepareUserUserKnowList: common number: " + commonPhoneNumber);
-                    usersUserKnowList.add(userUserKnow);
-                }
-            }
-        }*/
         Log.d(TAG, "prepareUserUserKnowList: test size is: " + CustomPhoneNumberUtils.getUsersUserKnow().size());
         usersUserKnowList.addAll(CustomPhoneNumberUtils.getUsersUserKnow());
         CustomPhoneNumberUtils.clearLists();
@@ -144,6 +157,11 @@ public class UsersRepository {
         invokeObservers.prepareDataFinished();
     }
 
+    /**
+     * the first time the user opens the app (specifically the UsersFragment)
+     * this method will be called to start a work in the background thread
+     * to store the user phone numbers in a SharedPreferences.
+     */
     private void readTheContactsInTheDevice() {
 
         // for WorkManager functionality
@@ -154,6 +172,17 @@ public class UsersRepository {
 
     }
 
+    /**
+     * when the user tabs in an item in the list in the UsersFragment
+     * the fragment calls this method to get the user object
+     * to be used the ChatsFragment flow.
+     *
+     * @param position     the position of the item clicked in the UsersFragment RecyclerView.
+     * @param fromContacts a boolean type which indicates whether the filter is enabled or not
+     *                     when the user clicks on the item, in order to take the object from all users list
+     *                     or from the userUserKnow list.
+     * @return returns a user object stored at the position in the list.
+     */
     public User getUserInPosition(int position, boolean fromContacts) {
         if (fromContacts)
             return usersUserKnowList.get(position);
@@ -161,6 +190,13 @@ public class UsersRepository {
             return allUsersList.get(position);
     }
 
+    /**
+     * get the currently displayed list to the user.
+     *
+     * @param fromContacts the same param of the method above to determine which method should
+     *                     be returned.
+     * @return returns the interesting list according to the boolean value.
+     */
     public List<User> getUsers(boolean fromContacts) {
         if (fromContacts)
             return usersUserKnowList;
@@ -168,6 +204,9 @@ public class UsersRepository {
             return allUsersList;
     }
 
+    /**
+     * a set of callbacks to provide the functionality of the UsersFragment.
+     */
     public interface InvokeObservers {
         void invokeObservers();
 
