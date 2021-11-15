@@ -21,6 +21,9 @@ import com.example.farfish.fragments.dialogs.TermsAndConditionsDialogFragment;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 
+/**
+ * this fragment is for let users sign up when it is the first time to register in the app.
+ */
 public class FragmentSignUp extends Fragment implements TermsAndConditionsDialogFragment.ActionClickListener {
 
     private static final String TAG = FragmentSignUp.class.getSimpleName();
@@ -83,6 +86,13 @@ public class FragmentSignUp extends Fragment implements TermsAndConditionsDialog
         return view;
     }
 
+    /**
+     * this method is called after ensure that all the required fields are filled by the user
+     * the let them sign up (create an account in the Farfish app).
+     *
+     * @param email    the user's email to be used for sign in on another time.
+     * @param password the password for authentication.
+     */
     private void signUp(String email, String password) {
 
         Bundle userData = new Bundle();
@@ -92,10 +102,20 @@ public class FragmentSignUp extends Fragment implements TermsAndConditionsDialog
         mNavController.navigate(R.id.profileImageFragment, userData);
     }
 
+    /**
+     * this method is called to navigate back to the Sign in fragment.
+     */
     private void navigateUp() {
         mNavController.navigateUp();
     }
 
+    /**
+     * this method is responsible for showing the keyboard in a specific EditText to
+     * inform the user about a required field to be filled.
+     *
+     * @param editText the EditText to show on it the keyboard for informing the user that
+     *                 this field is required.
+     */
     private void showKeyboardOnEditText(EditText editText) {
         editText.requestFocus();
         InputMethodManager manager = (InputMethodManager) requireActivity().
@@ -103,6 +123,13 @@ public class FragmentSignUp extends Fragment implements TermsAndConditionsDialog
         manager.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
     }
 
+    /**
+     * this method displays a snackbar to let the user know they missed filling a required field.
+     *
+     * @param requiredField the missed filling required filed.
+     * @param message       the message which will be used to explain for the user they should
+     *                      fill this required field.
+     */
     private void displayRequiredFieldSnackBar(EditText requiredField, String message) {
         Snackbar snackbar = Snackbar.make(snackBarView, message, Snackbar.LENGTH_LONG);
         int action = R.string.fix;
@@ -112,6 +139,12 @@ public class FragmentSignUp extends Fragment implements TermsAndConditionsDialog
         snackbar.show();
     }
 
+    /**
+     * a callback that will be invoked the user choose an action from the TermsAndConditions dialog
+     * (agree or disagree).
+     *
+     * @param isAgree a boolean type which indicates whether agreed on the Terms or not.
+     */
     @Override
     public void onActionClick(boolean isAgree) {
         mBinding.checkBoxTermsCondition.setChecked(isAgree);

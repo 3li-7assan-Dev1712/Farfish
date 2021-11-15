@@ -22,10 +22,10 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
-import com.example.farfish.Module.util.Connection;
+import com.example.farfish.Module.dataclasses.User;
 import com.example.farfish.Module.preferences.MessagesPreference;
 import com.example.farfish.Module.preferences.SharedPreferenceUtils;
-import com.example.farfish.Module.dataclasses.User;
+import com.example.farfish.Module.util.Connection;
 import com.example.farfish.R;
 import com.example.farfish.databinding.FragmentSignInBinding;
 import com.example.farfish.fragments.dialogs.InternetConnectionDialog;
@@ -46,8 +46,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-import javax.inject.Inject;
-
+/**
+ * The Sign in fragment through it the user login in the app
+ */
 public class FragmentSignIn extends Fragment {
     private static final String TAG = FragmentSignIn.class.getSimpleName();
     /*FirebaseUI*/
@@ -149,6 +150,12 @@ public class FragmentSignIn extends Fragment {
         return view;
     }
 
+    /**
+     * the method hide or show the horizontal progress bar at the top of the fragment
+     *
+     * @param showVisibility takes this boolean type to determine whether to hide or show
+     *                       the progress bar.
+     */
     private void showHorizontalProgressBar(boolean showVisibility) {
         if (showVisibility)
             mBinding.signInHorizontalProgressBar.setVisibility(View.VISIBLE);
@@ -159,6 +166,14 @@ public class FragmentSignIn extends Fragment {
         }
     }
 
+    /**
+     * this method is called after the user input the required fields in the screen to be able
+     * to sign in the app.
+     * the method checks for any invalid data and throw an exception of so.
+     *
+     * @param email    the email of the user that they used to register in the app before.
+     * @param password the password they input to register.
+     */
     private void signIn(String email, String password) {
         Log.d(TAG, "signIn: ");
         mAuth.signInWithEmailAndPassword(email, password).addOnSuccessListener(authResult -> {
@@ -193,6 +208,10 @@ public class FragmentSignIn extends Fragment {
         });
     }
 
+    /**
+     * after ensure the user inserted valid data and successfully login the app this method is called to store and update
+     * the user information as well ass navigates to the UserChatsFragment.
+     */
     private void updateUserInfoAndNavigateBack() {
 
         showHorizontalProgressBar(false);
@@ -240,6 +259,19 @@ public class FragmentSignIn extends Fragment {
 
     }
 
+    /**
+     * this method takes the user info and store them in a SharedPreferences to be used
+     * later in the app flow.
+     *
+     * @param userName    the user name that visible to other users.
+     * @param photoUrl    the photo url to display for other user and in the ProfileFragment as well.
+     * @param userId      the user id to be used in the app logic.
+     * @param status      a status a bio the user likes to be in their profile.
+     * @param phoneNumber the phone number of the user to be used the UserFragment show them for other users
+     *                    may know them.
+     * @param isPublic    a boolean type to indicate whether the user likes to visible for all users (public user)
+     *                    or just to their contacts (private user).
+     */
     private void saveUserDataInSharedPreference(String userName, String photoUrl, String userId, String status, String phoneNumber, boolean isPublic) {
         Context context = requireContext();
         MessagesPreference.saveUserName(context, userName);
@@ -251,10 +283,21 @@ public class FragmentSignIn extends Fragment {
         SharedPreferenceUtils.saveUserSignIn(context);
     }
 
+    /**
+     * when the user ignore a required field this method will be called to notify the user that
+     * a specific field is required and must be filled in.
+     *
+     * @param message takes a message to display it to the user.
+     */
     private void displayRequiredFieldToast(String message) {
         Toast.makeText(requireActivity(), message, Toast.LENGTH_SHORT).show();
     }
 
+    /**
+     * the method is called from the FirebaseUI after the user use it sign in with app.
+     *
+     * @param result takes a FirebaseAuthUIAuthenticationResult instance as result.
+     */
     private void onSignInResult(FirebaseAuthUIAuthenticationResult result) {
 
         if (result.getResultCode() == Activity.RESULT_OK) {
@@ -271,6 +314,9 @@ public class FragmentSignIn extends Fragment {
         }
     }
 
+    /**
+     * launcher method to launch the firebase UI to let the user sign in easily.
+     */
     private void launchFirebaseUI() {
         Intent signInIntent = AuthUI.getInstance()
                 .createSignInIntentBuilder()
@@ -281,6 +327,12 @@ public class FragmentSignIn extends Fragment {
         signInLauncher.launch(signInIntent);
     }
 
+    /**
+     * this method do show th keyboard, it is called when the user try to sigin in without filling all
+     * the required fields.
+     *
+     * @param editText takes it to show on it the keyboard.
+     */
     private void showKeyboardOnEditText(EditText editText) {
         editText.requestFocus();
         InputMethodManager manager = (InputMethodManager) requireActivity().
@@ -288,6 +340,16 @@ public class FragmentSignIn extends Fragment {
         manager.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
     }
 
+    /**
+     * when a exception occurs when the user try to sign in this method will be called
+     * to notify the user about the exception that happened.
+     *
+     * @param label     the label or the title of the message that explains the problem, it's a string resource to
+     *                  provide the translation for English and Arabic languages.
+     * @param action    the suggested action the user should take it's also a string resource for the same reason eg:
+     *                  (R.string.register)
+     * @param exception the exception tha has occur which it's used to suggest an action to be taken.
+     */
     private void showSnackBarWithAction(int label, int action, Exception exception) {
         Snackbar snackbar = Snackbar.make(snackBarView, label, Snackbar.LENGTH_LONG);
         if (exception != null) {
@@ -306,6 +368,9 @@ public class FragmentSignIn extends Fragment {
         snackbar.show();
     }
 
+    /**
+     * this method is override to free up the binding resource when the fragment is destroyed.
+     */
     @Override
     public void onDestroyView() {
         super.onDestroyView();

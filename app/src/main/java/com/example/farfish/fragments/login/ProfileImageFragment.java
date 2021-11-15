@@ -23,10 +23,10 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
-import com.example.farfish.Module.util.FileUtil;
+import com.example.farfish.Module.dataclasses.User;
 import com.example.farfish.Module.preferences.MessagesPreference;
 import com.example.farfish.Module.preferences.SharedPreferenceUtils;
-import com.example.farfish.Module.dataclasses.User;
+import com.example.farfish.Module.util.FileUtil;
 import com.example.farfish.R;
 import com.example.farfish.databinding.ProfileImageFragmentBinding;
 import com.example.farfish.fragments.dialogs.InternetConnectionDialog;
@@ -48,18 +48,18 @@ import java.util.Objects;
 
 import id.zelory.compressor.Compressor;
 
+/**
+ * this fragment is responsible for completing the user registration flow by taking
+ * to main data the user photo and phone number and then create an account
+ * for the user.
+ */
 public class ProfileImageFragment extends Fragment {
     private Uri imageUriFromGallery;
     private ProfileImageFragmentBinding mBinding;
     private static final String TAG = ProfileImageFragment.class.getSimpleName();
-    private ActivityResultLauncher<String> requestPermissionLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                if (isGranted) {
-                    pickImageFromGallery();
-                } else {
-                    Toast.makeText(requireContext(), getString(R.string.grant_access_media_permission), Toast.LENGTH_SHORT).show();
-                }
-            });
+    /**
+     * a LauncherActivity to open the gallery and returns an image uri.
+     */
     private ActivityResultLauncher<String> choosePicture = registerForActivityResult(
             new ActivityResultContracts.GetContent() {
                 @NonNull
@@ -69,6 +69,17 @@ public class ProfileImageFragment extends Fragment {
                 }
             },
             this::putIntoImage);
+    /**
+     * this LauncherActivity is to request a permission for access the internal memory.
+     */
+    private ActivityResultLauncher<String> requestPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    pickImageFromGallery();
+                } else {
+                    Toast.makeText(requireContext(), getString(R.string.grant_access_media_permission), Toast.LENGTH_SHORT).show();
+                }
+            });
 
     private String userId, userName, photoUrl, phoneNumber, email, password;
     private View snackBarView;
@@ -125,6 +136,11 @@ public class ProfileImageFragment extends Fragment {
         return view;
     }
 
+    /**
+     * after ensure the user has filled all the required fields with valid data this method will
+     * be called to create the user account and save their information in the firestore database as well
+     * as in the SharedPreferences for local functionality.
+     */
     private void saveUserDataAndNavigateToHomeScreen() {
         if (email != null) {
             FirebaseAuth auth = FirebaseAuth.getInstance();
@@ -153,6 +169,12 @@ public class ProfileImageFragment extends Fragment {
 
     }
 
+    /**
+     * this method is called before the orientation changes are happened to
+     * save the primary data and display them back.
+     *
+     * @param outState takes a bundle object to be used for saving the information.
+     */
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -160,10 +182,20 @@ public class ProfileImageFragment extends Fragment {
             outState.putParcelable("imageUri", imageUriFromGallery);
     }
 
+    /**
+     * this method is called to launch the gallery activity.
+     */
     private void pickImageFromGallery() {
         choosePicture.launch("image/*");
     }
 
+    /**
+     * this method is called after the user choose an image form the gallery the selected image will
+     * have a uri to be used in the app logic to display it directly for in an ImageView and
+     * then to be saved in the firestorage as and firestore as well.
+     *
+     * @param uri the uri of the selected image from the gallery to display it in the ProfileImageView.
+     */
     private void putIntoImage(Uri uri) {
         imageUriFromGallery = uri;
         if (imageUriFromGallery != null) {
@@ -172,11 +204,22 @@ public class ProfileImageFragment extends Fragment {
         }
     }
 
+    /**
+     * this method will be called from the putIntoImage method to show selected image in an ImageView.
+     *
+     * @param uri the uri of the selected image from the gallery.
+     */
     private void setImageAndBackground(Uri uri) {
         mBinding.profileImageFrameLayout.setBackground(requireContext().getResources().getDrawable(R.drawable.circle_background));
         Picasso.get().load(uri).fit().centerCrop().into(mBinding.registerImage);
     }
 
+    /**
+     * this method is responsible for taking the selected image form the gallery to compress it and then store
+     * it in the Firestorage and then get the downloadable url to be save it in the firestore database.
+     *
+     * @param uri the uri of the image that should be compressed and stored.
+     */
     private void compressImageAndStoreInStorage(Uri uri) {
         try {
             File galleryFile = FileUtil.from(requireContext(), uri);
@@ -212,6 +255,11 @@ public class ProfileImageFragment extends Fragment {
         super.onCreate(savedInstanceState);
     }
 
+    /**
+     * after compressing the image and store it in the firestorage and finally getting the downloadable url
+     * this method is called to save the final the data (including the downloadable url) in the
+     * firestore database.
+     */
     private void saveFinalData() {
         Log.d(TAG, "saveFinalData: photoUrl" + photoUrl);
         String status = Objects.requireNonNull(mBinding.editTextStatus.getText()).toString();
@@ -236,6 +284,13 @@ public class ProfileImageFragment extends Fragment {
     }
 
 
+    /**
+     * if there's an exception occurs while the creating account process this method will
+     * be called to notify the user about the exception.
+     *
+     * @param label     a string resource as a message to inform the user.
+     * @param exception the exception that has occur.
+     */
     private void showSnackBarWithAction(int label, Exception exception) {
         mBinding.progressBarProfileImage.setVisibility(View.GONE);
         Snackbar snackbar = Snackbar.make(snackBarView, label, Snackbar.LENGTH_INDEFINITE);
@@ -256,6 +311,9 @@ public class ProfileImageFragment extends Fragment {
         snackbar.show();
     }
 
+    /**
+     * override the method to clean up the views.
+     */
     @Override
     public void onDestroyView() {
         super.onDestroyView();
