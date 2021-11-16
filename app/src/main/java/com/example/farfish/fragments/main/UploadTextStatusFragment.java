@@ -29,6 +29,10 @@ import java.util.Objects;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
+/**
+ * this fragment is used to let the user write a text and then upload it
+ * as a status.
+ */
 @AndroidEntryPoint
 public class UploadTextStatusFragment extends Fragment {
 
@@ -112,6 +116,9 @@ public class UploadTextStatusFragment extends Fragment {
         return view;
     }
 
+    /**
+     * this method is just responsible for hiding the FAB.
+     */
     private void hideSendFab() {
         mBinding.uploadTextStatusFragmentFab.hide(); // call the hide method to provide some fade animation while disappearing.
     }
@@ -124,6 +131,9 @@ public class UploadTextStatusFragment extends Fragment {
             requireActivity().getWindow().setStatusBarColor(requireContext().getResources().getColor(R.color.colorPrimaryDark));
     }
 
+    /**
+     * when this method is called it display the FAB.
+     */
     private void displaySendFab() {
         mBinding.uploadTextStatusFragmentFab.show();
     }

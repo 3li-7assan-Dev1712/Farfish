@@ -26,9 +26,9 @@ import androidx.navigation.Navigation;
 
 import com.example.farfish.Adapters.ContactsListAdapter;
 import com.example.farfish.CustomViews.CustomStatusView;
-import com.example.farfish.Module.util.Connection;
 import com.example.farfish.CustomViews.CustomStory;
 import com.example.farfish.Module.dataclasses.Status;
+import com.example.farfish.Module.util.Connection;
 import com.example.farfish.R;
 import com.example.farfish.data.MainViewModel;
 import com.example.farfish.data.repositories.StatusRepository;
@@ -43,6 +43,10 @@ import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
+/**
+ * The StatusFragment which displays other users statues and let the user
+ * upload a status text or image.
+ */
 @AndroidEntryPoint
 public class StatusFragment extends Fragment implements ContactsListAdapter.OnChatClicked, StatusRepository.StatusInterface {
 
@@ -123,9 +127,9 @@ public class StatusFragment extends Fragment implements ContactsListAdapter.OnCh
         mModel.getStatusRepository().setStatusInterface(this);
         getViewLifecycleOwnerLiveData().observe(getViewLifecycleOwner(), lifecycleOwner ->
                 mModel.getStatusLiveData().observe(lifecycleOwner, statuesLists -> {
-            mStatusAdapter.customSubmitStatusList(statuesLists);
-            mBinding.statusProgressBar.setVisibility(View.GONE);
-        }));
+                    mStatusAdapter.customSubmitStatusList(statuesLists);
+                    mBinding.statusProgressBar.setVisibility(View.GONE);
+                }));
 
         if (savedInstanceState != null)
             mBinding.statusProgressBar.setVisibility(View.GONE);
@@ -137,6 +141,12 @@ public class StatusFragment extends Fragment implements ContactsListAdapter.OnCh
         super.onSaveInstanceState(outState);
     }
 
+    /**
+     * after the user choose an image from the gallery this method will be called compress the image
+     * and store it in the firestorage and finally display it in the status list.
+     *
+     * @param uri the uri of the selected image from gallery.
+     */
     private void putIntoImage(Uri uri) {
         mBinding.statusProgressBar.setVisibility(View.VISIBLE);
         if (uri != null) {
@@ -149,6 +159,10 @@ public class StatusFragment extends Fragment implements ContactsListAdapter.OnCh
 
     }
 
+    /**
+     * whenever a user try to upload an image as a status this method will be called, it checks the internet
+     * connection and then start open the gallery if so.
+     */
     private void pickImageFromGallery() {
         if (!Connection.isUserConnected(requireContext()))
             new InternetConnectionDialog().show(requireActivity().getSupportFragmentManager(), "internet_alert");
@@ -167,6 +181,13 @@ public class StatusFragment extends Fragment implements ContactsListAdapter.OnCh
     }
 
 
+    /**
+     * this method is called when the user tab on a status from the list to display the statues in
+     * full screen (just like Whatsapp).
+     *
+     * @param position takes the position of the pressed status (item in the RecyclerView)
+     *                 to be used in the app flow.
+     */
     @Override
     public void onChatClicked(int position) {
         Log.d(TAG, "onStatusClicked: Ok, will be completed soon");
@@ -193,6 +214,10 @@ public class StatusFragment extends Fragment implements ContactsListAdapter.OnCh
     }
 
 
+    /**
+     * the StatusRepository calls this method after preparing the data (statues) to notify the
+     * fragment to display it to the user.
+     */
     @Override
     public void statusesAreReady() {
         mModel.updateStatues();

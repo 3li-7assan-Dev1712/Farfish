@@ -49,7 +49,14 @@ import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
-
+/**
+ * This fragment is responsible for just display the chats data (all chats between the user and other users
+ * along with photos and last messages and time for each chat in the list).
+ * <p>
+ * and following the separation of concerns principles the fragment dose'nt responsible for providing
+ * the chats logic (reading from the database and keep track of any changes), it just
+ * responsible for displaying the ready and formatted data.
+ */
 @AndroidEntryPoint
 public class UserChatsFragment extends Fragment implements MessagesListAdapter.ChatClick,
         ChatsRepository.DataReadyInterface, UserProfileFragment.CleanViewModel {
@@ -123,6 +130,14 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
     }
 
 
+    /**
+     * overriding this method to provide the item selection functionality
+     *
+     * @param item it takes the selected item from the menu bar
+     *             to response to the user accordingly.
+     * @return return by a boolean type to tell the OS (the android operating system)
+     * that we handle this method and should be executed as it.
+     */
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
@@ -144,11 +159,21 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
         return true;
     }
 
+    /**
+     * override the method to inflate the custom menu bar.
+     *
+     * @param menu     the menu that contain the items (like the person icon to open the ProfileFragment)
+     * @param inflater a menu inflater to inflate the menu resource.
+     */
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         inflater.inflate(R.menu.main, menu);
     }
 
+    /**
+     * when a user tab in {Report Issue} from the dropdown menu this method
+     * will be called to provide sending the issue functionality.
+     */
     private void sendEmailIssue() {
         final Intent emailIntent = new Intent(Intent.ACTION_SEND);
         emailIntent.setType("text/plain")
@@ -163,10 +188,17 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
     }
 
 
+    /**
+     * when calling this method it will let the user navigate to the SignInFragment.
+     */
     private void navigateToSignIn() {
         mNavController.navigate(R.id.fragmentSignIn);
     }
 
+    /**
+     * this method checks the internet connection and inform the user if so
+     * by a snackbar.
+     */
     private void checkUserConnection() {
         if (!Connection.isUserConnected(requireContext())) {
             Snackbar.make(requireActivity().findViewById(R.id.bottom_nav), R.string.user_offline_msg, BaseTransientBottomBar.LENGTH_LONG)
@@ -174,6 +206,10 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
         }
     }
 
+    /**
+     * this method is responsible for uniquely start a periodic work using the WorkManager SDK the work job
+     * cleans the old messages (older than 3 months) and statuses (older than 2 days).
+     */
     private void uniquelyScheduleCleanUPWorker() {
 
         Constraints constraints = new Constraints.Builder()
@@ -205,6 +241,13 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
         mBinding = null;
     }
 
+    /**
+     * when the user tab on a chat this method will be called to get the selected chat info and then
+     * navigate to the ChatsFragment.
+     *
+     * @param position take the position of the selected chat in the RecyclerView to be used
+     *                 in the ChatsRepo to get the info from the list.
+     */
     @Override
     public void onChatClick(int position) {
         String targetUserId = mainViewModel.getChatsRepository().getMessageInPosition(position).getTargetId();
@@ -214,6 +257,12 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
     }
 
 
+    /**
+     * following the separation of concerns principles the Fragment is not responsible for the data logic
+     * it just responsible this data.
+     * So the ChatsRepository (inside the MainViewModel) do this logic (getting the chats data and keep track
+     * of any changes). Then call this method to update the data in the fragment.
+     */
     @Override
     public void dataIsReady() {
         mainViewModel.updateChats();
@@ -222,6 +271,11 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
         if (mBinding != null) mBinding.userChatsProgressBar.setVisibility(View.GONE);
     }
 
+    /**
+     * this method will be called to make the view model null, which it is really
+     * needed in case the user signs out and then signs in with different
+     * account in the same time.
+     */
     @Override
     public void cleanViewModel() {
         this.mainViewModel = null;
