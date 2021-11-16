@@ -46,11 +46,16 @@ import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
+/**
+ * This fragment is responsible for displaying the users data in the app, the data is displayed
+ * in one of two lists, all users list (which contains public all users) and users
+ * user may know (the user store their phone numbers in their device)
+ */
 @AndroidEntryPoint
 public class UsersFragment extends Fragment implements ContactsListAdapter.OnChatClicked,
         SharedPreferences.OnSharedPreferenceChangeListener, UsersRepository.InvokeObservers {
-    private static final String TAG = UsersFragment.class.getSimpleName();
-    private static final String ORIENTATION_CHANGE = "change";
+    private final String TAG = UsersFragment.class.getSimpleName();
+    private final String ORIENTATION_CHANGE = "change";
     // users view model
     public MainViewModel mModel;
     private UsersFragmentBinding mBinding;
@@ -59,7 +64,7 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
     public ContactsListAdapter mUserListAdapter;
 
     private NavController mNavController;
-    /* private boolean isProgressBarVisible = true;*/
+
 
     /* request permission*/
     private ActivityResultLauncher<String> requestPermissionToReadContacts =
@@ -151,6 +156,10 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
         /*outState.putBoolean(ORIENTATION_CHANGE, isProgressBarVisible);*/
     }
 
+    /**
+     * when the user clicks on the filter icon this method will be called
+     * to update the image resource.
+     */
     private void updateFilterImageResoucre() {
         if (getFilterState())
             mBinding.usersToolbar.filterImageView.setImageResource(R.drawable.ic_filter_list_yellow_24);
@@ -168,6 +177,13 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
     }
 
 
+    /**
+     * when the user click in one of the messages (messages that displays images) the method
+     * will be called to open the image in a full screen fragment.
+     *
+     * @param position takes the position of the selected image in the RecyclerView to be used in the
+     *                 app flow.
+     */
     @Override
     public void onChatClicked(int position) {
         /*isProgressBarVisible = false;*/
@@ -179,6 +195,14 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
         mNavController.navigate(R.id.action_usersFragment_to_chatsFragment, primaryDataBundle);
     }
 
+    /**
+     * this method wll be called when the user presses on one of the items
+     * in the menu for a specific action.
+     *
+     * @param item the selected item from the menu bar.
+     * @return true to tell the OS (the android operation system) that we handled
+     * this method functionality.
+     */
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
@@ -200,6 +224,10 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
         return true;
     }
 
+    /**
+     * called to handle sending an issue as an email to
+     * my email account.
+     */
     private void sendEmailIssue() {
         final Intent emailIntent = new Intent(Intent.ACTION_SEND);
         emailIntent.setType("text/plain")
@@ -218,6 +246,13 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
         inflater.inflate(R.menu.main, menu);
     }
 
+    /**
+     * when any changes occurs in the SharedPreferences the method will be called
+     * to update the image resource and display the desired list for the user.
+     *
+     * @param sharedPreferences the sharedPreferences instance that the change happened inside it.
+     * @param key               the key of the data stored in the SharedPreferences and has changes as well.
+     */
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         boolean activeFilter = sharedPreferences.getBoolean(key, true);
@@ -225,6 +260,11 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
         mModel.updateUsers(activeFilter);
     }
 
+    /**
+     * a simple method to get the filter state (enabled / disabled)
+     *
+     * @return the filter state true if enable and vice-versa.
+     */
     private Boolean getFilterState() {
         return FilterPreferenceUtils.isFilterActive(requireContext());
     }
@@ -268,6 +308,9 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
         });
     }
 
+    /**
+     * this callback will be called when the data is ready from the UsersFragment.
+     */
     @Override
     public void prepareDataFinished() {
         mModel.updateUsers(getFilterState());
