@@ -6,8 +6,8 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
-import com.example.farfish.Module.preferences.MessagesPreference;
 import com.example.farfish.Module.dataclasses.User;
+import com.example.farfish.Module.preferences.MessagesPreference;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -20,6 +20,7 @@ public class CustomPhoneNumberUtils {
 
     public static List<User> allUsers = new ArrayList<>();
     private static List<User> usersUserKnow = new ArrayList<>();
+
     public CustomPhoneNumberUtils(String val) {
         this.val = val;
     }
@@ -33,6 +34,17 @@ public class CustomPhoneNumberUtils {
         return this.getVal().hashCode();
     }
 
+    /**
+     * this method is responsible for providing the common phone numbers algorithm, it compares
+     * between two Sets one holds data from the server, and the second holds data from the Contacts ContentProvider.
+     * takes O(nm)
+     * n -=> the size of the Set from the ContactsContentProvider.
+     * m -=> the size of the Set from the firestore database.
+     *
+     * @param phoneNumberFromContactContactProvider from the Contacts ContentProvider.
+     * @param phoneNumbersFromServer                from the firestore database.
+     * @param context                               the app context to be used for saving the common data in a SharedPreferences.
+     */
     public static void storeCommonPhoneNumber(Set<String> phoneNumberFromContactContactProvider,
                                               Set<CustomPhoneNumberUtils> phoneNumbersFromServer,
                                               Context context) {
@@ -69,12 +81,13 @@ public class CustomPhoneNumberUtils {
         CustomPhoneNumberUtils number = (CustomPhoneNumberUtils) obj;
         return PhoneNumberUtils.compare(this.getVal(), number.getVal());
     }
-    public static List<User> getUsersUserKnow(){
+
+    public static List<User> getUsersUserKnow() {
         return usersUserKnow;
     }
 
     // this function is responsible for clearing up the lists after using them to free up some space.
-    public static void clearLists(){
+    public static void clearLists() {
         allUsers.clear();
         usersUserKnow.clear();
         mContactsPhoneNumbers.clear();
