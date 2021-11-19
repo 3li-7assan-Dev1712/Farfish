@@ -4,19 +4,19 @@
 
     <item
         android:id="@+id/make_video_call"
-        app:showAsAction="ifRoom"
         android:icon="@drawable/ic_baseline_videocam_24"
-        android:title="@string/video_call" />
+        android:title="@string/video_call"
+        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/make_normal_call"
-        app:showAsAction="ifRoom"
         android:icon="@drawable/fui_ic_phone_white_24dp"
-        android:title="@string/sound_call" />
+        android:title="@string/sound_call"
+        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/profile"
-        app:showAsAction="never"
-        android:title="@string/profile" />
+        android:title="@string/profile"
+        app:showAsAction="never" />
 
 </menu>

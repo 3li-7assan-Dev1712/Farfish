@@ -5,6 +5,17 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class FullImageData implements Parcelable {
+    public static final Creator<FullImageData> CREATOR = new Creator<FullImageData>() {
+        @Override
+        public FullImageData createFromParcel(Parcel in) {
+            return new FullImageData(in);
+        }
+
+        @Override
+        public FullImageData[] newArray(int size) {
+            return new FullImageData[size];
+        }
+    };
     private String senderName, formattedTime;
     private Bitmap bitmap;
 
@@ -19,18 +30,6 @@ public class FullImageData implements Parcelable {
         formattedTime = in.readString();
         bitmap = in.readParcelable(Bitmap.class.getClassLoader());
     }
-
-    public static final Creator<FullImageData> CREATOR = new Creator<FullImageData>() {
-        @Override
-        public FullImageData createFromParcel(Parcel in) {
-            return new FullImageData(in);
-        }
-
-        @Override
-        public FullImageData[] newArray(int size) {
-            return new FullImageData[size];
-        }
-    };
 
     public String getSenderName() {
         return senderName;

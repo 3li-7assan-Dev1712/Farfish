@@ -104,20 +104,20 @@ public class Message {
         return targetPhotoUrl;
     }
 
-    public void setNewMessagesCount(int newMessagesCount) {
-        this.newMessagesCount = newMessagesCount;
-    }
-
     public int getNewMessagesCount() {
         return newMessagesCount;
     }
 
-    public void setIsRead(boolean isRead) {
-        this.isRead = isRead;
+    public void setNewMessagesCount(int newMessagesCount) {
+        this.newMessagesCount = newMessagesCount;
     }
 
     public boolean getIsRead() {
         return this.isRead;
+    }
+
+    public void setIsRead(boolean isRead) {
+        this.isRead = isRead;
     }
 
     public String getTargetId() {

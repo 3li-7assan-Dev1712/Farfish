@@ -38,9 +38,9 @@ public class UploadTextStatusFragment extends Fragment {
 
     private static final String TAG = UploadTextStatusFragment.class.getSimpleName();
     private static final int DEFAULT_STATUS_LENGTH_LIMIT = 400;
+    public MainViewModel model;
     private UploadTextStatusFragmentBinding mBinding;
 
-    public MainViewModel model;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

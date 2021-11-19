@@ -23,18 +23,19 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 @HiltViewModel
 public class MainViewModel extends ViewModel implements MessagingRepository.PostMessagesInterface {
 
+    // return after repairing a broken head
     // Tag for logging
     private final String TAG = MainViewModel.class.getSimpleName();
-    // MutableLiveData
-    private MutableLiveData<List<User>> allUsers;
-    private MutableLiveData<List<Message>> userChats;
-    private MutableLiveData<List<Message>> userMessages;
-    private MutableLiveData<List<List<Status>>> statuesLists;
     // repositories
     public UsersRepository usersRepository;
     public ChatsRepository chatsRepository;
     public MessagingRepository messagingRepository;
     public StatusRepository statusRepository;
+    // MutableLiveData
+    private MutableLiveData<List<User>> allUsers;
+    private MutableLiveData<List<Message>> userChats;
+    private MutableLiveData<List<Message>> userMessages;
+    private MutableLiveData<List<List<Status>>> statuesLists;
 
     /**
      * a Hilt injected constructor to instantiate the main repos for the application

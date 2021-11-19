@@ -30,6 +30,8 @@ import dagger.hilt.android.AndroidEntryPoint;
 @AndroidEntryPoint
 public class UserProfileFragment extends Fragment {
 
+    private static final String TAG = UserProfileFragment.class.getSimpleName();
+    private static CleanViewModel cleanViewModel;
     private UserProfileFragmentBinding mBinding;
     // user information
     private String userName;
@@ -40,20 +42,16 @@ public class UserProfileFragment extends Fragment {
     private boolean isActive = true;
     private String lastTimeSeen = "";
     private long lastTimeSeenLong;
-    private static final String TAG = UserProfileFragment.class.getSimpleName();
     private String phoneNumber;
     private boolean isFromSharedPreference;
+    private FirebaseAuth mAuth;
 
-    private static CleanViewModel cleanViewModel;
+
+    public UserProfileFragment() {
+    }
 
     public static void setCleaner(CleanViewModel cleaner) {
         cleanViewModel = cleaner;
-    }
-
-
-    private FirebaseAuth mAuth;
-
-    public UserProfileFragment() {
     }
 
     @Override
@@ -156,10 +154,6 @@ public class UserProfileFragment extends Fragment {
         view.setVisibility(View.GONE);
     }
 
-    public interface CleanViewModel {
-        void cleanViewModel();
-    }
-
     private void populateFromBundle(Bundle userInfo) {
         User user = userInfo.getParcelable("user");
         assert user != null;
@@ -228,6 +222,10 @@ public class UserProfileFragment extends Fragment {
                     ).toString();
         }
         return context.getResources().getString(R.string.last_time_seen_was_seconds_ago);
+    }
+
+    public interface CleanViewModel {
+        void cleanViewModel();
     }
 
 }

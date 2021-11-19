@@ -13,13 +13,13 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:background="@drawable/new_message_indicator_background"
-        android:padding="4dp"
         android:minWidth="24dp"
-        app:layout_constraintEnd_toEndOf="@id/lastMessageTime"
-        tools:visibility="visible"
+        android:padding="4dp"
         android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="@id/lastMessageTime"
         app:layout_constraintStart_toStartOf="@id/lastMessageTime"
-        app:layout_constraintTop_toBottomOf="@id/lastMessageTime">
+        app:layout_constraintTop_toBottomOf="@id/lastMessageTime"
+        tools:visibility="visible">
 
         <TextView
             android:id="@+id/newMessageCountTextView"
@@ -39,10 +39,10 @@
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
         android:gravity="center"
-        app:layout_goneMarginBottom="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_goneMarginBottom="8dp">
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/profileImage"
@@ -102,14 +102,14 @@
         android:id="@+id/lastMessage"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
         android:layout_marginEnd="8dp"
         android:ellipsize="end"
-        android:layout_marginStart="16dp"
         android:fontFamily="sans-serif"
         android:gravity="start"
-        app:layout_constraintStart_toEndOf="@+id/frameLayout"
         android:lines="1"
         app:layout_constraintEnd_toStartOf="@id/newMessageCountTextViewContainer"
+        app:layout_constraintStart_toEndOf="@+id/frameLayout"
         app:layout_constraintTop_toBottomOf="@+id/personName"
         tools:text="Hi Abdullah hi hi hi hi hi hih hi hi hi hi" />
 
@@ -130,10 +130,10 @@
         android:layout_width="0dp"
         android:layout_height="1dp"
         android:background="@android:color/darker_gray"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@id/lastMessageTime"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@id/lastMessage"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        app:layout_constraintStart_toStartOf="@id/lastMessage" />
 
     <ProgressBar
         android:id="@+id/progressImageIndicator"

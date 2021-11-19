@@ -292,14 +292,6 @@ public class MessagingRepository {
                 .setValue(true);
     }
 
-    public interface MessagingInterface {
-        void refreshChatInfo();
-
-        void refreshMessages();
-
-        void populateToolbar();
-    }
-
     private void markMessageAsRead(DataSnapshot snapshotMessageTobeUpdated, Message messageToUpdate) {
 
 
@@ -328,10 +320,6 @@ public class MessagingRepository {
                 ));
 
          */
-    }
-
-    public interface PostMessagesInterface {
-        void postMessages(List<Message> messages);
     }
 
     public void compressAndSendImage(Uri uri) {
@@ -378,6 +366,18 @@ public class MessagingRepository {
             Log.d(TAG, "Error compressing the file");
             Toast.makeText(mContext, "Error occurs", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    public interface MessagingInterface {
+        void refreshChatInfo();
+
+        void refreshMessages();
+
+        void populateToolbar();
+    }
+
+    public interface PostMessagesInterface {
+        void postMessages(List<Message> messages);
     }
 
     class CurrentRoomListener implements ChildEventListener {

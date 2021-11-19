@@ -62,24 +62,24 @@
             android:id="@+id/timeMessage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="4dp"
             android:fontFamily="sans-serif-thin"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@android:color/holo_green_dark"
             android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="@id/isReadIconIndicator"
             app:layout_constraintEnd_toStartOf="@id/isReadIconIndicator"
             app:layout_constraintTop_toTopOf="@id/isReadIconIndicator"
-            android:layout_marginEnd="4dp"
-            app:layout_constraintBottom_toBottomOf="@id/isReadIconIndicator"
             tools:text="4:55PM" />
 
         <ImageView
             android:id="@+id/isReadIconIndicator"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:contentDescription="@string/image_button_description"
             android:src="@drawable/ic_done_all_black"
-            app:layout_constraintTop_toBottomOf="@id/messageTextView"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:contentDescription="@string/image_button_description" />
+            app:layout_constraintTop_toBottomOf="@id/messageTextView" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>

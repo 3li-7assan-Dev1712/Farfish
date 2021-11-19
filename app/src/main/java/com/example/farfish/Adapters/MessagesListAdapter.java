@@ -36,30 +36,30 @@ import java.util.Locale;
 public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewHolder> {
 
 
+    public static final DiffUtil.ItemCallback<Message> Diff = new DiffUtil.ItemCallback<Message>() {
+        @Override
+        public boolean areItemsTheSame(@NonNull Message oldItem, @NonNull Message newItem) {
+            return oldItem.getTimestamp() == newItem.getTimestamp();
+        }
+
+        @Override
+        public boolean areContentsTheSame(@NonNull Message oldItem, @NonNull Message newItem) {
+            return oldItem.equals(newItem);
+        }
+    };
     private static final String TAG = MessagesListAdapter.class.getSimpleName();
     private static final int USE_RECEIVE_BACKGROUND = 0;
     private static final int USE_SEND_BACKGROUND = 1;
     private static final int USE_SEND_BACKGROUND_IMG = 2;
     private static final int USE_RECEIVE_BACKGROUND_IMG = 3;
     private static final int USE_PARENT_VIEW_HOLDER = 4;
-
-
+    private final AsyncListDiffer<Message> mDiffer = new AsyncListDiffer<>(this, Diff);
+    MessagesListAdapter.MessageClick mMessageInterface;
+    ChatClick mChatClick;
     private List<Message> mMessages;
     private Context mContext;
     // this boolean is for UserChatsFragment's ViewHolders
     private boolean mIsGeneral;
-
-    /* interface for listening to touching*/
-    public interface MessageClick {
-        void onMessageClick(View view, int position);
-    }
-
-    public interface ChatClick {
-        void onChatClick(int position);
-    }
-
-    MessagesListAdapter.MessageClick mMessageInterface;
-    ChatClick mChatClick;
 
     public MessagesListAdapter(List<Message> messages, Context context, MessageClick messageClick, boolean isGeneral) {
         super(MessagesListAdapter.Diff);
@@ -80,6 +80,11 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
     public MessagesListAdapter(Context mContext) {
         super(MessagesListAdapter.Diff);
         this.mContext = mContext;
+    }
+
+    private static String getReadableDate(long timestamp) {
+        SimpleDateFormat d = new SimpleDateFormat("h:mm a", Locale.getDefault());
+        return d.format(timestamp);
     }
 
     @Override
@@ -158,6 +163,37 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
         }
     }
 
+    public void setIsGeneral(boolean mIsGeneral) {
+        this.mIsGeneral = mIsGeneral;
+    }
+
+    public void setChatClick(ChatClick chatClick) {
+        this.mChatClick = chatClick;
+    }
+
+    public void setMessageInterface(MessageClick mMessageInterface) {
+        this.mMessageInterface = mMessageInterface;
+    }
+
+    @Override
+    public int getItemCount() {
+        return mDiffer.getCurrentList().size();
+    }
+
+    @Override
+    public void submitList(@Nullable List<Message> list) {
+        mDiffer.submitList(list);
+    }
+
+    /* interface for listening to touching*/
+    public interface MessageClick {
+        void onMessageClick(View view, int position);
+    }
+
+    public interface ChatClick {
+        void onChatClick(int position);
+    }
+
     static class LocalMessageViewHolder extends RecyclerView.ViewHolder {
 
         private LocalMessageViewHolderBinding binding;
@@ -194,47 +230,6 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
             binding.messageTextView.setText(message.getText());
             binding.timeMessage.setText(getReadableDate(message.getTimestamp()));
         }
-    }
-
-    public void setIsGeneral(boolean mIsGeneral) {
-        this.mIsGeneral = mIsGeneral;
-    }
-
-    public void setChatClick(ChatClick chatClick) {
-        this.mChatClick = chatClick;
-    }
-
-    public void setMessageInterface(MessageClick mMessageInterface) {
-        this.mMessageInterface = mMessageInterface;
-    }
-
-    private static String getReadableDate(long timestamp) {
-        SimpleDateFormat d = new SimpleDateFormat("h:mm a", Locale.getDefault());
-        return d.format(timestamp);
-    }
-
-    public static final DiffUtil.ItemCallback<Message> Diff = new DiffUtil.ItemCallback<Message>() {
-        @Override
-        public boolean areItemsTheSame(@NonNull Message oldItem, @NonNull Message newItem) {
-            return oldItem.getTimestamp() == newItem.getTimestamp();
-        }
-
-        @Override
-        public boolean areContentsTheSame(@NonNull Message oldItem, @NonNull Message newItem) {
-            return oldItem.equals(newItem);
-        }
-    };
-
-    private final AsyncListDiffer<Message> mDiffer = new AsyncListDiffer<>(this, Diff);
-
-    @Override
-    public int getItemCount() {
-        return mDiffer.getCurrentList().size();
-    }
-
-    @Override
-    public void submitList(@Nullable List<Message> list) {
-        mDiffer.submitList(list);
     }
 
     class LocalImageMessageViewHolder extends RecyclerView.ViewHolder {

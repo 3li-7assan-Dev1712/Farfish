@@ -4,6 +4,17 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class Status implements Parcelable {
+    public static final Creator<Status> CREATOR = new Creator<Status>() {
+        @Override
+        public Status createFromParcel(Parcel in) {
+            return new Status(in);
+        }
+
+        @Override
+        public Status[] newArray(int size) {
+            return new Status[size];
+        }
+    };
     private String uploaderName, uploaderPhotoUrl, uploaderPhoneNumber, statusImage, statusText;
     private long timestamp;
     private int seenBy;
@@ -54,18 +65,6 @@ public class Status implements Parcelable {
         timestamp = in.readLong();
         seenBy = in.readInt();
     }
-
-    public static final Creator<Status> CREATOR = new Creator<Status>() {
-        @Override
-        public Status createFromParcel(Parcel in) {
-            return new Status(in);
-        }
-
-        @Override
-        public Status[] newArray(int size) {
-            return new Status[size];
-        }
-    };
 
     public String getStatusText() {
         return statusText;

@@ -44,19 +44,12 @@ public class CustomStatusView extends DialogFragment implements StoriesProgressV
         TouchCallbacks {
 
     private static final String TAG = CustomStatusView.class.getSimpleName();
-
-    private ArrayList<CustomStory> storiesList;
-
     private final static String IMAGES_KEY = "IMAGES";
-
-    private long duration = 2000; //Default Duration
-
     private static final String DURATION_KEY = "DURATION";
-
     private static final String HEADER_INFO_KEY = "HEADER_INFO";
-
     private static final String STARTING_INDEX_TAG = "STARTING_INDEX";
-
+    private ArrayList<CustomStory> storiesList;
+    private long duration = 2000; //Default Duration
     private StoriesProgressView storiesProgressView;
 
     private ViewPager mViewPager;

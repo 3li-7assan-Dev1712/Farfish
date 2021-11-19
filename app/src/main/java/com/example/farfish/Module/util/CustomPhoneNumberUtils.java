@@ -15,23 +15,13 @@ import java.util.List;
 import java.util.Set;
 
 public class CustomPhoneNumberUtils {
-    private static Set<String> mContactsPhoneNumbers = new HashSet<>();
-    private String val;
-
     public static List<User> allUsers = new ArrayList<>();
+    private static Set<String> mContactsPhoneNumbers = new HashSet<>();
     private static List<User> usersUserKnow = new ArrayList<>();
+    private String val;
 
     public CustomPhoneNumberUtils(String val) {
         this.val = val;
-    }
-
-    public String getVal() {
-        return val;
-    }
-
-    @Override
-    public int hashCode() {
-        return this.getVal().hashCode();
     }
 
     /**
@@ -69,6 +59,26 @@ public class CustomPhoneNumberUtils {
         MessagesPreference.saveCommonContacts(context, mContactsPhoneNumbers);
     }
 
+    public static List<User> getUsersUserKnow() {
+        return usersUserKnow;
+    }
+
+    // this function is responsible for clearing up the lists after using them to free up some space.
+    public static void clearLists() {
+        allUsers.clear();
+        usersUserKnow.clear();
+        mContactsPhoneNumbers.clear();
+    }
+
+    public String getVal() {
+        return val;
+    }
+
+    @Override
+    public int hashCode() {
+        return this.getVal().hashCode();
+    }
+
     @Override
     public boolean equals(@Nullable Object obj) {
         if (this == obj)
@@ -80,16 +90,5 @@ public class CustomPhoneNumberUtils {
 
         CustomPhoneNumberUtils number = (CustomPhoneNumberUtils) obj;
         return PhoneNumberUtils.compare(this.getVal(), number.getVal());
-    }
-
-    public static List<User> getUsersUserKnow() {
-        return usersUserKnow;
-    }
-
-    // this function is responsible for clearing up the lists after using them to free up some space.
-    public static void clearLists() {
-        allUsers.clear();
-        usersUserKnow.clear();
-        mContactsPhoneNumbers.clear();
     }
 }

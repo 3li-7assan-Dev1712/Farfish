@@ -17,13 +17,13 @@
             android:id="@+id/editProfileHorizontalProgressBar"
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="0dp"
-            android:max="100"
-            android:visibility="invisible"
-            android:textAlignment="center"
-            android:indeterminate="true"
             android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="parent"
+            android:indeterminate="true"
+            android:max="100"
+            android:textAlignment="center"
+            android:visibility="invisible"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/appbar" />
 
         <Button
@@ -110,31 +110,31 @@
             tools:src="@tools:sample/backgrounds/scenic" />
 
         <Button
+            android:id="@+id/privateButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:id="@+id/privateButton"
-            app:layout_constraintEnd_toStartOf="@id/publicButton"
-            app:layout_constraintTop_toBottomOf="@id/editProfilePhoneNumber"
-            app:layout_constraintStart_toStartOf="parent"
             android:layout_marginTop="32dp"
             android:background="@color/red"
+            android:text="@string/private_btn"
             android:textColor="@color/white"
-            android:text="@string/private_btn"/>
+            app:layout_constraintEnd_toStartOf="@id/publicButton"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/editProfilePhoneNumber"/>
 
         <Button
+            android:id="@+id/publicButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:id="@+id/publicButton"
-            app:layout_constraintTop_toBottomOf="@id/editProfilePhoneNumber"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginEnd="16dp"
-            android:layout_marginTop="32dp"
-            app:layout_constraintStart_toEndOf="@id/privateButton"
             android:layout_marginStart="16dp"
+            android:layout_marginTop="32dp"
+            android:layout_marginEnd="16dp"
             android:background="@android:color/darker_gray"
+            android:text="@string/public_btn"
             android:textColor="@color/white"
-            android:text="@string/public_btn"/>
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/privateButton"
+            app:layout_constraintTop_toBottomOf="@id/editProfilePhoneNumber"/>
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/appbar"
             android:layout_width="match_parent"

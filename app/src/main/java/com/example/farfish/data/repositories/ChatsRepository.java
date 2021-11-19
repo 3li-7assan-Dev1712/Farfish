@@ -122,10 +122,6 @@ public class ChatsRepository implements ValueEventListener {
         NotificationUtils.notifyUserOfNewMessage(mContext, newMessage);
     }
 
-    public interface DataReadyInterface {
-        void dataIsReady();
-    }
-
     public Message getMessageInPosition(int position) {
         return mUserChats.get(position);
     }
@@ -153,6 +149,10 @@ public class ChatsRepository implements ValueEventListener {
         mChatsReference = null;
         mCurrentUserId = null;
         mDataReadyInterface = null;
+    }
+
+    public interface DataReadyInterface {
+        void dataIsReady();
     }
 
 }

@@ -62,19 +62,15 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
         ChatsRepository.DataReadyInterface, UserProfileFragment.CleanViewModel {
 
     private static final String TAG = UserChatsFragment.class.getSimpleName();
-
-    private NavController mNavController;
-
     public MainViewModel mainViewModel;
-
+    @Inject
+    public MessagesListAdapter mListAdapter;
+    private NavController mNavController;
     private FragmentUserChatsBinding mBinding;
 
     public UserChatsFragment() {
         // Required empty public constructor
     }
-
-    @Inject
-    public MessagesListAdapter mListAdapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

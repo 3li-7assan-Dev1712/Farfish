@@ -50,13 +50,22 @@ import dagger.hilt.android.AndroidEntryPoint;
 @AndroidEntryPoint
 public class StatusFragment extends Fragment implements ContactsListAdapter.OnChatClicked, StatusRepository.StatusInterface {
 
+    private static final String TAG = StatusFragment.class.getSimpleName();
+    public MainViewModel mModel;
+    @Inject
+    public ContactsListAdapter mStatusAdapter;
     // the root view
     private StatusFragmentBinding mBinding;
-    private static final String TAG = StatusFragment.class.getSimpleName();
-
     private boolean SHOULD_REMOVE_LISTENER;
-
-    public MainViewModel mModel;
+    private ActivityResultLauncher<String> selectImageToUpload = registerForActivityResult(
+            new ActivityResultContracts.GetContent() {
+                @NonNull
+                @Override
+                public Intent createIntent(@NonNull Context context, @NonNull String input) {
+                    return super.createIntent(context, "image/*");// filter the gallery output, so the user can send a photo as they expects
+                }
+            },
+            this::putIntoImage);
     /* request permission*/
     private ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
@@ -67,17 +76,6 @@ public class StatusFragment extends Fragment implements ContactsListAdapter.OnCh
                     Toast.makeText(requireContext(), getString(R.string.grant_access_media_permission), Toast.LENGTH_SHORT).show();
                 }
             });
-    private ActivityResultLauncher<String> selectImageToUpload = registerForActivityResult(
-            new ActivityResultContracts.GetContent() {
-                @NonNull
-                @Override
-                public Intent createIntent(@NonNull Context context, @NonNull String input) {
-                    return super.createIntent(context, "image/*");// filter the gallery output, so the user can send a photo as they expects
-                }
-            },
-            this::putIntoImage);
-    @Inject
-    public ContactsListAdapter mStatusAdapter;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {

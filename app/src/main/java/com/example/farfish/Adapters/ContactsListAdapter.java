@@ -31,6 +31,17 @@ import java.util.Locale;
 public class ContactsListAdapter extends ListAdapter<User, ContactsListAdapter.ContactsViewHolder> {
 
 
+    public static final DiffUtil.ItemCallback<User> Diff = new DiffUtil.ItemCallback<User>() {
+        @Override
+        public boolean areItemsTheSame(@NonNull User oldItem, @NonNull User newItem) {
+            return oldItem.getUserId().equals(newItem.getUserId());
+        }
+
+        @Override
+        public boolean areContentsTheSame(@NonNull User oldItem, @NonNull User newItem) {
+            return oldItem.equals(newItem);
+        }
+    };
     public final DiffUtil.ItemCallback<List<Status>> StatusDiff = new DiffUtil.ItemCallback<List<Status>>() {
         @Override
         public boolean areItemsTheSame(@NonNull List<Status> oldItem, @NonNull List<Status> newItem) {
@@ -45,22 +56,11 @@ public class ContactsListAdapter extends ListAdapter<User, ContactsListAdapter.C
         }
     };
     private final String TAG = ContactsListAdapter.class.getSimpleName();
-
-    public interface OnChatClicked {
-        void onChatClicked(int position);
-    }
-
-    private OnChatClicked onChatClicked;
     // for status destination
     private final AsyncListDiffer<List<Status>> mStatusDiffer = new AsyncListDiffer<>(this, StatusDiff);
-
-    @NonNull
-    @Override
-    public ContactsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        ContactViewHolderBinding binding =
-                ContactViewHolderBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
-        return new ContactsViewHolder(binding);
-    }
+    // significant attribute to hunt the difference between two lists on a background thread
+    private final AsyncListDiffer<User> mDiffer = new AsyncListDiffer<>(this, Diff);
+    private OnChatClicked onChatClicked;
     private boolean forStatus;
 
 
@@ -74,6 +74,14 @@ public class ContactsListAdapter extends ListAdapter<User, ContactsListAdapter.C
         super(Diff);
     }
 
+    @NonNull
+    @Override
+    public ContactsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        ContactViewHolderBinding binding =
+                ContactViewHolderBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
+        return new ContactsViewHolder(binding);
+    }
+
     public void setOnChatClicked(OnChatClicked onChatClicked) {
         this.onChatClicked = onChatClicked;
     }
@@ -81,18 +89,6 @@ public class ContactsListAdapter extends ListAdapter<User, ContactsListAdapter.C
     public void setForStatus(boolean forStatus) {
         this.forStatus = forStatus;
     }
-
-    public static final DiffUtil.ItemCallback<User> Diff = new DiffUtil.ItemCallback<User>() {
-        @Override
-        public boolean areItemsTheSame(@NonNull User oldItem, @NonNull User newItem) {
-            return oldItem.getUserId().equals(newItem.getUserId());
-        }
-
-        @Override
-        public boolean areContentsTheSame(@NonNull User oldItem, @NonNull User newItem) {
-            return oldItem.equals(newItem);
-        }
-    };
 
     @Override
     public void onBindViewHolder(@NonNull ContactsViewHolder holder, int position) {
@@ -112,9 +108,6 @@ public class ContactsListAdapter extends ListAdapter<User, ContactsListAdapter.C
         }
     }
 
-    // significant attribute to hunt the difference between two lists on a background thread
-    private final AsyncListDiffer<User> mDiffer = new AsyncListDiffer<>(this, Diff);
-
     @Override
     public int getItemCount() {
 
@@ -127,6 +120,10 @@ public class ContactsListAdapter extends ListAdapter<User, ContactsListAdapter.C
 
     public void customSubmitStatusList(@Nullable List<List<Status>> lists) {
         mStatusDiffer.submitList(lists);
+    }
+
+    public interface OnChatClicked {
+        void onChatClicked(int position);
     }
 
     class ContactsViewHolder extends RecyclerView.ViewHolder {

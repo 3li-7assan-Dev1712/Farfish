@@ -58,11 +58,10 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
     private final String ORIENTATION_CHANGE = "change";
     // users view model
     public MainViewModel mModel;
-    private UsersFragmentBinding mBinding;
     /*private ContactsAdapter usersAdapter;*/
     @Inject
     public ContactsListAdapter mUserListAdapter;
-
+    private UsersFragmentBinding mBinding;
     private NavController mNavController;
 
 

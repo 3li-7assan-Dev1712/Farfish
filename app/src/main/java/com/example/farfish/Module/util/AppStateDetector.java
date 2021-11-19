@@ -29,9 +29,9 @@ import dagger.hilt.android.HiltAndroidApp;
 public class AppStateDetector extends androidx.multidex.MultiDexApplication implements
         LifecycleObserver, SharedPreferences.OnSharedPreferenceChangeListener {
 
+    private static final String TAG = AppStateDetector.class.getSimpleName();
     private FirebaseAuth mAuth;
     private FirebaseFirestore mFirestore;
-    private static final String TAG = AppStateDetector.class.getSimpleName();
 
     @Override
     public void onCreate() {

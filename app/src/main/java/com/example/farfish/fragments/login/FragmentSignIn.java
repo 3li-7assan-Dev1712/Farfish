@@ -55,21 +55,18 @@ public class FragmentSignIn extends Fragment {
     private List<AuthUI.IdpConfig> providers = Arrays.asList(
             new AuthUI.IdpConfig.EmailBuilder().build(),
             new AuthUI.IdpConfig.GoogleBuilder().build());
-    private ActivityResultLauncher<Intent> signInLauncher = registerForActivityResult(
-            new FirebaseAuthUIActivityResultContract(),
-            this::onSignInResult
-    );
-
     // firebase auth
     private FirebaseAuth mAuth;
     /*Navigation*/
     private NavController mNavController;
     // snackbar view
     private View snackBarView;
-
     // Root class that contains al the views
     private FragmentSignInBinding mBinding;
-
+    private ActivityResultLauncher<Intent> signInLauncher = registerForActivityResult(
+            new FirebaseAuthUIActivityResultContract(),
+            this::onSignInResult
+    );
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {

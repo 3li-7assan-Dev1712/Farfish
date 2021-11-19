@@ -41,12 +41,12 @@
         android:layout_above="@id/linearLayout"
         android:layout_marginBottom="8dp"
         android:divider="@android:color/transparent"
-        app:stackFromEnd="true"
         android:transcriptMode="alwaysScroll"
         app:layout_constraintBottom_toTopOf="@id/linearLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/appbar"
+        app:stackFromEnd="true"
         tools:listitem="@layout/message_view_holder" />
 
     <ProgressBar
@@ -156,6 +156,6 @@
         android:hint="@string/edit_text_hint"
         android:maxHeight="104dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

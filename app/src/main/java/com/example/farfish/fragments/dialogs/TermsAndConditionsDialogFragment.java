@@ -13,10 +13,6 @@ import com.example.farfish.R;
 
 public class TermsAndConditionsDialogFragment extends DialogFragment {
 
-    public interface ActionClickListener {
-        void onActionClick(boolean isAgree);
-    }
-
     public ActionClickListener mTermsAndConditionsListener;
 
     public TermsAndConditionsDialogFragment(ActionClickListener _mTermsAndConditionsListener) {
@@ -40,5 +36,9 @@ public class TermsAndConditionsDialogFragment extends DialogFragment {
                 });
 
         return builder.create();
+    }
+
+    public interface ActionClickListener {
+        void onActionClick(boolean isAgree);
     }
 }

@@ -4,10 +4,10 @@
     <solid android:color="@color/sign_in_color"
         />
     <corners android:radius="8dp"/>
-    <gradient android:type="linear"
-        android:angle="270"
+    <gradient android:angle="270"
+        android:endColor="@color/primaryLightColor"
         android:startColor="@color/colorPrimaryDark"
-        android:endColor="@color/primaryLightColor" />
+        android:type="linear" />
 
     <!--  android:endColor="@color/design_default_color_primary_dark"  -->
 </shape>

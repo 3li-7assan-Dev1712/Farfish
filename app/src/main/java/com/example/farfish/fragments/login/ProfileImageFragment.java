@@ -54,9 +54,9 @@ import id.zelory.compressor.Compressor;
  * for the user.
  */
 public class ProfileImageFragment extends Fragment {
+    private static final String TAG = ProfileImageFragment.class.getSimpleName();
     private Uri imageUriFromGallery;
     private ProfileImageFragmentBinding mBinding;
-    private static final String TAG = ProfileImageFragment.class.getSimpleName();
     /**
      * a LauncherActivity to open the gallery and returns an image uri.
      */

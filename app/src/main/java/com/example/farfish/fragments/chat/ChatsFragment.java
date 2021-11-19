@@ -73,28 +73,17 @@ import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
 public class ChatsFragment extends Fragment implements MessagesListAdapter.MessageClick, MessagingRepository.MessagingInterface {
+    // max number of characters with a single message.
+    public static final int DEFAULT_MSG_LENGTH_LIMIT = 1000;
     private static final String ORIENTATION_CHANGE = "orientation_change";
+    /*TAG for logging*/
+    private static final String TAG = ChatsFragment.class.getSimpleName();
+    @Inject
+    public MessagesListAdapter messagesListAdapter;
+    public MainViewModel mModel;
     // root class
     private ChatsFragmentBinding mBinding;
     private ToolbarConversationBinding mToolbarBinding;
-    /*real time permission*/
-    private ActivityResultLauncher<String> requestPermissionLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                if (isGranted) {
-                    pickImageFromGallery();
-                } else {
-                    Toast.makeText(requireContext(), requireContext().getString(R.string.grant_access_media_permission), Toast.LENGTH_SHORT).show();
-                }
-            });
-    /*TAG for logging*/
-    private static final String TAG = ChatsFragment.class.getSimpleName();
-
-    // max number of characters with a single message.
-    public static final int DEFAULT_MSG_LENGTH_LIMIT = 1000;
-
-
-    @Inject
-    public MessagesListAdapter messagesListAdapter;
     private String mUsername;
     // this tracker is used to invoke the method of the realtime database to update the user is writing once
     private int tracker = 0;
@@ -121,9 +110,15 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
                 }
             },
             this::putIntoImage);
-
-
-    public MainViewModel mModel;
+    /*real time permission*/
+    private ActivityResultLauncher<String> requestPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    pickImageFromGallery();
+                } else {
+                    Toast.makeText(requireContext(), requireContext().getString(R.string.grant_access_media_permission), Toast.LENGTH_SHORT).show();
+                }
+            });
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {

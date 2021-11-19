@@ -9,12 +9,6 @@ import androidx.annotation.Nullable;
 
 
 public class User implements Parcelable {
-    private String userName, email, phoneNumber, photoUrl;
-    private String userId;
-    private String status;
-    private boolean isActive, isPublic;
-    private long lastTimeSeen;
-
     public static final Creator<User> CREATOR = new Creator<User>() {
         @Override
         public User createFromParcel(Parcel in) {
@@ -26,6 +20,11 @@ public class User implements Parcelable {
             return new User[size];
         }
     };
+    private String userName, email, phoneNumber, photoUrl;
+    private String userId;
+    private String status;
+    private boolean isActive, isPublic;
+    private long lastTimeSeen;
 
     protected User(Parcel in) {
         userName = in.readString();
@@ -40,14 +39,9 @@ public class User implements Parcelable {
     }
 
 
-    public String getStatus() {
-        return status;
-    }
-
     public User() {
 
     }
-
 
     public User(String userName, String email, String phoneNumber, String photoUrl, String userId, String status, boolean isActive, boolean isPublic, long lastTimeSeen) {
         this.userName = userName;
@@ -61,6 +55,14 @@ public class User implements Parcelable {
         this.lastTimeSeen = lastTimeSeen;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     public String getUserName() {
         return userName;
     }
@@ -68,7 +70,6 @@ public class User implements Parcelable {
     public String getPhoneNumber() {
         return phoneNumber;
     }
-
 
     public String getPhotoUrl() {
         return photoUrl;
@@ -114,11 +115,6 @@ public class User implements Parcelable {
             return false;
         }
 
-    }
-
-
-    public void setStatus(String status) {
-        this.status = status;
     }
 
     public void setPublic(boolean aPublic) {

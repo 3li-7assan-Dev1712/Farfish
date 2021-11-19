@@ -24,8 +24,8 @@
             app:layout_constraintTop_toTopOf="@+id/profileImageFrameLayout" />
 
         <ss.anoop.awesometextinputlayout.AwesomeTextInputLayout
-           style="@style/input_field_style"
-            android:id="@+id/container_10"
+           android:id="@+id/container_10"
+            style="@style/input_field_style"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/container_9"
@@ -58,10 +58,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="?attr/selectableItemBackground"
+                android:src="@drawable/place_holder"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                android:src="@drawable/place_holder"
                 />
 
         </FrameLayout>
@@ -78,11 +78,11 @@
             app:layout_constraintTop_toBottomOf="@id/container_10" />
 
         <ss.anoop.awesometextinputlayout.AwesomeTextInputLayout
-           style="@style/input_field_style"
-            android:id="@+id/container_9"
+           android:id="@+id/container_9"
+            style="@style/input_field_style"
+            android:layout_marginTop="24dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginTop="24dp"
             app:layout_constraintTop_toBottomOf="@+id/progressBarProfileImage" >
 
             <EditText

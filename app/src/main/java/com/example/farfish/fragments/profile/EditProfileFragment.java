@@ -49,16 +49,23 @@ import id.zelory.compressor.Compressor;
 
 public class EditProfileFragment extends Fragment {
 
-    private FirebaseStorage mStorage = FirebaseStorage.getInstance();
     private static final String TAG = EditProfileFragment.class.getSimpleName();
-    private ActivityResultLauncher<String> requestPermissionLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                if (isGranted) {
-                    pickImageFromGallery();
-                } else {
-                    Toast.makeText(requireContext(), requireContext().getString(R.string.grant_access_media_permission), Toast.LENGTH_SHORT).show();
-                }
-            });
+    FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
+    private FirebaseStorage mStorage = FirebaseStorage.getInstance();
+    private Uri imageUri;
+    private String photoUrl;
+    private String userName;
+    private String userStatus;
+    private String userPhoneNumber;
+    // to be updated
+    private String photoUrlToBeUpdated = null;
+    // value after click
+    private String userNameAfterClick;
+    private String userStatusAfterClick;
+    private String userPhoneNumberAfterClick;
+    private boolean mOriginalUserPrivacyState; // the one which saved shared preferences and the server
+    private boolean mDynamicPrivacyState; // this will be changed every tiem the user click on the two button above save button
+    private EditProfileFragmentBinding mBinding;
     private ActivityResultLauncher<String> choosePicture = registerForActivityResult(
             new ActivityResultContracts.GetContent() {
                 @NonNull
@@ -68,27 +75,14 @@ public class EditProfileFragment extends Fragment {
                 }
             },
             this::putIntoImage);
-
-    private Uri imageUri;
-    private String photoUrl;
-    private String userName;
-    private String userStatus;
-    private String userPhoneNumber;
-
-    // to be updated
-    private String photoUrlToBeUpdated = null;
-
-    // value after click
-    private String userNameAfterClick;
-    private String userStatusAfterClick;
-    private String userPhoneNumberAfterClick;
-
-    FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
-
-    private boolean mOriginalUserPrivacyState; // the one which saved shared preferences and the server
-    private boolean mDynamicPrivacyState; // this will be changed every tiem the user click on the two button above save button
-
-    private EditProfileFragmentBinding mBinding;
+    private ActivityResultLauncher<String> requestPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    pickImageFromGallery();
+                } else {
+                    Toast.makeText(requireContext(), requireContext().getString(R.string.grant_access_media_permission), Toast.LENGTH_SHORT).show();
+                }
+            });
 
     @Nullable
     @Override

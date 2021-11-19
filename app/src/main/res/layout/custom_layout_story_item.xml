@@ -41,13 +41,13 @@
         android:gravity="center"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
-        tools:text= "check to see how the status text will look check to see how the status text will look "
-        tools:textColor="@android:color/black"
         android:textColor="@android:color/white"
         android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text= "check to see how the status text will look check to see how the status text will look "
+        tools:textColor="@android:color/black" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
