@@ -175,7 +175,7 @@ public class MessagingRepository {
         Log.d(TAG, "removeListeners: ");
         mCurrentUserRoomReference.removeEventListener(mCurrentRoomListener);
         mTargetUserRoomReference.removeEventListener(mTargetRoomListener);
-        cleanUp();
+//        cleanUp();
     }
 
     private void cleanUp() {

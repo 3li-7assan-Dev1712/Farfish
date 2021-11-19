@@ -141,7 +141,7 @@ public class ChatsRepository implements ValueEventListener {
 
         if (mChatsReference != null) {
             mChatsReference.removeEventListener(this);
-            cleanUp();
+//            cleanUp();
         }
     }
 

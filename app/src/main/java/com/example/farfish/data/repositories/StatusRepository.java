@@ -72,7 +72,7 @@ public class StatusRepository implements ValueEventListener {
 
         if (mDatabaseReference != null) {
             mDatabaseReference.removeEventListener(this);
-            cleanUp();
+//            cleanUp();
         }
     }
 

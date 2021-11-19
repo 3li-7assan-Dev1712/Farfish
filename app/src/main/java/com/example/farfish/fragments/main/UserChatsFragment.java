@@ -116,7 +116,8 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
             mListAdapter.setIsGeneral(true);
             mListAdapter.setChatClick(this);
             mainViewModel.getUserChats().observe(getViewLifecycleOwner(), userChats -> {
-                mListAdapter.submitList(new ArrayList<>(userChats));
+                Log.d(TAG, "onCreateView: size is: " + userChats.size());
+                mListAdapter.submitList(userChats);
                 mBinding.userChatsProgressBar.setVisibility(View.GONE);
             });
         }

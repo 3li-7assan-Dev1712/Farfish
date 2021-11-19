@@ -78,7 +78,7 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
     }
 
     public MessagesListAdapter(Context mContext) {
-        super(MessagesListAdapter.Diff);
+        super(Diff);
         this.mContext = mContext;
     }
 
