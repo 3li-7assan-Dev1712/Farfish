@@ -289,7 +289,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
 
         mModel.getChatMessages().observe(getViewLifecycleOwner(), chatMessages -> {
             messagesListAdapter.submitList(chatMessages);
-           /* messagesListAdapter.notifyDataSetChanged();*/
+            messagesListAdapter.notifyDataSetChanged();
             /*mBinding.messageRecyclerView.scrollToPosition(chatMessages.size() - 1);*/
             mBinding.progressBar.setVisibility(View.GONE);
         });

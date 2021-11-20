@@ -129,7 +129,7 @@ public class Message {
     @Override
     public boolean equals(@Nullable Object obj) {
         Message msg = (Message) obj;
-        assert msg != null;
+        if (msg == null) return false;
         return this.text.equals(msg.getText()) &&
                 this.photoUrl.equals(msg.getPhotoUrl()) &&
                 this.timestamp == msg.getTimestamp() &&

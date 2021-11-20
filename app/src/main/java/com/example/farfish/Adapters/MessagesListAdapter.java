@@ -183,6 +183,7 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
     @Override
     public void submitList(@Nullable List<Message> list) {
         mDiffer.submitList(list);
+        notifyDataSetChanged();
     }
 
     /* interface for listening to touching*/

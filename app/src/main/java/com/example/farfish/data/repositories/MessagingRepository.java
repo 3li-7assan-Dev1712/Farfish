@@ -300,8 +300,7 @@ public class MessagingRepository {
         Log.d(TAG, "markMessageAsRead: the key of the message to be updated is: " + key);
         Map<String, Object> originalMessage = messageToUpdate.toMap();
         originalMessage.put("isRead", true);
-        mTargetUserRoomReference.child(key).updateChildren(originalMessage);
-        /*
+//        mTargetUserRoomReference.child(key).updateChildren(originalMessage);
         snapshotMessageTobeUpdated.getRef().updateChildren(originalMessage).addOnSuccessListener(
                 successListener -> {
                     Log.d(TAG, "update message successfully to be read");
@@ -319,7 +318,6 @@ public class MessagingRepository {
                 exception -> Log.d(TAG, "markMessageAsRead: " + exception.getMessage()
                 ));
 
-         */
     }
 
     public void compressAndSendImage(Uri uri) {
