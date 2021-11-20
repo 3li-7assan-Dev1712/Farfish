@@ -30,7 +30,7 @@ public class ChatsRepository implements ValueEventListener {
     private Context mContext;
     private DataReadyInterface mDataReadyInterface;
     private List<Long> mRoomsSize;
-
+    public static volatile boolean shouldUpdate;
 
     @Inject
     public ChatsRepository(@ApplicationContext Context context) {
@@ -56,44 +56,43 @@ public class ChatsRepository implements ValueEventListener {
     public void refreshData(@NonNull DataSnapshot snapshot) {
         Log.d(TAG, "refreshData: ");
         boolean shouldReturn = shouldReturn(snapshot);
-        if (shouldReturn) {
+        if (shouldReturn && !shouldUpdate) {
             Log.d(TAG, "refreshData: should return is true");
-            return;
         } else {
-            Log.d(TAG, "refreshData: should return is false");
-        }
-        mUserChats.clear();
-        mRoomsSize.clear();
-        Iterable<DataSnapshot> roomsIterable = snapshot.getChildren();
-        for (DataSnapshot roomsSnapshot : roomsIterable) {
-            Iterable<DataSnapshot> messagesIterable = roomsSnapshot.getChildren();
-            Message lastMessage = null;
-            int newMessageCounter = 0;
-            Log.d(TAG, "refreshData: roomsSnapShot key: " + roomsSnapshot.getKey());
-            mRoomsSize.add(roomsSnapshot.getChildrenCount());
-            for (DataSnapshot messageSnapShot : messagesIterable) {
-                if (!messageSnapShot.getKey().equals("isWriting")) {
-                    lastMessage = messageSnapShot.getValue(Message.class);
-                    if (!lastMessage.getSenderId().equals(mCurrentUserId) && !lastMessage.getIsRead()) {
-                        newMessageCounter++;
+            mUserChats.clear();
+            mRoomsSize.clear();
+            Iterable<DataSnapshot> roomsIterable = snapshot.getChildren();
+            for (DataSnapshot roomsSnapshot : roomsIterable) {
+                Iterable<DataSnapshot> messagesIterable = roomsSnapshot.getChildren();
+                Message lastMessage = null;
+                int newMessageCounter = 0;
+                Log.d(TAG, "refreshData: roomsSnapShot key: " + roomsSnapshot.getKey());
+                mRoomsSize.add(roomsSnapshot.getChildrenCount());
+                for (DataSnapshot messageSnapShot : messagesIterable) {
+                    if (!messageSnapShot.getKey().equals("isWriting")) {
+                        lastMessage = messageSnapShot.getValue(Message.class);
+                        if (!lastMessage.getSenderId().equals(mCurrentUserId) && !lastMessage.getIsRead()) {
+                            newMessageCounter++;
+                        }
                     }
                 }
-            }
 
-            if (lastMessage != null) {
-                String senderId = lastMessage.getSenderId();
-                if (mCurrentUserId != null) {
-                    if (!senderId.equals(mCurrentUserId) && newMessageCounter != 0) {
-                        lastMessage.setNewMessagesCount(newMessageCounter);
-                        sendNotification(lastMessage);
+                if (lastMessage != null) {
+                    String senderId = lastMessage.getSenderId();
+                    if (mCurrentUserId != null) {
+                        if (!senderId.equals(mCurrentUserId) && newMessageCounter != 0) {
+                            lastMessage.setNewMessagesCount(newMessageCounter);
+                            sendNotification(lastMessage);
+                        }
                     }
-                }
-                mUserChats.add(lastMessage);
+                    mUserChats.add(lastMessage);
 
+                }
             }
+            // the data is ready now
+            mDataReadyInterface.dataIsReady();
+            shouldUpdate = false;
         }
-        // the data is ready now
-        mDataReadyInterface.dataIsReady();
     }
 
     private boolean shouldReturn(DataSnapshot snapshot) {

@@ -293,8 +293,7 @@ public class MessagingRepository {
     }
 
     private void markMessageAsRead(DataSnapshot snapshotMessageTobeUpdated, Message messageToUpdate) {
-
-
+        ChatsRepository.shouldUpdate = true;
         Log.d(TAG, "markMessageAsRead: ");
         String key = snapshotMessageTobeUpdated.getKey();
         Log.d(TAG, "markMessageAsRead: the key of the message to be updated is: " + key);
