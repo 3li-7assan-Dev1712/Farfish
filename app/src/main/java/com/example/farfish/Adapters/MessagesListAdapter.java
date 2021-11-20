@@ -318,17 +318,6 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
         }
 
         public void bind(Message message) {
-            Picasso.get().load(message.getTargetPhotoUrl()).placeholder(R.drawable.time_background).into(binding.profileImage, new Callback() {
-                @Override
-                public void onSuccess() {
-                    binding.progressImageIndicator.setVisibility(View.GONE);
-                }
-
-                @Override
-                public void onError(Exception e) {
-                    binding.progressImageIndicator.setVisibility(View.GONE);
-                }
-            });
             binding.personName.setText(message.getTargetName());
             if (!message.getText().equals(""))
                 binding.lastMessage.setText(message.getText());
@@ -350,6 +339,17 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
                 binding.lastMessage.setTextColor(binding.getRoot().getContext().getResources().getColor(R.color.colorPrimary));
                 binding.lastMessageTime.setTextColor(binding.getRoot().getContext().getResources().getColor(R.color.colorPrimary));
             }
+            Picasso.get().load(message.getTargetPhotoUrl()).placeholder(R.drawable.time_background).into(binding.profileImage, new Callback() {
+                @Override
+                public void onSuccess() {
+                    binding.progressImageIndicator.setVisibility(View.GONE);
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    binding.progressImageIndicator.setVisibility(View.GONE);
+                }
+            });
         }
 
     }

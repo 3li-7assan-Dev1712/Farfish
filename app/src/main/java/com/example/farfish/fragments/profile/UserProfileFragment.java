@@ -138,12 +138,12 @@ public class UserProfileFragment extends Fragment {
             userData.putString("phone_number", phoneNumber);
             Navigation.findNavController(requireActivity(), R.id.nav_host_fragment)
                     .navigate(R.id.action_userProfileFragment_to_editProfileFragment, userData);
-        });
+        });//
 
         mBinding.logoutButtonUserProfile.setOnClickListener(logoutOnClickListener -> {
             SharedPreferenceUtils.saveUserSignOut(requireContext());
             mAuth.signOut();
-            cleanViewModel.cleanViewModel();
+           /* cleanViewModel.cleanViewModel();*/
             controller.navigate(R.id.action_userProfileFragment_to_fragmentSignIn);
         });
         /*----------------------------------------------------------------------------*/

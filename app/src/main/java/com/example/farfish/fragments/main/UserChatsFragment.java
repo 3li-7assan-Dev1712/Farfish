@@ -250,7 +250,7 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
         String targetUserId = mainViewModel.getChatsRepository().getMessageInPosition(position).getTargetId();
         Bundle primaryDataBundle = new Bundle();
         primaryDataBundle.putString("target_user_id", targetUserId);
-        mNavController.navigate(R.id.chatsFragment, primaryDataBundle);
+        mNavController.navigate(R.id.action_userChatsFragment_to_chatsFragment, primaryDataBundle);
     }
 
 
