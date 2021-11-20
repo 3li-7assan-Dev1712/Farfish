@@ -131,6 +131,8 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
                 .setSupportActionBar(mBinding.mainToolbarFrag);
         updateFilterImageResoucre();
         mBinding.usersToolbar.filterImageView.setOnClickListener(filterListener -> {
+            if (mBinding.loadUsersProgressBar.getVisibility() == View.VISIBLE)
+                return;
             if (ContextCompat.checkSelfPermission(
                     requireContext(), Manifest.permission.READ_CONTACTS) ==
                     PackageManager.PERMISSION_GRANTED) {

@@ -88,7 +88,6 @@ public class UsersRepository {
             readTheContactsInTheDevice();
             Log.d(TAG, "refreshData: data is not cached");
         }
-        Log.d(TAG, "refreshData: from preference: " + MessagesPreference.getDeviceContacts(mContext).size());
         boolean finalContactsIsCached = contactsIsCached;
         FirebaseFirestore.getInstance().collection("rooms").get()
                 .addOnSuccessListener(this::fetchPrimaryData).addOnCompleteListener(listener -> {

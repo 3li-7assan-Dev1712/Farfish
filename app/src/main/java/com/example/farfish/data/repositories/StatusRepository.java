@@ -8,9 +8,9 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.example.farfish.Module.util.FileUtil;
-import com.example.farfish.Module.preferences.MessagesPreference;
 import com.example.farfish.Module.dataclasses.Status;
+import com.example.farfish.Module.preferences.MessagesPreference;
+import com.example.farfish.Module.util.FileUtil;
 import com.example.farfish.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -50,9 +50,6 @@ public class StatusRepository implements ValueEventListener {
     @Inject
     public StatusRepository(@ApplicationContext Context context) {
         mContext = context;
-    }
-
-    private void init() {
         mRootRef = FirebaseStorage.getInstance().getReference("stories");
         mDatabaseReference = FirebaseDatabase.getInstance().getReference("status");
         mUserReference = mDatabaseReference.child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid()));
@@ -64,26 +61,16 @@ public class StatusRepository implements ValueEventListener {
     }
 
     public void loadAllStatuses() {
-        init();
         mDatabaseReference.addValueEventListener(this);
     }
 
-    public void removeListener(){
+    public void removeListener() {
 
         if (mDatabaseReference != null) {
-            mDatabaseReference.removeEventListener(this);
-//            cleanUp();
+            mDatabaseReference.removeEventListener(this);mContact.clear();
         }
     }
 
-    private void cleanUp() {
-        mDatabaseReference = null;
-        mRootRef = null;
-        mContact.clear();
-        mContact = null;
-        mUserReference = null;
-        statusInterface = null;
-    }
 
     @Override
     public void onDataChange(@NonNull DataSnapshot snapshot) {
