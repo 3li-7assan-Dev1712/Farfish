@@ -64,6 +64,7 @@ import com.squareup.picasso.Picasso;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -286,10 +287,11 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
         mBinding.messageRecyclerView.setAdapter(messagesListAdapter);
         messagesListAdapter.setMessageInterface(this);
         messagesListAdapter.setIsGeneral(false);
-
+        messagesListAdapter.setStateRestorationPolicy(RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY);
         mModel.getChatMessages().observe(getViewLifecycleOwner(), chatMessages -> {
+            Log.d(TAG, "onCreateView: number of messages: " + chatMessages.size());
             messagesListAdapter.submitList(chatMessages);
-            messagesListAdapter.notifyDataSetChanged();
+            /*messagesListAdapter.notifyDataSetChanged();*/
             /*mBinding.messageRecyclerView.scrollToPosition(chatMessages.size() - 1);*/
             mBinding.progressBar.setVisibility(View.GONE);
         });

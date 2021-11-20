@@ -26,6 +26,7 @@ import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -36,7 +37,7 @@ import java.util.Locale;
 public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewHolder> {
 
 
-    public static final DiffUtil.ItemCallback<Message> Diff = new DiffUtil.ItemCallback<Message>() {
+    private static final DiffUtil.ItemCallback<Message> Diff = new DiffUtil.ItemCallback<Message>() {
         @Override
         public boolean areItemsTheSame(@NonNull Message oldItem, @NonNull Message newItem) {
             return oldItem.getTimestamp() == newItem.getTimestamp();
@@ -47,13 +48,13 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
             return oldItem.equals(newItem);
         }
     };
-    private static final String TAG = MessagesListAdapter.class.getSimpleName();
+    private final String TAG = MessagesListAdapter.class.getSimpleName();
     private static final int USE_RECEIVE_BACKGROUND = 0;
     private static final int USE_SEND_BACKGROUND = 1;
     private static final int USE_SEND_BACKGROUND_IMG = 2;
     private static final int USE_RECEIVE_BACKGROUND_IMG = 3;
     private static final int USE_PARENT_VIEW_HOLDER = 4;
-    private final AsyncListDiffer<Message> mDiffer = new AsyncListDiffer<>(this, Diff);
+    private AsyncListDiffer<Message> mDiffer;
     MessagesListAdapter.MessageClick mMessageInterface;
     ChatClick mChatClick;
     private List<Message> mMessages;
@@ -61,7 +62,7 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
     // this boolean is for UserChatsFragment's ViewHolders
     private boolean mIsGeneral;
 
-    public MessagesListAdapter(List<Message> messages, Context context, MessageClick messageClick, boolean isGeneral) {
+   /* public MessagesListAdapter(List<Message> messages, Context context, MessageClick messageClick, boolean isGeneral) {
         super(MessagesListAdapter.Diff);
         this.mMessages = messages;
         this.mContext = context;
@@ -75,10 +76,11 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
         this.mContext = context;
         mChatClick = chatClick;
         this.mIsGeneral = isGeneral;
-    }
+    }*/
 
     public MessagesListAdapter(Context mContext) {
         super(Diff);
+        mDiffer= new AsyncListDiffer<>(this, Diff);
         this.mContext = mContext;
     }
 
@@ -182,8 +184,9 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
 
     @Override
     public void submitList(@Nullable List<Message> list) {
-        mDiffer.submitList(list);
-        notifyDataSetChanged();
+        assert list != null;
+        mDiffer.submitList(new ArrayList<>(list));
+        /*notifyDataSetChanged();*/
     }
 
     /* interface for listening to touching*/

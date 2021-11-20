@@ -41,12 +41,11 @@
         android:layout_above="@id/linearLayout"
         android:layout_marginBottom="8dp"
         android:divider="@android:color/transparent"
-        android:transcriptMode="alwaysScroll"
+        android:transcriptMode="normal"
         app:layout_constraintBottom_toTopOf="@id/linearLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/appbar"
-        app:stackFromEnd="true"
         tools:listitem="@layout/message_view_holder" />
 
     <ProgressBar
