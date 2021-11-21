@@ -21,6 +21,7 @@ import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -119,7 +120,9 @@ public class ContactsListAdapter extends ListAdapter<User, ContactsListAdapter.C
     }
 
     public void customSubmitStatusList(@Nullable List<List<Status>> lists) {
-        mStatusDiffer.submitList(lists);
+        if (lists != null) {
+            mStatusDiffer.submitList(new ArrayList<>(lists));
+        }
     }
 
     public interface OnChatClicked {

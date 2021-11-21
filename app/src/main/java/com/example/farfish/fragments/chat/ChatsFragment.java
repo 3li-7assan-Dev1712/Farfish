@@ -349,6 +349,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
 
     /*this method will update the chat info int the toolbar in real time!*/
     public void updateChatInfo() {
+        if (mToolbarBinding == null) return;
         Log.d(TAG, "updateChatInfo: ");
         if (getContext() != null) {
             if (mModel.getMessagingRepository().isWriting()) {

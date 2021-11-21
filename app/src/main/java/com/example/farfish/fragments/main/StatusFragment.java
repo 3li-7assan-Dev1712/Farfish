@@ -125,6 +125,7 @@ public class StatusFragment extends Fragment implements ContactsListAdapter.OnCh
         mModel.getStatusRepository().setStatusInterface(this);
         getViewLifecycleOwnerLiveData().observe(getViewLifecycleOwner(), lifecycleOwner ->
                 mModel.getStatusLiveData().observe(lifecycleOwner, statuesLists -> {
+                    Log.d(TAG, "onCreateView: statusLists size is " + statuesLists.size());
                     mStatusAdapter.customSubmitStatusList(statuesLists);
                     mBinding.statusProgressBar.setVisibility(View.GONE);
                 }));
@@ -219,7 +220,7 @@ public class StatusFragment extends Fragment implements ContactsListAdapter.OnCh
     @Override
     public void statusesAreReady() {
         mModel.updateStatues();
-        mStatusAdapter.notifyDataSetChanged();
+//        mStatusAdapter.notifyDataSetChanged();
         if (mBinding != null)
             mBinding.statusProgressBar.setVisibility(View.GONE);
     }

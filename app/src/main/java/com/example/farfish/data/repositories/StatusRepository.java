@@ -57,6 +57,9 @@ public class StatusRepository implements ValueEventListener {
     }
 
     public void setStatusInterface(StatusInterface statusInterface) {
+        if (mContact == null) {
+                mContact = MessagesPreference.getUserContacts(mContext);
+        }
         this.statusInterface = statusInterface;
     }
 
@@ -67,7 +70,10 @@ public class StatusRepository implements ValueEventListener {
     public void removeListener() {
 
         if (mDatabaseReference != null) {
-            mDatabaseReference.removeEventListener(this);mContact.clear();
+            mDatabaseReference.removeEventListener(this);
+        }
+        if (mContact != null) {
+            mContact.clear();
         }
     }
 
@@ -100,6 +106,7 @@ public class StatusRepository implements ValueEventListener {
         }
         mStatusLists.clear();
         mStatusLists.addAll(allUsersStatues);
+        Log.d(TAG, "onDataChange: size is " + mStatusLists.size());
         statusInterface.statusesAreReady();
     }
 

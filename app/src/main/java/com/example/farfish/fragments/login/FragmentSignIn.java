@@ -211,7 +211,7 @@ public class FragmentSignIn extends Fragment {
      */
     private void updateUserInfoAndNavigateBack() {
 
-        showHorizontalProgressBar(false);
+//        showHorizontalProgressBar(false);
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         SharedPreferenceUtils.saveUserSignIn(requireContext());
         FirebaseUser currentUser = mAuth.getCurrentUser();

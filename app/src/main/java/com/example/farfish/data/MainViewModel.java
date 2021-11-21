@@ -158,6 +158,8 @@ public class MainViewModel extends ViewModel implements MessagingRepository.Post
             statuesLists = new MutableLiveData<>();
             statusRepository.loadAllStatuses();
         }
+        if (statusRepository.getStatusLists().isEmpty())
+            statusRepository.loadAllStatuses();
         return statuesLists;
     }
 
