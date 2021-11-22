@@ -1,9 +1,6 @@
 package com.example.farfish.fragments.login;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,7 +12,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
-import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -29,9 +25,6 @@ import com.example.farfish.Module.util.Connection;
 import com.example.farfish.R;
 import com.example.farfish.databinding.FragmentSignInBinding;
 import com.example.farfish.fragments.dialogs.InternetConnectionDialog;
-import com.firebase.ui.auth.AuthUI;
-import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
-import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthEmailException;
@@ -41,9 +34,6 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.internal.api.FirebaseNoSignedInUserException;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -51,10 +41,6 @@ import java.util.Objects;
  */
 public class FragmentSignIn extends Fragment {
     private static final String TAG = FragmentSignIn.class.getSimpleName();
-    /*FirebaseUI*/
-    private List<AuthUI.IdpConfig> providers = Arrays.asList(
-            new AuthUI.IdpConfig.EmailBuilder().build(),
-            new AuthUI.IdpConfig.GoogleBuilder().build());
     // firebase auth
     private FirebaseAuth mAuth;
     /*Navigation*/
@@ -63,10 +49,6 @@ public class FragmentSignIn extends Fragment {
     private View snackBarView;
     // Root class that contains al the views
     private FragmentSignInBinding mBinding;
-    private ActivityResultLauncher<Intent> signInLauncher = registerForActivityResult(
-            new FirebaseAuthUIActivityResultContract(),
-            this::onSignInResult
-    );
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -230,27 +212,6 @@ public class FragmentSignIn extends Fragment {
                     saveUserDataInSharedPreference(userName, photoUrl, userId, userStatus, phoneNumber, isPublic);
                     mNavController.navigate(R.id.action_fragmentSignIn_to_userChatsFragment);
                 }
-            }).addOnFailureListener(exc -> {
-                showHorizontalProgressBar(false);
-                Log.d(TAG, "updateUserInfoAndNavigateBack: exception: " + exc.getMessage());
-                // save default
-                FirebaseUser firebaseUser = mAuth.getCurrentUser();
-                String userId = firebaseUser.getUid();
-                Uri photoUri = firebaseUser.getPhotoUrl();
-                String email = firebaseUser.getEmail();
-                String photoUrl = "";
-                if (photoUri != null) {
-                    photoUrl = photoUri.toString();
-                }
-                String userName = firebaseUser.getDisplayName();
-                String phoneNumber = firebaseUser.getPhoneNumber();
-                User user = new User(userName, email, phoneNumber, photoUrl, userId, "اللهم صلي وسلم على محمد", true, false, new Date().getTime());
-                String finalPhotoUrl = photoUrl;
-                firestore.collection("rooms").document(userId).set(user).addOnSuccessListener(suc -> {
-                    saveUserDataInSharedPreference(userName, finalPhotoUrl, userId, "اللهم صلي وسلم على محمد", phoneNumber, false);
-                    mNavController.navigateUp();
-                }).addOnFailureListener(exception -> Log.d(TAG, "updateUserInfoAndNavigateBack: exception: " + exception.getMessage()));
-
             });
         }
 
@@ -290,39 +251,6 @@ public class FragmentSignIn extends Fragment {
         Toast.makeText(requireActivity(), message, Toast.LENGTH_SHORT).show();
     }
 
-    /**
-     * the method is called from the FirebaseUI after the user use it sign in with app.
-     *
-     * @param result takes a FirebaseAuthUIAuthenticationResult instance as result.
-     */
-    private void onSignInResult(FirebaseAuthUIAuthenticationResult result) {
-
-        if (result.getResultCode() == Activity.RESULT_OK) {
-            // Successfully signed in
-            Toast.makeText(requireContext(), requireContext().getString(R.string.sign_in_success_msg), Toast.LENGTH_SHORT).show();
-            Log.d(TAG, "sign in successfully");
-
-            updateUserInfoAndNavigateBack();
-            // ...
-        } else {
-            Log.d(TAG, "onSignInResult" + " should finish the Activity");
-            Log.d(TAG, String.valueOf(result.getResultCode()));
-            requireActivity().finish();
-        }
-    }
-
-    /**
-     * launcher method to launch the firebase UI to let the user sign in easily.
-     */
-    private void launchFirebaseUI() {
-        Intent signInIntent = AuthUI.getInstance()
-                .createSignInIntentBuilder()
-                .setAvailableProviders(providers)
-                .setIsSmartLockEnabled(true)
-                .setLogo(R.drawable.ic_icon_round)
-                .build();
-        signInLauncher.launch(signInIntent);
-    }
 
     /**
      * this method do show th keyboard, it is called when the user try to sigin in without filling all

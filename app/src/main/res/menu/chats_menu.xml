@@ -10,7 +10,7 @@
 
     <item
         android:id="@+id/make_normal_call"
-        android:icon="@drawable/fui_ic_phone_white_24dp"
+        android:icon="@drawable/ic_baseline_local_phone_24"
         android:title="@string/sound_call"
         app:showAsAction="ifRoom" />
 

@@ -443,7 +443,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
             // in the case the user is writing and move to another destination before sending their message.
             if (mModel.getMessagingRepository().isWriting())
                 setUserIsNotWriting();
-            // remove the listener when the view is no longer visilbe for the user
+            // remove the listener when the view is no longer visible for the user
             mModel.getMessagingRepository().removeListeners();
             mBinding = null;
             mToolbarBinding = null;
