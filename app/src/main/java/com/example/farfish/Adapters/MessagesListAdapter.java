@@ -186,7 +186,6 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
     public void submitList(@Nullable List<Message> list) {
         assert list != null;
         mDiffer.submitList(new ArrayList<>(list));
-        /*notifyDataSetChanged();*/
     }
 
     /* interface for listening to touching*/

@@ -46,11 +46,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.aghajari.emojiview.view.AXEmojiPopupLayout;
 import com.aghajari.emojiview.view.AXEmojiView;
 import com.example.farfish.Adapters.MessagesListAdapter;
-import com.example.farfish.Module.dataclasses.User;
-import com.example.farfish.Module.util.Connection;
 import com.example.farfish.Module.dataclasses.FullImageData;
 import com.example.farfish.Module.dataclasses.Message;
+import com.example.farfish.Module.dataclasses.User;
 import com.example.farfish.Module.preferences.MessagesPreference;
+import com.example.farfish.Module.util.Connection;
 import com.example.farfish.R;
 import com.example.farfish.data.MainViewModel;
 import com.example.farfish.data.repositories.MessagingRepository;
@@ -62,9 +62,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -101,6 +99,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
     private String currentUserName;
     private String currentPhotoUrl;
 
+    private RecyclerView.AdapterDataObserver mObserver;
     private boolean USER_EXPECT_TO_RETURN;
     private ActivityResultLauncher<String> pickPic = registerForActivityResult(
             new ActivityResultContracts.GetContent() {
@@ -163,6 +162,15 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
         USER_EXPECT_TO_RETURN = false;
         LinearLayoutManager layoutManager = new LinearLayoutManager(requireContext());
         layoutManager.setStackFromEnd(true);
+        mObserver = new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onItemRangeInserted(int positionStart, int itemCount) {
+                Log.d(TAG, "onItemRangeInserted: position: " + positionStart);
+                if (positionStart > 0) {
+                    layoutManager.scrollToPosition(positionStart);
+                }
+            }
+        };
         mBinding.messageRecyclerView.setLayoutManager(layoutManager);
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
         Log.d(TAG, "onCreateView: ");
@@ -275,6 +283,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
 
         });
 
+        messagesListAdapter.registerAdapterDataObserver(mObserver);
 
         mBinding.progressBar.setVisibility(View.VISIBLE);
         NavBackStackEntry backStackEntry = navController.getBackStackEntry(R.id.nav_graph);
@@ -291,6 +300,10 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
         mModel.getChatMessages().observe(getViewLifecycleOwner(), chatMessages -> {
             Log.d(TAG, "onCreateView: number of messages: " + chatMessages.size());
             messagesListAdapter.submitList(chatMessages);
+            /*
+            if (!chatMessages.isEmpty())
+                mBinding.messageRecyclerView.smoothScrollToPosition(chatMessages.size() - 1);
+            */
             /*messagesListAdapter.notifyDataSetChanged();*/
             /*mBinding.messageRecyclerView.scrollToPosition(chatMessages.size() - 1);*/
             mBinding.progressBar.setVisibility(View.GONE);
@@ -425,6 +438,8 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
 
         if (!USER_EXPECT_TO_RETURN) {
             Log.d(TAG, "onDestroyView: going to clean up");
+            messagesListAdapter.unregisterAdapterDataObserver(mObserver);
+            mObserver= null;
             // in the case the user is writing and move to another destination before sending their message.
             if (mModel.getMessagingRepository().isWriting())
                 setUserIsNotWriting();
