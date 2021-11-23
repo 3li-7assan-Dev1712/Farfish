@@ -64,6 +64,8 @@ public class FragmentSignUp extends Fragment implements TermsAndConditionsDialog
                 displayRequiredFieldSnackBar(mBinding.editTextEmailAddressSignUp, getString(R.string.input_field_first));
             else if (mBinding.editTextPasswordSignUp.getText().toString().equals(""))
                 displayRequiredFieldSnackBar(mBinding.editTextPasswordSignUp, getString(R.string.input_field_first));
+            else if (mBinding.editTextPasswordSignUp.getText().length() < 6)
+                displayRequiredFieldSnackBar(mBinding.editTextPasswordSignUp, getString(R.string.short_password));
             else if (mBinding.editTextConfirmPassword.getText().toString().equals(""))
                 displayRequiredFieldSnackBar(mBinding.editTextConfirmPassword, getString(R.string.input_field_first));
             else if (!mBinding.editTextConfirmPassword.getText().toString().equals(mBinding.editTextPasswordSignUp.getText().toString()))
