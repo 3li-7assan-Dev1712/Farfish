@@ -24,7 +24,8 @@
         </activity>
         <activity
             android:name="com.example.farfish.Activities.MainActivity"
-            android:theme="@style/ChatsTheme" />
+            android:theme="@style/ChatsTheme"
+            android:windowSoftInputMode="stateAlwaysHidden"/>
 
     </application>
 

@@ -166,10 +166,15 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
                 Log.d(TAG, "onItemRangeInserted: position: " + positionStart);
-                if (positionStart > 0) {
-                    layoutManager.scrollToPosition(positionStart);
-                }
+                scrollToLastMessage(positionStart, layoutManager);
             }
+
+            @Override
+            public void onItemRangeChanged(int positionStart, int itemCount) {
+                Log.d(TAG, "onItemRangeChanged: position: " + ( mModel.messagingRepository.getMessages().size() -1));
+                scrollToLastMessage(mModel.messagingRepository.getMessages().size() - 1, layoutManager);
+            }
+
         };
         mBinding.messageRecyclerView.setLayoutManager(layoutManager);
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
@@ -226,6 +231,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
             emojiPopupLayout.setVisibility(View.GONE);
             Log.d(TAG, "onCreateView: mMessageEditTextClick");
         });
+//        hideOneOfTheKeyboards(emojiPopupLayout);
         mBinding.sendEmojiBtn.setOnClickListener(emojiPopupListener -> {
             if (emojiPopupLayout.isShowing()) {
                 emojiPopupLayout.openKeyboard();
@@ -303,12 +309,6 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
         mModel.getChatMessages().observe(getViewLifecycleOwner(), chatMessages -> {
             Log.d(TAG, "onCreateView: number of messages: " + chatMessages.size());
             messagesListAdapter.submitList(chatMessages);
-            /*
-            if (!chatMessages.isEmpty())
-                mBinding.messageRecyclerView.smoothScrollToPosition(chatMessages.size() - 1);
-            */
-            /*messagesListAdapter.notifyDataSetChanged();*/
-            /*mBinding.messageRecyclerView.scrollToPosition(chatMessages.size() - 1);*/
             mBinding.progressBar.setVisibility(View.GONE);
         });
         if (mModel.getMessagingRepository().getMessages().size() == 0)
@@ -336,6 +336,25 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
         });
         checkUserConnection();
         return view;
+    }
+/*
+    private void hideOneOfTheKeyboards(AXEmojiPopupLayout emojiPopupLayout) {
+        if (!emojiPopupLayout.isShowing()) {
+            emojiPopupLayout.openKeyboard();
+            emojiPopupLayout.dismiss();
+            emojiPopupLayout.setVisibility(View.GONE);
+            mBinding.sendEmojiBtn.setImageResource(R.drawable.ic_baseline_emoji_emotions_24_50_gray);
+        } else {
+            emojiPopupLayout.setVisibility(View.VISIBLE);
+            emojiPopupLayout.show();
+            mBinding.sendEmojiBtn.setImageResource(R.drawable.ic_baseline_keyboard_24);
+        }
+    }*/
+
+    private void scrollToLastMessage(int positionStart, LinearLayoutManager layoutManager) {
+        if (positionStart > 0) {
+            layoutManager.scrollToPosition(positionStart);
+        }
     }
 
     private void checkUserConnection() {
@@ -448,12 +467,11 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
             if (mModel.getMessagingRepository().isWriting())
                 setUserIsNotWriting();
             // remove the listener when the view is no longer visible for the user
-            mModel.getMessagingRepository().removeListeners();
             mBinding = null;
             mToolbarBinding = null;
             targetUserData.clear();
         } else Log.d(TAG, "onDestroyView: should not remove listeners");
-
+        mModel.getMessagingRepository().removeListeners();
     }
 
     @Override

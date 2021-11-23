@@ -81,6 +81,7 @@ public class StatusRepository implements ValueEventListener {
     @Override
     public void onDataChange(@NonNull DataSnapshot snapshot) {
         Log.d(TAG, "onDataChange: generally");
+        String currentUserPhoneNumber = MessagesPreference.getUsePhoneNumber(mContext);
         Iterable<DataSnapshot> iterable = snapshot.getChildren();
         List<List<Status>> allUsersStatues = new ArrayList<>();
         for (DataSnapshot dataSnapshot : iterable) {
@@ -96,9 +97,12 @@ public class StatusRepository implements ValueEventListener {
                 oneUserStatuses.add(status);
             }
             // just display contacts status
+            if (PhoneNumberUtils.compare(currentUserPhoneNumber, rootUserStatusPhoneNumber))
+                allUsersStatues.add(oneUserStatuses);
             if (mContact != null) {
                 for (String contact : mContact) {
-                    if (PhoneNumberUtils.compare(contact, rootUserStatusPhoneNumber))
+                    if (PhoneNumberUtils.compare(contact, rootUserStatusPhoneNumber)
+                    && !PhoneNumberUtils.compare(currentUserPhoneNumber, rootUserStatusPhoneNumber))
                         allUsersStatues.add(oneUserStatuses);
                 }
             }
