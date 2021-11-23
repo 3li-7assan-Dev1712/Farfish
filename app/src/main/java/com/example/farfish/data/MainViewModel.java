@@ -23,7 +23,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 @HiltViewModel
 public class MainViewModel extends ViewModel implements MessagingRepository.PostMessagesInterface {
 
-    // return after repairing a broken head
     // Tag for logging
     private final String TAG = MainViewModel.class.getSimpleName();
     // repositories

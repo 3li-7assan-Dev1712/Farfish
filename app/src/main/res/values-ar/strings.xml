@@ -110,4 +110,5 @@
     <string name="no_app_found">لا يوجد تطبيق في هاتفك لارسال هذا الإيميل</string>
     <string name="type_your_issue">ماهي المشكة التي واجهتك في التطبيق؟</string>
     <string name="edit_profile">تعديل الملف الشخصي</string>
+    <string name="network_probelm">لم يتم التسجيل، تفقد اتصالك بالانترنت!</string>
 </resources>

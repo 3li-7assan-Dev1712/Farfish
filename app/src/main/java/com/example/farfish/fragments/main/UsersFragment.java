@@ -78,8 +78,9 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
                 } else {
                     Toast.makeText(requireContext(),
                             getString(R.string.access_contacts_permission_msg), Toast.LENGTH_LONG).show();
+                    mBinding.loadUsersProgressBar.setVisibility(View.GONE);
                 }
-                mBinding.loadUsersProgressBar.setVisibility(View.GONE);
+
             });
 
     @Override
@@ -111,6 +112,7 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
                 PackageManager.PERMISSION_GRANTED) {
             getViewLifecycleOwnerLiveData().observe(getViewLifecycleOwner(), lifecycleOwner -> {
                 mModel.getAllUsers().observe(lifecycleOwner, users -> {
+                    Log.d(TAG, "onCreateView: submitting list");
                     mUserListAdapter.customSubmitUserList(users);
                     mBinding.loadUsersProgressBar.setVisibility(View.GONE);
                 });
@@ -315,6 +317,7 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
     @Override
     public void prepareDataFinished() {
         mModel.updateUsers(getFilterState());
+        mBinding.loadUsersProgressBar.setVisibility(View.GONE);
     }
 
 }

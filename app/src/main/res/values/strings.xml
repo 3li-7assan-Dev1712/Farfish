@@ -121,6 +121,7 @@
     <string name="no_app_found">No email clients installed.</string>
     <string name="type_your_issue">Replace this by the issue you\'ve found!</string>
     <string name="edit_profile">Edit Profile</string>
+    <string name="network_probelm">The server did not respond. Check you network!</string>
 
 
 </resources>

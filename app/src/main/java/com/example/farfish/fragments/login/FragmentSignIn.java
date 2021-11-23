@@ -183,6 +183,7 @@ public class FragmentSignIn extends Fragment {
                 Log.d(TAG, "signIn: general exception: " + ex.getMessage());
             } finally {
                 showHorizontalProgressBar(false);
+                Toast.makeText(requireContext(), getResources().getString(R.string.network_probelm), Toast.LENGTH_SHORT).show();
             }
         });
     }
