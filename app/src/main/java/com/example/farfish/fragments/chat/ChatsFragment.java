@@ -188,8 +188,9 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
 
         mToolbarBinding.conversationToolbarUserInfo.setOnClickListener(targetUserLayoutListener -> {
 
+            if (mModel.getMessagingRepository().getTargetUserData().getParcelable("user") == null)
+                return;
             USER_EXPECT_TO_RETURN = true;
-            /*messages.clear();*/ // clean the list to ensure it will not contain duplicated data
             navController.navigate(R.id.action_chatsFragment_to_userProfileFragment,
                     mModel.getMessagingRepository().getTargetUserData());
 
@@ -268,13 +269,15 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
 
             if (Connection.isUserConnected(requireContext())) {
 
+                User targetUser = mModel.getMessagingRepository().getTargetUserData().getParcelable("user");
                 long dateFromDateClass = new Date().getTime();
                 String text = Objects.requireNonNull(mBinding.messageEditText.getText()).toString();
                 Message currentUserMsg = new Message(text, "", dateFromDateClass, currentUserId, currentUserId,
                         mUsername, currentUserName, currentPhotoUrl, false);
+                assert targetUser != null;
                 Message targetUserMsg = new Message(text, "", dateFromDateClass, currentUserId, targetUserId,
-                        mUsername, mModel.getMessagingRepository().getTargetUserData().getString("target_user_name"),
-                        mModel.getMessagingRepository().getTargetUserData().getString("target_user_photo_url"), false);
+                        mUsername, targetUser.getUserName(),
+                        targetUser.getPhotoUrl(), false);
                 mModel.getMessagingRepository().sendMessage(currentUserMsg, targetUserMsg);
                 mBinding.messageEditText.setText("");
             } else {
@@ -439,7 +442,8 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
         if (!USER_EXPECT_TO_RETURN) {
             Log.d(TAG, "onDestroyView: going to clean up");
             messagesListAdapter.unregisterAdapterDataObserver(mObserver);
-            mObserver= null;
+            mObserver = null;
+            mModel.getMessagingRepository().getMessages().clear();
             // in the case the user is writing and move to another destination before sending their message.
             if (mModel.getMessagingRepository().isWriting())
                 setUserIsNotWriting();

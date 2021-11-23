@@ -175,14 +175,11 @@ public class MessagingRepository {
         Log.d(TAG, "removeListeners: ");
         mCurrentUserRoomReference.removeEventListener(mCurrentRoomListener);
         mTargetUserRoomReference.removeEventListener(mTargetRoomListener);
-//        cleanUp();
+        cleanUp();
     }
 
     private void cleanUp() {
-        messagingInterface = null;
         messages.clear();
-        messages = null;
-        targetUserId = null;
         targetUserData.clear();
         mCurrentUserRoomReference = null;
         mTargetUserRoomReference = null;
@@ -345,13 +342,15 @@ public class MessagingRepository {
                     Log.d(TAG, String.valueOf(downloadUri));
                     String downloadUrl = downloadUri.toString();
                     long dateFromDateClass = new Date().getTime();
+                    User targetUser = getTargetUserData().getParcelable("user");
                      /* if the image sent successfully to the firebase storage send its metadata as a message
                      to the firebase firestore */
                     Message currentUserMsg = new Message("", downloadUrl, dateFromDateClass, currentUserId, currentUserId,
                             currentUserName, currentUserName, currentPhotoUrl, false);
+                    assert targetUser != null;
                     Message targetUserMsg = new Message("", downloadUrl, dateFromDateClass, currentUserId, targetUserId,
-                            currentUserName, getTargetUserData().getString("target_user_name"),
-                            getTargetUserData().getString("target_user_photo_url"),
+                            currentUserName, targetUser.getUserName(),
+                            targetUser.getPhotoUrl(),
                             false);
                     sendMessage(currentUserMsg, targetUserMsg); //hey mister ViewModel send this new message please *_*
                 });

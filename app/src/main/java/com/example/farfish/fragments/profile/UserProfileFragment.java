@@ -156,7 +156,7 @@ public class UserProfileFragment extends Fragment {
 
     private void populateFromBundle(Bundle userInfo) {
         User user = userInfo.getParcelable("user");
-        assert user != null;
+        if (user == null) return;
         userPhotoUrl = user.getPhotoUrl();
         userName = user.getUserName();
         status = user.getStatus();
