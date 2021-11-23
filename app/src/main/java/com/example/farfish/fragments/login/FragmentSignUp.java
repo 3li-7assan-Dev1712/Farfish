@@ -26,7 +26,6 @@ import com.google.android.material.snackbar.Snackbar;
  */
 public class FragmentSignUp extends Fragment implements TermsAndConditionsDialogFragment.ActionClickListener {
 
-    private static final String TAG = FragmentSignUp.class.getSimpleName();
     private NavController mNavController;
     private String mUserName;
     private View snackBarView;
@@ -99,7 +98,7 @@ public class FragmentSignUp extends Fragment implements TermsAndConditionsDialog
         userData.putString("userName", mUserName);
         userData.putString("email", email);
         userData.putString("password", password);
-        mNavController.navigate(R.id.profileImageFragment, userData);
+        mNavController.navigate(R.id.action_fragmentSignUp_to_profileImageFragment, userData);
     }
 
     /**
@@ -133,9 +132,7 @@ public class FragmentSignUp extends Fragment implements TermsAndConditionsDialog
     private void displayRequiredFieldSnackBar(EditText requiredField, String message) {
         Snackbar snackbar = Snackbar.make(snackBarView, message, Snackbar.LENGTH_LONG);
         int action = R.string.fix;
-        snackbar.setAction(action, listener -> {
-            showKeyboardOnEditText(requiredField);
-        });
+        snackbar.setAction(action, listener -> showKeyboardOnEditText(requiredField));
         snackbar.show();
     }
 

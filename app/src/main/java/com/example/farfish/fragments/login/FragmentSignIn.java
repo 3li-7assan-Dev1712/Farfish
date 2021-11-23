@@ -161,6 +161,8 @@ public class FragmentSignIn extends Fragment {
             updateUserInfoAndNavigateBack();
         }).addOnFailureListener(e -> {
             Log.d(TAG, "signIn: exception message: " + e.getMessage());
+            String errorMessage = e.getMessage();
+            if (errorMessage == null) return;
             if (e.getMessage().equals("There is no user record corresponding to this identifier. The user may have been deleted.")) {
                 showSnackBarWithAction(R.string.notRegsitered, R.id.register_button, null);
                 showHorizontalProgressBar(false);
@@ -282,9 +284,7 @@ public class FragmentSignIn extends Fragment {
             if (exception instanceof FirebaseAuthInvalidCredentialsException) {
                 snackbar.setAction(action, snackbarListener -> showKeyboardOnEditText(mBinding.editTextPasswordSignIn));
             } else if (exception instanceof FirebaseAuthEmailException) {
-                snackbar.setAction(action, snackbarListener -> {
-                    showKeyboardOnEditText(mBinding.editTextEmailSignIn);
-                });
+                snackbar.setAction(action, snackbarListener -> showKeyboardOnEditText(mBinding.editTextEmailSignIn));
             } else if (exception instanceof FirebaseNoSignedInUserException) {
                 snackbar.setAction(action, snackbarListener -> mNavController.navigate(R.id.action_fragmentSignIn_to_fragmentSignUp));
             }

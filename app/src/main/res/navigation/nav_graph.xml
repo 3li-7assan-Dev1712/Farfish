@@ -157,7 +157,15 @@
         android:id="@+id/profileImageFragment"
         android:name="com.example.farfish.fragments.login.ProfileImageFragment"
         android:label="profile_image_fragment"
-        tools:layout="@layout/profile_image_fragment" />
+        tools:layout="@layout/profile_image_fragment" >
+        <action
+            android:id="@+id/action_profileImageFragment_to_userChatsFragment"
+            app:destination="@id/userChatsFragment"
+            app:enterAnim="@anim/fui_slide_in_right"
+            app:exitAnim="@anim/fui_slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"/>
+    </fragment>
     <fragment
         android:id="@+id/userProfileFragment"
         android:name="com.example.farfish.fragments.profile.UserProfileFragment"

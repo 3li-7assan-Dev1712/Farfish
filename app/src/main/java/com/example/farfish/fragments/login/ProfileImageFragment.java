@@ -276,7 +276,8 @@ public class ProfileImageFragment extends Fragment {
         firestore.collection("rooms").document(userId).set(newUser).addOnSuccessListener(data -> {
             Log.d(TAG, "saveUserDataAndNavigateToHomeScreen: successfully register new user");
             SharedPreferenceUtils.saveUserSignIn(requireContext());
-            Navigation.findNavController(requireActivity(), R.id.nav_host_fragment).popBackStack(R.id.userChatsFragment, false); // return to home screen
+            Navigation.findNavController(requireActivity(), R.id.nav_host_fragment).
+                    navigate(R.id.action_profileImageFragment_to_userChatsFragment);
         }).addOnFailureListener(exc -> {
             Log.d(TAG, "saveUserDataAndNavigateToHomeScreen: exception: " + exc.getMessage());
             Log.d(TAG, "saveUserDataAndNavigateToHomeScreen: user authenticated successfully, the error in firestore");
