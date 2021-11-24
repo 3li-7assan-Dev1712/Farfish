@@ -1,7 +1,5 @@
 package com.example.farfish.data;
 
-import android.util.Log;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -22,9 +20,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 
 @HiltViewModel
 public class MainViewModel extends ViewModel implements MessagingRepository.PostMessagesInterface {
-
-    // Tag for logging
-    private final String TAG = MainViewModel.class.getSimpleName();
     // repositories
     public UsersRepository usersRepository;
     public ChatsRepository chatsRepository;
@@ -58,7 +53,6 @@ public class MainViewModel extends ViewModel implements MessagingRepository.Post
             StatusRepository statusRepository
 
     ) {
-        Log.d(TAG, "MainViewModel: constructor");
         this.usersRepository = usersRepository;
         this.chatsRepository = chatsRepository;
         this.messagingRepository = messagingRepository;
@@ -123,7 +117,6 @@ public class MainViewModel extends ViewModel implements MessagingRepository.Post
      * @return the userChats LiveData.
      */
     public MutableLiveData<List<Message>> getUserChats() {
-        Log.d(TAG, "getUserChats: getting chats");
         if (userChats == null) {
             userChats = new MutableLiveData<>();
         }
@@ -141,7 +134,6 @@ public class MainViewModel extends ViewModel implements MessagingRepository.Post
         if (userMessages == null) {
             userMessages = new MutableLiveData<>();
             messagingRepository.setPostMessagesInterface(this);
-            Log.d(TAG, "getChatMessages: set post interface");
         }
         messagingRepository.loadMessages();
         return userMessages;
@@ -178,7 +170,6 @@ public class MainViewModel extends ViewModel implements MessagingRepository.Post
      * when a change is triggered this method is called to update the data.
      */
     public void updateChats() {
-        Log.d(TAG, "updateChats: size after logout: " + chatsRepository.getUserChats().size());
         userChats.setValue(chatsRepository.getUserChats());
     }
 
@@ -186,7 +177,6 @@ public class MainViewModel extends ViewModel implements MessagingRepository.Post
      * when a change is triggered this method is called to update the messages.
      */
     public void updateMessages() {
-        Log.d(TAG, "updateChats: size after logout: " + messagingRepository.getMessages().size());
         userMessages.setValue(messagingRepository.getMessages());
     }
 

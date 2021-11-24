@@ -8,7 +8,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,8 +22,8 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
-import com.example.farfish.Module.util.FileUtil;
 import com.example.farfish.Module.preferences.MessagesPreference;
+import com.example.farfish.Module.util.FileUtil;
 import com.example.farfish.R;
 import com.example.farfish.databinding.EditProfileFragmentBinding;
 import com.example.farfish.fragments.dialogs.InternetConnectionDialog;
@@ -48,8 +47,6 @@ import java.util.Objects;
 import id.zelory.compressor.Compressor;
 
 public class EditProfileFragment extends Fragment {
-
-    private static final String TAG = EditProfileFragment.class.getSimpleName();
     FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
     private FirebaseStorage mStorage = FirebaseStorage.getInstance();
     private Uri imageUri;
@@ -147,7 +144,6 @@ public class EditProfileFragment extends Fragment {
             userNameAfterClick = mBinding.editProfileEditTextUserName.getText().toString();
             userStatusAfterClick = mBinding.editProfileEditTextStatus.getText().toString();
             userPhoneNumberAfterClick = mBinding.editProfilePhoneNumber.getText().toString();
-            Log.d(TAG, "onCreateView: imageUrl: " + imageUri);
             if (imageUri != null) {
                 checkIfUserSelectTheSameImageAndContinueIfNot();
             }
@@ -250,9 +246,7 @@ public class EditProfileFragment extends Fragment {
         try {
             imageNameInTheServer = storage.getReferenceFromUrl(photoUrl).getName();
             oldProfileReference = storage.getReferenceFromUrl(photoUrl);
-            Log.d(TAG, "checkIfUserSelectTheSameImageAndContinueIfNot: image int the server is: " + imageNameInTheServer);
-        } catch (Exception e) {
-            Log.d(TAG, "checkIfUserSelectTheSameImageAndContinueIfNot: " + e.getMessage());
+        } catch (Exception ignored) {
         }
         String imageFromGalleryName = "";
         File compressedFile = null;
@@ -263,8 +257,7 @@ public class EditProfileFragment extends Fragment {
             File compressedImageFile = new Compressor(requireContext()).compressToFile(galleryFile);
             compressedFile = compressedImageFile;
             imageFromGalleryName = compressedImageFile.getName();
-        } catch (IOException exc) {
-            Log.d(TAG, "checkIfTheUserSeletectTheSameImage: " + exc.getMessage());
+        } catch (IOException ignored) {
         }
         // if there are not the same prepare the downloadable url
         if (!imageFromGalleryName.equals(imageNameInTheServer)) {
@@ -274,7 +267,6 @@ public class EditProfileFragment extends Fragment {
             if (!imageNameInTheServer.equals("") && oldProfileReference != null)
                 deleteOldProfile(oldProfileReference);
         } else {
-            Log.d(TAG, "checkIfUserSelectTheSameImageAndContinueIfNot: the user select the same image");
             Snackbar.make(mBinding.getRoot(), R.string.same_img_msg, BaseTransientBottomBar.LENGTH_LONG).show();
             mBinding.editProfileHorizontalProgressBar.setVisibility(View.GONE);
         }
@@ -282,7 +274,7 @@ public class EditProfileFragment extends Fragment {
     }
 
     private void deleteOldProfile(StorageReference profileRefToBeDeleted) {
-        profileRefToBeDeleted.delete().addOnSuccessListener(s -> Log.d(TAG, "deleteOldProfile: old profile deleted successfully")).addOnFailureListener(f -> Log.d(TAG, "deleteOldProfile: " + f.getMessage()));
+        profileRefToBeDeleted.delete();
     }
 
     private void uploadImageToServer(File compressedFile) {
@@ -293,26 +285,22 @@ public class EditProfileFragment extends Fragment {
             uploadTask.addOnSuccessListener(successListener -> imageReference.getDownloadUrl().addOnSuccessListener(downloadUrlSuccessListener -> {
                 String newProfileUrl = downloadUrlSuccessListener.toString();
                 saveDataInFirestore(newProfileUrl);
-                Log.d(TAG, "uploadImageToServer: " + photoUrlToBeUpdated);
-            })).addOnFailureListener(failureListener -> Log.d(TAG, "uploadImageToServer: " + failureListener.getMessage()));
+            }));
         }
 
     }
 
     private void saveDataInFirestore(String newProfileUrl) {
         updateLocalUserData("photoUrl", newProfileUrl);
-        Log.d(TAG, "saveDataInFirestore: " + newProfileUrl);
         mFirestore.collection("rooms")
                 .document(MessagesPreference.getUserId(requireContext()))
                 .update("photoUrl", newProfileUrl)
                 .addOnSuccessListener(sListner -> {
-                            Log.d(TAG, "saveDataInFirestore: update new profile image successfully");
                             mBinding.editProfileHorizontalProgressBar.setVisibility(View.GONE);
                             showSnackBar();
                             imageUri = null;
                         }
-                ).
-                addOnFailureListener(fListener -> Log.d(TAG, "saveDataInFirestore: " + fListener.getMessage()));
+                );
     }
 
     private void showSnackBar() {

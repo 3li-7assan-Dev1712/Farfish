@@ -3,7 +3,6 @@ package com.example.farfish.data.repositories;
 import android.content.Context;
 import android.net.Uri;
 import android.telephony.PhoneNumberUtils;
-import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -37,8 +36,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext;
 import id.zelory.compressor.Compressor;
 
 public class StatusRepository implements ValueEventListener {
-
-    private static final String TAG = StatusRepository.class.getSimpleName();
     private DatabaseReference mDatabaseReference;
     private DatabaseReference mUserReference;
     private StorageReference mRootRef;
@@ -58,7 +55,7 @@ public class StatusRepository implements ValueEventListener {
 
     public void setStatusInterface(StatusInterface statusInterface) {
         if (mContact == null) {
-                mContact = MessagesPreference.getUserContacts(mContext);
+            mContact = MessagesPreference.getUserContacts(mContext);
         }
         this.statusInterface = statusInterface;
     }
@@ -80,7 +77,6 @@ public class StatusRepository implements ValueEventListener {
 
     @Override
     public void onDataChange(@NonNull DataSnapshot snapshot) {
-        Log.d(TAG, "onDataChange: generally");
         String currentUserPhoneNumber = MessagesPreference.getUsePhoneNumber(mContext);
         Iterable<DataSnapshot> iterable = snapshot.getChildren();
         List<List<Status>> allUsersStatues = new ArrayList<>();
@@ -102,7 +98,7 @@ public class StatusRepository implements ValueEventListener {
             if (mContact != null) {
                 for (String contact : mContact) {
                     if (PhoneNumberUtils.compare(contact, rootUserStatusPhoneNumber)
-                    && !PhoneNumberUtils.compare(currentUserPhoneNumber, rootUserStatusPhoneNumber))
+                            && !PhoneNumberUtils.compare(currentUserPhoneNumber, rootUserStatusPhoneNumber))
                         allUsersStatues.add(oneUserStatuses);
                 }
             }
@@ -110,7 +106,6 @@ public class StatusRepository implements ValueEventListener {
         }
         mStatusLists.clear();
         mStatusLists.addAll(allUsersStatues);
-        Log.d(TAG, "onDataChange: size is " + mStatusLists.size());
         statusInterface.statusesAreReady();
     }
 

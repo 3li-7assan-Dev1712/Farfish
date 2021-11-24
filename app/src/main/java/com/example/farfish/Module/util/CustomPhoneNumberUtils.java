@@ -2,7 +2,6 @@ package com.example.farfish.Module.util;
 
 import android.content.Context;
 import android.telephony.PhoneNumberUtils;
-import android.util.Log;
 
 import androidx.annotation.Nullable;
 
@@ -39,13 +38,8 @@ public class CustomPhoneNumberUtils {
                                               Set<CustomPhoneNumberUtils> phoneNumbersFromServer,
                                               Context context) {
 
-        Log.d("TAG", "storeCommonPhoneNumber: allUsers list size is: " + allUsers.size());
-        Log.d("TAG", "storeCommonPhoneNumber: contacts content provider: " + phoneNumberFromContactContactProvider.size());
-        Log.d("TAG", "storeCommonPhoneNumber: server phone numbers: " + phoneNumbersFromServer.size());
         for (String s : phoneNumberFromContactContactProvider) {
-            /*    CustomPhoneNumberUtils customPhoneNumberUtils = ;*/
             if (phoneNumbersFromServer.contains(new CustomPhoneNumberUtils(s))) {
-                /*     common.add(customPhoneNumberUtils);*/
                 mContactsPhoneNumbers.add(s);
                 for (User userUserKnow : allUsers) {
                     String localUserPhoneNumber = userUserKnow.getPhoneNumber();
@@ -55,7 +49,6 @@ public class CustomPhoneNumberUtils {
                 }
             }
         }
-        Log.d("TAG", "storeCommonPhoneNumber: after filling the list : " + usersUserKnow.size());
         MessagesPreference.saveCommonContacts(context, mContactsPhoneNumbers);
     }
 

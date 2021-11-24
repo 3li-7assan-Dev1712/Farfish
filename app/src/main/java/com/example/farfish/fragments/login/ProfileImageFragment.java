@@ -8,7 +8,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,7 +53,6 @@ import id.zelory.compressor.Compressor;
  * for the user.
  */
 public class ProfileImageFragment extends Fragment {
-    private static final String TAG = ProfileImageFragment.class.getSimpleName();
     private Uri imageUriFromGallery;
     private ProfileImageFragmentBinding mBinding;
     /**
@@ -148,8 +146,6 @@ public class ProfileImageFragment extends Fragment {
                 userId = Objects.requireNonNull(auth.getCurrentUser()).getUid();
                 compressImageAndStoreInStorage(imageUriFromGallery);
             }).addOnFailureListener(exception -> {
-                Log.d(TAG, "saveUserDataAndNavigateToHomeScreen: exception: " + exception.getMessage());
-                Log.d(TAG, "saveUserDataAndNavigateToHomeScreen: Error in authenticating new user");
                 try {
                     throw exception;
                 } catch (FirebaseAuthEmailException emailException) {
@@ -160,7 +156,6 @@ public class ProfileImageFragment extends Fragment {
                     showSnackBarWithAction(R.string.already_registered, collisionException);
                 } catch (Exception generalException) {
                     Toast.makeText(requireActivity(), generalException.getMessage(), Toast.LENGTH_SHORT).show();
-                    Log.d(TAG, "saveUserDataAndNavigateToHomeScreen: general exception: " + generalException.getMessage());
                     showSnackBarWithAction(R.string.wrong_email, generalException);
                 }
             });
@@ -233,20 +228,13 @@ public class ProfileImageFragment extends Fragment {
             // Register observers to listen for when the download is done or if it fails
             uploadTask.addOnFailureListener(exception -> {
                 // Handle unsuccessful uploads
-                Log.d(TAG, "putIntoImage: exc msg: " + exception.getMessage());
-            }).addOnSuccessListener(taskSnapshot -> {
-                Log.d(TAG, "putIntoImage: Successfully upload image to firestore");
-                imageRef.getDownloadUrl().addOnSuccessListener(downloadUri -> {
-                    Log.d(TAG, downloadUri.toString());
-                    Log.d(TAG, String.valueOf(downloadUri));
-                    photoUrl = downloadUri.toString();
-                    saveFinalData();
-                });
-            });
+            }).addOnSuccessListener(taskSnapshot -> imageRef.getDownloadUrl().addOnSuccessListener(downloadUri -> {
+                photoUrl = downloadUri.toString();
+                saveFinalData();
+            }));
 
         } catch (IOException e) {
             e.printStackTrace();
-            Log.d(TAG, "Error compressing the file");
         }
     }
 
@@ -261,7 +249,6 @@ public class ProfileImageFragment extends Fragment {
      * firestore database.
      */
     private void saveFinalData() {
-        Log.d(TAG, "saveFinalData: photoUrl" + photoUrl);
         String status = Objects.requireNonNull(mBinding.editTextStatus.getText()).toString();
         /*save user data to be used later*/
         MessagesPreference.saveUserStatus(requireContext(), status);
@@ -274,13 +261,9 @@ public class ProfileImageFragment extends Fragment {
         User newUser = new User(userName, email, phoneNumber, photoUrl, userId, status, true, false, new Date().getTime());
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         firestore.collection("rooms").document(userId).set(newUser).addOnSuccessListener(data -> {
-            Log.d(TAG, "saveUserDataAndNavigateToHomeScreen: successfully register new user");
             SharedPreferenceUtils.saveUserSignIn(requireContext());
             Navigation.findNavController(requireActivity(), R.id.nav_host_fragment).
                     navigate(R.id.action_profileImageFragment_to_userChatsFragment);
-        }).addOnFailureListener(exc -> {
-            Log.d(TAG, "saveUserDataAndNavigateToHomeScreen: exception: " + exc.getMessage());
-            Log.d(TAG, "saveUserDataAndNavigateToHomeScreen: user authenticated successfully, the error in firestore");
         });
     }
 

@@ -1,7 +1,6 @@
 package com.example.farfish.data.repositories;
 
 import android.content.Context;
-import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.work.ExistingWorkPolicy;
@@ -29,10 +28,6 @@ import javax.inject.Inject;
 import dagger.hilt.android.qualifiers.ApplicationContext;
 
 public class UsersRepository {
-    /**
-     * TAG for debug, and will be removed later
-     */
-    private final String TAG = UsersRepository.class.getSimpleName();
 
     public LiveData<WorkInfo> deviceContactsObserver;
     public LiveData<WorkInfo> commonContactsObserver;
@@ -86,16 +81,13 @@ public class UsersRepository {
         }
         if (!contactsIsCached) {
             readTheContactsInTheDevice();
-            Log.d(TAG, "refreshData: data is not cached");
         }
         boolean finalContactsIsCached = contactsIsCached;
         FirebaseFirestore.getInstance().collection("rooms").get()
                 .addOnSuccessListener(this::fetchPrimaryData).addOnCompleteListener(listener -> {
-                    Log.d(TAG, "refreshData: onCompletion called");
                     invokeObservers.invokeObservers();
                     if (finalContactsIsCached) {
                         readContactsWorkerEnd();
-                        Log.d(TAG, "refreshData: data is cached!");
                     }
                 }
         );
@@ -108,13 +100,11 @@ public class UsersRepository {
      * complete the app flow.
      */
     public void readContactsWorkerEnd() {
-        Log.d(TAG, "readContactsWorkerEnd: ");
         ReadDataFromServerWorker.setLists(MessagesPreference.getDeviceContacts(mContext), setServerPhoneNumber);
         WorkRequest commonContactsWorker = new OneTimeWorkRequest.Builder(ReadDataFromServerWorker.class)
                 .build();
         workManager.enqueue(commonContactsWorker);
         commonContactsObserver = workManager.getWorkInfoByIdLiveData(commonContactsWorker.getId());
-        Log.d(TAG, "readContactsWorkerEnd: enqueue the work successfully");
         invokeObservers.observeCommonContacts();
 
     }
@@ -127,7 +117,6 @@ public class UsersRepository {
      *                               to a list of users.
      */
     private void fetchPrimaryData(QuerySnapshot queryDocumentSnapshots) {
-        Log.d(TAG, "fetchPrimaryData: ");
         allUsersList.clear();
         for (DocumentSnapshot ds : queryDocumentSnapshots.getDocuments()) {
             User user = ds.toObject(User.class);
@@ -140,7 +129,6 @@ public class UsersRepository {
             if (!currentUserId.equals(user.getUserId()))
                 CustomPhoneNumberUtils.allUsers.add(user);
         }
-        Log.d(TAG, "fetchPrimaryData: done");
     }
 
     /**
@@ -149,10 +137,8 @@ public class UsersRepository {
      * calls this method to start preparing the UsersUserKnow list.
      */
     public void prepareUserUserKnowList() {
-        Log.d(TAG, "prepareUserUserKnowList: test size is: " + CustomPhoneNumberUtils.getUsersUserKnow().size());
         usersUserKnowList.addAll(CustomPhoneNumberUtils.getUsersUserKnow());
         CustomPhoneNumberUtils.clearLists();
-        Log.d(TAG, "prepareUserUserKnowList: userUserKnowList size is: " + usersUserKnowList.size());
         invokeObservers.prepareDataFinished();
     }
 

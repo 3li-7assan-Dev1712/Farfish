@@ -1,13 +1,11 @@
 package com.example.farfish.Adapters;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.AsyncDifferConfig;
 import androidx.recyclerview.widget.AsyncListDiffer;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
@@ -30,7 +28,6 @@ import java.util.Locale;
  * the data for the RecyclerView.
  */
 public class ContactsListAdapter extends ListAdapter<User, ContactsListAdapter.ContactsViewHolder> {
-
 
     public static final DiffUtil.ItemCallback<User> Diff = new DiffUtil.ItemCallback<User>() {
         @Override
@@ -56,7 +53,6 @@ public class ContactsListAdapter extends ListAdapter<User, ContactsListAdapter.C
             return oldItem.size() == newItem.size();
         }
     };
-    private final String TAG = ContactsListAdapter.class.getSimpleName();
     // for status destination
     private final AsyncListDiffer<List<Status>> mStatusDiffer = new AsyncListDiffer<>(this, StatusDiff);
     // significant attribute to hunt the difference between two lists on a background thread
@@ -65,11 +61,11 @@ public class ContactsListAdapter extends ListAdapter<User, ContactsListAdapter.C
     private boolean forStatus;
 
 
-    public ContactsListAdapter(OnChatClicked pOnChatClicked, boolean forStatus) {
+   /* public ContactsListAdapter(OnChatClicked pOnChatClicked, boolean forStatus) {
         super(Diff);
         onChatClicked = pOnChatClicked;
         this.forStatus = forStatus;
-    }
+    }*/
 
     public ContactsListAdapter() {
         super(Diff);
@@ -100,8 +96,6 @@ public class ContactsListAdapter extends ListAdapter<User, ContactsListAdapter.C
                     Status lastStatus = statusList.get(statusList.size() - 1);
                     holder.bind(lastStatus, statusList);
                 }
-            } else {
-                Log.d(TAG, "onBindViewHolder:child status are null");
             }
         } else {
             User user = mDiffer.getCurrentList().get(position);
@@ -112,10 +106,10 @@ public class ContactsListAdapter extends ListAdapter<User, ContactsListAdapter.C
     @Override
     public int getItemCount() {
 
-        return (forStatus)? mStatusDiffer.getCurrentList().size(): mDiffer.getCurrentList().size();
+        return (forStatus) ? mStatusDiffer.getCurrentList().size() : mDiffer.getCurrentList().size();
     }
 
-    public void customSubmitUserList( @Nullable List<User> list) {
+    public void customSubmitUserList(@Nullable List<User> list) {
         mDiffer.submitList(list);
     }
 

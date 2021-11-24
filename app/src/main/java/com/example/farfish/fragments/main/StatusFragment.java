@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,8 +48,6 @@ import dagger.hilt.android.AndroidEntryPoint;
  */
 @AndroidEntryPoint
 public class StatusFragment extends Fragment implements ContactsListAdapter.OnChatClicked, StatusRepository.StatusInterface {
-
-    private static final String TAG = StatusFragment.class.getSimpleName();
     public MainViewModel mModel;
     @Inject
     public ContactsListAdapter mStatusAdapter;
@@ -125,7 +122,6 @@ public class StatusFragment extends Fragment implements ContactsListAdapter.OnCh
         mModel.getStatusRepository().setStatusInterface(this);
         getViewLifecycleOwnerLiveData().observe(getViewLifecycleOwner(), lifecycleOwner ->
                 mModel.getStatusLiveData().observe(lifecycleOwner, statuesLists -> {
-                    Log.d(TAG, "onCreateView: statusLists size is " + statuesLists.size());
                     mStatusAdapter.customSubmitStatusList(statuesLists);
                     mBinding.statusProgressBar.setVisibility(View.GONE);
                 }));
@@ -189,10 +185,8 @@ public class StatusFragment extends Fragment implements ContactsListAdapter.OnCh
      */
     @Override
     public void onChatClicked(int position) {
-        Log.d(TAG, "onStatusClicked: Ok, will be completed soon");
 
         List<Status> userStatuses = mModel.getStatusRepository().getStatusLists().get(position);
-        // test story view library
         ArrayList<CustomStory> myStories = new ArrayList<>();
         for (Status status : userStatuses) {
             myStories.add(new CustomStory(
@@ -220,7 +214,6 @@ public class StatusFragment extends Fragment implements ContactsListAdapter.OnCh
     @Override
     public void statusesAreReady() {
         mModel.updateStatues();
-//        mStatusAdapter.notifyDataSetChanged();
         if (mBinding != null)
             mBinding.statusProgressBar.setVisibility(View.GONE);
     }

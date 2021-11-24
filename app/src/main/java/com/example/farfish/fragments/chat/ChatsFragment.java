@@ -13,7 +13,6 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -75,8 +74,6 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
     // max number of characters with a single message.
     public static final int DEFAULT_MSG_LENGTH_LIMIT = 1000;
     private static final String ORIENTATION_CHANGE = "orientation_change";
-    /*TAG for logging*/
-    private static final String TAG = ChatsFragment.class.getSimpleName();
     @Inject
     public MessagesListAdapter messagesListAdapter;
     public MainViewModel mModel;
@@ -142,7 +139,6 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
         targetUserData = getArguments();
         if (targetUserData != null) {
             targetUserId = targetUserData.getString("target_user_id", "id for target user");
-            Log.d(TAG, "onCreate: target user id (chats): " + targetUserId);
             // rooms references
             currentUserId = MessagesPreference.getUserId(requireContext());
 
@@ -165,20 +161,18 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
         mObserver = new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
-                Log.d(TAG, "onItemRangeInserted: position: " + positionStart);
                 scrollToLastMessage(positionStart, layoutManager);
             }
 
             @Override
             public void onItemRangeChanged(int positionStart, int itemCount) {
-                Log.d(TAG, "onItemRangeChanged: position: " + ( mModel.messagingRepository.getMessages().size() -1));
                 scrollToLastMessage(mModel.messagingRepository.getMessages().size() - 1, layoutManager);
             }
+
 
         };
         mBinding.messageRecyclerView.setLayoutManager(layoutManager);
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
-        Log.d(TAG, "onCreateView: ");
 
         navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         Toolbar tb = mBinding.toolbarFrag;
@@ -186,10 +180,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
         mToolbarBinding = mBinding.toolbarTargetUserInfo;
 
         LinearLayout layout = view.findViewById(R.id.go_back);
-        layout.setOnClickListener(v -> {
-            Log.d(TAG, "onCreateView: navigate to the back stack through the navigation components");
-            navController.navigateUp();
-        });
+        layout.setOnClickListener(v -> navController.navigateUp());
 
         mToolbarBinding.conversationToolbarUserInfo.setOnClickListener(targetUserLayoutListener -> {
 
@@ -229,7 +220,6 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
         mBinding.messageEditText.setOnClickListener(editTextView -> {
             emojiPopupLayout.openKeyboard();
             emojiPopupLayout.setVisibility(View.GONE);
-            Log.d(TAG, "onCreateView: mMessageEditTextClick");
         });
 //        hideOneOfTheKeyboards(emojiPopupLayout);
         mBinding.sendEmojiBtn.setOnClickListener(emojiPopupListener -> {
@@ -249,7 +239,6 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
         mBinding.messageEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                Log.d(TAG, "beforeTextChanged");
                 setUserIsWriting();
             }
 
@@ -266,7 +255,6 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
 
             @Override
             public void afterTextChanged(Editable editable) {
-                Log.d(TAG, "afterTextChanged");
             }
         });
         mBinding.messageEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(DEFAULT_MSG_LENGTH_LIMIT)});
@@ -293,7 +281,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
         });
 
         messagesListAdapter.registerAdapterDataObserver(mObserver);
-
+        messagesListAdapter.setStateRestorationPolicy(RecyclerView.Adapter.StateRestorationPolicy.ALLOW);
         mBinding.progressBar.setVisibility(View.VISIBLE);
         NavBackStackEntry backStackEntry = navController.getBackStackEntry(R.id.nav_graph);
         mModel = new ViewModelProvider(
@@ -305,9 +293,8 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
         mBinding.messageRecyclerView.setAdapter(messagesListAdapter);
         messagesListAdapter.setMessageInterface(this);
         messagesListAdapter.setIsGeneral(false);
-        messagesListAdapter.setStateRestorationPolicy(RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY);
+
         mModel.getChatMessages().observe(getViewLifecycleOwner(), chatMessages -> {
-            Log.d(TAG, "onCreateView: number of messages: " + chatMessages.size());
             messagesListAdapter.submitList(chatMessages);
             mBinding.progressBar.setVisibility(View.GONE);
         });
@@ -337,19 +324,6 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
         checkUserConnection();
         return view;
     }
-/*
-    private void hideOneOfTheKeyboards(AXEmojiPopupLayout emojiPopupLayout) {
-        if (!emojiPopupLayout.isShowing()) {
-            emojiPopupLayout.openKeyboard();
-            emojiPopupLayout.dismiss();
-            emojiPopupLayout.setVisibility(View.GONE);
-            mBinding.sendEmojiBtn.setImageResource(R.drawable.ic_baseline_emoji_emotions_24_50_gray);
-        } else {
-            emojiPopupLayout.setVisibility(View.VISIBLE);
-            emojiPopupLayout.show();
-            mBinding.sendEmojiBtn.setImageResource(R.drawable.ic_baseline_keyboard_24);
-        }
-    }*/
 
     private void scrollToLastMessage(int positionStart, LinearLayoutManager layoutManager) {
         if (positionStart > 0) {
@@ -365,19 +339,13 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
     }
 
     private void setUserIsNotWriting() {
-        Log.d(TAG, "setUserIsNotWriting: ");
         mModel.getMessagingRepository().setUserIsNotWriting();
-        // when the user has no internet connection we set the value of the isWriting to be false
     }
 
     private void setUserIsWriting() {
-        Log.d(TAG, "set user is writing");
         if (tracker == 0) {
             mModel.getMessagingRepository().setUserIsWriting();
-            /*messageSingleRef.document("isWriting")
-                    .update("isWriting", true);*/
             tracker++;
-            Log.d(TAG, " just one time *_* ");
         }
     }
 
@@ -385,7 +353,6 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
     /*this method will update the chat info int the toolbar in real time!*/
     public void updateChatInfo() {
         if (mToolbarBinding == null) return;
-        Log.d(TAG, "updateChatInfo: ");
         if (getContext() != null) {
             if (mModel.getMessagingRepository().isWriting()) {
                 mToolbarBinding.chatLastSeen.setText(getResources().getString(R.string.isWriting));
@@ -426,11 +393,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
     public void populateToolbar() {
         if (mBinding != null) {
             User targetUser = mModel.getMessagingRepository().getTargetUserData().getParcelable("user");
-            if (targetUser == null)
-                Log.d(TAG, "populateToolbar: targetUser is null!");
-            else
-                Log.d(TAG, "populateToolbar: targetUser is not null");
-            assert targetUser != null;
+            if (targetUser == null) return;
             mToolbarBinding.chatTitle.setText(targetUser.getUserName());
             Picasso.get().load(targetUser.getPhotoUrl()).placeholder(R.drawable.time_background).into(mToolbarBinding.chatConversationProfile);
             updateChatInfo();
@@ -455,11 +418,8 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
     public void onDestroyView() {
 
         super.onDestroyView();
-        Log.d(TAG, "onDestroyView: "); // for logging
-        Log.d(TAG, "onDestroyView: expect user to return " + USER_EXPECT_TO_RETURN);
 
         if (!USER_EXPECT_TO_RETURN) {
-            Log.d(TAG, "onDestroyView: going to clean up");
             messagesListAdapter.unregisterAdapterDataObserver(mObserver);
             mObserver = null;
             mModel.getMessagingRepository().getMessages().clear();
@@ -470,14 +430,13 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
             mBinding = null;
             mToolbarBinding = null;
             targetUserData.clear();
-        } else Log.d(TAG, "onDestroyView: should not remove listeners");
+        }
         mModel.getMessagingRepository().removeListeners();
     }
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        Log.d(TAG, "onSaveInstanceState: ");
         USER_EXPECT_TO_RETURN = true;
         outState.putBoolean(ORIENTATION_CHANGE, true);
     }

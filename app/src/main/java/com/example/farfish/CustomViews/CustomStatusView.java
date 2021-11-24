@@ -3,12 +3,10 @@ package com.example.farfish.CustomViews;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.icu.lang.UCharacter;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,7 +16,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
@@ -87,7 +84,7 @@ public class CustomStatusView extends DialogFragment implements StoriesProgressV
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         getDialog().getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        View view =  inflater.inflate(R.layout.dialog_stories, container);
+        View view = inflater.inflate(R.layout.dialog_stories, container);
         return view;
     }
 
@@ -261,7 +258,7 @@ public class CustomStatusView extends DialogFragment implements StoriesProgressV
         if (storyHeaderInfo.getTitleIconUrl() != null) {
             titleCardView.setVisibility(View.VISIBLE);
             if (getContext() == null) return;
-            Picasso.get() .load(storyHeaderInfo.getTitleIconUrl())
+            Picasso.get().load(storyHeaderInfo.getTitleIconUrl())
                     .into(titleIconImageView);
             /*Glide.with(getContext())
                     .load(storyHeaderInfo.getTitleIconUrl())
@@ -446,7 +443,6 @@ public class CustomStatusView extends DialogFragment implements StoriesProgressV
 
         public Builder build() {
             if (storyView != null) {
-                Log.e(TAG, "The StoryView has already been built!");
                 return this;
             }
             storyView = new CustomStatusView();

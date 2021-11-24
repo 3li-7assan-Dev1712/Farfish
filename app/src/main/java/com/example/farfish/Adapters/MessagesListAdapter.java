@@ -1,7 +1,6 @@
 package com.example.farfish.Adapters;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,7 +35,6 @@ import java.util.Locale;
  */
 public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewHolder> {
 
-
     private static final DiffUtil.ItemCallback<Message> Diff = new DiffUtil.ItemCallback<Message>() {
         @Override
         public boolean areItemsTheSame(@NonNull Message oldItem, @NonNull Message newItem) {
@@ -48,7 +46,6 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
             return oldItem.equals(newItem);
         }
     };
-    private final String TAG = MessagesListAdapter.class.getSimpleName();
     private static final int USE_RECEIVE_BACKGROUND = 0;
     private static final int USE_SEND_BACKGROUND = 1;
     private static final int USE_SEND_BACKGROUND_IMG = 2;
@@ -57,7 +54,7 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
     private AsyncListDiffer<Message> mDiffer;
     MessagesListAdapter.MessageClick mMessageInterface;
     ChatClick mChatClick;
-    private List<Message> mMessages;
+    /*private List<Message> mMessages;*/
     private Context mContext;
     // this boolean is for UserChatsFragment's ViewHolders
     private boolean mIsGeneral;
@@ -80,7 +77,7 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
 
     public MessagesListAdapter(Context mContext) {
         super(Diff);
-        mDiffer= new AsyncListDiffer<>(this, Diff);
+        mDiffer = new AsyncListDiffer<>(this, Diff);
         this.mContext = mContext;
     }
 
@@ -147,8 +144,8 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
                 chatsViewHolder.bind(message);
                 break;
             case USE_SEND_BACKGROUND:
-                LocalMessageViewHolder locaMessage = (LocalMessageViewHolder) holder;
-                locaMessage.bind(message);
+                LocalMessageViewHolder localMessage = (LocalMessageViewHolder) holder;
+                localMessage.bind(message);
                 break;
             case USE_RECEIVE_BACKGROUND:
                 ReceivedMessageViewHolder receiveMessage = (ReceivedMessageViewHolder) holder;
@@ -243,9 +240,7 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
         public LocalImageMessageViewHolder(@NonNull SendImageViewHolderBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
-            binding.photoImageView.setOnClickListener(view -> {
-                mMessageInterface.onMessageClick(view, getBindingAdapterPosition());
-            });
+            binding.photoImageView.setOnClickListener(view -> mMessageInterface.onMessageClick(view, getBindingAdapterPosition()));
         }
 
         public void bind(Message message) {
@@ -260,7 +255,6 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
                 @Override
                 public void onError(Exception e) {
                     binding.sendImageProgressBar.setVisibility(View.GONE);
-                    Log.d(TAG, "onError: " + e.getMessage());
                 }
             });
             binding.timeMessage.setText(getReadableDate(message.getTimestamp()));
@@ -278,9 +272,7 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
         public ReceivedImageMessageViewHolder(@NonNull ReceiveImageViewHolderBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
-            this.binding.photoImageView.setOnClickListener(view -> {
-                mMessageInterface.onMessageClick(view, getBindingAdapterPosition());
-            });
+            this.binding.photoImageView.setOnClickListener(view -> mMessageInterface.onMessageClick(view, getBindingAdapterPosition()));
         }
 
         public void bind(Message message) {
@@ -295,8 +287,6 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
                 @Override
                 public void onError(Exception e) {
                     binding.receiveImageProgressBar.setVisibility(View.GONE);
-                    Log.d(TAG, "onError: " + e.getMessage());
-
                 }
             });
             binding.timeMessage.setText(getReadableDate(message.getTimestamp()));
@@ -310,9 +300,7 @@ public class MessagesListAdapter extends ListAdapter<Message, RecyclerView.ViewH
         public UserChatsViewHolder(ContactViewHolderBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
-            this.binding.getRoot().setOnClickListener(listener -> {
-                mChatClick.onChatClick(getBindingAdapterPosition());
-            });
+            this.binding.getRoot().setOnClickListener(listener -> mChatClick.onChatClick(getBindingAdapterPosition()));
 
         }
 

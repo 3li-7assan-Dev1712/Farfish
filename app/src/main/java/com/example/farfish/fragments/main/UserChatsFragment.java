@@ -3,7 +3,6 @@ package com.example.farfish.fragments.main;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -42,7 +41,6 @@ import com.google.firebase.auth.FirebaseAuth;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -61,7 +59,6 @@ import dagger.hilt.android.AndroidEntryPoint;
 public class UserChatsFragment extends Fragment implements MessagesListAdapter.ChatClick,
         ChatsRepository.DataReadyInterface, UserProfileFragment.CleanViewModel {
 
-    private static final String TAG = UserChatsFragment.class.getSimpleName();
     public MainViewModel mainViewModel;
     @Inject
     public MessagesListAdapter mListAdapter;
@@ -84,7 +81,6 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
         };
         requireActivity().getOnBackPressedDispatcher().addCallback(this, callback);
 
-        Log.d(TAG, "onCreate: auth has code is: " + FirebaseAuth.getInstance().hashCode());
     }
 
     @Override
@@ -92,7 +88,6 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
                              Bundle savedInstanceState) {
 
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.VISIBLE);
-        Log.d(TAG, "onCreateView: ");
         mBinding = FragmentUserChatsBinding.inflate(inflater, container, false);
         View view = mBinding.getRoot();
 
@@ -116,7 +111,6 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
             mListAdapter.setIsGeneral(true);
             mListAdapter.setChatClick(this);
             mainViewModel.getUserChats().observe(getViewLifecycleOwner(), userChats -> {
-                Log.d(TAG, "onCreateView: size is: " + userChats.size());
                 mListAdapter.submitList(userChats);
                 mBinding.userChatsProgressBar.setVisibility(View.GONE);
             });
@@ -227,7 +221,6 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.d(TAG, "onDestroy: ");
         if (mainViewModel != null)
             mainViewModel.getChatsRepository().removeValueEventListener();
     }
@@ -263,8 +256,6 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
     @Override
     public void dataIsReady() {
         mainViewModel.updateChats();
-        Log.d(TAG, "dataIsReady: data is ready: " + mainViewModel.getChatsRepository().getUserChats().size());
-        Log.d(TAG, "dataIsReady: isDetached: " + isVisible());
         if (mBinding != null) mBinding.userChatsProgressBar.setVisibility(View.GONE);
     }
 

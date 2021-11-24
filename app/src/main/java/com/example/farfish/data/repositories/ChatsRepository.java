@@ -1,11 +1,9 @@
 package com.example.farfish.data.repositories;
 
 import android.content.Context;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.example.farfish.Adapters.MessagesListAdapter;
 import com.example.farfish.Module.dataclasses.Message;
 import com.example.farfish.Module.preferences.MessagesPreference;
 import com.example.farfish.Module.util.NotificationUtils;
@@ -23,7 +21,6 @@ import javax.inject.Inject;
 import dagger.hilt.android.qualifiers.ApplicationContext;
 
 public class ChatsRepository implements ValueEventListener {
-    private static final String TAG = ChatsRepository.class.getSimpleName();
     private DatabaseReference mChatsReference;
     private List<Message> mUserChats;
     private String mCurrentUserId;
@@ -54,11 +51,8 @@ public class ChatsRepository implements ValueEventListener {
     }
 
     public void refreshData(@NonNull DataSnapshot snapshot) {
-        Log.d(TAG, "refreshData: ");
         boolean shouldReturn = shouldReturn(snapshot);
-        if (shouldReturn && !shouldUpdate) {
-            Log.d(TAG, "refreshData: should return is true");
-        } else {
+        if (!shouldReturn || shouldUpdate) {
             mUserChats.clear();
             mRoomsSize.clear();
             Iterable<DataSnapshot> roomsIterable = snapshot.getChildren();
@@ -66,7 +60,6 @@ public class ChatsRepository implements ValueEventListener {
                 Iterable<DataSnapshot> messagesIterable = roomsSnapshot.getChildren();
                 Message lastMessage = null;
                 int newMessageCounter = 0;
-                Log.d(TAG, "refreshData: roomsSnapShot key: " + roomsSnapshot.getKey());
                 mRoomsSize.add(roomsSnapshot.getChildrenCount());
                 for (DataSnapshot messageSnapShot : messagesIterable) {
                     if (!messageSnapShot.getKey().equals("isWriting")) {
@@ -103,7 +96,6 @@ public class ChatsRepository implements ValueEventListener {
             int index = 0;
             for (DataSnapshot roomsSnapshot : roomsIterable) {
                 if (mRoomsSize.get(index) != roomsSnapshot.getChildrenCount()) {
-                    Log.d(TAG, "shouldReturn: size from Room : " + mRoomsSize.get(index) + " size in current: " + roomsSnapshot.getChildrenCount());
                     return false;
                 }
                 index++;
@@ -127,7 +119,6 @@ public class ChatsRepository implements ValueEventListener {
 
     @Override
     public void onDataChange(@NonNull DataSnapshot snapshot) {
-        Log.d(TAG, "onDataChange: ");
         refreshData(snapshot);
     }
 
@@ -140,14 +131,7 @@ public class ChatsRepository implements ValueEventListener {
 
         if (mChatsReference != null) {
             mChatsReference.removeEventListener(this);
-//            cleanUp();
         }
-    }
-
-    private void cleanUp() {
-        mChatsReference = null;
-        mCurrentUserId = null;
-        mDataReadyInterface = null;
     }
 
     public interface DataReadyInterface {

@@ -23,8 +23,6 @@ import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
-import javax.inject.Inject;
-
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
@@ -143,7 +141,7 @@ public class UserProfileFragment extends Fragment {
         mBinding.logoutButtonUserProfile.setOnClickListener(logoutOnClickListener -> {
             SharedPreferenceUtils.saveUserSignOut(requireContext());
             mAuth.signOut();
-           /* cleanViewModel.cleanViewModel();*/
+            /* cleanViewModel.cleanViewModel();*/
             controller.navigate(R.id.action_userProfileFragment_to_fragmentSignIn);
         });
         /*----------------------------------------------------------------------------*/

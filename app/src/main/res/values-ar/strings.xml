@@ -91,7 +91,7 @@
     <string name="sending_img_msg">جار إرسال الصورة</string>
     <string name="cancel_sending_img">لم تثم بإختيار صورة، تم ألغاء لارسال</string>
     <string name="future_msg">هذه الميزة سوف تكون متاحة في النسخ القادمة من التطبيق إن شاء الله</string>
-    <string name="grant_access_media_permission">حسنا، إئا اردت ارسال صورة يجب ان تسمح للتطبيق بهذاك التصريحب</string>
+    <string name="grant_access_media_permission">حسنا، إئا اردت ارسال صورة يجب ان تسمح للتطبيق بذاك التصريح</string>
     <string name="no_update_happened_msg">لم يحدث ايي تغير في البيانات</string>
     <string name="required_field_email">الرجاء ادخال البريد الالكتروني لتسجيل الدخول</string>
     <string name="required_field_password">الرجاء ادخال كملة السر لتسجيل الدخول</string>
@@ -111,5 +111,5 @@
     <string name="type_your_issue">ماهي المشكة التي واجهتك في التطبيق؟</string>
     <string name="edit_profile">تعديل الملف الشخصي</string>
     <string name="network_probelm">لم يتم التسجيل، تفقد اتصالك بالانترنت!</string>
-    <string name="short_password">تأكد من ان طلمة السر ستة أحرف  </string>
+    <string name="short_password">تأكد من ان كلمة السر ستة أحرف او اكهر</string>
 </resources>

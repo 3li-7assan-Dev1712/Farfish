@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -54,8 +53,6 @@ import dagger.hilt.android.AndroidEntryPoint;
 @AndroidEntryPoint
 public class UsersFragment extends Fragment implements ContactsListAdapter.OnChatClicked,
         SharedPreferences.OnSharedPreferenceChangeListener, UsersRepository.InvokeObservers {
-    private final String TAG = UsersFragment.class.getSimpleName();
-    private final String ORIENTATION_CHANGE = "change";
     // users view model
     public MainViewModel mModel;
     /*private ContactsAdapter usersAdapter;*/
@@ -69,12 +66,9 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
     private ActivityResultLauncher<String> requestPermissionToReadContacts =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
-                    getViewLifecycleOwnerLiveData().observe(this, lifecycleOwner -> {
-                        mModel.getAllUsers().observe(lifecycleOwner, users ->
-                                mUserListAdapter.customSubmitUserList(users));
-                    });
-
-                    /*setProgresBarVisibility();*/
+                    getViewLifecycleOwnerLiveData().observe(this, lifecycleOwner ->
+                            mModel.getAllUsers().observe(lifecycleOwner, users ->
+                                    mUserListAdapter.customSubmitUserList(users)));
                 } else {
                     Toast.makeText(requireContext(),
                             getString(R.string.access_contacts_permission_msg), Toast.LENGTH_LONG).show();
@@ -85,18 +79,15 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        Log.d(TAG, "onCreate: ");
         setHasOptionsMenu(true);
         mUserListAdapter.setOnChatClicked(this);
         mUserListAdapter.setForStatus(false);
         super.onCreate(savedInstanceState);
-        Log.d(TAG, "onCreate: auth has code is: " + FirebaseAuth.getInstance().hashCode());
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        Log.d(TAG, "onCreateView: ");
         mBinding = UsersFragmentBinding.inflate(inflater, container, false);
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.VISIBLE);
         View view = mBinding.getRoot();
@@ -110,22 +101,14 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
         if (ContextCompat.checkSelfPermission(
                 requireContext(), Manifest.permission.READ_CONTACTS) ==
                 PackageManager.PERMISSION_GRANTED) {
-            getViewLifecycleOwnerLiveData().observe(getViewLifecycleOwner(), lifecycleOwner -> {
-                mModel.getAllUsers().observe(lifecycleOwner, users -> {
-                    Log.d(TAG, "onCreateView: submitting list");
-                    mUserListAdapter.customSubmitUserList(users);
-                    mBinding.loadUsersProgressBar.setVisibility(View.GONE);
-                });
-            });
+            getViewLifecycleOwnerLiveData().observe(getViewLifecycleOwner(), lifecycleOwner ->
+                    mModel.getAllUsers().observe(lifecycleOwner, users -> {
+                        mUserListAdapter.customSubmitUserList(users);
+                        mBinding.loadUsersProgressBar.setVisibility(View.GONE);
+                    }));
         } else {
             requestPermissionToReadContacts.launch(Manifest.permission.READ_CONTACTS);
         }
-        if (savedInstanceState != null) {
-            if (savedInstanceState.containsKey(ORIENTATION_CHANGE))
-                mBinding.loadUsersProgressBar.setVisibility(View.GONE);
-        }
-
-
         requireActivity().getSharedPreferences("filter_utils", Activity.MODE_PRIVATE).
                 registerOnSharedPreferenceChangeListener(this);
 
@@ -152,12 +135,6 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
         return view;
     }
 
-
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        /*outState.putBoolean(ORIENTATION_CHANGE, isProgressBarVisible);*/
-    }
 
     /**
      * when the user clicks on the filter icon this method will be called
@@ -189,10 +166,8 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
      */
     @Override
     public void onChatClicked(int position) {
-        /*isProgressBarVisible = false;*/
         User selectedUser = mModel.getUsersRepository().getUserInPosition(position, getFilterState());
         String targetUserId = selectedUser.getUserId();
-        Log.d(TAG, "onChatClick: target user id: " + targetUserId);
         Bundle primaryDataBundle = new Bundle();
         primaryDataBundle.putString("target_user_id", targetUserId);
         mNavController.navigate(R.id.action_usersFragment_to_chatsFragment, primaryDataBundle);
@@ -259,7 +234,6 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         boolean activeFilter = sharedPreferences.getBoolean(key, true);
-        Log.d(TAG, "onSharedPreferenceChanged: filter state: " + activeFilter);
         mModel.updateUsers(activeFilter);
     }
 
@@ -282,33 +256,24 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
     @Override
     public void invokeObservers() {
         if (mModel.getUsersRepository().deviceContactsObserver == null) return;
-        getViewLifecycleOwnerLiveData().observe(this, lifecycleOwner -> {
-            mModel.getUsersRepository().deviceContactsObserver.observe(lifecycleOwner, workInfo -> {
-                if (workInfo != null && workInfo.getState().isFinished()) {
-                    /*Set<String> deviceContacts = ReadContactsWorker.contactsSet;
-                    MessagesPreference.saveDeviceContacts(requireContext(), deviceContacts);
-                    Log.d(TAG, "invokeObservers: cached the phone number in the SharedPreferences and there are : " + deviceContacts.size() + " numbers in this device");
-                    ReadContactsWorker.freeUpMemory();
-                    // free up the deviceContacts list as well
-                    deviceContacts.clear();*/
-                    mModel.getUsersRepository().readContactsWorkerEnd();
-                }
-            });
-        });
+        getViewLifecycleOwnerLiveData().observe(this, lifecycleOwner ->
+                mModel.getUsersRepository().deviceContactsObserver.observe(lifecycleOwner, workInfo -> {
+                    if (workInfo != null && workInfo.getState().isFinished()) {
+                        mModel.getUsersRepository().readContactsWorkerEnd();
+                    }
+                }));
     }
 
     @Override
     public void observeCommonContacts() {
-        Log.d(TAG, "observeCommonContacts: ");
 
-        getViewLifecycleOwnerLiveData().observe(this, lifecycleOwner -> {
-            mModel.getUsersRepository().commonContactsObserver.observe(getViewLifecycleOwner(), commonWorkInfo -> {
-                if (commonWorkInfo != null && commonWorkInfo.getState().isFinished()) {
-                    mModel.getUsersRepository().prepareUserUserKnowList();
+        getViewLifecycleOwnerLiveData().observe(this, lifecycleOwner ->
+                mModel.getUsersRepository().commonContactsObserver.observe(getViewLifecycleOwner(), commonWorkInfo -> {
+                    if (commonWorkInfo != null && commonWorkInfo.getState().isFinished()) {
+                        mModel.getUsersRepository().prepareUserUserKnowList();
 
-                }
-            });
-        });
+                    }
+                }));
     }
 
     /**

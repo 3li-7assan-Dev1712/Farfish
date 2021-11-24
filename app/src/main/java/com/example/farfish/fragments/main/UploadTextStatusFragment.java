@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,8 +17,8 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 
 import com.aghajari.emojiview.view.AXEmojiView;
-import com.example.farfish.Module.preferences.MessagesPreference;
 import com.example.farfish.Module.dataclasses.Status;
+import com.example.farfish.Module.preferences.MessagesPreference;
 import com.example.farfish.R;
 import com.example.farfish.data.MainViewModel;
 import com.example.farfish.databinding.UploadTextStatusFragmentBinding;
@@ -36,7 +35,6 @@ import dagger.hilt.android.AndroidEntryPoint;
 @AndroidEntryPoint
 public class UploadTextStatusFragment extends Fragment {
 
-    private static final String TAG = UploadTextStatusFragment.class.getSimpleName();
     private static final int DEFAULT_STATUS_LENGTH_LIMIT = 400;
     public MainViewModel model;
     private UploadTextStatusFragmentBinding mBinding;
@@ -94,7 +92,6 @@ public class UploadTextStatusFragment extends Fragment {
         mBinding.editTextUploadStatus.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                Log.d(TAG, "beforeTextChanged");
             }
 
             @Override
@@ -108,7 +105,6 @@ public class UploadTextStatusFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable editable) {
-                Log.d(TAG, "afterTextChanged");
             }
         });
         mBinding.editTextUploadStatus.setFilters(new InputFilter[]{new InputFilter.LengthFilter(DEFAULT_STATUS_LENGTH_LIMIT)});

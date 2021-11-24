@@ -1,7 +1,6 @@
 package com.example.farfish.Module.workers;
 
 import android.content.Context;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.work.Worker;
@@ -15,7 +14,6 @@ public class ReadDataFromServerWorker extends Worker {
 
     private static Set<String> deviceContacts;
     private static Set<CustomPhoneNumberUtils> serverContacts;
-    private final String TAG = ReadDataFromServerWorker.class.getSimpleName();
 
     public ReadDataFromServerWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
@@ -33,8 +31,6 @@ public class ReadDataFromServerWorker extends Worker {
 
         assert deviceContacts != null;
         assert serverContacts != null;
-        Log.d(TAG, "doWork: " + deviceContacts.size());
-        Log.d(TAG, "doWork: server: " + serverContacts.size());
         CustomPhoneNumberUtils.storeCommonPhoneNumber(deviceContacts, serverContacts, getApplicationContext());
         // free up some space in the memory
         deviceContacts.clear();

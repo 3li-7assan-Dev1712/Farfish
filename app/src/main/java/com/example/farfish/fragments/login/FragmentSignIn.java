@@ -2,7 +2,6 @@ package com.example.farfish.fragments.login;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,18 +28,14 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthEmailException;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
-import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.internal.api.FirebaseNoSignedInUserException;
-
-import java.util.Objects;
 
 /**
  * The Sign in fragment through it the user login in the app
  */
 public class FragmentSignIn extends Fragment {
-    private static final String TAG = FragmentSignIn.class.getSimpleName();
     // firebase auth
     private FirebaseAuth mAuth;
     /*Navigation*/
@@ -79,8 +74,6 @@ public class FragmentSignIn extends Fragment {
             if (mBinding.signInHorizontalProgressBar.getVisibility() == View.VISIBLE) return;
             String email = mBinding.editTextEmailSignIn.getText().toString();
             String password = mBinding.editTextPasswordSignIn.getText().toString();
-            Log.d(TAG, "onCreateView: email is: " + email);
-            Log.d(TAG, "onCreateView: password is: " + password);
             if (email.equals(""))
                 displayRequiredFieldToast(getString(R.string.required_field_email));
             else if (password.equals(""))
@@ -113,13 +106,9 @@ public class FragmentSignIn extends Fragment {
             } else {
                 mAuth.sendPasswordResetEmail(email)
                         .addOnSuccessListener(message -> {
-                            Log.d(TAG, "onCreateView: " + message);
                             showHorizontalProgressBar(false);
                             Toast.makeText(requireActivity(), getString(R.string.foregot_password_msg), Toast.LENGTH_SHORT).show();
-                        }).addOnFailureListener(exc -> {
-                            showHorizontalProgressBar(false);
-                            Log.d(TAG, "onCreateView: forgot password exception: " + exc.getMessage());
-                        }
+                        }).addOnFailureListener(exc -> showHorizontalProgressBar(false)
                 );
             }
         });
@@ -154,13 +143,10 @@ public class FragmentSignIn extends Fragment {
      * @param password the password they input to register.
      */
     private void signIn(String email, String password) {
-        Log.d(TAG, "signIn: ");
         mAuth.signInWithEmailAndPassword(email, password).addOnSuccessListener(authResult -> {
-            Log.d(TAG, "signIn: user id " + Objects.requireNonNull(authResult.getUser()).getIdToken(true));
             // after checking the user id will be saved the the app flow will be completed
             updateUserInfoAndNavigateBack();
         }).addOnFailureListener(e -> {
-            Log.d(TAG, "signIn: exception message: " + e.getMessage());
             String errorMessage = e.getMessage();
             if (errorMessage == null) return;
             if (e.getMessage().equals("There is no user record corresponding to this identifier. The user may have been deleted.")) {
@@ -170,19 +156,13 @@ public class FragmentSignIn extends Fragment {
             try {
                 throw e;
             } catch (FirebaseAuthEmailException emailException) {
-                Log.d(TAG, "signIn: email exception " + emailException.getMessage());
                 showSnackBarWithAction(R.string.wrong_email, R.string.modify, emailException);
             } catch (FirebaseAuthInvalidCredentialsException invalidCredentialException) {
-                Log.d(TAG, "signIn: invalid credential exception " + invalidCredentialException.getMessage());
                 showSnackBarWithAction(R.string.wrong_password, R.string.modify, invalidCredentialException);
-            } catch (FirebaseAuthUserCollisionException collisionException) {
-                Log.d(TAG, "signIn: Collision Exception: " + collisionException.getMessage());
             } catch (FirebaseNoSignedInUserException signInException) {
-                Log.d(TAG, "signIn: user should register " + signInException.getMessage());
                 showSnackBarWithAction(R.string.notRegsitered, R.string.register, signInException);
             } catch (Exception ex) {
                 ex.printStackTrace();
-                Log.d(TAG, "signIn: general exception: " + ex.getMessage());
             } finally {
                 showHorizontalProgressBar(false);
                 Toast.makeText(requireContext(), getResources().getString(R.string.network_probelm), Toast.LENGTH_SHORT).show();
@@ -256,7 +236,7 @@ public class FragmentSignIn extends Fragment {
 
 
     /**
-     * this method do show th keyboard, it is called when the user try to sigin in without filling all
+     * this method do show th keyboard, it is called when the user try to sign in without filling all
      * the required fields.
      *
      * @param editText takes it to show on it the keyboard.

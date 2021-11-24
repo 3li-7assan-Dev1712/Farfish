@@ -23,21 +23,16 @@ import dagger.hilt.android.AndroidEntryPoint;
  */
 @AndroidEntryPoint
 public class MainActivity extends AppCompatActivity {
-    private final String TAG = MainActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        mBinding = LayoutInflater.from(getApplicationContext()).inflate(R.layout.activity_main, mBinding.getRoot());
         setContentView(R.layout.activity_main);
-
-
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-
         NavHostFragment f = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
         if (f != null) {
             NavController navController = f.getNavController();
@@ -49,6 +44,4 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
-
-
 }
