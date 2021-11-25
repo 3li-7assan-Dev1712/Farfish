@@ -123,6 +123,7 @@
     <string name="edit_profile">Edit Profile</string>
     <string name="network_probelm">The server did not respond. Check you network!</string>
     <string name="short_password">Make sure your password is not less than 6 digits</string>
+    <string name="try_again">Message didn\'t send try again please</string>
 
 
 </resources>

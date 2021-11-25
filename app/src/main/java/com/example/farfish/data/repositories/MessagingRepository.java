@@ -49,7 +49,7 @@ public class MessagingRepository {
     /*chat info in upper toolbar*/
     private boolean isWriting;
     private boolean isActive;
-    private long lastTimeSeen;
+    private long lastTimeSeen = 0;
     // firebase realtime database
     private DatabaseReference mCurrentUserRoomReference;
     private DatabaseReference mTargetUserRoomReference;
@@ -98,6 +98,10 @@ public class MessagingRepository {
     }
 
     public void loadMessages() {
+        if (lastTimeSeen > 0) {
+            messagingInterface.populateToolbar();
+            return;
+        }
         init();
         messages.clear();
         prepareToolbarInfo();
@@ -155,6 +159,7 @@ public class MessagingRepository {
     }
 
     public void removeListeners() {
+        if (mCurrentRoomListener == null || mTargetRoomListener == null) return;
         mCurrentUserRoomReference.removeEventListener(mCurrentRoomListener);
         mTargetUserRoomReference.removeEventListener(mTargetRoomListener);
         cleanUp();
@@ -234,7 +239,7 @@ public class MessagingRepository {
     }
 
     public void sendMessage(Message currentUserMsg, Message targetUserMsg) {
-
+        if (mCurrentUserRoomReference == null) return;
         String key = mCurrentUserRoomReference.push().getKey();
         if (key == null)
             throw new NullPointerException("the key of the new messages should not be null");
@@ -260,7 +265,7 @@ public class MessagingRepository {
     }
 
     private void markMessageAsRead(DataSnapshot snapshotMessageTobeUpdated, Message messageToUpdate) {
-        ChatsRepository.shouldUpdate = true;
+        ChatsRepository.mDataAreTheSame = true;
         String key = snapshotMessageTobeUpdated.getKey();
         Map<String, Object> originalMessage = messageToUpdate.toMap();
         originalMessage.put("isRead", true);

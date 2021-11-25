@@ -112,4 +112,5 @@
     <string name="edit_profile">تعديل الملف الشخصي</string>
     <string name="network_probelm">لم يتم التسجيل، تفقد اتصالك بالانترنت!</string>
     <string name="short_password">تأكد من ان كلمة السر ستة أحرف او اكهر</string>
+    <string name="try_again">لم يتم إرسال الرسالة الرجاء المحاولة مجددا!</string>
 </resources>

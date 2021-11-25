@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -97,7 +98,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
     private String currentPhotoUrl;
 
     private RecyclerView.AdapterDataObserver mObserver;
-    private boolean USER_EXPECT_TO_RETURN;
+    public boolean USER_EXPECT_TO_RETURN;
     private ActivityResultLauncher<String> pickPic = registerForActivityResult(
             new ActivityResultContracts.GetContent() {
                 @NonNull
@@ -154,24 +155,45 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mBinding = ChatsFragmentBinding.inflate(inflater, container, false);
+        mBinding.progressBar.setVisibility(View.VISIBLE);
+        Log.d("TAG", "USER_EXPECT_TO_RETURN" + USER_EXPECT_TO_RETURN);
         View view = mBinding.getRoot();
-        USER_EXPECT_TO_RETURN = false;
         LinearLayoutManager layoutManager = new LinearLayoutManager(requireContext());
         layoutManager.setStackFromEnd(true);
         mObserver = new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
+                Log.d("TAG", "onItemRangeInserted");
                 scrollToLastMessage(positionStart, layoutManager);
             }
 
             @Override
+            public void onItemRangeChanged(int positionStart, int itemCount, @Nullable Object payload) {
+                super.onItemRangeChanged(positionStart, itemCount, payload);
+            }
+
+            @Override
             public void onItemRangeChanged(int positionStart, int itemCount) {
-                scrollToLastMessage(mModel.messagingRepository.getMessages().size() - 1, layoutManager);
+                Log.d("TAG", "background thread 3");
+                boolean b = savedInstanceState != null || !USER_EXPECT_TO_RETURN;
+                Log.d("TAG", "onItemRangeChanged user expect to return: " + USER_EXPECT_TO_RETURN + " result: " + b);
+                if (savedInstanceState != null) {
+                    scrollToLastMessage(mModel.messagingRepository.getMessages().size() - 1, layoutManager);
+                    Log.d("TAG", "onItemRangeChanged executed");
+                }
+
             }
 
 
         };
+        USER_EXPECT_TO_RETURN = false;
         mBinding.messageRecyclerView.setLayoutManager(layoutManager);
+        messagesListAdapter.setStateRestorationPolicy(RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY);
+        Log.d("TAG", "policy is: " +  messagesListAdapter.getStateRestorationPolicy());
+      /*  if (USER_EXPECT_TO_RETURN)
+            populateToolbar();*/
+      Log.d("TAG", "main thread 1");
+
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
 
         navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
@@ -191,10 +213,6 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
                     mModel.getMessagingRepository().getTargetUserData());
 
         });
-
-
-        mBinding.progressBar.setVisibility(ProgressBar.VISIBLE);
-
 
         // ImagePickerButton shows an image picker to upload a image for a message
         mBinding.photoPickerButton.setOnClickListener(v -> {
@@ -221,7 +239,6 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
             emojiPopupLayout.openKeyboard();
             emojiPopupLayout.setVisibility(View.GONE);
         });
-//        hideOneOfTheKeyboards(emojiPopupLayout);
         mBinding.sendEmojiBtn.setOnClickListener(emojiPopupListener -> {
             if (emojiPopupLayout.isShowing()) {
                 emojiPopupLayout.openKeyboard();
@@ -260,7 +277,11 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
         mBinding.messageEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(DEFAULT_MSG_LENGTH_LIMIT)});
 
         mBinding.sendButton.setOnClickListener(v -> {
-
+            if (mModel.getMessagingRepository().getTargetUserData().getParcelable("user") == null)
+            {
+                Toast.makeText(requireContext(), getResources().getString(R.string.try_again), Toast.LENGTH_SHORT).show();
+                return;
+            }
             if (Connection.isUserConnected(requireContext())) {
 
                 User targetUser = mModel.getMessagingRepository().getTargetUserData().getParcelable("user");
@@ -281,8 +302,8 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
         });
 
         messagesListAdapter.registerAdapterDataObserver(mObserver);
-        messagesListAdapter.setStateRestorationPolicy(RecyclerView.Adapter.StateRestorationPolicy.ALLOW);
-        mBinding.progressBar.setVisibility(View.VISIBLE);
+
+
         NavBackStackEntry backStackEntry = navController.getBackStackEntry(R.id.nav_graph);
         mModel = new ViewModelProvider(
                 backStackEntry,
@@ -304,8 +325,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
             if (savedInstanceState.containsKey(ORIENTATION_CHANGE))
                 populateToolbar();
         }
-        if (USER_EXPECT_TO_RETURN)
-            populateToolbar();
+
         mBinding.scrollBottomFab.setOnClickListener(scrollFabListener -> {
             mBinding.scrollBottomFab.hide();
             mBinding.messageRecyclerView.scrollToPosition(mModel.getMessagingRepository().getMessages().size() - 1);
@@ -322,6 +342,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
             }
         });
         checkUserConnection();
+        Log.d("TAG", "main thread 2");
         return view;
     }
 
@@ -377,7 +398,6 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
     public void refreshMessages() {
         mBinding.progressBar.setVisibility(View.GONE);
         mModel.updateMessages();
-        mBinding.messageRecyclerView.scrollToPosition(mModel.getMessagingRepository().getMessages().size() - 1);
         if (mModel.getMessagingRepository().getMessages().size() <= 10) {
             mBinding.scrollBottomFab.hide();
         }
@@ -393,7 +413,11 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
     public void populateToolbar() {
         if (mBinding != null) {
             User targetUser = mModel.getMessagingRepository().getTargetUserData().getParcelable("user");
-            if (targetUser == null) return;
+            if (targetUser == null){
+                Log.d("TAG", "target user data is null");
+                return;
+            }else
+                Log.d("TAG", "target user data is not null targetName: " + targetUser.getUserName());
             mToolbarBinding.chatTitle.setText(targetUser.getUserName());
             Picasso.get().load(targetUser.getPhotoUrl()).placeholder(R.drawable.time_background).into(mToolbarBinding.chatConversationProfile);
             updateChatInfo();
@@ -417,9 +441,9 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
     @Override
     public void onDestroyView() {
 
-        super.onDestroyView();
-
+        Log.d("TAG", "USER_EXPECT_TO_RETURN" + USER_EXPECT_TO_RETURN);
         if (!USER_EXPECT_TO_RETURN) {
+            mModel.getMessagingRepository().removeListeners();
             messagesListAdapter.unregisterAdapterDataObserver(mObserver);
             mObserver = null;
             mModel.getMessagingRepository().getMessages().clear();
@@ -431,13 +455,13 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
             mToolbarBinding = null;
             targetUserData.clear();
         }
-        mModel.getMessagingRepository().removeListeners();
+        super.onDestroyView();
     }
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        USER_EXPECT_TO_RETURN = true;
+        /*USER_EXPECT_TO_RETURN = true;*/
         outState.putBoolean(ORIENTATION_CHANGE, true);
     }
 
