@@ -22,7 +22,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
@@ -53,6 +52,7 @@ import com.example.farfish.Module.preferences.MessagesPreference;
 import com.example.farfish.Module.util.Connection;
 import com.example.farfish.R;
 import com.example.farfish.data.MainViewModel;
+import com.example.farfish.data.repositories.ChatsRepository;
 import com.example.farfish.data.repositories.MessagingRepository;
 import com.example.farfish.databinding.ChatsFragmentBinding;
 import com.example.farfish.databinding.ToolbarConversationBinding;
@@ -97,8 +97,9 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
     private String currentUserName;
     private String currentPhotoUrl;
 
+    public static volatile boolean IS_DATA_THE_SAME = true;
     private RecyclerView.AdapterDataObserver mObserver;
-    public boolean USER_EXPECT_TO_RETURN;
+    public static boolean USER_EXPECT_TO_RETURN;
     private ActivityResultLauncher<String> pickPic = registerForActivityResult(
             new ActivityResultContracts.GetContent() {
                 @NonNull
@@ -125,6 +126,9 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
         OnBackPressedCallback callback = new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
+                /*
+                ok let's go some searching
+                 */
                 if (!mBinding.emojiKeyboardPopup.onBackPressed())
                     navController.navigateUp();
             }
@@ -140,11 +144,13 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
         targetUserData = getArguments();
         if (targetUserData != null) {
             targetUserId = targetUserData.getString("target_user_id", "id for target user");
+            Log.d("TAG", "onCreate: target user id in chats fragment: " + targetUserId);
             // rooms references
             currentUserId = MessagesPreference.getUserId(requireContext());
 
         } else {
             Toast.makeText(requireContext(), "Data is null", Toast.LENGTH_SHORT).show();
+            Log.d("TAG", " data is null man!");
         }
 
         currentUserName = MessagesPreference.getUserName(requireContext());
@@ -163,21 +169,17 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
         mObserver = new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
-                Log.d("TAG", "onItemRangeInserted");
+                Log.d("TAG", "onItemRangeInserted mDataAreTheSame: " + ChatsRepository.mDataAreTheSame);
                 scrollToLastMessage(positionStart, layoutManager);
             }
 
-            @Override
-            public void onItemRangeChanged(int positionStart, int itemCount, @Nullable Object payload) {
-                super.onItemRangeChanged(positionStart, itemCount, payload);
-            }
 
             @Override
             public void onItemRangeChanged(int positionStart, int itemCount) {
-                Log.d("TAG", "background thread 3");
-                boolean b = savedInstanceState != null || !USER_EXPECT_TO_RETURN;
+                Log.d("TAG", "mDataAreTheSame: " + ChatsRepository.mDataAreTheSame);
+                boolean b = savedInstanceState != null;
                 Log.d("TAG", "onItemRangeChanged user expect to return: " + USER_EXPECT_TO_RETURN + " result: " + b);
-                if (savedInstanceState != null) {
+                if (!IS_DATA_THE_SAME) {
                     scrollToLastMessage(mModel.messagingRepository.getMessages().size() - 1, layoutManager);
                     Log.d("TAG", "onItemRangeChanged executed");
                 }
@@ -189,10 +191,10 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
         USER_EXPECT_TO_RETURN = false;
         mBinding.messageRecyclerView.setLayoutManager(layoutManager);
         messagesListAdapter.setStateRestorationPolicy(RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY);
-        Log.d("TAG", "policy is: " +  messagesListAdapter.getStateRestorationPolicy());
+        Log.d("TAG", "policy is: " + messagesListAdapter.getStateRestorationPolicy());
       /*  if (USER_EXPECT_TO_RETURN)
             populateToolbar();*/
-      Log.d("TAG", "main thread 1");
+        Log.d("TAG", "main thread 1");
 
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
 
@@ -277,8 +279,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
         mBinding.messageEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(DEFAULT_MSG_LENGTH_LIMIT)});
 
         mBinding.sendButton.setOnClickListener(v -> {
-            if (mModel.getMessagingRepository().getTargetUserData().getParcelable("user") == null)
-            {
+            if (mModel.getMessagingRepository().getTargetUserData().getParcelable("user") == null) {
                 Toast.makeText(requireContext(), getResources().getString(R.string.try_again), Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -413,10 +414,10 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
     public void populateToolbar() {
         if (mBinding != null) {
             User targetUser = mModel.getMessagingRepository().getTargetUserData().getParcelable("user");
-            if (targetUser == null){
+            if (targetUser == null) {
                 Log.d("TAG", "target user data is null");
                 return;
-            }else
+            } else
                 Log.d("TAG", "target user data is not null targetName: " + targetUser.getUserName());
             mToolbarBinding.chatTitle.setText(targetUser.getUserName());
             Picasso.get().load(targetUser.getPhotoUrl()).placeholder(R.drawable.time_background).into(mToolbarBinding.chatConversationProfile);
@@ -441,6 +442,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
     @Override
     public void onDestroyView() {
 
+        IS_DATA_THE_SAME = true;
         Log.d("TAG", "USER_EXPECT_TO_RETURN" + USER_EXPECT_TO_RETURN);
         if (!USER_EXPECT_TO_RETURN) {
             mModel.getMessagingRepository().removeListeners();
@@ -461,7 +463,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        /*USER_EXPECT_TO_RETURN = true;*/
+        USER_EXPECT_TO_RETURN = true;
         outState.putBoolean(ORIENTATION_CHANGE, true);
     }
 

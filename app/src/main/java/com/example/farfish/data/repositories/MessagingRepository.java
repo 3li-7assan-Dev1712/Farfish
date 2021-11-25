@@ -3,6 +3,7 @@ package com.example.farfish.data.repositories;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -88,6 +89,7 @@ public class MessagingRepository {
     }
 
     public void setTargetUserId(String targetUserId) {
+        Log.d("TAG", "setTargetUserId: " + targetUserId);
         this.targetUserId = targetUserId;
         currentUserId = FirebaseAuth.getInstance().getUid();
         FirebaseDatabase database = FirebaseDatabase.getInstance();

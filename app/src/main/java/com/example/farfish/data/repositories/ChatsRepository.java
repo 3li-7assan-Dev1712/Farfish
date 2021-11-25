@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 import com.example.farfish.Module.dataclasses.Message;
 import com.example.farfish.Module.preferences.MessagesPreference;
 import com.example.farfish.Module.util.NotificationUtils;
+import com.example.farfish.fragments.chat.ChatsFragment;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -81,8 +82,10 @@ public class ChatsRepository implements ValueEventListener {
                 Log.d("TAG", "mUserChats size is " + mUserChats.size() + " hash code: " + mUserChats.hashCode());
                 if (index < mUserChats.size()) {
                     isTheSame = check(mUserChats.get(index), lastMessage);
-                    if (!isTheSame)
-                        mDataAreTheSame = isTheSame;
+                    if (!isTheSame) {
+                        mDataAreTheSame = false;
+                        ChatsFragment.IS_DATA_THE_SAME = false;
+                    }
                     Log.d("TAG", "text: " + lastMessage.getText() + " - " + mUserChats.get(index).getText());
                     Log.d("TAG", "is the same : " + isTheSame);
                 }
@@ -111,7 +114,7 @@ public class ChatsRepository implements ValueEventListener {
             // the data is ready now
             Log.d("TAG", "data is ready");
             mDataReadyInterface.dataIsReady();
-            mDataAreTheSame = false;
+            /* mDataAreTheSame = false;*/
         }
         mDataAreTheSame = true;
     }

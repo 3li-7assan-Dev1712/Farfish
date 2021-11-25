@@ -3,6 +3,7 @@ package com.example.farfish.fragments.main;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -59,6 +60,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 public class UserChatsFragment extends Fragment implements MessagesListAdapter.ChatClick,
         ChatsRepository.DataReadyInterface, UserProfileFragment.CleanViewModel {
 
+    private final String TAG = UserChatsFragment.class.getSimpleName();
     public MainViewModel mainViewModel;
     @Inject
     public MessagesListAdapter mListAdapter;
@@ -241,6 +243,9 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
     @Override
     public void onChatClick(int position) {
         String targetUserId = mainViewModel.getChatsRepository().getMessageInPosition(position).getTargetId();
+        Log.d(TAG, "onChatClick: target user id: " + targetUserId);
+        Log.d(TAG, "onChatClick: user name is: " + mainViewModel.getChatsRepository().getMessageInPosition(position).getTargetName());
+        Log.d(TAG, "onChatClick: position: " + position);
         Bundle primaryDataBundle = new Bundle();
         primaryDataBundle.putString("target_user_id", targetUserId);
         mNavController.navigate(R.id.action_userChatsFragment_to_chatsFragment, primaryDataBundle);
