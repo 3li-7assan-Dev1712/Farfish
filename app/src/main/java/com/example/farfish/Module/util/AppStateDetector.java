@@ -107,11 +107,16 @@ public class AppStateDetector extends androidx.multidex.MultiDexApplication impl
     }
 
     private void forceUserToBeInActive() {
-        String userId = MessagesPreference.getUserId(this);
+        String userId = FirebaseAuth.getInstance().getUid();
+        assert userId != null;
         mFirestore.collection("rooms").document(userId)
                 .update("isActive", false,
                         "lastTimeSeen", System.currentTimeMillis()).addOnCompleteListener(task ->
-                Toast.makeText(this, "successfully done!", Toast.LENGTH_SHORT).show());
+                {
+                    Toast.makeText(this, getResources().getString(R.string.sign_out_msg), Toast.LENGTH_SHORT).show();
+                    FirebaseAuth.getInstance().signOut();
+                });
+
     }
 
 

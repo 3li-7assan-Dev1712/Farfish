@@ -445,7 +445,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
         IS_DATA_THE_SAME = true;
         Log.d("TAG", "USER_EXPECT_TO_RETURN" + USER_EXPECT_TO_RETURN);
         if (!USER_EXPECT_TO_RETURN) {
-            mModel.getMessagingRepository().removeListeners();
+
             messagesListAdapter.unregisterAdapterDataObserver(mObserver);
             mObserver = null;
             mModel.getMessagingRepository().getMessages().clear();
@@ -456,6 +456,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
             mBinding = null;
             mToolbarBinding = null;
             targetUserData.clear();
+            mModel.getMessagingRepository().removeListeners();
         }
         super.onDestroyView();
     }

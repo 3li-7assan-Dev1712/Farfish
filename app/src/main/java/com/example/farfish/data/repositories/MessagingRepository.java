@@ -101,6 +101,7 @@ public class MessagingRepository {
 
     public void loadMessages() {
         if (lastTimeSeen > 0) {
+            Log.d("TAG", "loadMessages: last time seen is bigger than 0");
             messagingInterface.populateToolbar();
             return;
         }
@@ -241,12 +242,25 @@ public class MessagingRepository {
     }
 
     public void sendMessage(Message currentUserMsg, Message targetUserMsg) {
-        if (mCurrentUserRoomReference == null) return;
+        Log.d("TAG", "sendMessage: current: " + mCurrentUserRoomReference + " target: " + mTargetUserRoomReference);
+        /*if (mCurrentUserRoomReference == null || mTargetUserRoomReference == null
+        || currentUserMsg == null || targetUserMsg == null){
+            Log.d("TAG", "one of them is null");
+            Log.d("TAG", currentUserMsg + " --- " + targetUserMsg);
+            return;
+        }*/
         String key = mCurrentUserRoomReference.push().getKey();
-        if (key == null)
-            throw new NullPointerException("the key of the new messages should not be null");
-        mCurrentUserRoomReference.child(key).setValue(targetUserMsg).addOnSuccessListener(success -> mTargetUserRoomReference.child(key).setValue(currentUserMsg)
-        );
+        if (key == null) {
+            /*throw new NullPointerException("the key of the new messages should not be null");*/
+            Log.d("TAG", "sendMessage: key is null");
+            return;
+        }
+        if (mCurrentUserRoomReference != null && mTargetUserRoomReference != null
+                && currentUserMsg != null && targetUserMsg != null) {
+            mCurrentUserRoomReference.child(key).setValue(targetUserMsg).addOnSuccessListener(success ->
+                    mTargetUserRoomReference.child(key).setValue(currentUserMsg)
+            );
+        }
     }
 
     public void setMessagingInterface(MessagingInterface messagingInterface) {
@@ -255,12 +269,14 @@ public class MessagingRepository {
 
     public void setUserIsNotWriting() {
         isWriting = false;
+        if (mCurrentUserRoomReference == null) return;
         mCurrentUserRoomReference.child("isWriting").setValue(false);
         // when the user has no internet connection we set the value of the isWriting to be false
         mCurrentUserRoomReference.child("isWriting").onDisconnect().setValue(false);
     }
 
     public void setUserIsWriting() {
+        if (mCurrentUserRoomReference == null) return;
         isWriting = true;
         mCurrentUserRoomReference.child("isWriting")
                 .setValue(true);
@@ -324,6 +340,10 @@ public class MessagingRepository {
             e.printStackTrace();
             Toast.makeText(mContext, "Error occurs", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    public void resetLastTimeSeen() {
+        this.lastTimeSeen = 0;
     }
 
     public interface MessagingInterface {

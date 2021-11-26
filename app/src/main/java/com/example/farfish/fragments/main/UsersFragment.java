@@ -39,7 +39,6 @@ import com.example.farfish.data.repositories.UsersRepository;
 import com.example.farfish.databinding.UsersFragmentBinding;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.auth.FirebaseAuth;
 
 import javax.inject.Inject;
 
@@ -186,13 +185,14 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
         int id = item.getItemId();
         switch (id) {
             case R.id.sign_out:
-                FirebaseAuth.getInstance().signOut();
-                Toast.makeText(requireContext(), requireContext().getString(R.string.sign_out_msg), Toast.LENGTH_SHORT).show();
+               /* FirebaseAuth.getInstance().signOut();
+                Toast.makeText(requireContext(), requireContext().getString(R.string.sign_out_msg), Toast.LENGTH_SHORT).show();*/
                 SharedPreferenceUtils.saveUserSignOut(requireContext());
+                mModel.getMessagingRepository().resetLastTimeSeen();
                 mNavController.navigate(R.id.action_usersFragment_to_fragmentSignIn);
                 break;
             case R.id.go_to_profile:
-                /*isProgressBarVisible = false;*/
+                mModel.getMessagingRepository().resetLastTimeSeen();
                 mNavController.navigate(R.id.action_usersFragment_to_userProfileFragment);
                 break;
             case R.id.report_issue:

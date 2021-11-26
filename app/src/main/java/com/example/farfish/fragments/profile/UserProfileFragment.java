@@ -140,8 +140,6 @@ public class UserProfileFragment extends Fragment {
 
         mBinding.logoutButtonUserProfile.setOnClickListener(logoutOnClickListener -> {
             SharedPreferenceUtils.saveUserSignOut(requireContext());
-            mAuth.signOut();
-            /* cleanViewModel.cleanViewModel();*/
             controller.navigate(R.id.action_userProfileFragment_to_fragmentSignIn);
         });
         /*----------------------------------------------------------------------------*/

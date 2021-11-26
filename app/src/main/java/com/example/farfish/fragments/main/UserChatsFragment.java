@@ -35,6 +35,7 @@ import com.example.farfish.R;
 import com.example.farfish.data.MainViewModel;
 import com.example.farfish.data.repositories.ChatsRepository;
 import com.example.farfish.databinding.FragmentUserChatsBinding;
+import com.example.farfish.fragments.dialogs.InternetConnectionDialog;
 import com.example.farfish.fragments.profile.UserProfileFragment;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
@@ -133,11 +134,13 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
      */
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (!Connection.isUserConnected(requireContext())){
+            new InternetConnectionDialog().show(requireActivity().getSupportFragmentManager(), "internet_dialog");
+            return true;
+        }
         int id = item.getItemId();
         switch (id) {
             case R.id.sign_out:
-                FirebaseAuth.getInstance().signOut();
-                Toast.makeText(requireContext(), getString(R.string.sign_out_msg), Toast.LENGTH_SHORT).show();
                 SharedPreferenceUtils.saveUserSignOut(requireContext());
                 onDestroy();
                 mNavController.navigate(R.id.action_userChatsFragment_to_fragmentSignIn);
@@ -223,8 +226,12 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (mainViewModel != null)
+        if (mainViewModel != null) {
             mainViewModel.getChatsRepository().removeValueEventListener();
+            mainViewModel.getMessagingRepository().resetLastTimeSeen();
+            Log.d("TAG", "onDestroy: remove the listener");
+        }
+
     }
 
     @Override

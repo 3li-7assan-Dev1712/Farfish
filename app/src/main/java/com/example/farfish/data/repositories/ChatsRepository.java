@@ -93,8 +93,9 @@ public class ChatsRepository implements ValueEventListener {
                 index++;
                 String senderId = lastMessage.getSenderId();
                 if (mCurrentUserId != null) {
-                    if (!senderId.equals(mCurrentUserId) && newMessageCounter != 0 && !isTheSame) {
+                    if (!senderId.equals(mCurrentUserId) && newMessageCounter != 0)
                         lastMessage.setNewMessagesCount(newMessageCounter);
+                    if (!senderId.equals(mCurrentUserId) && newMessageCounter != 0 && !isTheSame) {
                         sendNotification(lastMessage);
                     }
                 }
@@ -166,8 +167,10 @@ public class ChatsRepository implements ValueEventListener {
 
     public void removeValueEventListener() {
 
+        Log.d("TAG", "removeValueEventListener: ");
         if (mChatsReference != null) {
             mChatsReference.removeEventListener(this);
+            Log.d("TAG", "removeValueEventListener: removed the listener successfully");
         }
     }
 
