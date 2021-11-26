@@ -1,7 +1,6 @@
 package com.example.farfish.data.repositories;
 
 import android.content.Context;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -28,15 +27,11 @@ public class ChatsRepository implements ValueEventListener {
     private String mCurrentUserId;
     private Context mContext;
     private DataReadyInterface mDataReadyInterface;
-    private List<Long> mRoomsSize;
     private static volatile List<Message> mUserChats = new ArrayList<>();
 
     @Inject
     public ChatsRepository(@ApplicationContext Context context) {
-        Log.d("TAG", "constructor called !");
         mContext = context;
-
-        mRoomsSize = new ArrayList<>();
     }
 
     public void setDataReadyInterface(DataReadyInterface mDataReadyInterface) {
@@ -54,20 +49,14 @@ public class ChatsRepository implements ValueEventListener {
     }
 
     public void refreshData(@NonNull DataSnapshot snapshot) {
-        boolean shouldReturn = shouldReturn(snapshot);
         List<Message> messages = new ArrayList<>();
         boolean isTheSame = false;
         int index = 0;
-        Log.d("TAG", "shouldUpdate" + mDataAreTheSame);
-//        if (!shouldReturn || shouldUpdate) {
-//            mUserChats.clear();
-        mRoomsSize.clear();
         Iterable<DataSnapshot> roomsIterable = snapshot.getChildren();
         for (DataSnapshot roomsSnapshot : roomsIterable) {
             Iterable<DataSnapshot> messagesIterable = roomsSnapshot.getChildren();
             Message lastMessage = null;
             int newMessageCounter = 0;
-            mRoomsSize.add(roomsSnapshot.getChildrenCount());
             for (DataSnapshot messageSnapShot : messagesIterable) {
                 if (!messageSnapShot.getKey().equals("isWriting")) {
                     lastMessage = messageSnapShot.getValue(Message.class);
@@ -79,15 +68,12 @@ public class ChatsRepository implements ValueEventListener {
 
             if (lastMessage != null) {
                 messages.add(lastMessage);
-                Log.d("TAG", "mUserChats size is " + mUserChats.size() + " hash code: " + mUserChats.hashCode());
                 if (index < mUserChats.size()) {
                     isTheSame = check(mUserChats.get(index), lastMessage);
                     if (!isTheSame) {
                         mDataAreTheSame = false;
                         ChatsFragment.IS_DATA_THE_SAME = false;
                     }
-                    Log.d("TAG", "text: " + lastMessage.getText() + " - " + mUserChats.get(index).getText());
-                    Log.d("TAG", "is the same : " + isTheSame);
                 }
 
                 index++;
@@ -100,20 +86,13 @@ public class ChatsRepository implements ValueEventListener {
                     }
                 }
 
-//                    mUserChats.add(lastMessage);
-
             }
-//            }
-
         }
-        Log.d("TAG", "isTheSame value is: " + isTheSame);
-        Log.d("TAG", "mUserChats size: " + mUserChats.size() + " messages: " + messages.size());
-        Log.d("TAG", "final check: " + mDataAreTheSame);
+
         if (mUserChats.isEmpty() || !mDataAreTheSame || mUserChats.size() != messages.size()) {
             mUserChats.clear();
             mUserChats.addAll(messages);
             // the data is ready now
-            Log.d("TAG", "data is ready");
             mDataReadyInterface.dataIsReady();
             /* mDataAreTheSame = false;*/
         }
@@ -124,22 +103,6 @@ public class ChatsRepository implements ValueEventListener {
 
         return message.getTimestamp() == lastMessage.getTimestamp()
                 && message.getIsRead() == lastMessage.getIsRead();
-    }
-
-    private boolean shouldReturn(DataSnapshot snapshot) {
-        if (mRoomsSize.size() == 0 || mRoomsSize.size() == 1)
-            return false;
-        else {
-            Iterable<DataSnapshot> roomsIterable = snapshot.getChildren();
-            int index = 0;
-            for (DataSnapshot roomsSnapshot : roomsIterable) {
-                if (mRoomsSize.get(index) != roomsSnapshot.getChildrenCount()) {
-                    return false;
-                }
-                index++;
-            }
-            return true;
-        }
     }
 
     public List<Message> getUserChats() {
@@ -166,12 +129,9 @@ public class ChatsRepository implements ValueEventListener {
     }
 
     public void removeValueEventListener() {
-
-        Log.d("TAG", "removeValueEventListener: ");
-        if (mChatsReference != null) {
+        if (mChatsReference != null)
             mChatsReference.removeEventListener(this);
-            Log.d("TAG", "removeValueEventListener: removed the listener successfully");
-        }
+
     }
 
     public interface DataReadyInterface {

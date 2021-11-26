@@ -59,8 +59,6 @@ public class NotificationUtils {
         }
 
         notificationManager.notify(FARFISH_NOTIFICATION_ID, notificationBuilder.build());
-        Log.d(TAG, "user notified successfully");
-
 
     }
 
@@ -104,7 +102,6 @@ public class NotificationUtils {
         for (Notification notification: notifications) {
             notificationManager.notify(tracker, notification);
             tracker++;
-            Log.d(TAG, "user notified successfully");
         }
 
 

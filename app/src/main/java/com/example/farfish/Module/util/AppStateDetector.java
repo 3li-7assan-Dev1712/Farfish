@@ -49,7 +49,6 @@ public class AppStateDetector extends androidx.multidex.MultiDexApplication impl
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     public void started() {
-        Log.d("SampleLifeCycle", "ON_START");
         Toast.makeText(this, getString(R.string.return_greet_msg), Toast.LENGTH_SHORT).show();
         makeUserActive();
     }
@@ -57,7 +56,6 @@ public class AppStateDetector extends androidx.multidex.MultiDexApplication impl
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     public void stopped() {
-        Log.d("SampleLifeCycle", "ON_STOP");
         Toast.makeText(this, getString(R.string.leave_greet_msg), Toast.LENGTH_SHORT).show();
         makeUserInActive();
     }

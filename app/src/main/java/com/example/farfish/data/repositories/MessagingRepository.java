@@ -3,7 +3,6 @@ package com.example.farfish.data.repositories;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -89,7 +88,6 @@ public class MessagingRepository {
     }
 
     public void setTargetUserId(String targetUserId) {
-        Log.d("TAG", "setTargetUserId: " + targetUserId);
         this.targetUserId = targetUserId;
         currentUserId = FirebaseAuth.getInstance().getUid();
         FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -101,7 +99,6 @@ public class MessagingRepository {
 
     public void loadMessages() {
         if (lastTimeSeen > 0) {
-            Log.d("TAG", "loadMessages: last time seen is bigger than 0");
             messagingInterface.populateToolbar();
             return;
         }
@@ -242,19 +239,9 @@ public class MessagingRepository {
     }
 
     public void sendMessage(Message currentUserMsg, Message targetUserMsg) {
-        Log.d("TAG", "sendMessage: current: " + mCurrentUserRoomReference + " target: " + mTargetUserRoomReference);
-        /*if (mCurrentUserRoomReference == null || mTargetUserRoomReference == null
-        || currentUserMsg == null || targetUserMsg == null){
-            Log.d("TAG", "one of them is null");
-            Log.d("TAG", currentUserMsg + " --- " + targetUserMsg);
-            return;
-        }*/
+
         String key = mCurrentUserRoomReference.push().getKey();
-        if (key == null) {
-            /*throw new NullPointerException("the key of the new messages should not be null");*/
-            Log.d("TAG", "sendMessage: key is null");
-            return;
-        }
+        if (key == null) return;
         if (mCurrentUserRoomReference != null && mTargetUserRoomReference != null
                 && currentUserMsg != null && targetUserMsg != null) {
             mCurrentUserRoomReference.child(key).setValue(targetUserMsg).addOnSuccessListener(success ->

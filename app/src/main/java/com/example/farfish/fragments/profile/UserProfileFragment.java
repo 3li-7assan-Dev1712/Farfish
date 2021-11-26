@@ -113,7 +113,6 @@ public class UserProfileFragment extends Fragment {
 
                     @Override
                     public void onError(Exception e) {
-                        Log.d(TAG, "onError: " + e.getMessage());
                         hideView(mBinding.userProfileProgressBar);
                     }
                 });
@@ -173,10 +172,6 @@ public class UserProfileFragment extends Fragment {
         long minutes = seconds / 60;
         long hours = minutes / 60;
         long days = hours / 24;
-        Log.d(TAG, "getReadableLastTimeSeen: days: " + days);
-        Log.d(TAG, "getReadableLastTimeSeen: hours: " + hours);
-        Log.d(TAG, "getReadableLastTimeSeen: minutes: " + minutes);
-        Log.d(TAG, "getReadableLastTimeSeen: seconds: " + seconds);
 
         Context context = requireContext();
         StringBuilder formattedDiff = new StringBuilder();

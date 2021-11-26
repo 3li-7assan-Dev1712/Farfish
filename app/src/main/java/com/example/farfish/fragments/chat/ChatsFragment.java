@@ -176,12 +176,8 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
 
             @Override
             public void onItemRangeChanged(int positionStart, int itemCount) {
-                Log.d("TAG", "mDataAreTheSame: " + ChatsRepository.mDataAreTheSame);
-                boolean b = savedInstanceState != null;
-                Log.d("TAG", "onItemRangeChanged user expect to return: " + USER_EXPECT_TO_RETURN + " result: " + b);
                 if (!IS_DATA_THE_SAME) {
                     scrollToLastMessage(mModel.messagingRepository.getMessages().size() - 1, layoutManager);
-                    Log.d("TAG", "onItemRangeChanged executed");
                 }
 
             }
@@ -191,10 +187,6 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
         USER_EXPECT_TO_RETURN = false;
         mBinding.messageRecyclerView.setLayoutManager(layoutManager);
         messagesListAdapter.setStateRestorationPolicy(RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY);
-        Log.d("TAG", "policy is: " + messagesListAdapter.getStateRestorationPolicy());
-      /*  if (USER_EXPECT_TO_RETURN)
-            populateToolbar();*/
-        Log.d("TAG", "main thread 1");
 
         requireActivity().findViewById(R.id.bottom_nav).setVisibility(View.GONE);
 
@@ -343,7 +335,6 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
             }
         });
         checkUserConnection();
-        Log.d("TAG", "main thread 2");
         return view;
     }
 
@@ -414,11 +405,9 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
     public void populateToolbar() {
         if (mBinding != null) {
             User targetUser = mModel.getMessagingRepository().getTargetUserData().getParcelable("user");
-            if (targetUser == null) {
-                Log.d("TAG", "target user data is null");
+            if (targetUser == null)
                 return;
-            } else
-                Log.d("TAG", "target user data is not null targetName: " + targetUser.getUserName());
+
             mToolbarBinding.chatTitle.setText(targetUser.getUserName());
             Picasso.get().load(targetUser.getPhotoUrl()).placeholder(R.drawable.time_background).into(mToolbarBinding.chatConversationProfile);
             updateChatInfo();
@@ -441,9 +430,7 @@ public class ChatsFragment extends Fragment implements MessagesListAdapter.Messa
     // these overriding methods for debugging only and will be cleaned up in the future.
     @Override
     public void onDestroyView() {
-
         IS_DATA_THE_SAME = true;
-        Log.d("TAG", "USER_EXPECT_TO_RETURN" + USER_EXPECT_TO_RETURN);
         if (!USER_EXPECT_TO_RETURN) {
 
             messagesListAdapter.unregisterAdapterDataObserver(mObserver);
