@@ -114,6 +114,10 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
             mainViewModel.getUserChats().observe(getViewLifecycleOwner(), userChats -> {
                 mListAdapter.submitList(userChats);
                 mBinding.userChatsProgressBar.setVisibility(View.GONE);
+                if (userChats.size() == 0) {
+                    // when there is no chat replace the current white meaningless screen
+                    // with indicative image! (new update after stoping (+_*)
+                }
             });
         }
         checkUserConnection();
@@ -172,6 +176,7 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
         final Intent emailIntent = new Intent(Intent.ACTION_SEND);
         emailIntent.setType("text/plain")
                 .putExtra(Intent.EXTRA_EMAIL, "alihassan17122002@gmail.com")
+                .putExtra(Intent.EXTRA_REFERRER)
                 .putExtra(Intent.EXTRA_SUBJECT, getString(R.string.report_issue_email))
                 .putExtra(Intent.EXTRA_TEXT, getString(R.string.type_your_issue));
         try {
@@ -203,6 +208,8 @@ public class UserChatsFragment extends Fragment implements MessagesListAdapter.C
     /**
      * this method is responsible for uniquely start a periodic work using the WorkManager SDK the work job
      * cleans the old messages (older than 3 months) and statuses (older than 2 days).
+     *
+     *
      */
     private void uniquelyScheduleCleanUPWorker() {
 

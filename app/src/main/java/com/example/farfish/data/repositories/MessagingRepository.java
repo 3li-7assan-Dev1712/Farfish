@@ -37,6 +37,12 @@ import javax.inject.Inject;
 import dagger.hilt.android.qualifiers.ApplicationContext;
 import id.zelory.compressor.Compressor;
 
+/**
+ * this repository is responsible for providing the messaging functionality
+ * between two users, it's for reading the messages and send them.
+ * the MainViewModel have an instance of it to let these data overcome
+ * the orientation changes.
+ */
 public class MessagingRepository {
     private MessagingInterface messagingInterface;
     // functionality

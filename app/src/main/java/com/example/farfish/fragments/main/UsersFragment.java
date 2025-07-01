@@ -60,6 +60,10 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
     private UsersFragmentBinding mBinding;
     private NavController mNavController;
 
+    /*ok this keyboard is really great
+    * after I work as ok that's is*/
+
+
 
     /* request permission*/
     private ActivityResultLauncher<String> requestPermissionToReadContacts =
@@ -83,6 +87,8 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
         mUserListAdapter.setForStatus(false);
         super.onCreate(savedInstanceState);
     }
+
+
 
     @Nullable
     @Override
@@ -108,48 +114,7 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
         } else {
             requestPermissionToReadContacts.launch(Manifest.permission.READ_CONTACTS);
         }
-        requireActivity().getSharedPreferences("filter_utils", Activity.MODE_PRIVATE).
-                registerOnSharedPreferenceChangeListener(this);
-
-        ((AppCompatActivity) requireActivity())
-                .setSupportActionBar(mBinding.mainToolbarFrag);
-        updateFilterImageResoucre();
-        mBinding.usersToolbar.filterImageView.setOnClickListener(filterListener -> {
-            if (mBinding.loadUsersProgressBar.getVisibility() == View.VISIBLE)
-                return;
-            if (ContextCompat.checkSelfPermission(
-                    requireContext(), Manifest.permission.READ_CONTACTS) ==
-                    PackageManager.PERMISSION_GRANTED) {
-                if (getFilterState())
-                    FilterPreferenceUtils.disableUsersFilter(requireContext());
-                else
-                    FilterPreferenceUtils.enableUsersFilter(requireContext());
-                updateFilterImageResoucre();
-            } else
-                requestPermissionToReadContacts.launch(Manifest.permission.READ_CONTACTS);
-
-        });
-        mBinding.usersRecyclerView.setAdapter(mUserListAdapter);
-        checkUserConnection();
-        return view;
-    }
-
-
-    /**
-     * when the user clicks on the filter icon this method will be called
-     * to update the image resource.
-     */
-    private void updateFilterImageResoucre() {
-        if (getFilterState())
-            mBinding.usersToolbar.filterImageView.setImageResource(R.drawable.ic_filter_list_yellow_24);
-        else
-            mBinding.usersToolbar.filterImageView.setImageResource(R.drawable.ic_filter_list_24);
-    }
-
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
+         super.onDestroyView();
         requireActivity().getSharedPreferences("filter_utils", Activity.MODE_PRIVATE).
                 unregisterOnSharedPreferenceChangeListener(this);
         mBinding = null;
@@ -165,6 +130,7 @@ public class UsersFragment extends Fragment implements ContactsListAdapter.OnCha
      */
     @Override
     public void onChatClicked(int position) {
+        // ok this is one of the most imp
         User selectedUser = mModel.getUsersRepository().getUserInPosition(position, getFilterState());
         String targetUserId = selectedUser.getUserId();
         Bundle primaryDataBundle = new Bundle();
